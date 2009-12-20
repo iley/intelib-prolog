@@ -15,15 +15,15 @@ COMMON_FILES = ../ilisplib.hpp ../ilisplib.mk
 
 GEN_HPP = ../gen_hpp.sh
 
+GEN_LSP = ../gen_lsp.sh
+
 
 none:
 	@echo "No default rule here"
 
 
 $(TARGETDIRFP)/$(DIRNAME).lsp:	$(CXXFILES) $(COMMON_FILES)
-	echo "(ADD-LIB-HEADERS \"lfun_$(DIRNAME).hpp\")" > $@
-	$(CXX) -D INTELIB_LISP_TRANSLATOR_INFORMATION \
-		-include ../ilisplib.hpp -E -P $(CXXFILES) >> $@
+	$(GEN_LSP) -h "lfun_$(DIRNAME).hpp" >> $@
 
 $(LFUN_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
 	$(GEN_HPP) -s "INTELIB_LFUN_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc > $@
