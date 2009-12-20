@@ -8,12 +8,17 @@ OBJFILES = $(addprefix $(LFUN_PREFIX),$(CXXFILES:.cpp=.o))
 
 MKFILES = $(CXXFILES:.cpp=.mk)
 
-none:
-	@echo "No default rule here"
-
 COMMON_FILES = ../ilisplib.hpp ../ilisplib.mk
 
 -include ../../../version.mk
+
+
+GEN_HPP = ../gen_hpp.sh
+
+
+none:
+	@echo "No default rule here"
+
 
 $(TARGETDIRFP)/$(DIRNAME).lsp:	$(CXXFILES) $(COMMON_FILES)
 	echo "(ADD-LIB-HEADERS \"lfun_$(DIRNAME).hpp\")" > $@
@@ -21,16 +26,10 @@ $(TARGETDIRFP)/$(DIRNAME).lsp:	$(CXXFILES) $(COMMON_FILES)
 		-include ../ilisplib.hpp -E -P $(CXXFILES) >> $@
 
 $(LFUN_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
-	@echo '/* GENERATED FILE -- DO NOT EDIT */' > $@
-	@echo '#if !defined(INTELIB_LFUN_$(DIRNAME)_SENTRY)' >> $@
-	@echo '#define INTELIB_LFUN_$(DIRNAME)_SENTRY' >> $@
-	[ -f $(DIRNAME)_hdr.inc ] && cat $(DIRNAME)_hdr.inc >> $@ || :
-	@echo '#include "genlisp/lispform.hpp"' >> $@
-	$(CXX) -D INTELIB_LISP_LIBRARY_HEADER_GENERATION \
-		-include ../ilisplib.hpp -E -P $(CXXFILES) >> $@
-	@echo '#endif' >> $@
+	$(GEN_HPP) -s "INTELIB_LFUN_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc > $@
 
-$(LFUN_PREFIX)%.o:	%.cpp $(COMMON_FILES)
+
+$(LFUN_PREFIX)%.o:
 	$(CXX) $(CXXFLAGS) -c -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION $< -o $@
 
@@ -39,7 +38,7 @@ all:	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp \
 
 -include deps.mk
 
-deps.mk: $(CXXFILES)
+deps.mk:
 	rm -f deps.mk
 	touch deps.mk
 	$(MAKE) -f ../ilisplib.mk $(MKFILES)
