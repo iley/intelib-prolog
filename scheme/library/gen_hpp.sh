@@ -27,8 +27,8 @@ do
 done
 
 echo '/* GENERATED FILE -- DO NOT EDIT */'
-echo '#if !defined($SENTRY)'
-echo '#define $SENTRY'
+echo "#if !defined($SENTRY)"
+echo "#define $SENTRY"
 [ -f $INC_FILE ] && cat $INC_FILE
 $CXX -D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION -include ../schemlib.hpp -E -P $CXXFILES
 echo '#endif'
