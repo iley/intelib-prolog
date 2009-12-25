@@ -36,7 +36,7 @@ $(SCH_PREFIX)%.o:	%.cpp $(COMMON_FILES)
 		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION $< -o $@
 
 all: $(DEPSMK) $(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).scm \
-			$(TARGETDIRFP)/sch_$(DIRNAME).hpp
+			$(SCH_PREFIX)$(DIRNAME).hpp
 
 
 $(DEPSMK): $(MKFILES)
@@ -44,7 +44,7 @@ $(DEPSMK): $(MKFILES)
 %.mk: %.cpp
 	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
 		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION \
-		-MT $(LFUN_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
+		-MT $(SCH_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
 	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
 		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION \
 		-MT $(DEPSMK) $< >> $(DEPSMK)
