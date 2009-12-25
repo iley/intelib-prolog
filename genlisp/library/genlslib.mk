@@ -1,27 +1,44 @@
 SHELL = /bin/sh
 
-SOURCE_FILES=$(wildcard *.cpp)
+GLSP_PREFIX=$(TARGETDIRFP)/glsp_
 
-TARGET_FILES=$(addprefix $(TARGETDIRFP)/glsp_,$(SOURCE_FILES:.cpp=.o))
+CXXFILES=$(wildcard *.cpp)
 
-none:
-	@echo "No default rule here"
+OBJFILES=$(addprefix $(GLSP_PREFIX),$(CXXFILES:.cpp=.o))
+
+MKFILES = $(CXXFILES:.cpp=.mk)
 
 COMMON_FILES = ../genlslib.hpp ../genlslib.mk
 
 -include ../../../version.mk
 
-$(TARGETDIRFP)/glsp_$(DIRNAME).hpp:	$(SOURCE_FILES) $(COMMON_FILES)
-	@echo '/* GENERATED FILE -- DO NOT EDIT */' > $@
-	@echo '#if !defined(INTELIB_GLSP_$(DIRNAME)_SENTRY)' >> $@
-	@echo '#define INTELIB_GLSP_$(DIRNAME)_SENTRY' >> $@
-	@echo '#include "genlisp/lispform.hpp"' >> $@
-	$(CXX) -D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION \
-		-include ../genlslib.hpp -E -P $(SOURCE_FILES) >> $@
-	@echo '#endif' >> $@
 
-$(TARGETDIRFP)/glsp_%.o:	%.cpp $(COMMON_FILES)
+GEN_HPP = ../gen_hpp.sh
+
+
+
+DEPSMK = $(TARGETDIRFP)/gl$(DIRNAME)_deps.mk
+-include $(DEPSMK)
+
+none:
+	@echo "No default rule here"
+
+$(GLSP_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
+	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_GLSP_$(DIRNAME)_SENTRY" -c "$(CXXFILES)" > $@
+
+$(GLSP_PREFIX)%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c -include ../genlslib.hpp \
 		-D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION $< -o $@
 
-all:	$(TARGET_FILES) $(TARGETDIRFP)/glsp_$(DIRNAME).hpp
+all: $(DEPSMK) $(OBJFILES) $(GLSP_PREFIX)$(DIRNAME).hpp
+
+
+$(DEPSMK): $(MKFILES)
+
+%.mk: %.cpp
+	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
+		-D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION \
+		-MT $(GLSP_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
+		-D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION \
+		-MT $(DEPSMK) $< >> $(DEPSMK)
