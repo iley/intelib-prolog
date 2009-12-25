@@ -1,33 +1,50 @@
 SHELL = /bin/sh
 
-SOURCE_FILES=$(wildcard *.cpp)
+SCH_PREFIX=$(TARGETDIRFP)/sch_
 
-TARGET_FILES=$(addprefix $(TARGETDIRFP)/sch_,$(SOURCE_FILES:.cpp=.o))
+CXXFILES=$(wildcard *.cpp)
 
-none:
-	@echo "No default rule here"
+OBJFILES=$(addprefix $(SCH_PREFIX),$(CXXFILES:.cpp=.o))
+
+MKFILES = $(CXXFILES:.cpp=.mk)
 
 COMMON_FILES = ../schemlib.hpp ../schemlib.mk
 
 -include ../../../version.mk
 
-$(TARGETDIRFP)/$(DIRNAME).scm:	$(SOURCE_FILES) $(COMMON_FILES)
-	echo "(ADD-LIB-HEADERS \"sch_$(DIRNAME).hpp\")" > $@
-	$(CXX) -D INTELIB_SCHEME_TRANSLATOR_INFORMATION \
-		-include ../schemlib.hpp -E -P $(SOURCE_FILES) >> $@
 
-$(TARGETDIRFP)/sch_$(DIRNAME).hpp:	$(SOURCE_FILES) $(COMMON_FILES)
-	@echo '/* GENERATED FILE -- DO NOT EDIT */' > $@
-	@echo '#if !defined(INTELIB_SCHEMLIB_$(DIRNAME)_SENTRY)' >> $@
-	@echo '#define INTELIB_SCHEMLIB_$(DIRNAME)_SENTRY' >> $@
-	[ -f $(DIRNAME)_hdr.inc ] && cat $(DIRNAME)_hdr.inc >> $@ || :
-	$(CXX) -D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION \
-		-include ../schemlib.hpp -E -P $(SOURCE_FILES) >> $@
-	@echo '#endif' >> $@
+GEN_HPP = ../gen_hpp.sh
 
-$(TARGETDIRFP)/sch_%.o:	%.cpp $(COMMON_FILES)
+GEN_SCM = ../gen_scm.sh
+
+DEPSMK = $(TARGETDIRFP)/sch$(DIRNAME)_deps.mk
+-include $(DEPSMK)
+
+none:
+	@echo "No default rule here"
+
+
+$(TARGETDIRFP)/$(DIRNAME).scm:	$(CXXFILES) $(COMMON_FILES)
+	CXX=$(CXX) $(GEN_SCM) -h "sch_$(DIRNAME).hpp" -c "$(CXXFILES)" > $@
+
+$(SCH_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
+	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_SCHEMLIB_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc -c "$(CXXFILES)" > $@
+
+
+$(SCH_PREFIX)%.o:	%.cpp $(COMMON_FILES)
 	$(CXX) $(CXXFLAGS) -c -include ../schemlib.hpp \
 		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION $< -o $@
 
-all:	$(TARGET_FILES) $(TARGETDIRFP)/$(DIRNAME).scm \
+all: $(DEPSMK) $(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).scm \
 			$(TARGETDIRFP)/sch_$(DIRNAME).hpp
+
+
+$(DEPSMK): $(MKFILES)
+
+%.mk: %.cpp
+	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
+		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION \
+		-MT $(LFUN_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
+		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION \
+		-MT $(DEPSMK) $< >> $(DEPSMK)
