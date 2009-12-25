@@ -17,36 +17,34 @@ GEN_HPP = ../gen_hpp.sh
 
 GEN_LSP = ../gen_lsp.sh
 
+DEPSMK = $(TARGETDIRFP)/l$(DIRNAME)_deps.mk
+-include $(DEPSMK)
 
 none:
 	@echo "No default rule here"
 
 
 $(TARGETDIRFP)/$(DIRNAME).lsp:	$(CXXFILES) $(COMMON_FILES)
-	$(GEN_LSP) -h "lfun_$(DIRNAME).hpp" -c "$(CXXFILES)" >> $@
+	CXX=$(CXX) $(GEN_LSP) -h "lfun_$(DIRNAME).hpp" -c "$(CXXFILES)" >> $@
 
 $(LFUN_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
-	$(GEN_HPP) -s "INTELIB_LFUN_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc -c "$(CXXFILES)" > $@
+	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_LFUN_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc -c "$(CXXFILES)" > $@
 
 
-$(LFUN_PREFIX)%.o:
+$(LFUN_PREFIX)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION $< -o $@
 
-all:	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp \
+all: $(DEPSMK)	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp \
 			$(TARGETDIRFP)/lfun_$(DIRNAME).hpp
 
--include deps.mk
 
-deps.mk:
-	rm -f deps.mk
-	touch deps.mk
-	$(MAKE) -f ../ilisplib.mk $(MKFILES)
+$(DEPSMK): $(MKFILES)
 
 %.mk: %.cpp
 	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION \
-		-MT $(LFUN_PREFIX)$(@:.mk=.o) $< >> deps.mk
+		-MT $(LFUN_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
 	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION \
-		-MT deps.mk $< >> deps.mk
+		-MT $(DEPSMK) $< >> $(DEPSMK)
