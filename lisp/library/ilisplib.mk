@@ -23,10 +23,10 @@ none:
 
 
 $(TARGETDIRFP)/$(DIRNAME).lsp:	$(CXXFILES) $(COMMON_FILES)
-	$(GEN_LSP) -h "lfun_$(DIRNAME).hpp" >> $@
+	$(GEN_LSP) -h "lfun_$(DIRNAME).hpp" -c "$(CXXFILES)" >> $@
 
 $(LFUN_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
-	$(GEN_HPP) -s "INTELIB_LFUN_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc > $@
+	$(GEN_HPP) -s "INTELIB_LFUN_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc -c "$(CXXFILES)" > $@
 
 
 $(LFUN_PREFIX)%.o:
