@@ -61,7 +61,7 @@ library/ALL: FORCE
   			MODULES="$(MODULES)"
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
-		test buf gmon.out deps.mk
+		test buf gmon.out deps.mk *_deps.mk
 FORCE:
 
 ifneq (clean, $(MAKECMDGOALS))
