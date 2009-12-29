@@ -89,6 +89,9 @@ ill_nill.o:	ill_nill.cxx ill_nill.hxx ../version.h
 	$(CXX) $(CXXFLAGS) -c ill_nill.cxx -o $@
 
 ill_nill:	illmain.cpp ill_nill.o $(LIBDEPEND)
+	@echo "-------------------------------------------------------------"
+	@echo "    Building an ILL binary by self-applying ILL under NILL   "
+	@echo "-------------------------------------------------------------"
 	$(CXX) $(CXXFLAGS) -DHXXFILE=\"ill_nill.hxx\" ill_nill.o \
 		illmain.cpp -o $@ $(LIBINTELIB)
 
@@ -104,6 +107,9 @@ ill.o:	ill.cxx ill.hxx
 	$(CXX) $(CXXFLAGS) -c ill.cxx -o $@
 
 ill_new:	ill.o illmain.cpp $(LIBDEPEND)
+	@echo "-------------------------------------------------------------"
+	@echo "    Rebuilding the binary using ILL                          "
+	@echo "-------------------------------------------------------------"
 	$(CXX) $(CXXFLAGS) ill.o illmain.cpp $(LIBINTELIB) -o $@
 
 
@@ -111,13 +117,7 @@ ill_new:	ill.o illmain.cpp $(LIBDEPEND)
 # Bootstrap 
 
 bootstrap:
-	@echo "-------------------------------------------------------------"
-	@echo "    Building NILL interpreter                                "
-	@echo "-------------------------------------------------------------"
 	$(MAKE) nill
-	@echo "-------------------------------------------------------------"
-	@echo "    Building an ILL binary by self-applying ILL under NILL   "
-	@echo "-------------------------------------------------------------"
 	$(MAKE) ill_nill
 	@echo "-------------------------------------------------------------"
 	@echo "    Testing the newly-built binary                           "
@@ -129,9 +129,6 @@ bootstrap:
 		'(HXX-FILE-PATH "./ill_n_t.hxx")'
 	diff ill_n_t.cxx ill_nill.cxx 
 	diff ill_n_t.hxx ill_nill.hxx 
-	@echo "-------------------------------------------------------------"
-	@echo "    Rebuilding the binary using ILL                          "
-	@echo "-------------------------------------------------------------"
 	$(MAKE) ill_new ILL=./ill_nill
 	@echo "-------------------------------------------------------------"
 	@echo "    Testing the newly-built binary                           "
@@ -148,13 +145,7 @@ bootstrap:
 	mv ill_new ill	
 
 quick_bootstrap:
-	@echo "-------------------------------------------------------------"
-	@echo "    Building NILL interpreter                                "
-	@echo "-------------------------------------------------------------"
 	$(MAKE) nill
-	@echo "-------------------------------------------------------------"
-	@echo "    Building an ILL binary by self-applying ILL under NILL   "
-	@echo "-------------------------------------------------------------"
 	$(MAKE) ill_nill
 	mv ill_nill ill	
 
@@ -203,6 +194,9 @@ nill.o: nill.cpp ill_loop.hpp ../version.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
 nill: nill.o sympkg.o ill_loop.o illtrace.o
+	@echo "-------------------------------------------------------------"
+	@echo "    Building NILL interpreter                                "
+	@echo "-------------------------------------------------------------"
 	$(CXX) $(CXXFLAGS) $^  -o $@ \
 	  $(LIBINTELIB) $(LIBMATH) $(LIBREADLINE) $(LIBDL) -Wl,-export-dynamic
 
