@@ -154,9 +154,9 @@ install:
 		$(INSTALL_DIR) $(DESTDIR)$(INCLUDEDIR)/$$D ; \
 		$(INSTALL_HEADERS) $$D/*.hpp  $(DESTDIR)$(INCLUDEDIR)/$$D ; \
 	done
-	$(INSTALL_HEADERS) build/*.hpp $(DESTDIR)$(INCLUDEDIR)
+	$(INSTALL_HEADERS) $(TARGETDIRFP)/*.hpp $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL_DIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR)
-	$(INSTALL_LIB) build/*.a $(DESTDIR)$(LIBDIR)
+	$(INSTALL_LIB) $(TARGETDIRFP)/*.a $(DESTDIR)$(LIBDIR)
 	$(INSTALL_BIN) ill/ill ill/nill $(DESTDIR)$(BINDIR)
 	$(INSTALL_BIN) ils/ils ils/nils $(DESTDIR)$(BINDIR)
 	$(INSTALL_DATA) ill/illdef._ls $(DESTDIR)$(BINDIR)
@@ -200,5 +200,5 @@ clean:
 	cd tests && $(MAKE) clean
 	cd refal && $(MAKE) clean || :
 	cd irina && $(MAKE) clean || :
-	rm -rf build docs/doxygen/html
-	rm -rf build docs/doxygen/man
+	rm -rf $(TARGETDIRFP) docs/doxygen/html
+	rm -rf docs/doxygen/man
