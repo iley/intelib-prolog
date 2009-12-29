@@ -90,6 +90,40 @@ bootstrap:
 	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 	[ -d irina ] && cd irina && $(MAKE)
 
+libintelib.a:
+	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				TARGETLIBNAME=$@
+	cd tools && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				TARGETLIBNAME=$@
+	cd genlisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				TARGETLIBNAME=$@
+	cd scheme && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				TARGETLIBNAME=$@
+	cd lisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				TARGETLIBNAME=$@
+	[ -d refal ] && cd refal && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				USE_READLINE=$(USE_READLINE) \
+				TARGETLIBNAME=$@
+
+libintelib_interp.a:
+	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				USE_READLINE=$(USE_READLINE) \
+				TARGETLIBNAME=$@
+	cd ils && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP) \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				USE_READLINE=$(USE_READLINE) \
+				TARGETLIBNAME=$@
+	cd ill && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP) \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				USE_READLINE=$(USE_READLINE) \
+				TARGETLIBNAME=$@
 
 library: $(TARGETDIRFP)
 	ln -sf $(CURDIR)/sexpress $(TARGETDIRFP)
@@ -101,37 +135,8 @@ library: $(TARGETDIRFP)
 	ln -sf $(CURDIR)/ils $(TARGETDIRFP)
 	ln -sf $(CURDIR)/ill $(TARGETDIRFP)
 	ln -sf $(TARGETDIRFP) $(TARGETDIRFP)/intelib
-	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
-				OPTIMIZATION=$(OPTIMIZATION) \
-				TARGETLIBNAME=libintelib.a
-	cd tools && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
-				OPTIMIZATION=$(OPTIMIZATION) \
-				TARGETLIBNAME=libintelib.a
-	cd genlisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
-				OPTIMIZATION=$(OPTIMIZATION) \
-				TARGETLIBNAME=libintelib.a
-	cd scheme && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
-				OPTIMIZATION=$(OPTIMIZATION) \
-				TARGETLIBNAME=libintelib.a
-	cd lisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
-				OPTIMIZATION=$(OPTIMIZATION) \
-				TARGETLIBNAME=libintelib.a
-	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
-				OPTIMIZATION=$(OPTIMIZATION) \
-				USE_READLINE=$(USE_READLINE) \
-				TARGETLIBNAME=libintelib_interp.a
-	cd ils && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP) \
-				OPTIMIZATION=$(OPTIMIZATION) \
-				USE_READLINE=$(USE_READLINE) \
-				TARGETLIBNAME=libintelib_interp.a
-	cd ill && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP) \
-				OPTIMIZATION=$(OPTIMIZATION) \
-				USE_READLINE=$(USE_READLINE) \
-				TARGETLIBNAME=libintelib_interp.a
-	[ -d refal ] && cd refal && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
-				OPTIMIZATION=$(OPTIMIZATION) \
-				USE_READLINE=$(USE_READLINE) \
-				TARGETLIBNAME=libintelib.a
+	$(MAKE) libintelib.a
+	$(MAKE) libintelib_interp.a
 ifeq ($(KEEP_OBJECTS),)
 	rm $(TARGETDIR)/*.o
 endif
