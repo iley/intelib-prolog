@@ -15,12 +15,10 @@
 
 // Modified by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
 
-#include <stdio.h>
 
 #include "../sexpress/sstring.hpp"
 
 #include "rclause.hpp"
-#include "refal.hpp"
 
 
 

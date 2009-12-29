@@ -15,14 +15,11 @@
 
 // Modified by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
 
-#include <stdio.h>
 
 #include "../sexpress/sstring.hpp"
 
-#include "refal.hpp"
 #include "rvars.hpp"
 #include "rclause.hpp"
-#include "rfmatch.hpp"
 
 
 

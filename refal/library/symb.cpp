@@ -1,13 +1,10 @@
 // INTELIB_CONTRIBUTED
 // Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
 
-#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 
-#include <stdlib.h>
 #include <errno.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
@@ -16,7 +13,6 @@
 #include "../../sexpress/sstring.hpp"
 
 #include "../rvars.hpp"
-#include "../refal.hpp"
 #include "../rclause.hpp"
 
 #include "symb.hpp"

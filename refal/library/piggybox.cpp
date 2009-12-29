@@ -1,7 +1,6 @@
 // INTELIB_CONTRIBUTED
 // Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
 
-#include "../../sexpress/sstring.hpp"
 
 #include "../rvars.hpp"
 #include "../rclause.hpp"

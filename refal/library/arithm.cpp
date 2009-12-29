@@ -1,12 +1,9 @@
 // INTELIB_CONTRIBUTED
 // Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
 
-#include <stdio.h>
 #include <math.h>
 
-#include "../../sexpress/sexpress.hpp"
 
-#include "../refal.hpp"
 #include "../rclause.hpp"
 
 

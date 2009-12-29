@@ -15,12 +15,9 @@
 
 // Modified by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
 
-#include <stdio.h>
 
 #include "../sexpress/sstring.hpp"
 
-#include "rfmatch.hpp"
-#include "rvars.hpp"
 #include "rclause.hpp"
 
 

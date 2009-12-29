@@ -15,10 +15,7 @@
 
 // Modified by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
 
-#include <stdio.h>
 
-#include "../sexpress/iexcept.hpp"
-#include "../sexpress/sstring.hpp"
 
 #include "rvars.hpp"
 
