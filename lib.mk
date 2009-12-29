@@ -1,3 +1,20 @@
+# This file is included in intelib/$1/Makefile
+# where $1 is one of lisp/ genlisp/ scheme/ sexpress/ tools/.
+#
+#
+# To include this .mk to your Makefile, you have to define variables:
+#
+# TARGETLIBNAME = name of .a library
+#
+# LIBSOURCES = $(wildcard *.cpp) is good idea
+#
+# GENERATED_PREFIX = lfun or another prefix for generated .hpp files
+#
+# MODULES = all directories in library/
+#
+# GENERATED_FILES = $(MODULES:=.lsp)
+#
+
 SHELL = /bin/sh
 
 TARGETDIR = $(CURDIR)
