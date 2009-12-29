@@ -1,0 +1,8 @@
+LIST2STRING
+
+(LIST2STRING <list>)
+
+List must be (possibly empty) list of characters (as for Intelib Lisp, 
+a list of strings of 1 character each). The function converts such a 
+list into the string built of the given characters. The function is
+complementary to STRING2LIST.

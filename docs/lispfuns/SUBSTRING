@@ -1,0 +1,10 @@
+SUBSTRING
+
+(SUBSTRING <string> <index> <length>)
+
+
+Index and length must be the apppropriate integers (index>=0, length>=0
+and index+length <= strlen(string)).
+
+The function returns a substring of the given string starting from 
+the index position (zero-based), length characters long.

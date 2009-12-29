@@ -1,0 +1,6 @@
+MOD
+
+(MOD arg0 arg1)
+
+Acts just like Common Lisp's MOD when boths args are integers. In this
+version it does NOT, however, work for floating point numbers.

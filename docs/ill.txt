@@ -1,0 +1,681 @@
+                          I N T E L I B   
+            ILL - the InteLib Lisp to C++ translator 
+
+                             Copyright (c) Andrey V. Stolyarov, 2000-2005
+
+*************************************************************************
+* 1. Introduction
+
+The ILL translator allows you to write a whole module in InteLib Lisp
+using traditional Lisp syntax. The source file of the module (written in
+Lisp) is translated into a header file and a C++ source file, thereby
+producing a plain C++ module which can then be compiled with a C++
+compiler.
+  In most cases, you might want to have only one module generated from a
+Lisp code in your program (remember you can merge an unlimited number of
+Lisp files producing a single C++ module). It is still possible, however,
+to have several different modules.
+  By default, the translator generates a module which has its own
+instances of all needed "lisp symbols" include these for library Lisp
+functions (CAR, CDR, CONS, ...). 
+  One major exception of this rule is that the symbols NIL, T, QUOTE,
+FUNCTION and LAMBDA are always provided by the library so all your
+'Lisp-like' modules will share them. There might be other symbols provided
+by the library. You can see the complete list of them with a command
+
+       grep "DECLARE-SYMBOL" illdefs._ls
+
+You also can force the translator to make other shared symbols. For
+example, if you'd like to have only one instance of each "standard
+function" symbol, you'll need to declare them all as "public sybols" in
+one of your lisp modules with directive DECLARE-PUBLIC, declare them as
+"external symbols" in the other modules with directive DECLARE-EXTERNAL,
+and add an appropriate directive DECLARE-USED-MODULE (see section 4 for
+details).
+
+
+
+*************************************************************************
+* 2. Invocation rules
+
+The command line of the ILL has the following syntax:
+
+  ill [options] source_file [<source_file> ...] [<directive> ...]
+
+  Currently, the following options are supported: 
+    -l     don't load the default paranmeters file 
+    -v     print verbose messages
+    -V     print version and exit
+    -h     print help and exit.
+NOTE: If -l is specified, it causes the translator not to read
+the default parameters file (illdef._ls). Section 4 will give you an idea
+what does that file contain. If you suppress the file, you'll need to
+specify a good replacement for it or else the translator will not work.
+
+  If inclusion of illdef._ls is not suppressed, then it is searched for 
+using the following algorythm:
+   1) if the environment contains variable ILLDEFSFILE, its value is
+      used as the path to the file
+   2) otherwise, if the translator is called using any path, either 
+      absolute or relative (that is, argv[0] contains at least one slash),
+      then the directory part is extracted from argv[0] and the file 
+      illdef._ls is expected to be found there.
+   3) if argv[0] contains no slashes, then PATH environment variable is
+      explored in the hope to find the binary named as argv[0] specifies.
+      If such a binary is found, then illdef._ls is expected to be in the
+      same directory.
+   4) As the very last resort, translator tries to find it in the current 
+      directory.
+
+  When multiple source files are specified, they are merged together
+producing a single module, and are read in the specified order. 
+  You may also specify some directives (see section 4 for a complete
+explanation of the existing directives). A command line token is
+interpreted as a directive when it starts with "(" character. Please note
+many directives require using double quotes (") in their text so you'll
+have to use shell escapes or (e.g. for bourne-style shells) enclose the 
+entire directive in single quotes in order to place them at your command 
+line. 
+  Examples:
+
+    # translate single file using defaults whenever possible
+  ill myfile.lsp
+    # translate 2 files using "mymodule" as the module name
+  ill myfile1.lsp myfile2.lsp "(MODULE-NAME \"mymodule\")"
+    # use mydefaults.lsp instead of illdefs._ls
+  ill -l mydefaults.lsp myfile.lsp
+    # just the same thing
+  ILLDEFSFILE=mydefaults.lsp ill myfile.lsp 
+    # explicitly specify .HXX and .CXX files
+  ill myfile.lsp "(MODULE-NAME \"mymodule\")" \
+                 "(CXX-FILE-PATH \"myfile.cxx\")" \
+                 "(HXX-FILE-PATH \"myfile.hxx\")"
+    # just the same, using shell quotations
+  ill myfile.lsp '(MODULE-NAME "mymodule")' \
+                 '(CXX-FILE-PATH "myfile.cxx")' \
+                 '(HXX-FILE-PATH "myfile.hxx")'
+
+    # print help and exit
+  ill -h
+
+
+  NOTE I strongly recommend using the extensions .cxx and .hxx instead of
+.cpp, .h and .hpp in order not to mix real sources (manually written
+files) and generated files which are not "source" in a strict sence,
+despite of that they are in C++.
+
+  If the translator doesn't find appropriate directives at the command
+line nor in the source code it will use the following defaults:
+
+  - Module name                         lisppart
+  - .hxx file                           <module_name>.hxx
+  - .cxx file                           <module_name>.cxx
+  - Initialization function name        LispInit_<module_name>
+  - 'Lisp' package class name           PackageLisp_<module_name>
+  - 'User' package class name           PackageUser_<module_name>
+
+
+
+*************************************************************************
+* 3. General translation principles
+
+3.1. Name translation convention
+
+  The character set for C++ identifiers differs from the traditional one
+for Lisp symbols. C++ identifiers are case-sensitive and can consist of
+letters, digits and the underline symbol. The first character of
+identifier must be a letter or underline, not digit. Lisp symbols are case
+insensitive and may be built off letters, digits and various symols such
+as +, -, *, _, % etc. For instance, the addition operation in Lisp is
+represented by a list like this: (+ A 25), where "+" is a symbol that has
+addition as it's associated function. Furthermore, Lisp symbol's name may
+start from a digit.  It is recognized as symbol, not number, if it can not
+be interpreted as a number. C++ does not allow such a flexibility since
+it's syntax is dramatically more complicated than Lisp's one and a C++
+compiler is hard enough to implement so it's not a good idea to make it
+more complicated than it is.
+
+   The fact that Lisp symbols are case sensitive and C++ identifiers are
+not is very helpful in translation of names from Lisp to C++. This allows
+us to bring all letters in a Lisp symbol to the upper case and leave the
+lower-case letters to represent all these pluses, dashes and other symbols
+that are not allowed in C++ identifiers. For instance, the Lisp symbol
+"read-char" might be represented as READdashCHAR. If the symbol's name
+begins from a digit (which is illegal in C++), we can prepend it with
+a lowercase letter, for instance - "d", to get a proper C++ identifier. 
+The symbol "7seas" translated this way becomes a C++ identifier d7SEAS.
+
+   The translator being discussed implements a kind of name translation
+technique as follows (certainly this is applicable to the lisp symbols
+only, that is, string constants are never transformed this way and the
+transformation is applied to a token only after the translator fails to
+interprete the token as a numberic constant):
+ - First, all the characters of the name are translated to their
+correponding representations assigned by DECLARE-CHAR translator
+directives (see section 4); if there's no DECLARE-CHAR directive for a
+particular character, it is left untouched. That's why you definitely need
+the illdef._ls file or a good replacement for it. Please note there's no
+error checking so you can specify such translation rules that your
+resulting C++ code will not compile.
+ - Second, if the result begins with a digit, then it is prepended with a
+letter 'd'.
+ - And as the last step, the compiler checks if there is an appropriate
+directive DECLARE-NAME for this particular symbol. Please note the symbol
+name specified in the directive is first translated using the same rules
+and then compared to the symbols.
+ 
+
+
+3.2. Translation of lisp lists, dotted pairs and other constructs
+
+  The general rules are simple. Every opening bracket is replaced
+with the token `(L|' (yes, the compiler _does_ assume the name of
+LListConstructor is `L'). Empty lists shown as `()' are replaced with
+`(L)'. Elements in a proper list are separated with commas instead of
+traditional Lisp spaces. 
+  Dotted pair such as (1 . 2) is translated as (L| 1 || 2). Dotted list is
+translated a little bit unnatural (thanks to the C++ language which has
+no operations with a priority lower than that of comma operation). A lisp
+list (1 2 3 4 5 . 6) is represented as ((L| 1, 2, 3, 4, 5) || 6).
+  Also we've got a good-looking replacement for QUOTE abbreivated form.
+Usual Lisp 'A is translated as ~A. The list (CAR '(A B)) will become 
+(L| CAR, ~(L| A, B)).
+
+                        <<<<< WARNING >>>>>
+  Please NOTE the operator ~ is overloaded for LReference, LSymbol and
+LListConstructor classes only. This means it's Ok to place lisp
+quoting before any list, symbol or even an empty list (which is
+senseless... Ok, never mind ;-), but it is illegal to place it before
+a string or numberic constant. A correct lisp equation (+ '1 '2) could
+be translated to C++ as (L| PLUS,  ~1, ~2) which is definitely not
+what you want (the result of such an operation in C++ will be ~1 + ~2
+= -2 + -3 = -5).  Anyway the constants are evaluated to themselves so
+there's no need to quote them. So, the transator automatically ignores
+such quotations; that is, the equotion (+ '1 '2) will be translated as 
+(L|PLUS, 1, 2). Normally this doesn't affect the result of evaluation.
+In some special cases, however, this fact is to be remembered. Consider 
+for example the lisp equotion (CAR (QUOTE '1)). In Lisp, it will
+evaluate to the symbol QUOTE. But the C++ form (L|CAR, (L|QUOTE, 1))
+which is the result of translation will definitely fail.
+
+
+  The translator understands 'character escapes' in accordance to Common
+Lisp (#\Newline, #\Space, #\a, #\Z etc) as separate data objects, as well 
+as usual C char escapes found inside of the string constants
+(\a, \b, \f, \n, \r, \t, \v, \"), so one can represent a "newline" either
+with #\Newline or with "\n", depending on the taste (NOTE if you plan to
+run your code in a real Lisp environment such as Common Lisp interpreter,
+C-like escapes would make it impossible). At the output, it always
+produces plain string constants (surrounded by doublequotes). Please note
+there's no type of 'char' S-expressions in the InteLib Lisp, and a single
+character is just the same as a string of one element.
+ 
+  
+
+3.3. Structure of a generated C++ module
+
+  The translator generates a module which has the following main parts: 
+  - 'Lisp package': a class which encapsulates all the symbols that
+correspond to the used Lisp functions, not declared public and not defined
+elsewhere outside of the module.
+  - 'User package': a class which encapsulates all the other symbols
+mentioned in the user program, not declared public and not defined
+elsewhere. 'User package' is a child of the 'Lisp package' so it has all
+the symbols needed in the program (but these public and external; we
+assume they're available without declaring them inside the package). The
+'User package' also contains private functions named
+'PackageInitFunctionNN' where NN is a decimal number. They are used for
+calculating top level forms of the Lisp program, one function per one
+form. All the functions are called one by one from the class' constructor.  
+  - Public symbols section: all the symbols declared public and not
+defined elsewhere are defined outside the 'packages' as public symbols of
+the module. 
+  - User package instance: A pointer to an object of class of 'User
+package' is defined. It is initialized by the initialization function.
+  - Initialization function: A function which is to be called by the main
+program in order to prepare the module to the work. The function creates
+an instance of the 'User package' class (thereby initializing all the
+necessary symbols and calculating all the top level forms of the program).
+The public pointer mentioned above is initialized with an address of the
+created object.  
+
+  Two files (C++ source and C++ header) are generated. I refer them
+as CXX file and HXX file because I usually use the extensions '.cxx'
+and '.hxx' for them in order not to mix these generated files with real
+sources.  
+  
+
+
+3.4. Naming convention
+
+  The translator needs to name all the objects it generates. The naming
+convention is based on a so-called module ID. Module ID is a short string
+which must comply the rules for C++ identifiers, that is, must consist of
+alphabet chars, digits and the underline symbol "_" and must not begin
+with a digit. By default, the string "lisppart" is used as a module ID. If
+there's only one Lisp module in your project, then you might want just to
+leave the things as they are. If you've got different modules or just
+don't like the default name, you can specify the module ID with the
+directive MODULE-NAME, either in one of the Lisp files or on the
+translator's comand line (see the chapter 4). 
+  The generated files are by default named as <id>.cxx and <id>.hxx, where
+<id> is the module ID. The names may be changed using directives
+CXX-FILE-PATH and HXX-FILE-PATH. The name of the HXX file is also affected
+by the HXX-FILE-NAME directive: if HXX-FILE-NAME is specified and 
+HXX-FILE-PATH is not, then the name of the file will be that from the
+HXX-FILE-NAME directive.
+  The classes for 'Lisp package' and 'User package' are by default named 
+PackageLisp_<id> and PackageUser_<id>. This can be changed with directives
+LISP-PACKAGE-NAME and USER-PACKAGE-NAME, respectively. The 'User package'
+pointer's name is always created prepending teh User package name with the
+character 'p' (that is, it will by default look like
+pUserPackage_lisppart).  
+  The initialization function is by default named LispInit_<id>. The name
+can be changed using the INIT-FUNCTION-NAME directive. 
+
+
+3.5. Debug-assistance module generation
+
+The translator is able to generate a class based on the IntelibLispLoop
+which encapsulates an Intelib Lisp interpretator. Having generated a
+custom class for your program, you can have a built-in interactive Lisp 
+interpreter in your C++ program which gives you access to all the Lisp 
+symbols of your program. 
+
+Definitely the primary goal of this feature is to assist debugging.  It
+wouldn't be a good idea to have such an interpreter in your program after
+you finish with the debug; you see, one of the InteLib's key profits is
+that you don't need any Lisp interpreter at runtime.  Furthermore, some of
+the code needed to run the interactive module comes from the ill/ directory
+which is covered by strict GPL rather than LGPL, so having it linked with
+your program could make some license-related troubles. If this isn't
+enough, then please note that the debugger module can weight about 3 megs
+in the object code form which could be more that all the rest of your
+program.
+
+Anyway, at the stage of debugging such an interpreter can be useful. 
+
+To cause the translator to generate a C++ module which implements the
+interpreter, use the DEBUGGER-FILE tranlator directive. A file
+(something like prog_debug.cxx) will be generated. If you really want
+to have the interactive interpreter in your program, then compile the
+module and link it along with your program. It requires the
+libintelib_nill library, besides the libintelib itself -- that is,
+you must add ``-lintelib_nill'' key to the C++ compiler's command
+line, _before_ ``-lintelib''.
+
+Nothing else required; that is, you don't need to change your code, 
+neither Lisp, nor C++.
+
+To enter the interactive Lisp interpreter, use the Lisp function BREAK. 
+Please note that the function will do nothing if the interpreter was 
+not linked with the program. Precisely speaking, BREAK inspect the 
+global variable TheLispBreakFunction, and if it is non-null, calls it
+passing its first parameter's evaluation result and the current lexical
+context as parameters; the debugger assistant module generated with 
+the ILL translator changes the value of the global variable so that
+the interactive interpreter will be launched.
+
+It is possible to launch the interpreter from within C++ code, 
+calling the function LispBreak, which takes no parameters and 
+returns no value. This allows to enter the interpreter from within
+your debugger. E.g., in gdb just type 'call LispBreak()' and that's it.
+Cetainly this will work only if your program is linked with the 
+generated debugger-assistance module. 
+
+Please be warned that the interactive debugger has only the Lisp
+symbols found in your Lisp program (plus the symbols provided by the
+library, that is, NIL, T, LABMDA, QUOTE and FUNCTION, and plus some
+specific symbols). This means that if the symbol CAR is never
+mentioned in your program, then you won't have CAR in the
+interpreter. If you need to use some functions and they aren't
+available, try adding a top-level form such as 
+
+   (quote (car cdr cons setq let ... ))
+
+so that ILL sees the symbols in your program and therefore adds them.
+Don't forget to remove them when you're done with your debugging.
+
+The interpreter executes within the lexical context from which BREAK
+was called. This means that if you've got something like
+
+   (let ((x 1)) (break "Here we go") (print x outfile))
+
+then the variable X will remain bound in the interpreter launched by BREAK
+and if you do smth. like (setq X 1000), it will change the lexical value of
+X so that 1000 will be printed instead of 1.
+
+Just like the stand-alone version of the interpreter (see nill.txt), the
+interactive debugger has functions QUIT, LOAD, BODY, TRACE, UNTRACE and
+%%%. It doent't, however, have DLOAD (this function is NILL-specific).
+
+Please note that symbols from your Lisp program have priority over
+these, that is, if you've got your own symbol named LOAD, then the
+system symbol LOAD will get shadowed. For more safety, these 5 symbols are
+also available under "strange" names %%%QUIT, %%%LOAD, %%%BODY, %%%TRACE
+and %%%UNTRACE. It is strongly unrecommended to use such names in your
+Lisp program.
+
+*************************************************************************
+* 4. Translator control directives
+
+You can control the translation using so-called translator directives.
+Note there's a file illdefs._ls which contains the default set of
+directives. This file is necessary for the translation since it specifies
+the rules of character translation, the set of available built-in InteLib
+Lisp functions etc. It is therefore read and processed first (before all
+your sources). You can suppress reading the file using certain command
+line option (see section 2), but you must then include your own version of
+a similar file as a VERY FIRST source file of your module. Having no
+rules, the translator will fail to produce a valid C++ code.
+  Directives are specified within a directive section which has the
+following syntax:
+
+        (%%% <directive> [<directive>...] )
+
+  The token "%%%" being put as a head of a form tells the translator that
+all the code in the rest of the form is to be interpreted as a sequence of
+directives, not a plain Lisp code. Each directive has a simple syntax:
+
+        (<directive-name> <directive-parameters>...)
+
+  There can be an unlimited number of directives in each section as well
+as an unlimited number of directive sections per file/module.
+  Directive section must appear at the top level. If it is encounterd
+within another form, it is interpreted as a plain Lisp form started with
+`%%%' token which is probably not the thing you want.
+
+  The following directives are available:
+
+
+
+4.1. DECLARE-CHAR directive. Syntax: 
+
+        (DECLARE-CHAR <char> <image>)
+
+  The directive specifies how a particular character is translated when
+encountered within a lisp symbol. See section 3 for detailed algorythm of
+the name translation rules.
+  <Char> specifies the character that needs translation, and <image> is a
+string the character is replaced with. 
+  Examples:
+        
+        (DECLARE-CHAR #\a "A")
+        (DECLARE-CHAR #\% "percent")
+
+
+
+4.2. DECLARE-NAME directive. Syntax:
+
+        (DECLARE-NAME <name> <image>)
+
+  The directive allows to make some certain exceptions in the name
+translation process. It is used primarily to avoid name conflicts and for
+clarity. Consider the symbol NULL which is a name of a standard built-in
+Lisp function. Being translated following usual rules, it would produce a
+C++ name NULL which would conflict with the standard ANSI macro which
+stands for an undefined pointer. So it's a good idea to specify it's
+translation into C++ explicitly (it is by default translated as "lNULL").
+  Now consider the symbol "-" which stands for arythmetic difference
+operation. Being translated by the common way, it would give "dash" in
+C++. It's good for names such as MAKEdashSYMBOL, but it is no good to use
+"dash" alone in arythmetic equotions. So by default it is translated as
+"DIFFERENCE" which definitely looks better.
+  Name is either a string or simply a symbol which is to be translated
+using special rules. The first form is intended to use for interchange 
+between the library and the translator, while the second form is intended 
+for a user. 
+  Image is a string which specifies the name of a C++ variable as it will
+appear in the C++ code.  
+  Examples: 
+
+        (DECLARE-NAME "NULL" "lNULL")
+        (DECLARE-NAME null "lNULL") ; exactly the same as the previous
+        (DECLARE-NAME "-" "DIFFERENCE")
+        (DECLARE-NAME - "DIFFERENCE") ; the same
+        (DECLARE-NAME "dash" "DIFFERENCE") ; NOT what you want!
+                             ; it means symbol `DASH', not `-'
+
+
+
+4.3. DECLARE-FUNCTION directive. Syntax: 
+
+        (DECLARE-FUNCTION <classname> <symbol-name>)
+
+  Classname specifies a name of the class which is used in the InteLib
+library to describe a particular built-in function (e.g. LSymbolCar). You
+can use this directive for your own Lisp functions implemented in C++,
+too.
+  Symbol-name is a string which defines a name of the function in InteLib 
+Lisp, e.g. "CAR", "+" etc.  When you use the directive for your own function,
+you should simply specify the name you'd like to use in Lisp.
+  Examples:
+
+        (DECLARE-FUNCTION "LFunctionCar" "CAR")
+        (DECLARE-FUNCTION "LFunctionPlus" "+")
+        (DECLARE-FUNCTION "LFunctionMyLispFunc" "MYLISPFUNC")
+  
+  There's a block of DECLARE-FUNCTION directives in the default directive
+file. Note they are extracted from the library source files (these found 
+in $(INTELIB)/lisp/library/{std,sel,str,io,rdr,hsh}/*.cpp) using macro
+"INTELIB_LISP_TRANSLATOR_INFORMATION". See the file lisp/library/ilisplib.hpp
+if you're getting courious.
+
+
+4.4. DECLARE-SYMBOL directive. Syntax:
+
+        (DECLARE-SYMBOL <Symbol> <Name>)
+
+  The directive is used to tell the translator that a certain symbol is
+provided by the library and therefore there's no need to create it's
+definition in the target files. Please note that this directive is NOT
+intended to be used by the user! It is for tuning the translator to the
+particular version of the library. Use DECLARE-EXTERNAL directive (see 
+below) instead to define your own already-provided symbols.
+  Symbol is simply the symbol (without quote signs) as it provided by the
+library.
+  Name is a string which defines a name of the symbol in InteLib Lisp.
+  Example:
+
+        (DECLARE-SYMBOL T "T")
+
+  Note there's a very limited number of symbols provided by the library
+itself. This is to allow the user to give the symbols whatever names he
+want and have separated spaces of names within the same program. The
+library provides only the symbols it needs itself (NIL, T, QUOTE, LAMBDA
+and possibly some other symbols). 
+
+
+4.5. DECLARE-PUBLIC directive. Syntax:
+
+        (DECLARE-PUBLIC <Symbol>)
+
+  The directive is used to make a symbol appeared in your Lisp program to
+be public (that is, available by name in other modules). 
+  Symbol is simply the symbol as it appears in your Lisp program. Note
+that its name will be converted in accordance to the usual rules so that
+actually its _image_ will be available in the C++ program. 
+  Examples:
+ 
+       (DECLARE-PUBLIC myglobalvariable)
+             ; makes MYGLOBALVARIABLE a public symbol of your module
+
+       (DECLARE-PUBLIC entry-point)
+             ; makes ENTRYdashPOINT a public symbol of your module
+
+       (DECLARE-NAME entry-point "LispEntryPoint")
+       (DECLARE-PUBLIC entry-point)
+             ; Symbol 'entry-point' will appear as LispEntryPoint in 
+             ; the C++ program and LispEntryPoint will be a public
+             ; name of the module. 
+
+
+
+4.6. DECLARE-EXTERNAL directive. Syntax:
+
+       (DECLARE-EXTERNAL <Symbol>)
+
+  The directive is used to declare that a certain symbol is provided (made
+public) by another module so there's no need to create it's definition in
+the target files. 
+  Symbol is simply a symbol as it appears in your Lisp program. Note
+that its name will be converted in accordance to the usual rules so that
+it's _image_ must be available (public) in another module.
+  Examples:  
+
+        (DECLARE-EXTERNAL super-global-variable)
+              ; assume SUPERdashGLOBALdashVARIABLE is available from 
+              ; another C++ module, either source or built from Lisp code
+              ; as well
+
+        (DECLARE-NAME foreign-entry-point "ForeignEntryPoint")
+        (DECLARE-EXTERNAL foreign-entry-point)
+              ; Symbol 'foreign-entry-point' will appear in the C++ code
+              ; as 'ForeignEntryPoint'. The translator assumes that the
+              ; C++ variable named ForeignEntryPoint is available from 
+              ; another module. 
+
+  See also DECLARE-USED-MODULE directive.
+        
+
+
+4.7. MODULE-NAME directive. Syntax:
+
+        (MODULE-NAME <Name>)
+
+  The directive sets the name of the module (which defaults to "lisppart"). 
+This affects the names of generated files, the name of the initialization
+function and the names of the packages in generated module unless they are
+specified explicitly (see the following directives...) 
+  If multiple occurences of this directive are found, only the first one 
+has an effect. For example, giving this directive at the command line will
+override all ones in the source files.   
+  Example:
+      
+        (MODULE-NAME "mymodule")
+              ; gives the translated module a name 'mymodule'
+
+
+
+4.9. CXX-FILE-PATH directive. Syntax:
+
+        (CXX-FILE-PATH <Filename>)
+
+  The directive sets the name of the .cxx file (file containing c++ code)
+to be generated. This overrides the default name which is build of the module
+name and ".cxx" extension. 
+  If multiple occurences of this directive are found, only the first one
+has an effect.
+  Example:
+
+        (CXX-FILE-PATH "mylispfl.cxx")
+              ; the translator will generate a file named mylispfl.cxx
+
+
+
+4.10. HXX-FILE-PATH directive. Syntax:
+
+        (HXX-FILE-PATH <Filename>)
+
+  The directive sets the name of the .hxx file (file containing c++ header)
+to be generated. This overrides the default name which is build of the module
+name and ".hxx" extension. 
+  If multiple occurences of this directive are found, only the first one
+has an effect.
+  Example:
+
+        (HXX-FILE-PATH "mylispfl.hxx")
+              ; the translator will generate a file named mylispfl.hxx
+
+  See also the HXX-FILE-NAME directive.
+
+4.11. HXX-FILE-NAME directive. Syntax:
+
+        (HXX-FILE-NAME <Filename>)
+
+  The directive specifies the name of the .hxx file to be placed in the
+respective #include directive in the .cxx file. This overrides the default 
+name which is build of the module name and ".hxx" extension.
+  Unless the HXX-FILE-PATH is explicitly specified, this directive also 
+affects the actual path of the .hxx file which the translator will generate.
+  If multiple occurences of this directive are found, only the first one
+has an effect.
+  Example:
+
+        (HXX-FILE-NAME "mylispfl.hxx")
+              ; the translator will insert '#include "mylispfl.hxx"'
+
+
+
+4.12. LISP-PACKAGE-NAME directive. Syntax:
+
+        (LISP-PACKAGE-NAME <Name>)
+
+  The directive makes the translator to name the package object containing
+standard lisp functions names (or, more precisely, names of functions 
+declared with DECLARE-FUNCTION) with the given Name. 
+  Example: 
+
+        (LISP-PACKAGE-NAME "MyLispPackage")
+
+
+
+4.13. USER-PACKAGE-NAME directive. Syntax:
+
+        (USER-PACKAGE-NAME <Name>)
+
+  The directive makes the translator to name the package object containing
+symbols invented by the user with the given Name.
+  Example: 
+
+        (USER-PACKAGE-NAME "MyUserPackage")
+
+
+
+4.14. INIT-FUNCTION-NAME directive. Syntax:
+
+        (INIT-FUNCTION-NAME <Name>)
+
+  The directive assigns the name to the module's initialization function
+(the function which is to be called before the module is used).
+  Example:
+
+        (INIT-FUNCTION-NAME "TheInitFunctionOfMyModule") 
+
+
+
+4.15. DECLARE-USED-MODULE directive. Syntax:
+
+        (DECLARE-USED-MODULE <module_header>)
+
+  The directive orders the translator to insert an #include directive into
+the beginning of the resulting .cxx file. It is used to specify modules
+where external symbols (see DECLARE-EXTERNAL directive) are defined. 
+  In fact you just specify a C++ header file to be included in your .CXX 
+file besides the InteLib library headers.
+  Example:
+
+        (DECLARE-USED-MODULE "othermdl.hxx")
+
+
+
+4.16. ADD-LIB-HEADERS directive. Syntax:
+
+        (ADD-LIB-HEADERS "header1.hpp" "header2.hpp" ...)
+
+  This directive is similar to the previous, except the following: 1) it
+allows to specify multiple headers; 2) it causes the translator to insert
+the #include directives _before_ any other code, including #include
+directives caused by DECLARE-USED-MODULE directive; 3) the files are
+included both in .HXX and .CXX files while the headers defined by 
+DECLARE-USED-MODULE are included in .CXX file only.  
+  The directive is not intended for a user, its goal is to tune the
+translator to work with a particular version of the InteLib library.
+
+4.17. DEBUGGER-FILE directive. Syntax:
+
+        (DEBUGGER-FILE ["debugger-file.cxx"])
+
+  This directive causes the translator to generate a "debugger" file. 
+If the argument is given, it is used as the name for the file. Otherwise,
+the default (<module_name>_debugger.cxx) is used.  

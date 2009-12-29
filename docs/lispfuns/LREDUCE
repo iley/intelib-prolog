@@ -1,0 +1,21 @@
+LREDUCE
+
+(LREDUCE <function> <list> [<initial>])
+
+The <function> is applied to the first two elements of the <list>, then 
+to the result of the previous application and the third element, of the
+list, then to the result and the fourth element, and so on. If the <initial>
+value s given, the function is first applied to the <initial> and the first
+element of the list, then to the result and the second element, etc.
+
+If the <list> is empty, the <initial> value is returned, no calls to
+<function> are made. If the <list> is empty and <initial> is not given, the
+empty list is returned.
+
+This function equals to the Common Lisp 
+
+   (REDUCE <function> <list> [:initial-value <initial>])
+
+The only exception is that when <initial> isn't given and the <list> is
+empty; Common Lisp calls the <function> with no args in this case, while
+InteLib Lisp doesn't call it and just returns the empty list.

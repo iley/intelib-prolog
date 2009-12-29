@@ -1,0 +1,9 @@
+RANDOM
+
+(RANDOM <max>)
+
+
+Returns a random integer number in the range [0...<max>-1]. This differs
+from the Common Lisp RANDOM function in that it can not produce floating
+point values; if <max> is a floating point number, the fraction part is
+simply ignored. Behaviour is undefined for non-positive <max>.

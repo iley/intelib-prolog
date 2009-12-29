@@ -1,0 +1,29 @@
+RREDUCE
+
+(RREDUCE <function> <list> [<initial>])
+
+
+If the <list> is, e.g., (1 2 3 ... n-1  n), then the result of
+
+    (RREDUCE <fun> <list>) 
+
+is the same as for 
+
+    (<fun> 1 (<fun> 2 (<fun> 3 ... (<fun> n-1 n))...))), 
+
+and the result of
+
+    (RREDUCE <fun> <list> <initial>) 
+
+is the same as for 
+
+    (<fun> 1 (<fun> 2 (<fun> 3 ... (<fun> n <initial>))...)))
+
+
+This function equals to the Common Lisp 
+
+   (REDUCE <function> <list> :from-end t [:initial-value <initial>])
+
+The only exception is that when <initial> isn't given and the <list> is
+empty; Common Lisp calls the <function> with no args in this case, whule
+InteLib Lisp doesn't call it and just returns the empty list.

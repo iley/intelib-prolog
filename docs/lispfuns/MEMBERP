@@ -1,0 +1,15 @@
+MEMBERP
+
+(MEMBERP <what> <list> [<test>])
+
+If <what> is a member of <list> (in the sence of EQL), returns true.
+Othervise, returns false. If the <list> is dotted, the value after the
+dot is silently ignored. 
+
+If the value of <test> is given, it must be a predicate of two arguments, 
+first of them for <what>, and the second is for an item of the <list>; 
+it will be used instead of EQL.
+
+NOTE this function works much like MEMBER (in fact, it shares its 
+implementation) with the only difference that MEMBERP always returns 
+either True or False, not a tail of the list.

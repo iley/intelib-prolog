@@ -1,0 +1,14 @@
+DEFCONST
+
+(DEFCONST symbol value [doc...])
+
+
+Makes the given symbol to be a constant, that is, the symol will never 
+change (except by another call of DEFCONST). 
+
+Value is evaluated and assigned to the symbol, then the symbol is marked 
+constant. 
+
+Unlike Common Lisp, Intelib Lisp DEFCONST accepts an unlimited number of 
+parameters, but all excepth the first two are completely and silently 
+ignored. 

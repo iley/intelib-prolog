@@ -1,0 +1,57 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+$EXTERN AddError;
+$EXTERN NextNumbersFrom;
+
+$ENTRY MoreLinker {
+  t.Errors t.Directives = <MoreChecks t.Errors t.Directives <MakeCheck 1 (ErrorsList '=' ()) t.Directives>>;
+  e.Foo = <Prout 'Bug in "MoreLinker" function. View field: ' e.Foo>;
+}
+
+MakeCheck {
+  1 t.Errors (t.Name (e.Foo (s.N e.Entries) e.Bar)),
+	<Add <NextNumbersFrom> 3> : s.N =
+	1 <NoDupesInEntries t.Errors e.Entries>;
+  2 t.Errors (t.Name (e.Foo (3 e.ExternsDeclared) e.Bar1 (s.N1 e.Entries) e.Bar2 (s.N2 e.Externs) e.Bar3)),
+	<Add <NextNumbersFrom> 3> : s.N1,
+	<Add <NextNumbersFrom> 4> : s.N2 =
+	2 <NoUnresolvedExternals t.Errors (e.Externs) (e.Entries) (e.ExternsDeclared)>;
+  e.Foo = <Prout 'Bug in "MakeCheck" function. View field: ' e.Foo>;
+}
+
+ChecksNumber {
+  = 2;
+}
+
+MoreChecks {
+  (ErrorsList '=' (e.Already)) t.Directives s.N (e.NewErrors), <ChecksNumber> : s.N =
+	(ErrorsList '=' (e.Already e.NewErrors)) t.Directives;
+  (ErrorsList '=' (e.Already)) t.Directives s.N (e.NewErrors) =
+	<MoreChecks (ErrorsList '=' (e.Already e.NewErrors)) t.Directives <MakeCheck <Add s.N 1> (ErrorsList '=' ())
+	t.Directives>>;
+  e.Foo = <Prout 'Bug in "MoreChecks" function. View field: ' e.Foo>;
+}
+
+NoDupesInEntries {
+  t.ErrorsList (0 e.Fun) e.Text =
+	<NoDupesInEntries t.ErrorsList e.Text>;
+  t.ErrorsList (s.N e.Fun) e.Text =
+	<NoDupesInEntries <AddError t.ErrorsList (0 IrinaError_EntryRedefinition e.Fun)> e.Text>;
+  (ErrorsList '=' (e.Already)) = (e.Already);
+  e.Foo = <Prout 'Bug in "NoDupesInEntries" function. View field: ' e.Foo>;
+}
+
+NoUnresolvedExternals {
+  (ErrorsList '=' (e.Already)) () (e.Entries) (e.ExternsDeclared) = (e.Already);
+  t.Errors ((e.Fun) e.Bar) (e.Foo2 (s.Number e.Fun) e.Bar2) (e.ExternsDeclared) =
+	<NoUnresolvedExternals t.Errors (e.Bar) (e.Foo2 (s.Number e.Fun) e.Bar2) (e.ExternsDeclared)>;
+  t.Errors ((e.Fun) e.Bar) (e.Entries) (e.Foo2 (s.LineNumber e.Fun) e.Bar2) =
+	<NoUnresolvedExternals t.Errors (e.Bar) (e.Entries) (e.Foo2 (s.LineNumber e.Fun) e.Bar2)>;
+  t.Errors ((e.Fun) e.Bar) (e.Entries) (e.ExternsDeclared) =
+	<NoUnresolvedExternals
+		<AddError t.Errors (0 IrinaError_UnresolvedExternal e.Fun)>
+		(e.Bar) (e.Entries) (e.ExternsDeclared)
+	>;
+  e.Foo = <Prout 'Bug in "NoUnresolvedExternals" function. View field: ' e.Foo>;
+}

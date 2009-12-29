@@ -1,0 +1,80 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$ENTRY GetEntryType {
+  = TypeEntry;
+}
+
+$ENTRY GetExternType {
+  = TypeExtern;
+}
+
+$ENTRY GetDirectType {
+  = TypeDirect;
+}
+
+$ENTRY GetDelimType {
+  = TypeDelim;
+}
+
+$ENTRY GetTextConstantType {
+  = TypeText;
+}
+
+$ENTRY GetSymbolType {
+  = TypeSymbol;
+}
+
+$ENTRY GetNumberType {
+  = TypeNumber;
+}
+
+$ENTRY GetVarType {
+  = TypeVar;
+}
+
+$ENTRY GetDelimCode {
+  '{' = LCurBracket;
+  '}' = RCurBracket;
+  '(' = LBracket;
+  ')' = RBracket;
+  '<' = LFunBracket;
+  '>' = RFunBracket;
+  '=' = Equal;
+  ';' = Semicolon;
+  ',' = Comma;
+  ':' = Colon;
+  e.Foo = e.Foo;
+}
+
+GetDecode {
+  LCurBracket = '{';
+  RCurBracket = '}';
+  LBracket    = '(';
+  RBracket    = ')';
+  LFunBracket = '<';
+  RFunBracket = '>';
+  Equal       = '=';
+  Semicolon   = ';';
+  Comma       = ',';
+  Colon       = ':';
+  e.Foo = e.Foo;
+}
+
+$ENTRY Reverse2 {
+  e.Foo t.Term1 t.Term2 = t.Term1 t.Term2 e.Foo;
+  e.Foo = e.Foo;
+}
+
+$ENTRY Reverse {
+  e.1 t.2 = t.2 e.1;
+  e.Foo = e.Foo;
+}
+
+$ENTRY Decode {
+  s.Code e.Text = <GetDecode s.Code> <Decode e.Text>;
+  ((s.LineNumber1 s.DelimType s.Code1) e.Foo (s.LineNumber2 s.DelimType s.Code2)) e.Text,
+	<GetDelimType> : s.DelimType =
+	<GetDecode s.Code1> <Decode e.Foo> <GetDecode s.Code2> <Decode e.Text>;
+  e.Foo = e.Foo;
+}

@@ -1,0 +1,12 @@
+CHAR
+
+(CHAR <stirng> <index>)
+
+
+The given index must be a non-negative integer less than the length of
+string, which must be a string. The character at position index of the
+string is returned as a character object (in Intelib Lisp, characters
+are represented with strings of length 1).
+
+NOTE unlike in Common Lisp, this version of CHAR function can't be 
+used as the first argument to SETF.

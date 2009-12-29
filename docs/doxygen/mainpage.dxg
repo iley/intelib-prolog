@@ -1,0 +1,120 @@
+/*!
+
+\mainpage InteLib.
+
+Visit the official site at
+<A HREF="http://www.intelib.org">http://www.intelib.org</A>
+
+\section intro Introduction
+
+InteLib is a library of C++ classes which lets you do 
+what we know as \b Lisp \b Programming within 
+your C++ program even without any additional preprocessing,
+without all those calling conventions etc. You can write a 
+C++ code (that is, a code which is accepted by your C++ compiler)
+thinking in a "Lisp mode" and the code you write will
+look much like Lisp code altough it will be pure C++.
+
+To give you the essential feeling, we provide the following example:
+\code
+(defun isomorphic (tree1 tree2)
+   (cond ((atom tree1) (atom tree2))
+         ((atom tree2) NIL)
+         (t (and (isomorphic (car tree1) 
+                             (car tree2))
+                 (isomorphic (cdr tree1) 
+                             (cdr tree2))
+))))
+\endcode
+This is just a Lisp function which compares the structure of two trees,
+paying no attention ot the values in the leaves. Nothing special. Now 
+look at this:
+\code
+(L|DEFUN, ISOMORPHIC, (L|TREE1, TREE2),
+  (L|COND, 
+    (L|(L|ATOM, TREE1), (L|ATOM, TREE2)),
+    (L|(L|ATOM, TREE2), NIL),
+    (L|T, (L|AND,
+      (L|ISOMORPHIC, (L|CAR, TREE1), 
+                     (L|CAR, TREE2)),
+      (L|ISOMORPHIC, (L|CDR, TREE1), 
+                     (L|CDR, TREE2))
+))))
+\endcode
+This is the same code, but this time it is not Lisp. It is a fragment of
+a valid \b C++ \b module. Here is the whole module:
+\code
+ //       File isomorph.cpp
+ #include "lisp/lisp.hpp"
+ #include "lisp/lsymbol.hpp"
+ #include "lfun_std.hpp"
+
+ LSymbol ISOMORPHIC("ISOMORPHIC");
+
+ static LFunctionalSymbol<LFunctionDefun> DEFUN("DEFUN");
+ static LFunctionalSymbol<LFunctionCond> COND("COND");
+ static LFunctionalSymbol<LFunctionAtom> ATOM("ATOM");
+ static LFunctionalSymbol<LFunctionAnd> AND("AND");
+ static LFunctionalSymbol<LFunctionCar> CAR("CAR");
+ static LFunctionalSymbol<LFunctionCdr> CDR("CDR");
+
+ LListConstructor L;
+
+ void LispInit_isomorphic() {
+   static LSymbol TREE1("TREE1");
+   static LSymbol TREE2("TREE2");
+   ////////////////////////////////////////////////
+   //
+   (L|DEFUN, ISOMORPHIC, (L|TREE1, TREE2),
+     (L|COND, 
+       (L|(L|ATOM, TREE1), (L|ATOM, TREE2)),
+       (L|(L|ATOM, TREE2), NIL),
+       (L|T, (L|AND,
+         (L|ISOMORPHIC, (L|CAR, TREE1), 
+                        (L|CAR, TREE2)),
+         (L|ISOMORPHIC, (L|CDR, TREE1), 
+                        (L|CDR, TREE2))
+   )))).Evaluate();
+   //
+   ////////////////////////////////////////////////
+ } 
+ //      end of file
+\endcode 
+
+This is how the things look if you write in C++ "just like in Lisp". 
+You can also write a whole module in the traditional Lisp syntax and
+then translate it into a C++ module if you want so.
+
+\section mainparts Main Parts
+
+The library consists of two major layers.  First of them provides a
+framework for handling S-expressions as such; this layer consists of the
+\c sexpress and the \c tools directories.
+
+The second layer, consisting of the \c genlisp, \c lisp and \c scheme
+directories, implements the evaluation models of Lisp and Scheme.
+
+Besides that, there are interactive interpreters for both InteLib Lisp and
+InteLib Scheme (they are named \c nill and \c nils).  It is also possible
+to translate your Lisp/Scheme code into a C++ module which will use the
+InteLib conventions.  This is done by translators named \c ill and \c ils,
+for Lisp and Scheme, respectively.
+
+\section quickstart Getting Started
+
+Once you've unpacked the tarball, just do \code make library \endcode and
+(hopefully) it will be built. You can find the results in the \c build
+directory.
+
+It is not a bad idea to compile the interpreters and bootstrap the
+translators.  Issue the \c make command in the InteLib tree root to do so.
+Should you have no Gnu Readline, this step will fail, but you can force it
+to go without Readline issuing \code make USE_READLINE=no \endcode instead.
+
+If you've got root privileges, you might want to install the library and
+the accompanying software on a system-wide basis.  Try \code make install
+\endcode for this purpose.
+
+*/
+
+

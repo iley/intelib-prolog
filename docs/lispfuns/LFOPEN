@@ -1,0 +1,16 @@
+LFOPEN
+
+(LFOPEN <filename> [<mode>])
+
+Opens a file <filename> for reading/writing as specified with <mode>
+(e.g., "r" for reading, "w" for writing etc). See standard C library 
+function fopen(3) for details regarding the mode. If <mode> is not
+given, the "r" mode is assumed. 
+
+The function returns an S-expression derived from SExpressionStream.
+More precisely, it creates SExpressionStreamFile object unless the 
+mode parameter is not given; in this case it creates 
+SExpressionStreamTextInput so that line counting information is available,
+e.g., for the LispReader. It is recommended therefore not to specify the
+mode parameter if you plan to use the LispReader functions, such as READ
+and SAFEREAD.

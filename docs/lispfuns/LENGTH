@@ -1,0 +1,10 @@
+LENGTH
+
+(LENGTH <list>)
+
+Returns the length of the list. If the list is dotted, the terminating 
+value (that one after the dot) is silently ignored. 
+
+
+NOTE there's no "sequences" other than lists in InteLib Lisp so lists are
+the only objects LENGTH is to work with.

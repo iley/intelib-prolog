@@ -1,0 +1,49 @@
+// +-------------------------------------------------------------------------+
+// |               I__n__t__e__L__i__b           0.6.21 development          |
+// | Copyright (c) Andrey Vikt. Stolyarov <crocodil_AT_croco.net> 2000-2008. |
+// |                                                                         |
+// | This is free software. The library part is available under              |
+// |                               GNU LESSER GENERAL PUBLIC LICENSE v.2.1.  |
+// | GNU LGPL v2.1 is found in docs/gnu_gpl2.txt,  or at  http://www.gnu.org |
+// |     Please see also docs/readme.txt and visit http://www.intelib.org    |
+// |                                                                         |
+// | !!! THERE IS NO WARRANTY OF ANY KIND, NEITHER EXPRESSED NOR IMPLIED !!! |
+// +-------------------------------------------------------------------------+
+
+
+
+
+#include "../sexpress/sexpress.hpp"
+#include "../sexpress/svector.hpp"
+#include "sreader.hpp"
+
+static void do_process(int depth, SReference rest, SVectorRef &vec, bool rs)
+{
+    SExpressionCons *dp = rest.DynamicCastGetPtr<SExpressionCons>();
+    if(!dp) {
+        vec = new SExpressionVector(rs ? 0 : depth);
+    } else {
+        do_process(depth+1, dp->Cdr(), vec, rs);
+        vec[depth] = dp->Car();
+    }
+}
+
+static SReference process_fixed_vectors(const SReference &list)
+{
+    SVectorRef vr;
+    do_process(0, list, vr, false);
+    return vr;
+}
+
+static SReference process_resizeable_vectors(const SReference &list)
+{
+    SVectorRef vr;
+    do_process(0, list, vr, true);
+    return vr;
+}
+
+void add_vectors_to_reader(class IntelibReader &reader)
+{
+    reader.AddSequenceOpener("#(", process_fixed_vectors, ")");
+    reader.AddSequenceOpener("#~(", process_resizeable_vectors, ")");
+}

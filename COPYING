@@ -1,0 +1,31 @@
+InteLib is free software. 
+
+The library part (the sexpress/, tools/, lisp/ and scheme/ directories,
+and the refal/ directory, if it is shipped in this distribution)
+is available under GNU Lesser General Public License, v.2.1. 
+
+The files related to translators and interpreters (that is, these in the
+interact/, ill/, ils/ and possibly irina/ directories) are covered with the
+GNU General Public License (a.k.a. "strict GPL"), v.2.0. 
+
+By default, two static library files are built, namely libintelib.a and
+libintelib_interp.a.  The first contains modules covered with LGPL, and
+the former consists of the "strictly GPLed" modules.  This means that if
+you use the libintelib_interp.a library (e.g. if you build an interactive
+interpreter into your application), you'll have to apply GPL to your
+programs as well.  Please note that executables built along with InteLib
+(ill, nill, ils, nils etc.) are covered with "strict GPL".
+
+See the files docs/gnu_gpl2.txt and docs/gnu_lgpl21.txt for the official
+texts of the respective licenses.
+
+                             ------------------
+
+Please note that Lesser General Public License does *N*O*T* allow using the
+library in generic proprietary software; you need to follow some non-trivial
+steps in order to comply with the license, including, but not limited to,
+making the source code of the library available for your user and (!)
+providing the user the ability to relink the whole project in case (s)he
+decides to modify the library.
+
+Please find some time to take a look at http://www.intelib.org/license.html

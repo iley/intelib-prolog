@@ -1,0 +1,26 @@
+INTELIB_CONTRIBUTED
+
+1. To use IRINA translator, just type "make".
+2. To use original IRINA translator in Refal-5 (which will be
+much faster than IRINA) plese first configure
+REFC and REFGO values in Makefile. Then just type "make wrap".
+
+NB. Output of "wrap" program differs a little bit from "irina"'s output.
+"Wrap" inserts an ugly newline after its work thanks to a bug (bug?) in
+refc or refgo. It can be corrected if you change
+
+# ifdef PCAT
+	if (flags[0] != '\0')
+# endif	
+          putc ('\n', ferr);
+
+to
+
+# ifdef PCAT
+	if (flags[0] != '\0')
+# endif
+	{	
+          //putc ('\n', ferr);
+        }
+
+in "refaux.c" file (in refc/refgo sources, of course).

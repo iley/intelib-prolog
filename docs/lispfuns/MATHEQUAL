@@ -1,0 +1,10 @@
+MATHEQUAL     Mathequal
+
+(MATHEQUAL arg0 arg1)
+
+
+Arguments must be either both strings or both numbers. The function compares
+them and returns true if the strings are equal or the numbers are 
+mathemaitically equal. Otherwise, false is returned.
+
+The function is a replacement for Common Lisp's '='.

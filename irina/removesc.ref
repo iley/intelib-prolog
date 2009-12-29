@@ -1,0 +1,66 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$EXTERN GetEntryType;
+$EXTERN GetSymbolType;
+$EXTERN GetDelimCode;
+$EXTERN GetDirectType;
+$EXTERN GetExternType;
+
+$ENTRY RemoveSC {
+  (s.LineNumber0 s.ExternType) (s.LineNumber1 s.SymbolType e.Symbol)
+  (s.LineNumber2 s.DelimType Semicolon)
+  e.Text,
+	<GetExternType> : s.ExternType,
+	<GetSymbolType> : s.SymbolType =
+	(s.LineNumber0 s.ExternType) (s.LineNumber1 s.SymbolType e.Symbol)
+	(s.LineNumber2 s.DelimType Semicolon)
+	<RemoveSC e.Text>;
+
+  (s.LineNumber0 s.DirectivesType)
+  ((s.LineNumber1 s.DelimType s.LCBracket) e.Foo (s.LineNumber2 s.DelimType s.RCBracket))
+  e.SemiOrEmpty
+  e.Text,
+	<GetDirectType> : s.DirectivesType,
+	<GetDelimCode '{'> : s.LCBracket,
+	<GetDelimCode '}'> : s.RCBracket,
+	<IsSemiOrEmpty e.SemiOrEmpty> : True =	
+	(s.LineNumber0 s.DirectivesType)
+  	((s.LineNumber1 s.DelimType s.LCBracket) e.Foo (s.LineNumber2 s.DelimType s.RCBracket))
+	<RemoveSC e.Text>;
+
+  (s.LineNumber0 s.EntryType) (s.LineNumber1 s.SymbolType e.Ident)
+  ((s.LineNumber2 s.DelimType s.LCBracket) e.FunCont (s.LineNumber3 s.DelimType s.RCBracket))
+  e.SemiOrEmpty
+  e.Text,
+	<GetSymbolType> : s.SymbolType,
+	<GetEntryType> : s.EntryType,
+	<GetDelimCode '{'> : s.LCBracket,
+	<GetDelimCode '}'> : s.RCBracket,
+	<IsSemiOrEmpty e.SemiOrEmpty> : True =
+	(s.LineNumber0 s.EntryType) (s.LineNumber1 s.SymbolType e.Ident)
+	((s.LineNumber2 s.DelimType s.LCBracket) e.FunCont (s.LineNumber3 s.DelimType s.RCBracket))
+  	<RemoveSC e.Text>;
+
+  (s.LineNumber1 s.SymbolType e.Ident)
+  ((s.LineNumber2 s.DelimType s.LCBracket) e.FunCont (s.LineNumber3 s.DelimType s.RCBracket))
+  e.SemiOrEmpty
+  e.Text,
+	<GetSymbolType> : s.SymbolType,
+	<GetDelimCode '{'> : s.LCBracket,
+	<GetDelimCode '}'> : s.RCBracket,
+	<IsSemiOrEmpty e.SemiOrEmpty> : True =
+	(s.LineNumber1 s.SymbolType e.Ident)
+  	((s.LineNumber2 s.DelimType s.LCBracket) e.FunCont (s.LineNumber3 s.DelimType s.RCBracket))
+	<RemoveSC e.Text>;
+
+  t.Term e.Foo = t.Term <RemoveSC e.Foo>;
+  = ;
+
+  e.Foo = <Prout 'Bug in "RemoveSC" function. View field: ' e.Foo>;
+}
+
+IsSemiOrEmpty {
+  (s.LineNumber s.DelimType Semicolon) = True;
+  e.Foo = False;
+}

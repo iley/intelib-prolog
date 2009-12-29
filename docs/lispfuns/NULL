@@ -1,0 +1,6 @@
+NULL
+
+(NULL arg0)
+
+Checks if the arg0 is the empty list. If empty list represents the false
+value, this function is just the same as NOT. 

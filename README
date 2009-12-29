@@ -1,0 +1,23 @@
+              InteLib Library and accompanying software. 
+                (c) Andrey V. Stolyarov, 1999 - 2009
+
+
+This is InteLib library vers. 0.6.21 development. 
+
+It is not yet ready to be officially released, this package is just a
+development snapshot. That is, I don't promise to keep the further
+releases backwards compatible with this one, though I'll try to limit the
+interface changes to a reasonable minimum. If it doesn't satisfy you, then
+be patient and wait for an official release (1.0.0) which will be a
+'supported' version, including backwards compatibility.
+
+Please read the file COPYING for legal information.
+
+The software comes 'as is', with ABSOLUTELY NO WARRANTY OF ANY KIND; see
+the file WARRANTY for some useful warnings :-)
+
+See docs/readme.txt for more information about the library and its 
+documentation.
+
+The official web site of the library is http://www.intelib.org
+Fresh versions are available at ftp://ftp.croco.net/intelib

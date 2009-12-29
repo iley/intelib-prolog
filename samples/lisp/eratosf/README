@@ -1,0 +1,34 @@
+
+  This directory contains a simple program which finds prime numbers with
+Eratosfen's algorythm.  The program is not so efficient; it is only a demo, 
+remember. 
+
+  The program itself resides in `prog.lsp' file.  You may need `go.lsp' file
+in order to run the program with a Common Lisp interpreter (yes, it *is* 
+possible).  The supplied Makefile assumes you have GNU CLISP interpreter
+within your $PATH under the name 'clisp'.  You might want to edit the 
+Makefile or give CLISP=/path/to/clisp if your CLISP name/path is different.  
+
+  The file `prog.cpp' is a main file to compile with a C++ translator. 
+Before doing so, you must translate the lisp code into C++/InteLib 
+notation with the ILL translator.  See the Makefile for details.  Take a 
+look at `prog.[ch]xx' files which are the result of the translation, but
+don't ever edit them, since they're NOT a source code despite they look 
+so human-readable.  The only right thing to edit is the source in file
+`prog.lsp'.
+
+  You might want to use the following commands:
+
+% make lrun            # run the program using CLISP
+% make run             # to compile it using ILL and run as a C++ program
+% make run ILLDEBUG=yes 
+                       # the same, with the built-in debugger assistant
+# make clean           # to remove all the generated files
+
+
+  PLEASE NOTE the Makefile assumes you have already compiled and INSTALLED
+InteLib.  If you didn't install it, use 'INTELIB=../../..' at your command
+line, like this:
+
+        make run INTELIB=../../..
+

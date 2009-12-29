@@ -1,0 +1,28 @@
+
+  This directory contains a simple program which finds prime numbers with
+Eratosfen's algorythm.  The program is not so efficient; it is only a demo, 
+remember. 
+
+  This version of the program is intended to demonstrate the optional Lisp
+Evaluation Interruption feature.  The program accepts two command line
+parameters: maximal number to consider and the amount of time (in seconds)
+which it is allowed to spend.
+
+  The second demonstration goal is that this demo builds its own version
+of InteLib to utilize non-default compile time options.  This feature is
+disabled by default; use 
+
+       make run LIBDIR=./lib_bin
+
+to enable it back.  This doesn't make much sense now, however, because
+the interruption support is now enabled in InteLib by default.
+
+  You might want to take a look at ../eratosf/ directory instead of this
+one if you don't need the Interruption feature.
+
+  PLEASE NOTE the Makefile assumes you have already compiled and INSTALLED
+InteLib.  If you didn't install it, use 'INTELIB=../../..' at your command
+line, like this:
+
+        make run INTELIB=../../..
+

@@ -1,0 +1,16 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+$ENTRY GetLibraryFuns {
+  = <AddZero <Library>>;
+}
+
+$ENTRY Library {
+  = ('Prout')('Print')('Add')('Sub')('Mul')('Div')('Mod')('Real')('Symb')('Ord');
+}
+
+AddZero {
+  (e.Foo) e.Text = (0 e.Foo) <AddZero e.Text>;
+    = ;
+  e.Foo = <Prout 'Bug in "AddZero" function. View field: ' e.Foo>;
+}

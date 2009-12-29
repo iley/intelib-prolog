@@ -1,0 +1,15 @@
+READ
+
+(READ [<stream> [<eof-error-p> [<eof-value>]]])
+
+Reads an S-expression from the given <stream>, or from the standard input
+if no arguments are given.
+
+<eof-error-p> (true by default) determines whether end-of-file should be
+considered error. Specify NIL if you think it is a correct situation. If
+you do so and the function encounters the end of file, it returns either a
+special unique EOF value, or <eof-value>, if it is given.
+
+NOTE: this function doesn't protect your program from syntax errors in the
+incoming stream, and therefore should be considered dangerous and
+deprecated. Consider using SAFEREAD instead.

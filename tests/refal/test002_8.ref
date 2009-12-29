@@ -1,0 +1,60 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+$EXTERN GenerateHxx;
+$EXTERN GenerateCxx;
+$EXTERN IsLetter;
+$EXTERN IsDigit;
+
+$ENTRY Generate {
+  t.Directives e.Files =
+	<GenerateHxx t.Directives>
+	<GenerateCxx t.Directives e.Files>;
+  e.Foo = <Prout 'Bug in "Generate" function. View field: ' e.Foo>;
+}
+
+$ENTRY GenerateName {
+  (e.Foo (s.LineNumber (e.Name1) (e.Name2)) e.Bar) (e.CharsConvention) (e.Name1) =
+	e.Name2;
+  (e.NamesConvention) (e.Foo (s.LineNumber (s.Char) (e.Name)) e.Bar) (s.Char e.Rest) =
+	e.Name
+	<GenerateName 
+		(e.NamesConvention)
+		(e.Foo (s.LineNumber (s.Char) (e.Name)) e.Bar) (e.Rest)
+	>;
+  (e.NamesConvention) (e.CharsConvention) (s.Char e.Rest),
+	<IsLetter s.Char> : True =
+	s.Char
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Rest)>;
+  (e.NamesConvention) (e.CharsConvention) (s.Char e.Rest),
+	<IsDigit s.Char> : True =
+	s.Char
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Rest)>;
+  (e.NamesConvention) (e.CharsConvention) (s.Char e.Rest) =
+	'_' <Symb <Ord s.Char>> '_'
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Rest)>;
+  (e.NamesConvention) (e.CharsConvention) () = ;
+  e.Foo = <Prout 'Bug in "GenerateName" function. View field: ' e.Foo>; 
+}
+
+$ENTRY AddSymbol {
+  ((s.LineNumber e.Fun) e.Text) (e.NamesConvention) (e.CharsConvention) =
+	'extern RfSymbol '
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Fun)> ';\n'
+	<AddSymbol (e.Text) (e.NamesConvention) (e.CharsConvention)>;
+  () (e.NamesConvention) (e.CharsConvention) = ;
+  e.Foo = <Prout 'Bug in "AddSymbol" function. View field: ' e.Foo>;
+}
+
+$ENTRY TwoNewlines {
+  =
+	'\n'
+	'\n';
+}
+
+$ENTRY IsStatic {
+  (e.Ident) (e.Foo (s.LineNumber e.Ident) e.Bar) =
+	'       ';
+  e.Foo =
+	'static ';
+}

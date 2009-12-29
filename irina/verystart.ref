@@ -1,0 +1,42 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$EXTERN Start;
+
+$ENTRY VeryStart {
+  e.Foo = <Start <ReadFiles e.Foo>>;
+}
+
+ReadFiles {
+ (e.FileName) e.Foo =
+	(
+		(e.FileName) 
+		<DeleteEndZero <ReadFile (e.FileName)>>
+	)
+	<ReadFiles e.Foo>;
+  = ;
+  e.Foo = <Prout 'Bug in "ReadFiles" function. View field: ' e.Foo>;
+}
+
+ReadFile {
+  (e.FileName) =
+	<Open 'r' 1 e.FileName>
+	<ReadFileContents <Get 1>>
+	<Close 1>;
+  e.Foo = <Prout 'Bug in "ReadFile" function. View field: ' e.Foo>;
+}
+
+ReadFileContents {
+  0 = ;
+  e.Foo = e.Foo '\n' <ReadFileContents <Get 1>>;
+}
+
+DeleteEndZero {
+  e.Foo 0 e.Bar = e.Foo;
+  e.Foo = e.Foo;
+}
+
+/*%%%
+  DECLARE_PUBLIC_FUNCTION = VeryStart;
+  MODULE_NAME = irina;
+*/

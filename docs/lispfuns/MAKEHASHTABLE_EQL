@@ -1,0 +1,9 @@
+MAKEHASHTABLE_EQL
+
+(MAKEHASHTABLE_EQL [<ignored>])
+
+The function creates and returns a new hash table which uses EQL 
+as the predicate to determine wether two keys match. 
+  The optional parameter is accepted for historical reasons, 
+but is ignored.
+

@@ -1,0 +1,168 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+$EXTERN Error;
+$EXTERN Generate;
+
+/*%%%
+  DECLARE_PUBLIC_FUNCTION = Processfile;
+  MODULE_NAME = test001
+*/
+
+$ENTRY Processfile {
+  e.1 = <Generate <SyntaxAnalyse <LexTypes <LexAnalyse e.1>>>>;
+}
+
+* ================ Lexic ====================
+
+LexAnalyse {
+  ' ' e.1 = <LexAnalyse e.1>;
+  '\t' e.1 = <LexAnalyse e.1>;
+  '\n' e.1 = <LexAnalyse e.1>;
+  '*' e.1 = <SkipComment e.1>;
+  '\'' e.1 = <ReadTextConstant ('\'') e.1>;
+  s.1 e.2, '{}()<>=;,:' : e.10 s.1 e.20  = s.1 <LexAnalyse e.2>;
+  s.1 e.2 = <ReadWord (s.1) e.2>;
+          = ;
+}
+
+SkipComment {
+  '\n' e.1 = <LexAnalyse e.1>;
+  s.1 e.2  = <SkipComment e.2>;
+  = ;
+}
+
+ReadTextConstant {
+  (e.1) '\'' e.2         = (e.1) <LexAnalyse e.2>;
+  (e.1) '\\' s.2 e.3     = <ReadTextConstant (e.1 '\\' s.2) e.3>;
+  (e.1) '\"' e.3         = <ReadTextConstant (e.1 '\\' '\"') e.3>; 
+  (e.1) s.2 e.3          = <ReadTextConstant (e.1 s.2) e.3>;
+}
+
+ReadWord {
+  (e.1) s.2 e.3, '{}()<>=;,:\' \t\n' : e.10 s.2 e.20 = 
+                    (e.1) <LexAnalyse s.2 e.3>;
+   (e.1) s.2 e.3 =   <ReadWord (e.1 s.2) e.3>; 
+   (e.1) = (e.1) ;
+}
+
+LexTypes {
+   (e.1) e.2 = <LexType1 e.1> <LexTypes e.2> ;
+   s.1 e.2   = s.1 <LexTypes e.2> ;
+   = ;
+}
+
+LexType1 {
+   '\'' e.2  = (String_ e.2);
+   '$ENTRY'  = Entry_;
+   '$EXTERN' = Extern_;
+   e.1, <IsNumber e.1> : True = (Number_ e.1);
+   e.1, <IsRefalVar e.1> : True = (Var_ e.1);
+   e.1 = (Id_ e.1); 
+}
+
+IsNumber {
+   '+' e.1, <IsUnsignedNumber e.1> : True = True;
+   '-' e.1, <IsUnsignedNumber e.1> : True = True;
+   e.1, <IsUnsignedNumber e.1> : True = True;
+   e.1 = F;
+}
+
+IsUnsignedNumber {
+   '.' = F;
+   e.1 '.' e.2, <IsAllDigits e.1> : True, <IsAllDigits e.2> : True = True;
+   e.1 = <IsAllDigits e.1>;
+}
+
+IsAllDigits {
+   = True;
+   s.1 e.2, '0123456789' : e.10 s.1 e.20 = <IsAllDigits e.2>;
+   e.1 = F;
+}
+
+IsRefalVar {
+   'e.' e.1 = True;
+   't.' e.1 = True;
+   's.' e.1 = True;
+   e.1 = F;
+}
+
+
+* ================= Syntax =================
+
+SyntaxAnalyse {
+  e.1 = <BuildSymbolsList () e.1>
+        <BuildVariablesList () e.1>
+        <BuildExternFunList () e.1>
+        <BuildLocalFunList e.1>;
+}
+* The last call builds two lists - (functions) and (public names)
+
+BuildSymbolsList {
+  (e.1) e.2 (Id_ e.3) e.4 = <BuildSymbolsList (e.1 (e.3)) e.4>; 
+  (e.1) e.2 = (<RemoveDupes e.1>);
+}
+
+BuildVariablesList {
+  (e.1) e.2 (Var_ e.3) e.4 = <BuildVariablesList (e.1 (e.3)) e.4>; 
+  (e.1) e.2 = (<RemoveDupes e.1>);
+}
+
+BuildExternFunList {
+  (e.1) e.2 Extern_ (Id_ e.3) ';' e.4 = 
+                             <BuildExternFunList (e.1 (e.3)) e.4>; 
+  (e.1) e.2 = (e.1);
+}
+
+RemoveDupes {
+  t.1 e.2 t.1 e.3 = <RemoveDupes t.1 e.2 e.3>;
+  t.1 e.2         = t.1 <RemoveDupes e.2>; 
+  = ;
+}
+
+BuildLocalFunList {
+  e.1 = <DoBuildLocalFunList () () 
+           <IncapsulateLists <IncapsulateBlocks e.1>>>;
+}
+
+IncapsulateBlocks {
+  e.1 '{' e.2 = e.1 <ReadBlock ('{') e.2> ;
+  e.1 = e.1 ;
+}
+
+ReadBlock {
+  (e.1) '}' e.2 = (e.1 '}') <IncapsulateBlocks e.2>;
+  (e.1) '{' e.2 = <ReadBlock (e.1) <ReadBlock ('{') e.2>>;
+  (e.1) t.2 e.3 = <ReadBlock (e.1 t.2) e.3>;
+  (e.1)         = <Error '\'}\' expected at the end of file'>;
+}
+
+IncapsulateLists {
+  '(' e.1       = <ReadList ('(') e.1>;
+  '<' e.1       = <ReadList ('<') e.1>;
+  ('{' e.1) e.2 = ('{' <IncapsulateLists e.1>) <IncapsulateLists e.2>;
+  t.1 e.2       = t.1 <IncapsulateLists e.2>;
+                = ;
+}
+
+ReadList {
+  ('(' e.1) ')' e.2 = ('(' e.1 ')') <IncapsulateLists e.2>; 
+  ('<' e.1) '>' e.2 = ('<' e.1 '>') <IncapsulateLists e.2>; 
+  (e.1) ')' e.2     = <Error 'Unmatched )'>;
+  (e.1) '>' e.2     = <Error 'Unmatched >'>;
+  (e.1) '(' e.2     = <ReadList (e.1) <ReadList ('(') e.2>>;
+  (e.1) '<' e.2     = <ReadList (e.1) <ReadList ('<') e.2>>;
+  (e.1) t.2 e.3     = <ReadList (e.1 t.2) e.3>;
+  ('(' e.1)         = <Error '\')\' expected at the end of file'>;
+  ('<' e.1)         = <Error '\'>\' expected at the end of file'>;
+}
+
+DoBuildLocalFunList {
+  (e.1) (e.p) Extern_ (Id_ e.2) ';' e.3 = 
+       <DoBuildLocalFunList (e.1) (e.p) e.3>;
+  (e.1) (e.p) Entry_ (Id_ e.2) ('{' e.3) e.4 = 
+       <DoBuildLocalFunList (e.1 ((e.2) ('{' e.3))) (e.p (e.2)) e.4>;
+  (e.1) (e.p) (Id_ e.2) ('{' e.3) e.4 = 
+       <DoBuildLocalFunList (e.1 ((e.2) ('{' e.3))) (e.p) e.4>;
+  (e.1) (e.p) = (e.1) (e.p);
+}

@@ -1,0 +1,10 @@
+PRINT
+
+(PRINT <what> [<stream>])
+
+
+Print the textual representation of the <what> argument to the
+stream, preceding it by a newline and following by a space.
+
+NOTE that this function needs INTELIB_TEXT_REPRESENTATION to be
+enabled.

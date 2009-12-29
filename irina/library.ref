@@ -1,0 +1,67 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$ENTRY GetLibraryFuns {
+  = <AddZero <Library>>;
+}
+
+$ENTRY Library {
+  =
+	<CheckBuiltin <ListOfBuiltin>>
+}
+
+AddZero {
+  (e.Foo) e.Text = (0 e.Foo) <AddZero e.Text>;
+    = ;
+  e.Foo = <Prout 'Bug in "AddZero" function. View field: ' e.Foo>;
+}
+
+$ENTRY Unimplemented {
+  =
+	('Divmod')('First')('Last')
+	('Implode')('System')('Step')
+	('Random')('RandomDigit')('Write')
+	('Lower')('Upper')('Dn')('Up')
+	('XMLParse')('TimeElapsed')
+	('Sysfun')('Imp$$')('Stop$$')
+	('Freeze')('Freezer')('Ev-met')
+	('Residue')('Implode_Ext')('Explode_Ext')
+	('TimeElapsed')('DeSysfun')('SizeOf')
+	('int4fab_1')('')
+}
+
+NotInStandard {
+  = 
+	('Argc')
+	('Real')('Trunc')('Sin')('Cos')('Tan')
+	('Asin')('Acos')('Atan')
+	('Pi')
+	('Sqrt')
+	('Exp')('Log')('Log10')('Pow')
+	('Compress')('Decompress')
+	('Clear')
+}
+
+IsUnimplemented {
+  e.Name,
+	<Unimplemented> : e.Foo (e.Name) e.Bar = True;
+  e.Foo = False;
+}
+
+CheckBuiltin {
+  e.Foo (s.Number Clear s.Symbol) =
+	<ProcessBuiltin e.Foo (s.Number Clear s.Symbol)>;
+  e.Foo =
+	<ProcessBuiltin e.Foo>
+	<NotInStandard>
+}
+
+ProcessBuiltin {
+  (s.Number s.Name s.Symbol) e.Bar,
+	<IsUnimplemented <Explode s.Name>> : True =
+	<ProcessBuiltin e.Bar>;
+  (s.Number s.Name s.Symbol) e.Bar =
+	(<Explode s.Name>) <ProcessBuiltin e.Bar>;
+  = ;
+  e.Foo = <Prout 'Bug in "ProcessBuiltin" function. View field: ' e.Foo>;
+}

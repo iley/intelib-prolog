@@ -1,0 +1,8 @@
+LFCLOSE
+
+(LFCLOSE <stream>)
+
+Closes the stream. <stream> must be an S-expression of type
+SExpressionStream (e.g., returned by LFOPEN).
+
+Returns true or false depending of the result.

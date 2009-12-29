@@ -1,0 +1,21 @@
+REMOVE
+
+(REMOVE <item> <list> [<test>])
+
+The function removes all occurences of <item> from the given <list> and 
+returns the result. If the argument <test> given, it must be a predicate 
+which is used to compare <item> with successive members of the <list>. 
+By default, the <item> is tested to be EQL with each element of the <list>.
+
+The function is not destructive, that is, the returned list is a copy of
+the <list> which shares with it the rest which has no <item>s to remove. If
+<item> doesn't appear in the <list>, the result will be EQ with the
+<list>.
+
+The <test> function is applied each time to exactly two arguments, the
+first of them is <item>, and the second is an element of <list>.
+
+NOTE: In Common Lisp, the function REMOVE has lots of keyword parameters,
+such as :start, :end, :count etc. The <test> is specified with the :test
+key. InteLib Lisp doesn't have keyword parameters, so all these are not
+supported.

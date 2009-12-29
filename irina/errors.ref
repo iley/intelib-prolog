@@ -1,0 +1,151 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$EXTERN Decode;
+$EXTERN GetCurrentVersion;
+
+$ENTRY AddError {
+  (ErrorsList '=' (e.Foo ((e.LineNumbers s.LineNumber) s.ErrType e.ErrDesc) e.Bar)) (s.LineNumber s.ErrType e.ErrDesc) =
+	(ErrorsList '=' (e.Foo ((e.LineNumbers s.LineNumber) s.ErrType e.ErrDesc) e.Bar));
+  (ErrorsList '=' (e.Foo ((e.LineNumbers) s.ErrType e.ErrDesc) e.Bar)) (s.LineNumber s.ErrType e.ErrDesc) =
+	(ErrorsList '=' (e.Foo ((e.LineNumbers s.LineNumber) s.ErrType e.ErrDesc) e.Bar));
+  (ErrorsList '=' (e.ErrorsList)) (s.LineNumber s.ErrType e.ErrDesc) =
+	(ErrorsList '=' (e.ErrorsList ((s.LineNumber) s.ErrType e.ErrDesc)));
+  e.Foo = <Prout 'Bug in "AddError" function. View field: ' e.Foo>;
+}
+
+$ENTRY PrintErrors {
+  t.Label e.ErrorsList =
+	<PrintHeader t.Label <CountErrors <NoErrors> e.ErrorsList>>
+	<PrintList <FirstErrorNumber> e.ErrorsList>;
+  e.Foo = <Prout 'Bug in "PrintErrors" function. View field: ' e.Foo>;
+}
+
+NoErrors {
+  = 0;
+}
+
+FirstErrorNumber {
+  = 1;
+}
+
+CountErrors {
+  s.ErrNum t.Err e.ErrorsList = <CountErrors <Add s.ErrNum 1> e.ErrorsList>;
+  s.ErrNum = s.ErrNum;
+  e.Foo = <Prout 'Bug in "CountErrors" function. View field: ' e.Foo>;
+}
+
+PrintHeader {
+  t.Label s.ErrNum =
+	<Prout
+		<Symb s.ErrNum>
+		' '
+		<CorrectPhrase1 s.ErrNum>
+		'found '
+		<CorrectPhrase2 t.Label>
+		':'
+	>;
+  e.Foo = <Prout 'Bug in "PrintHeader" function. View field: ' e.Foo>;
+}
+
+CorrectPhrase1 {
+  1   = 'error was ';
+  t.N = 'errors were ';
+  e.Foo = <Prout 'Bug in "CorrectPhrase1" function. View field: ' e.Foo>;
+}
+
+CorrectPhrase2 {
+  (FileName '=' (e.FileName)) =
+	'in file "' e.FileName '"';
+  LinkerErrors =
+	'during link edition';
+  e.Foo = <Prout 'Bug in "CorrectPhrase2" function. View field: ' e.Foo>;
+}
+
+PrintList {
+  s.ErrNum t.Error e.ErrorsList =
+	<Prout
+		<Symb s.ErrNum>
+		'. '
+		<Description t.Error>
+	>
+	<PrintList <Add s.ErrNum 1> e.ErrorsList>;
+  s.ErrNum = ;
+  e.Foo = <Prout 'Bug in "PrintList" function. View field: ' e.Foo>;
+}
+
+Description {
+  (t.LineNumbers s.ErrType e.ErrDesc) =
+	<DescriptionBody s.ErrType> <LookAtDesc e.ErrDesc>
+	<CorrectPhrase3 t.LineNumbers>
+	'.';
+  e.Foo = <Prout 'Bug in "Description" function. View field: ' e.Foo>;
+}
+
+CorrectPhrase3 {
+  (0) = ;
+  (s.LineNumber) = ' on line ' <Symb s.LineNumber>;
+  (s.LineNumber e.Numbers) = ' on lines ' <Symb s.LineNumber> <NumbersList e.Numbers>;
+  e.Foo = <Prout 'Bug in "CorrectPhrase3" function. View field: ' e.Foo>;
+}
+
+NumbersList {
+  s.Number e.Numbers = ', ' <Symb s.Number> <NumbersList e.Numbers>;
+    = ;
+  e.Foo = <Prout 'Bug in "NumbersList" function. View field: ' e.Foo>;
+}
+
+DescriptionBody {
+  IrinaError_NoPairFor = 'No pair for';
+  IrinaError_IllegalExpr = 'Illegal expression';
+  IrinaError_IllegalChar = 'Illegal character';
+  IrinaError_BadMultiComment = 'Comment reaches end of file';
+  IrinaError_QuoteMissing = 'Missing quote';
+  IrinaError_BadMinus = 'No number after "-"';
+  IrinaError_BadSuffix = 'No suffix after';
+  IrinaError_BadFract  = 'No fraction after';
+  IrinaError_EntryRedefinition = 'Redefinition of entry function';
+  IrinaError_UnresolvedExternal = 'Unresolved external';
+  IrinaError_Redefinition = 'Redefinition of';
+  IrinaError_EmptyFun = 'Empty function';
+  IrinaError_MatchMissing = 'Missing "="';
+  IrinaError_ColonMissing = 'Missing ":"';
+  IrinaError_BadFuncall = 'No function name in function call';
+  IrinaError_UndefinedFun = 'Undefined function';
+  IrinaError_UndefinedVar = 'Undefined variable';
+  IrinaError_NonStandardPrefix =
+	'Unsupported in version '
+	<GetCurrentVersion>
+	' non-standard type';
+  IrinaError_UnimplementedLibFun =
+	'Unimplemented in version '
+	<GetCurrentVersion>
+	' library function';
+  IrinaError_PublicIsNotEntry = 'Missing or not preceded with "$ENTRY" public function';
+  e.Foo = e.Foo;
+}
+
+LookAtDesc {
+    =  ;
+  '"' = ' \'"\'';
+  e.Foo = ' "' <Decode e.Foo> '"';
+}
+
+$ENTRY FirstLine {
+  (s.LineNumber e.Bar) e.Foo = s.LineNumber;
+  (e.Foo) e.Text = <FirstLine e.Foo>;
+    = 0;
+  e.Foo = <Prout 'Bug in "FirstLine" function. View field: ' e.Foo>;
+}
+
+$ENTRY LastLine {
+  e.Foo (s.LineNumber e.Bar) = s.LineNumber;
+  e.Text (e.Foo) = <LastLine e.Foo>;
+    = 0;
+  e.Foo = <Prout 'Bug in "LastLine" function. View field: ' e.Foo>;
+}
+
+$ENTRY GetErrorsList {
+  (ErrorsList '=' (e.Already)) = (e.Already);
+  e.Foo = <Prout 'Bug in "GetErrorsList" function. View field: ' e.Foo>;
+}

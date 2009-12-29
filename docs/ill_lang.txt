@@ -1,0 +1,652 @@
+
+             I N T E L I B    L I S P   the  Language
+
+
+                        Copyright (c) Andrey Vikt. Stolyarov 2000-2007
+
+**********************************************************************
+* 1. Introduction
+
+  In this short memo I introduce the InteLib Lisp, a simple dialect of
+Lisp appeared together with the InteLib Library.  And from a very start I'd
+like to answer one of the most frequently asked questions - why did I
+invent a new dialect instead of using one of the well-known standards
+(Common Lisp or Scheme)?
+
+  As you might guess, a dialect of Lisp was not a goal of my project. 
+With the project, I wished to make it possible to use traditional Lisp
+paradigms (S-expressions, functions, etc) in C++ projects without the
+thing which is usually called 'embedding'. I was always keeping in mind
+that the kind of Lisp I implement will always be a secondary language in
+a project where the primary language is C++. Complicateness of
+implementation of some features also played a role. 
+
+  The InteLib Lisp is primarily based on Common Lisp, but appears to be
+drammatically simpler.  The next chapter of this memo explains what Common
+Lisp's features, paradigms and capabilities are _not_ included into the
+InteLib Lisp.  At the same time, some features from Scheme and other
+dialects of Lisp are added, and it is explained too.
+
+
+*********************************************************************
+* 2. What is NOT included
+
+  Well... ok... it was too brave for me to say I've based on Common Lisp
+creating this dialect.  Ok, first of all, there are no so-called
+'keywords'.  Neither such as :KEY nor such as &KEY.  Nope.  It's the most
+visible difference.  You can, however, specify a function that has a
+variable number of parameters - just like in Scheme, with a dotted
+alpha-list. 
+
+  Next, there's no 'type hierarchy'.  Notion of 'joint types' is not
+supported, in particular.  The InteLib library supports a limited number of
+types of S-expressions, and you can also invent your own types (see
+ill_lib.txt for details).  But there's nothing like a COERCE function.
+BTW, let me mention right here, there's no special type for characters. 
+Strings that have a length of 1 serve as characters.  This might change one
+day, but presently this is still true.
+
+  InteLib Lisp doesn't support structures or classes.  I believe these
+paradigms are not native for Lisp. You're able to create such complicated
+types yourself using C++ capabilities if you really want so.
+
+  Whenever possible, I don't rely on a particular symbol.  In fact, the
+library itself brings only a very limited number of symbols (usually they
+are NIL, T, QUOTE, FUNCTION and LAMBDA). You can get NIL, T, QUOTE and
+FUNCTION from a function while never mention them explicitly, for example:
+
+     (EQL 1 2)    ->  NIL
+     (EQL 1 1)    ->  T
+     (CAR ''A)    ->  QUOTE
+     (CAR '#'CAR) ->  FUNCTION
+
+so in order to implement predicates the library needs T and NIL; in order
+to implement the operator ~ (which replaces the lisp's apostrophe) and the
+construct F^ (which replaces the lisp's #' token) it needs QUOTE and
+FUNCTION, respectively.  The symbol LAMBDA has a special meaning regardless
+of it's possible value and/or associated function, so we have to rely on
+the symbol itself (that is, for example, on the object's address).
+
+  All the other symbols may be present or not present in your program, may
+have any name you like, may have even several instances, because their
+roles are fully determined by their values and associated functions. For
+example, I've decided not to implement Common Lisp's LOOP construct
+because it uses symbols (WHILE, UNTIL, etc) as labels in the middle of a
+construct so that one would have to rely on the symbols themselves, not
+their values nor functions. I've implemented 'While' cycle form for those 
+of you folks who can't program without cycles ;-)
+
+  To finish discussing symbols, I'd like to mention there are no so-called
+property lists in InteLib Lisp.  I never needed this feature, and I
+recommend you use hash tables instead.  Well, if you really need property
+lists for some reason, then let me know and I'll include them to one of
+the further releases.  It's easy to implement them, I just see no good 
+reason for it.
+  
+  In Common Lisp, only plain functions (which evaluate all the parameters)
+are 'first-class' objects.  It's impossible to pass a macro or a special
+form as a parameter or have it as a data value.  In InteLib Lisp, there's
+no much difference between different kinds of forms, they just have
+different algorythms of evaluation of parameters.  Some purists may say
+it's not good because it is unclear what to do when a special form is
+passed to, say, FUNCALL function.  Ok, I agree it is not useful.  Let's 
+consider it the implementor's will.  I just didn't want to make different
+methods etc. for those symbols which are used for naming special forms, and 
+I didn't want to make the LSymbol object to differ what it is associated to,
+a plain function, a macro, a special form... because anyway these things
+can't happen more than one at a time.   
+  
+  There are no throws, unwinds, non-local exits, returns, blocks in this
+version.  I'm going to implement them later.  You see I could implement them
+using C++ exception handling mechanism but they would be too slow and buggy
+in this case. I'm going to change something inside the library to be more
+flexible in returning from Lisp functions, and I expect these changes to
+allow me to improve efficiency and to implement some useful things.
+Besides throw/return/bla-bla-bla, I'm going to implement multiple value
+returns (yes, there are no multiple-value functions in this version as
+well. sorry).
+
+  One more ommited thing is Common Lisp's 'semiquotation', used primarily
+to build macros.  It is not very hard to implement Lisp's comma and
+backquote as a separate module, but for now I had no time for it. Please
+look forward for them to appear in one of the next releases. Be sure to
+drop me a line if you really need the feature; I'll do my best working
+harder if I see someone needs it. 
+  
+  Needless to say, CLOS is not supported ;-))) C++ is object-oriented
+itself, so use the object paradigm there, not in the secondary language. 
+You need the secondary language only for these things the primary language
+fails to bring to you.  
+
+  The last thing to say here is that, definitely, I couldn't implement all 
+these hundreds of Common Lisp forms, functions, variables etc. mentioned 
+in the standard. Only a limited number of Lisp functions is available 
+from the library. Again, drop me a line what functions do you need most 
+seriously, I'll take it to the account.
+
+  Ok, if you're still interested in using such a short and poor dialect,
+then go on and read the following sections. By the way, I think this
+section is not complete so you'll probably find some other features which
+are not implemented in the InteLib Lisp. 
+
+
+
+**********************************************************************
+* 3. InteLib Lisp: concepts and definitions
+
+3.1. S-expressions
+
+  If you have some Lisp experience or at least tried to learn Lisp, then
+you know that S-expression is anything and everything in Lisp. Both data
+and the program itself are built off S-expressions. In InteLib Lisp,
+S-expressions are of two general categories - atoms and lists (or, to be
+pure, dotted pairs). Special S-expression () ('empty list'), or NIL, is an
+atom in a strict sense, but it can behave as a list as well.
+
+  The main atomic S-expression types are shown at the following table:
+------------------------------------------------------------------------
+ Type  | InteLib class     | Description
+------------------------------------------------------------------------
+Integer	SExpressionInt       Integer constant  (*)		
+Float	SExpressionFloat     Floating point constant (**)
+String	SExpressionString    String constant or a character
+Label	SExpressionLabel     Type used for empty list, scheme-like booleans
+			     etc. - things which rely on a particular instance
+			     of S-expression regardless what it really is.
+Symbol	LExpressionSymbol    Lisp symbol (derived from SExpressionLabel)
+Stream	SExpressionStream    File/stream, defined in lfun_io module
+Hashtbl SExpressionHashTable Hash table container, defined in lfun_hsh module
+Classic SExpressionClassicAtom	  Classic atom (kind of a string constant)  
+   Atom                         (***)
+Package LExpressionPackage   Symbols directory (derived from HashTables)
+Function  different          There are lots of functional objects,
+					see the section 3.4
+------------------------------------------------------------------------
+(*)     Actual type is determined with the INTELIB_INTEGER_T macro
+(**)    Actual type is determined with the INTELIB_FLOAT_T macro
+(***)   Used by LispReader, defined in lisp/lreader module. 
+	Please note the InteLib Lisp is designed to be fully-compiled 
+	so in most cases you don't want to have the Lisp Reader code 
+	in your program.
+
+
+  In InteLib Lisp, a text of a program is interpreted as a sequence of
+tokens separated with symbols of parenthesis "(" and ")" and with a
+whitespace (spaces, tabs and newlines). Each token is interpreted either
+as a string constant (if it begins with a double quotes symbol `"'), or as
+an integer constant (if it is possible to do so), or as a floating point
+constant (if it is possible to interprete it this way), or, as a last
+resort, as a name of a symbol. Alphabetic characters in symbols' names are
+case insensitive. A token which starts with a symbol ' is interpreted as
+an abbreviation of the QUOTE form, that is, 'A is the same as (QUOTE A).
+
+  A dotted pair is an S-expression which consists of two arbitrary
+S-expressions, like this: (1 . 2) - a dotted pair which consists of the
+S-expressions 1 and 2. Dotted pairs are sometimes called 'conses'. In
+[1] there's the following definition: "A cons is a record structure
+containing two components called the car and the cdr. Conses are used
+primarily to represent lists."
+
+  In the given example 1 is a car of the dotted pair and 2 is cdr. The
+words 'car' and 'cdr' are kept for some historical reasons.  Both car
+and cdr of a dotted pair may in turn be a dotted pair so that one can
+construct any binary tree using dotted pairs. 
+
+  One special case like this: (1 . (2 . (3 . NIL))) is called 'list' and
+has an abbreviated form of notation: (1 2 3). In a strict sense, list is
+either an empty list or a dotted pair whose cdr is list. 
+
+  There's also a notion of `dotted list'. Dotted list is made from a
+regular list replacing its ending with a non-NIL S-expression. For
+example, a construct (1 . (2 . (3 . 4))) is a dotted list and can be
+denoted in a shorter form as (1 2 3 . 4). 
+
+
+
+3.2. Evaluation concept
+
+  There's a basic operation on S-expressions called `evaluation'. In Lisp,
+a whole program consists of one or more S-expressions called `top level
+forms' and the program's execution is simply evaluation of it's top level
+forms sequentially. We hereby use an equotion A -> B to specify that
+evaluation of A results with B.  
+
+  In InteLib Lisp, an S-expression can belong to one of the three
+categories of evaluation algorythm. First of them is a category of
+self-evaluated expressions. Integers, floats, strings and the symbols T
+and NIL belong to this class. Evaluation of any of the self-evaluated
+S-expressions simply gives the S-expression itself:
+
+         25             -> 25
+         2.2            -> 2.2
+         "A string"     -> "A string"
+         NIL            -> NIL
+         T              -> T
+
+  Please note that this category includes all the S-expressions which do
+not fall into one of the other two categories. In InteLib Lisp there are no
+S-expressions that can not be evaluated. Streams, functional objects,
+arrays, hash tables produce errors if being evaluated in many other Lisps,
+including CL, but they are just self-evaluated in InteLib Lisp. This is
+done this way for the sake of efficiency (to minimize type comparisions).
+ 
+  The second category is 'variables'. A variable always evaluates to it's
+value if it has one and causes an error if the value is not defined.
+Consider we somehow assigned a value of 25 to a variable X, a value of
+symbol X to a variable Y, and there's also a symbol Z that is not yet
+assigned a value. Then, the following relations are in place:
+
+         X             -> 25
+         Y             -> X
+         Z             -> *error situation*  
+
+See section 3.3 for a detailed discussion of variables, assignments,
+bindings and their effects.  
+
+   The third category is called 'forms'. In a strict sense, a form is a
+list whose first element somehow denotes a functional object. Generally, a
+dotted list should not be considered as a correct form, altough it is
+possible to define a special form (but not a function) which will accept its
+usage in such a strange kind of form. I strongly advice you never use
+dotted lists as forms and in the following text I'll assume it is always
+an error to evaluate a dotted list.
+
+   In InteLib Lisp (that is, when the suggested set of compile-time
+options is used), the functions can be denoted either with a symbol which
+has an associated function or with a so-called Lambda-list (see section
+3.6). No other ways are available. The rest of the list is treated as an
+actual arguments list. Generally a form is evaluated in accordance to the
+following procedure:
+
+    1) Determine if the first element of the form correctly denotes a
+functional object, that is, the first element is either a list whose car
+is symbol LAMBDA or a symbol which has an associated functional object. 
+    2) If no valid denotion of a functional object is found, signal an
+error. 
+    3) Determine what rules of evaluating parameters are applicable for
+the functional object. If the object is a plain function (including
+lambda-lists), then all the members of the tail of the form are evaluated
+before calling the function. Othervise (in case of a special form or a 
+macro), the specific rules are applied. See sections 3.4 and 3.6 for the
+explanation.
+    4) Having a list of parameters evaluated in accordance to the
+applicable rules, apply the functional object to these parameters. 
+
+     
+3.3. Variables. Values and associated functions. Bindings. 
+
+  Lisp symbols (S-expressions represented with LExpressionSymbol class) may
+serve as variables in InteLib Lisp. Every symbol has a slot for an
+associated ('dynamic') value and another slot for an associated function. In
+certain circumstances, an alternative value ('lexical binding') may appear
+and be used instead of the own value. It's convenient to imagine that the
+lexical binding is stored outside of the symbol itself, while the dynamic
+value and the associated function are stored inside the symbol.
+
+  There are two ways of changing a variable's value.  Variables can be
+assigned to, as by SETQ, or bound, as by LET. Any program construct that
+binds a variable effectively saves the old value of the variable and
+causes it to have a new value, and on exit from the construct the old
+value is reinstated.
+
+  There are actually two kinds of variables in InteLib Lisp (just like in
+Common Lisp), called lexical variables and dynamic variables, which have
+different styles of binding. By default, a symbol has lexical style of
+binding. 
+
+  When a lexical variable is bound, no changes actually made to the
+variable itself, but the current lexical environment gets a new entry of a
+so-called lexical binding (a pair symbol+value). The general rule is that
+if the symbol occurs textually within a program construct which creates a
+binding for this symbol, then the value stored in the lexical binding is
+to be used (or changed); if no such program construct textually contains
+the reference, then it is taken to refer to the global value of the
+symbol. Therefore a lexically bound variable can be referred to only by
+forms occurring at any place textually within the program construct that
+binds the variable.
+
+  The symbol may be explicitly switched to have dynamic style of bindings.
+It can be done with DEFVAR function. In contrast with lexical variables,
+when a dynamic variable is bound, then it's own value is saved somewhere,
+and the new value is assigned to it. No changes are made to the lexical
+environment. Such a binding has no associated object which could be
+changed or operated; the value stored by the symbol itself is used and
+changed. When the form which established the binding finishes, the saved
+value is assigned to the symbol.
+
+  A dynamically bound variable can be referred to at any time from the
+time the binding is made until the time evaluation of the construct that
+binds the variable finishes. Therefore lexical binding of variables
+imposes a spatial limitation on occurrences of references (but no temporal
+limitation, for the binding continues to exist as long as the possibility
+of reference remains). Conversely, dynamic binding of variables imposes a
+temporal limitation on occurrences of references (but no spatial
+limitation).
+
+  It is possible for a variable to have no value at all, in which case it
+is said to be unbound. By default, every variable is unbound unless and
+until explicitly assigned a value.
+
+  Certain global variables are reserved as `named constants'. They have a
+global value and may not be bound or assigned to. For example, the symbols
+T and NIL are reserved. One may not assign a value to T or NIL, and one
+may not bind T or NIL. The value of T is always T, and the value of NIL is
+always NIL. Constant symbols defined by DEFCONST also become reserved and
+may not be further assigned to or bound.
+
+  A symbol may initially have an associated functional object. It is also
+possible to assign an associated function to a symbol using DEFUN,
+DEFMACRO or DEFUNN special forms, for a plain Lisp function, a Lisp macro
+or an NLAMBDA function respectively. The same mechanism is used for all
+the existing kinds of functional objects.
+
+
+
+3.4. Functional types of data.
+
+  There are 4 categories of functional objects in InteLib Lisp:
+-----------------------------------------------------------------
+InteLib class            | Implementation Language | Description
+-----------------------------------------------------------------
+SExpressionForm      (*) |     C++                 | Special form
+SExpressionFunction  (*) |     C++                 | ("System") function 
+LExpressionLambda        |     Lisp                | Plain function
+LExpressionMacro         |     Lisp                | Macro
+-----------------------------------------------------------------
+(*) SExpressionForm and SExpressionFunction are abstract classes.
+    The functions are actually represented with their child classes,
+    one per function/specform. 
+
+Any of these 4 types of functional objects is an S-expression, that is,
+can be operated as a data object. 
+
+  Both types of functional objects implemented in Lisp (Lambda and Macro)
+are 'lexical closures', that is, they store their own lexical context which
+is installed every time they are called. The closure includes all lexical
+bindings which were in effect at the moment of creation of the functional
+object.
+
+  SExpressionFunction has no own lexical context because it is senseless
+for a function implemented in C++.  However, it is also a kind of lexical
+closure. Before its body is called, empty lexical context is installed
+(that is, no lexical bindings are visible form within the body).
+
+  Special form is the most generic kind of a functional object. In fact,
+it has no rules of evaluating parameters and of changing lexical contexts.
+It can therefore do anything we need. The LET form is a good example. It
+first evaluates new values for given symbols within the lexical context of 
+the caller, then creates a new lexical context, establishes new bindings
+within it, installs the newly-created context and evaluates given forms,
+then restores the context of the caller. 
+
+  SExpressionFunction has more restricted algorythm of applying. First, all
+the parameters are evaluated (in the lexical context of the caller).  Then,
+empty lexical context is installed and the body of the function is applyed
+to the given list of evaluated parameters. 
+
+  Plain Lisp function's evaluation is a little bit more complicated.
+First, all the parameters are evaluated in the lexical context of the
+caller. Next, a new lexical context is created which includes all the
+lexical bindings stored in the closure's own (saved) context. Using this
+newly-created context, the symbols which are used as formal parameters are
+bound to their respecting values. Then the new lexical context is
+installed and the function's body is evaluated form by form. 
+
+  Macro has the most strange algorythm. Parameters of a macro are not
+evaluated. A new lexical context is created which includes all the lexical
+bindings stored in the closure's own (saved) context. The symbols which
+are used as formal parameters are bound to their respecting values. The
+body of the macro is then evaluated and the resulting S-expression is
+stored. Then, the caller's context is restored and the resulting
+S-expression is evaluated again, this time in the caller's context. 
+The rationale is that a macro is actually a function which evaluates a
+piece of code to be evaluated in place of the macro call.  
+
+  Note macros are not so useful in the existing version of InteLib Lisp
+because there's no "backquote/comma" feature. 
+
+
+
+3.5. Function SETF and it's support. Reference-capable functions.
+
+  InteLib Lisp, like Comon Lisp, has the function SETF. Its first argument
+is named 'place' and the second argument is named 'data'. SETF assigns
+'data' to be the new value of a so-called 'generalized variable' (see [1]),
+which is referenced by a form such as A, (CAR A), (SECOND A) etc. for
+example, (SETF (CAR A) 5) is the same as (RPLACA A 5). It's important to
+understand this operation cannot be performed using a result of evaluation
+of the first argiment. For example, if A has a value '(1 2 3 4 5), then
+(CAR A) would return the value 1 (or, speaking more precisely, a pointer
+to the S-expression which represents 1), while we need an address of the
+pointer which is used inside the list to point to the 1. In short, (CAR A)
+will give us a copy of the pointer while we need the pointer itself, or,
+in terms of implementation, a pointer to the pointer. 
+  In Comon Lisp the problem is solved 'with a hard hammer': SETF in Common
+Lisp is a macro which analyzes the form placed at the first argument and
+depending on the result of the analyses decides what update method to
+apply. A programmer can also specify her own update function for her own
+access function using the concept of 'function name' which allows a
+function to have a list such as (SETF MYFUN) as a name. 
+
+  Designing InteLib Lisp, I decided not to follow this way. There were two
+reasons for it. First, such an implementation of SETF would have to rely
+on symbols; I try to avoid this whenever possible. Second, the concept of
+'function name' looks too unnatural for me.
+
+  Certainly it's impossible to force every Lisp function to return a
+pointer to a pointer to an object instead of just a pointer at least
+because some of them construct the object to be returned theyselves. In
+this situation, there are no pointers to the newly-constructed object
+outside the function's body, and this pointer will disappear immediately
+when the function returns so it's senseless to return it's address to the
+caller. Some Lisp functions, however, do not construct any new objects --
+they just return an existing one. Speaking more precisely, these functions
+return a copy of an existing pointer. In this situation, it is possible to
+return the pointer by reference, not a copy of the pointer. It's easy to
+see that the set of such functions (I call them 'reference-capable') is
+almost the same as the list of functions acceptable for the Common Lisp's
+SETF as the first element of it's first argument. 
+
+  There was even a funny story with this fact. I tried to implement the
+function LAST as reference-capable and failed. Then I surprisingly noticed
+that Common Lisp's SETF doesn't accept LAST in the first argument. (If
+you're confused on reasons of this, consider the following call:      
+(SETF (LAST (CONS 'A 'B)) 'C). How do you think this can be done? ;-) 
+
+  Note that some functions can be reference-capable in one situation and
+reference-incapable in another. Consider, for example, the function CAR.
+What would you do with (SETF (CAR NIL) 'A) ?
+
+  By the way, if you write a function in Lisp and the value it returns is 
+the value which reference-capable function just returned, then your Lisp-
+written function will also be reference-capable. You don't need to create
+a 'reverse' function as you would have to in Common Lisp. 
+
+
+3.6. User-defined Lisp forms. LAMBDA-expressions.
+
+  As it was mentioned in section 3.4, there are 2 types of functional
+objects implemented in Lisp: plain Lisp function and Macro.  They all are
+lexical closures, that is, each of them has its own lexical context.
+Besides the context, any Lisp form has a list of formal parameters (a.k.a.
+lambda-list) and a list of forms to be evaluated (a.k.a. body of the form).
+
+  In InteLib Lisp, a lambda-list can be one of the following: 
+  - a proper (NIL-terminated) list of symbols, possibly empty; 
+  - a dotted list of symbols;
+  - a single symbol.
+Note in InteLib Lisp there are no lambda-list keywords in the sense of
+Common Lisp. There's no way to specify an optional parameter or a 'key'
+parameter (this is also because in InteLib Lisp there are no keywords at
+all).  However, it is possible to specify a function with a variable number
+of arguments.  A mechanism similar to that in Scheme [2] is used for this
+purpose.  Let's discuss it in more details. 
+
+  Assume MYFORM is an arbitrary Lisp form which has a lambda-list.  If the
+lambda-list is a proper list of N symbols, then the form accepts exactly N
+parameters which are bound to the symbols from the lambda-list: first
+parameter - to the first symbols, second parameter - to the second symbol
+etc. 
+
+  If the lambda-list is a dotted list built of N conses (that is, there
+are N elements before the dot), then the form accepts N or more
+parameters. The first N of the actual arguments are bound to the symbols
+mentioned before the dot in the lambda-list, and the list build of the
+remaining arguments is bound to the symbol mentioned after the dot in the
+lambda-list.
+
+  Finally, if the lambda-list is not a list at all but a single symbol,
+then a list constructed of all the actual arguments is bound to that
+symbol.
+
+  For those who familiar with Common Lisp, it might be simpler to
+understand if I say that in InteLib Lisp, a form 
+
+           (DEFUN MYFUN (A B . C) ...)
+
+act exactly the same as Common Lisp's (defun myfun (a b &rest c) ...), and
+the form
+
+           (DEFUN MYFUN A ...)
+
+is the same as Common Lisp's (defun myfun (&rest a) ...).
+
+  To define a named Lisp form (either plain function or a macro), the DEFUN
+and DEFMACRO special forms are used. Their syntax is as follows:
+
+  (DEFUN <name> <lambda_list> <body>)
+  (DEFMACRO <name> <lambda_list> <body>)
+
+where <name> is a symbol, <lambda-list> is a valid lambda-list (see
+above), and <body> is zero or more forms which are evaluated one by one.
+For functions, the returned result is the result of evaluation of the last
+form of the body. For a macro, the macro expansion is a result of
+evaluation of the last form, and the result of a macro call is the result
+of the expansion's evaluation (see section 3.4).
+
+  It is possible to use a Lisp function that has no name. Such a function
+is created using so-called LAMBDA-expression. LAMBDA-expression is a list
+with the symbol LAMBDA as its CAR. The second element of the list is then
+interpreted as a lambda-list for the function and the remaining elements 
+of the list are considered the function's body.  
+
+  As it is specified in section 3.2, an S-expression representing a list
+may be successfully evaluated when it is a proper (NIL-terminated) list
+whose first element denotes a functional object. Now it's time to
+explicitly say that there are exactly two categories of S-expressions
+acceptable as the first element of a form: a symbol which has an
+associated functional object and a LAMBDA-expression.
+
+  It's important to say that LAMBDA-expression is not a function yet, it
+is just a list which, strictly speaking, can not be 'applied' to
+arguments. In order to build a true function from a LAMBDA-list (for
+example, to pass it to a high-order function as an argument), the FUNCTION
+special form must be used. Currently, the abbreviation #' is not
+supported, but I hope to include it in a near future. 
+  
+
+
+3.7. High-order functions. Application rules. 
+
+  A function which accepts a functional object as its argument is called
+`high-order function'. 
+
+  In any Lisp, a function is a data object which can be handled as such,
+e.g. passed as an argument, returned from a function, stored in a variable
+etc. In Common Lisp and Scheme, only a normal function (the one which
+always evaluates all its arguments) may be handled this way. In InteLib
+Lisp it is possible to handle any functional object as a data, including
+macros and special forms.  It is, however, not so useful
+thing because there are many strange things related to arguments
+evaluation.  Once it is possible in the language, let's discuss what will
+happen altough I strongly recommend to use only normal functions as data
+values. 
+
+  We'll discuss the problem using examples based on FUNCALL function which
+is the most simple hi-order function. It is a normal function so it
+evaluates all its arguments. The first one then is interpreted as a
+function to use (so it must evaluate to a function), and the remaining
+arguments are treated as arguments for the funciton. For example, 
+
+   (funcall #'cons 'a 'b)  ==>  (a . b)
+
+FUNCALL passes to the functional object a list of prepared (already
+evaluated) arguments, so the function shouldn't evaluate them again. The
+InteLib Library supports two different methods of application of a
+functional object: one is called `Call' and is intended to do the
+necessary evaluations of arguments before calling the function's body. The
+other is called `Apply'; it assumes all the necessary evaluations are
+already performed. 
+
+  Everything's Ok if we use a normal function. But what should we do in
+case of a special form or a macro? The best thing we can do is just call
+the body because anyway we can't invert the parameter's evaluation. 
+  
+  Let's first discuss the case of a macro.  Since the FUNCALL and APPLY are
+normal functions theyselves, the expanded form will be evaluated in the
+null lexical environment.  Please note it is not a way macros intended to be
+used.
+
+  Even more strange things happen when we pass a special form as functional
+object.  The problem is that, in the common case, there's no way to
+determine what arguments of a special form are to be evaluated and in what
+sequence. For example, IF special form being given 3 arguments evaluates
+its first argument, and only then decides whether to evaluate the second
+argument or the third one. In contrast to all the other kinds of
+functional objects, special form has no separated 'body' which is called
+when all the parameters are prepared (either evaluated or not). The body
+of a special form decides itself what to do with the given parameters. And
+since the body actually doesn't differ whether it is called on an
+unprepared or prepared list of arguments, it will do its job just as for
+a usual list of arguments. Consider this example:
+
+  (setq  a 'b   b 'nil   x 'y   y 'z)  
+  (funcall (function if) a 'b 'x)
+
+  The FUNCALL function will evaluate its parameters resulting in a list
+like (#<FUNCTION IF> B B X). Then the object #<FUNCTION IF> will be
+applied to the list of arguments (B B X). In accordance to the usual IF
+algorythm, the first argument is evaluated giving the value of the symbol
+B (which is NIL). Then, the third argument is evaluated, giving the value
+of the symbol X (which is Y). so the result of the example is Y. Is it a
+surprize for you?
+
+  There can be a feeling that it's possible to make the things better if
+the FUNCALL were a special form itself so that it could decide whether to
+evaluate its arguments before passing them on. That's wrong. FUNCALL is
+the simplest hi-order function, but it is not the ONLY hi-order function.
+What, for example, should we do with MAPCAR? Or with MAPHASH? 
+
+  There can be another strange idea: to apply something like
+
+   (lambda (a) (mapcar (function (lambda (b) (list 'quote b))) a))
+
+to the list of arguments before passing it to the functional object in
+case it represents a special form. Implementation of this idea could lead
+to even more strange effects. For example, (funcall (function setq) 'a 3)
+would fail saying "(QUOTE A) is not a symbol" after trying to assign a
+value of 3 to S-expression `(QUOTE A)'. 
+
+  In order to reduce strange effects, it would be required at least to
+write manually an `apply' version for each special form. I decided not to
+waste time doing such stupid things. Just do not consider special forms as
+first class objects, and everything will be Ok.
+
+  
+
+
+
+
+
+
+
+
+
+R E F E R E N C E S
+
+
+[1] Steele G. L. Common Lisp the Language, 2nd edition. Digital Press,
+1990.
+
+[2] Kelsey R. at al. Revised^5 report on Algorithmic Language Scheme. 
+ACM SIGPLAN Notices, 1998, 33(9). P. 26-76.

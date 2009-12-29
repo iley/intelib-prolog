@@ -1,0 +1,153 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+$EXTERN AddSymbol;
+$EXTERN Library;
+$EXTERN TwoNewlines;
+$EXTERN NextNumbersFrom;
+$EXTERN GenerateName;
+$EXTERN AddFunctionsCode;
+$EXTERN IsStatic;
+
+$ENTRY GenerateCxx {
+  t.Directives e.Files =
+	((<GetCxxName t.Directives>) (<GetCxxCont t.Directives e.Files>));
+  e.Foo = <Prout 'Bug in "GenerateCxx" function. View field: ' e.Foo>;
+}
+
+GetCxxName {
+  (t.Name (e.Foo (7 e.ModuleName) e.Bar1 (8) e.Bar2)) =
+	e.ModuleName '.cxx';
+  (t.Name (e.Foo (7 e.ModuleName) e.Bar1 (8 e.CxxFileName) e.Bar2)) =
+	e.CxxFileName;
+  e.Foo = <Prout 'Bug in "GetCxxName" function. View field: ' e.Foo>;
+}
+
+CxxPartsNumber {
+  = 7;
+}
+
+GetCxxCont {
+  t.Directives e.Files =
+	<FillCxx 1 t.Directives (e.Files) <StartFilling 1 t.Directives>>;
+  e.Foo = <Prout 'Bug in "GetCxxCont" function. View field: ' e.Foo>;
+}
+
+FillCxx {
+  s.N t.Directives (e.Files), <CxxPartsNumber> : s.N = ;
+  s.N t.Directives (e.Files) e.Text,
+	<CxxPartsNumber> : s.N =
+	<TwoNewlines>
+	e.Text;
+  6 t.Directives (e.Files) =
+	<FillCxx 7 t.Directives (e.Files) <StartFilling 7 t.Directives e.Files>>;
+  6 t.Directives (e.Files) e.Text =
+	<TwoNewlines>
+	e.Text
+	<FillCxx 7 t.Directives (e.Files) <StartFilling 7 t.Directives e.Files>>;
+  s.N t.Directives (e.Files) =
+	<FillCxx <Add s.N 1> t.Directives (e.Files) <StartFilling <Add s.N 1> t.Directives>>;
+  s.N t.Directives (e.Files) e.Text =
+	<TwoNewlines>
+	e.Text
+	<FillCxx <Add s.N 1> t.Directives (e.Files) <StartFilling <Add s.N 1> t.Directives>>;
+  e.Foo = <Prout 'Bug in "FillCxx" function. View field: ' e.Foo>;
+}
+
+StartFilling {
+  1 (t.Name (e.Foo (10 e.UsedModules) e.Bar)) =
+	<AddHeader e.UsedModules>;
+  2 (t.Name (e.Foo (3 e.ExternalFunctions) e.Bar1 (5 e.NamesConvention) e.Bar2
+  (6 e.CharsConvention) e.Bar3)) =
+	<AddSymbol (e.ExternalFunctions) (e.NamesConvention) (e.CharsConvention)>;
+  3 t.Directives =
+	<AddLibrary <Library>>;
+  4 (t.Name (e.Foo (4 e.ExternalSymbols) e.Bar1 (5 e.NamesConvention) e.Bar2
+  (6 e.CharsConvention) e.Bar3)) =
+	<AddSymbol (e.ExternalSymbols) (e.NamesConvention) (e.CharsConvention)>;
+  5 (t.Name (e.Foo (2 e.PublicSymbols) e.Bar1 (5 e.NamesConvention) e.Bar2
+  (6 e.CharsConvention) e.Bar3 (s.N e.Symbols) e.Bar4)),
+	<Add <NextNumbersFrom> 2> : s.N =
+	<AddAllSymbols (e.Symbols) (e.PublicSymbols) (e.NamesConvention) (e.CharsConvention)>;
+  6 (t.Name (e.Foo (5 e.NamesConvention) e.Bar1
+  (6 e.CharsConvention) e.Bar2 (s.N e.Vars) e.Bar3)),
+	<Add <NextNumbersFrom> 1> : s.N =
+	<AddAllVariables (e.Vars) (e.NamesConvention) (e.CharsConvention)>;
+  7 (t.Name (e.Foo
+  (5 e.NamesConvention) e.Bar1 (6 e.CharsConvention) e.Bar2
+  (11 e.InitFunctionName) e.Bar3 (s.N1 e.PublicFunctions) e.Bar4 (s.N2 e.ExternalFunctions)
+  e.Bar5)) e.Files,
+	<Add <NextNumbersFrom> 3> : s.N1,
+	<Add <NextNumbersFrom> 4> : s.N2 =
+	<AddFunctionsCode
+		(e.PublicFunctions) (e.ExternalFunctions)
+		(e.NamesConvention) (e.CharsConvention)
+		(e.InitFunctionName)
+		e.Files
+	>;
+  e.Foo = <Prout 'Bug in "StartFilling" function. View field: ' e.Foo>;
+}
+
+AddHeader {
+  e.UsedModules =
+	'#include "sexpress/iexcept.hpp"\n'
+	'#include "sexpress/sexpress.hpp"\n'
+        '\n'
+	'#include "refal/refal.hpp"\n'
+	'#include "refal/rclause.hpp"\n'
+	'#include "refal/rvars.hpp"\n'
+	<AddUsedModules e.UsedModules>
+	'\n'
+	'static RfFormConstructor R;\n'
+	'\n'
+	'RfWith RWITH;\n';
+}
+
+AddUsedModules {
+  (s.LineNumber e.UsedModule) e.Text =
+	'#include "' e.UsedModule '"\n'
+	<AddUsedModules e.Text>;
+    = ;
+  e.Foo = <Prout 'Bug in "AddUsedModules" function. View field: ' e.Foo>;
+}
+
+AddLibrary {
+  (e.LibraryFunction) e.Text =
+	'extern RfLibSymbol ' e.LibraryFunction ';\n'
+	<AddLibrary e.Text>;
+    = ;
+  e.Foo = <Prout 'Bug in "AddLibrary" function. View field: ' e.Foo>;
+}
+
+AddAllSymbols {
+  ((e.Symbol) e.Text) (e.PublicSymbols) (e.NamesConvention) (e.CharsConvention) =
+	<IsStatic (e.Symbol) (e.PublicSymbols)>
+	'RfSymbol '
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Symbol)>
+	'("' e.Symbol '");\n'
+	<AddAllSymbols (e.Text) (e.PublicSymbols) (e.NamesConvention) (e.CharsConvention)>;
+  () (e.PublicSymbols) (e.NamesConvention) (e.CharsConvention) = ;
+  e.Foo = <Prout 'Bug in "AddAllSymbols" function. View field: ' e.Foo>;
+}
+
+AddAllVariables {
+  ((e.Var) e.Text) (e.NamesConvention) (e.CharsConvention) =
+	'static RfVariable_' <GetPrefix e.Var> ' '
+        <GenerateName (e.NamesConvention) (e.CharsConvention) (e.Var)>
+        '("' e.Var '");\n'
+	<AddAllVariables (e.Text) (e.NamesConvention) (e.CharsConvention)>;
+  () (e.NamesConvention) (e.CharsConvention) = ;
+  e.Foo = <Prout 'Bug in "AddAllVariables" function. View field: ' e.Foo>;
+}
+
+GetPrefix {
+  e.Prefix '.' e.Suffix = <ToUpper e.Prefix>;
+  e.Foo = <Prout 'Bug in "GetPrefix" function. View field: ' e.Foo>;
+}
+
+ToUpper {
+  's' = 'S';
+  'e' = 'E';
+  't' = 'T';
+  e.Foo = e.Foo;
+}

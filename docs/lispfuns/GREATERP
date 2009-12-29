@@ -1,0 +1,8 @@
+GREATERP
+
+(GREATERP arg0 arg1)
+
+
+Arguments must be either both strings or both numbers. The function compares
+them and returns true if the first is greater than the second, and false 
+otherwise. The function is a replacement for Common Lisp's '>'.

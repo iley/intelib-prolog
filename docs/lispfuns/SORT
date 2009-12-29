@@ -1,0 +1,20 @@
+SORT
+
+(SORT <list> <predicate> [<selector>])
+
+The <list> is destructively sorted according to the order
+determined by the <predicate>. The predicate should take two arguments,
+and return true if and only if the first argument is strictly less
+than the second (in some appropriate sense). 
+
+The optional parameter <selector> is used to preprocess arguments before 
+they are given to the <predicate>, like this:
+
+(sort a p s) == (sort a (function (lambda (x y) (p (s x) (s y)))))
+
+NOTE: the function is just the same as in Common Lisp except it has no
+':key' parameter (because there are no key parameters in Intelib Lisp
+at all). Instead, the function accepts optional third parameter, 
+<selector>, which is interpreted the same way CL's version's :key
+parameter is. 
+

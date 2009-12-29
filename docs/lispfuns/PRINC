@@ -1,0 +1,11 @@
+PRINC
+
+(PRINC <what> [<stream>])
+
+
+If <what> is of type SExpresionString, then print the string to the stream.
+Otherwise, print the text representation of the <what> argument to the
+stream.
+
+NOTE that this function needs INTELIB_TEXT_REPRESENTATION to be
+enabled.

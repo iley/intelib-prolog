@@ -1,0 +1,68 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+$EXTERN GetDelimCode;
+$EXTERN AddError;
+$EXTERN FirstLine;
+$EXTERN LastLine;
+
+$ENTRY Brackets {
+  t.ErrorsList e.Foo (s.LineNumber s.DelimType s.RBracket) e.Bar,
+        <IsRightBracket s.RBracket> : True =
+        <Brackets
+        	<PairBrackets t.ErrorsList <FindPair s.RBracket> e.Foo (s.LineNumber s.DelimType s.RBracket)>
+		e.Bar
+	>;
+  t.ErrorsList e.Foo (s.LineNumber s.DelimType s.LBracket) e.Bar,
+        <IsLeftBracket s.LBracket> : True,
+        <HasLeftBrackets e.Bar> : False =
+        <Brackets
+		<AddError t.ErrorsList (s.LineNumber IrinaError_NoPairFor s.LBracket)>
+		e.Foo (s.LineNumber s.DelimType s.LBracket)
+        	e.Bar
+		(<LastLine e.Bar> s.DelimType <FindPair s.LBracket>)
+	>;
+  t.ErrorsList e.Foo = t.ErrorsList e.Foo;
+  e.Foo = <Prout 'Bug in "Brackets" function. View field: ' e.Foo>;
+}
+
+PairBrackets {
+  t.ErrorsList s.LBracket e.Foo
+  (s.LineNumber s.DelimType s.LBracket) e.Bar,
+	<HasThis s.LBracket e.Bar> : False =
+        t.ErrorsList e.Foo ((s.LineNumber s.DelimType s.LBracket) e.Bar);
+  t.ErrorsList s.LBracket e.Foo (s.LineNumber s.DelimType s.RBracket) =
+        <AddError t.ErrorsList (s.LineNumber IrinaError_NoPairFor s.RBracket)>
+	((<FirstLine e.Foo> s.DelimType s.LBracket) e.Foo (s.LineNumber s.DelimType s.RBracket));
+  e.Foo = <Prout 'Bug in "PairBrackets" function. View field: ' e.Foo>;
+}
+
+HasThis {
+  s.Symbol e.Foo (t.LineNumber s.Type s.Symbol) e.Bar = True;
+  e.Foo = False;
+}
+
+HasLeftBrackets {
+  e.Foo s.LBracket e.Bar, <IsLeftBracket s.LBracket> : True = True;
+  e.Foo = False;
+}
+
+FindPair {
+  s.Symbol, <GetDelimCode '{'> : s.Symbol = <GetDelimCode '}'>;
+  s.Symbol, <GetDelimCode '}'> : s.Symbol = <GetDelimCode '{'>;
+  s.Symbol, <GetDelimCode '('> : s.Symbol = <GetDelimCode ')'>;
+  s.Symbol, <GetDelimCode ')'> : s.Symbol = <GetDelimCode '('>;
+  s.Symbol, <GetDelimCode '<'> : s.Symbol = <GetDelimCode '>'>;
+  s.Symbol, <GetDelimCode '>'> : s.Symbol = <GetDelimCode '<'>;
+  e.Foo = <Prout 'Bug in "FindPair" function. View field: ' e.Foo>;
+}
+
+IsLeftBracket {
+  s.LBracket, <GetDelimCode '{'> <GetDelimCode '('> <GetDelimCode '<'> : e.Foo s.LBracket e.Bar = True;
+  e.Foo = False;
+}
+
+IsRightBracket {
+  s.RBracket, <GetDelimCode '}'> <GetDelimCode ')'> <GetDelimCode '>'> : e.Foo s.RBracket e.Bar = True;
+  e.Foo = False;
+}

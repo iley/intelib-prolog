@@ -1,0 +1,8 @@
+MAKEPACKAGE
+
+(MAKEPACKAGE <name>)
+
+The function creates and returns a new package object. This function
+works much like Common Lisp MAKE-PACKAGE, excepth that is always
+accepts exacly one parameter; there are no 'keyword' parameters in
+Intelib Lisp.

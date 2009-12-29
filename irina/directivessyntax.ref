@@ -1,0 +1,107 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$EXTERN GetDirectType;
+$EXTERN AddError;
+$EXTERN GetDelimType;
+$EXTERN GetSymbolType;
+$EXTERN GetVarType;
+$EXTERN GetTextConstantType;
+$EXTERN GetDelimCode;
+$EXTERN LastLine;
+$EXTERN CheckSyntax;
+$EXTERN Brackets;
+$EXTERN RemoveSC;
+
+
+$ENTRY SyntaxDirectives {
+  t.ErrorsList e.Clause (t.LineNumber s.DelimType Semicolon) e.Text =
+	<SyntaxDirectives
+		<SyntaxOne t.ErrorsList e.Clause (t.LineNumber <GetDelimType> Semicolon)>
+		e.Text
+	>;
+  t.ErrorsList = t.ErrorsList;
+  t.ErrorsList e.Text =
+	<SyntaxOne t.ErrorsList e.Text (<LastLine e.Text> <GetDelimType> Semicolon)>;
+  e.Foo = <Prout 'Bug in "SyntaxDirectives" function. View field: ' e.Foo>;
+}
+
+SyntaxOne {
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'DECLARE_PUBLIC_FUNCTION') (s.LineNumber2 s.DelimType Equal)
+  (s.LineNumber3 s.SymbolType e.FunName) (s.LineNumber4 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'DECLARE_PUBLIC_SYMBOL') (s.LineNumber2 s.DelimType Equal)
+  (s.LineNumber3 s.SymbolType e.SymbName) (s.LineNumber4 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'DECLARE_EXTERNAL_FUNCTION') (s.LineNumber2 s.DelimType Equal)
+  (s.LineNumber3 s.SymbolType e.FunName) (s.LineNumber4 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'DECLARE_EXTERNAL_SYMBOL') (s.LineNumber2 s.DelimType Equal)
+  (s.LineNumber3 s.SymbolType e.SymbName) (s.LineNumber4 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'DECLARE_NAME') (s.LineNumber2 s.SymbolType e.Name)
+  (s.LineNumber3 s.DelimType Equal)
+  (s.LineNumber4 s.SymbolType e.Ident) (s.LineNumber5 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'DECLARE_NAME') (s.LineNumber2 s.VarType e.Name)
+  (s.LineNumber3 s.DelimType Equal)
+  (s.LineNumber4 s.SymbolType e.Ident) (s.LineNumber5 s.DelimType Semicolon),
+	<GetVarType> : s.VarType,
+	<GetSymbolType> : s.SymbolType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'DECLARE_CHAR') (s.LineNumber2 s.TextConstantType s.Char)
+  (s.LineNumber3 s.DelimType Equal)
+  (s.LineNumber4 s.SymbolType e.Ident) (s.LineNumber5 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType,
+	<GetTextConstantType> : s.TextConstantType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'MODULE_NAME') (s.LineNumber2 s.DelimType Equal)
+  (s.LineNumber3 s.SymbolType e.ModuleName) (s.LineNumber4 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'CXX_FILE_PATH') (s.LineNumber2 s.DelimType Equal)
+  (s.LineNumber3 s.TextConstantType e.FilePath) (s.LineNumber4 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType,
+	<GetTextConstantType> : s.TextConstantType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'HXX_FILE_PATH') (s.LineNumber2 s.DelimType Equal)
+  (s.LineNumber3 s.TextConstantType e.FilePath) (s.LineNumber4 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType,
+	<GetTextConstantType> : s.TextConstantType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'DECLARE_USED_MODULE') (s.LineNumber2 s.DelimType Equal)
+  (s.LineNumber3 s.TextConstantType e.UsedModule) (s.LineNumber4 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType,
+	<GetTextConstantType> : s.TextConstantType =
+	t.ErrorsList;
+  t.ErrorsList
+  (s.LineNumber1 s.SymbolType 'INIT_FUNCTION_NAME') (s.LineNumber2 s.DelimType Equal)
+  (s.LineNumber3 s.SymbolType e.FunName) (s.LineNumber4 s.DelimType Semicolon),
+	<GetSymbolType> : s.SymbolType =
+	t.ErrorsList;
+
+  t.ErrorsList (s.LineNumber s.Type e.Foo) e.Text =
+	<AddError t.ErrorsList (s.LineNumber IrinaError_IllegalExpr e.Foo '...')>;
+
+  t.ErrorsList ((s.LineNumber1 s.DelimType s.LBracket) e.Foo (s.LineNumber2 s.DelimType s.RBracket)) e.Text,
+	<GetDelimType> : s.DelimType =
+	<AddError t.ErrorsList (s.LineNumber1 IrinaError_IllegalExpr s.LBracket '...')>;
+
+  e.Foo = <Prout 'Bug in "SyntaxOne" function. View field: ' e.Foo>;
+}

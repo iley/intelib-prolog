@@ -1,0 +1,16 @@
+MAPCAR
+
+(MAPCAR <function> list0 [list1 [list2...]])
+
+
+MAPCAR operates on successive elements of the lists. First the
+function is applied to the car of each list, then to the cadr of each
+list, and so on. (Ideally all the lists are the same length; if not,
+the iteration terminates when the shortest list runs out, and excess
+elements in other lists are ignored.) The value returned is a list of 
+the results of the successive calls to the function.
+
+Unlike in Common Lisp, this version of MAPCAR accepts functional objects
+as well as symbols with associated functions and lambda-lists as its
+first argument. It is not recommended though to make use of this 
+difference. 

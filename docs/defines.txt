@@ -1,0 +1,97 @@
+                          I N T E L I B   
+            The library's compile-time options summary
+
+                             Copyright (c) Andrey V. Stolyarov, 2004-2007
+
+*************************************************************************
+
+   In this memo, the list of available compile-time options is described.
+The default values are given as well. If you need to change some of them,
+you can use the file defines.mk in your target directory (see the file 
+build.txt for details).
+
+Symbol: INTELIB_FLOAT_T 
+Default: float
+Description: Specifies the type which will be used by SExpressionFloat
+  to store floating point numbers. The type gets a typedef named 
+  intelib_float_t.
+
+Symbol: INTELIB_INTEGER_T 
+Default: int
+Description: Specifies the type which will be used by SExpressionInt
+  to store integral numbers. The type gets a typedef named intelib_integer_t.
+
+Symbol: INTELIB_FLOAT_FORMAT 
+Default: "%f"
+Description: The printf format specifier for printing intelib_float_t
+  datums. Used by SExpressionFloat::TextRepresentation()
+
+Symbol: INTELIB_INTEGER_FORMAT 
+Default: "%d"
+Description: The printf format specifier for printing intelib_integer_t
+  datums. Used by SExpressionInt::TextRepresentation()
+
+Symbol: INTELIB_LISP_LIBRARY_DEFINES_SYMBOLS
+Default: 1
+Description: If set to 1, the file lsymbol.hpp will define macro names
+  for all the symbols provided by the library, e.g., QUOTE, LAMBDA, T, NIL
+  and FUNCTION. If you don't want these macros in a file which includes
+  lsymbol.hpp, just set the symbol to 0 right before your includes. It 
+  wouldn't end up in a conflict even if you do this in some of your modules 
+  leaving other modules as they go; this just controls presence of several
+  macros, that's all.  
+
+Symbol: INTELIB_EVALUATION_INTERRUPTION_SUPPORT
+Default: 1
+Description: If the symbol is set to 1, the class IntelibContinuation 
+  will contain static function InterruptEvaluator() and the
+  IntelibContinuation::Interruption class definition; once the function is
+  called (e.g., from a signal handler), the next step of evaluation will
+  throw Interruption as an 
+  exception thus stopping the normal evaluation flow. The feature is
+  enabled by default because it is used by interactive interpreters.
+  See $INTELIB/samples/erat_int for a simple demo.
+
+Symbol: INTELIB_RUNTIME_CHECKS 
+Default: 1
+Description: When the symbol is set to 1 (the default), the library performs 
+  some additional runtime checks. If you're sure you use the library in a 
+  perfectly correct manner, set the symbol to 0 to gain some efficiency. 
+
+Symbol: INTELIB_DEBUG_COUNTERS
+Default: 0
+Description: When the symbol is set to 1, the library supports counters for
+  created (existing) S-expression objects. This is used to trace down
+  memory leaks. You don't need this symbol unless you notice leaks you
+  wish to track down yourself.
+
+Symbol: INTELIB_SIMPLE_STRING_LIMIT 
+Default: sizeof(char*)
+Description: InteLib is able to store a string constant right within the 
+  object of SExpressionString class, as well as storing it somewhere else as
+  a separate data object, in which case the object of SExpressionString holds
+  the pointer. This symbol specifies how much space there must be inside the
+  SExpressionString object to hols the string. Rationale for the default 
+  value is that the stirngs which are shorter than pointers are stored 
+  directly, while longer strings are stored as separate data objects.
+
+Symbol: INTELIB_TEXT_REPRESENTATIONS 
+Default: 1
+Description: Specifies whether to support converting of S-expressions into 
+  their respective text representations.
+
+Symbol: INTELIB_USE_READLINE
+Default: 1
+Description: Specifies whether to compile the interact/ directory and
+  build NILL and NILS with GNU readline support.
+
+Symbol: INTELIB_NILL_SUPPORT_TRACE
+Default: 1
+Description: Specifies whether to compile NILL interpreter (and the
+  corresponding module) with the trace support module, thereby adding
+  builtin TRACE and UNTRACE functions to the interpreter.
+
+/* deprecated ? */
+
+Symbol: INTELIB_DEBUG_PRINT
+Symbol: INTELIB_CLEAR_SYMBOLS

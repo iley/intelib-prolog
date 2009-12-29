@@ -1,0 +1,192 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+$ENTRY Generate {
+ (e.1)(e.2)(e.3)(e.4)(e.5) = 
+    (
+           '#ifndef INTELIB_REFAL_TRANSLATED_HXX\n'
+           '#define INTELIB_REFAL_TRANSLATED_HXX\n'
+           '\n'
+           '#include "sexpress/sexpress.hpp"\n\n'
+           '#include "refal/rclause.hpp"\n\n'
+           <BuildExternFunCode e.5> '\n\n\n'
+           'void RefalInit();\n\n'
+           '#endif \n'
+    )(
+           '\n'
+           '#include "sexpress/iexcept.hpp"\n'
+           '#include "sexpress/sexpress.hpp"\n\n'
+           '#include "refal/refal.hpp"\n'
+           '#include "refal/rclause.hpp"\n'
+           '#include "refal/rvars.hpp"\n'
+           '\n'
+           'static RfFormConstructor R;\n'
+           <BuildPublicsCode e.5> '\n'
+           <BuildExternFunCode e.3> '\n\n\n'
+           <BuildSymbolsCode <Subset (e.1) e.3 e.5>> '\n'
+           <BuildVariablesCode e.2> '\n\n\n'
+           <BuildLocalFunCode () () e.4>
+    );
+}
+
+BuildOneSymbolCode {
+  'Prout' = 'extern RfLibSymbol Prout;\n' ;
+  e.1     = 'static RfSymbol ' <SymbolCPPName e.1> '("' e.1 '");\n' ;
+}
+
+
+BuildSymbolsCode {
+  (e.1) e.2 = <BuildOneSymbolCode e.1> <BuildSymbolsCode e.2>;
+  = ;
+}
+
+BuildPublicsCode {
+  (e.1) e.2 = 'RfSymbol ' <SymbolCPPName e.1> '("' e.1 '");\n'
+               <BuildPublicsCode e.2>;
+  = ;
+}
+
+*                this must be changed
+SymbolCPPName {
+  e.1 = e.1;
+}
+
+BuildVariablesCode {
+  (e.1) e.2 = 'static ' <VarTypeClass e.1> ' ' 
+                        <VarCPPName e.1> '("' e.1 '");\n'
+               <BuildVariablesCode e.2>;
+  = ;
+}
+
+*                 this must be changed
+VarCPPName {
+  s.1 e.2 '.' s.3 e.4 = s.1 e.2 '_' s.3 e.4 ;
+}
+
+VarTypeClass {
+  'e.' e.1   = 'RfVariable_E' ; 
+  't.' e.1   = 'RfVariable_T' ; 
+  's.' e.1   = 'RfVariable_S' ; 
+  e.1 '.' e.2 = <Error 'Unknown variable type' e.1>;
+  e.1        = <Error 'Not a variable' e.1>;
+}
+
+BuildExternFunCode {
+  (e.1) e.2 = 'extern RfSymbol ' <SymbolCPPName e.1> ';\n'
+               <BuildExternFunCode e.2>;
+  = ;
+}
+
+BuildLocalFunCode {
+  (e.funs) (e.initbody) ((e.name) ('{' e.block '}')) e.rest =
+      <BuildLocalFunCode
+          (e.funs 
+          'static void RefalInit_' <SymbolCPPName e.name> '() {\n'
+          '  ' <SymbolCPPName e.name> ' \n'
+              <TranslateFunBody e.block>
+          ';\n'
+          '}\n\n'
+          )
+          (e.initbody 
+           '  RefalInit_' <SymbolCPPName e.name> '();\n'
+          )
+          e.rest 
+       >;
+   (e.1)(e.2) = 
+       '\n\n' e.1
+       'void RefalInit () { \n'
+         e.2
+       '}\n'  ;   
+}
+
+TranslateFunBody {
+  t.1 e.2 = <DoTranslateFunBody t.1 e.2>;
+          = ;
+}
+
+DoTranslateFunBody {
+  e.clause ';' e.rest = '    || ' <TranslateClause e.clause> '\n'
+                                <DoTranslateFunBody e.rest>;
+                      = ;
+}
+
+TranslateClause {
+  e.left '=' e.right  = <TranslateLeftPart e.left> '\t^ '
+                        <TranslateList '(' e.right ')'>;
+
+********* remove parentheses! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  e.left ',' e.arg ':' ('{' e.block '}')  
+                      = <TranslateLeftPart e.left> '\t^ WITH('
+                        <TranslateList '(' e.arg ')'> '), RFUNC\n'
+                        <TranslateFunBody e.block>')';
+}
+
+TranslateLeftPart {
+*  e.left ',' e.where ',' e.rest = 
+*     <TranslateLeftPart e.left (',' e.where) ',' e.rest>;
+  e.left ',' e.where            = 
+     <TranslateLeftPart e.left> <TranslateWhereClauses e.where>;
+  e.left                        =
+     <TranslateList '(' e.left ')'>;
+}
+
+TranslateList {
+* The first line is a work-around for bug(?) in refal
+  '(,' e.1      = <TranslateList '(' e.1>;
+  '()'          = '(~R)';
+  '(' e.1 ')'   = '(R|' <TranslateListElems e.1> ')';
+  '<' e.1 '>'   = 'R<' <TranslateListElems e.1> '>R';
+}
+
+TranslateListElems {
+  = ;
+  t.1 e.2 = <TranslateSingleItem t.1> <TranslateListTail e.2>; 
+}
+
+TranslateListTail {
+  = ;
+  t.1 e.2 = ', ' <TranslateSingleItem t.1> <TranslateListTail e.2>;
+}
+
+TranslateSingleItem {
+  (Var_ e.1)  = <VarCPPName e.1> ;
+  (Id_ e.1)   = <SymbolCPPName e.1>;
+  (String_ e.1)   = '"' e.1 '"' ' '; 
+  (Number_ e.1)   = e.1;
+  ('()')      = '(~R)' ;
+  ('(' e.1)   = <TranslateList '(' e.1>; 
+  ('<' e.1)   = <TranslateList '<' e.1>; 
+}
+
+TranslateWhereClauses {
+  e.arg ':' e.pat ',' e.2 = ' & ' <TranslateList '(' e.arg ')'> '|'
+                          <TranslateList '(' e.pat ')'> 
+                          <TranslateWhereClauses e.2> ;
+  e.arg ':' e.pat = ' & ' <TranslateList '(' e.arg ')'> '|'
+                          <TranslateList '(' e.pat ')'> ;
+   = ;
+}
+
+TranslateWithWhereClause {
+ e.1 = ;
+}
+
+
+Subset {
+  (e.1) = e.1;
+  (e.1 t.2 e.3) t.2 e.4 = <Subset (e.1 e.3) t.2 e.4>;
+  (e.1) t.2 e.4 = <Subset (e.1) e.4>;
+}
+
+
+
+* ============== Error handling =============
+
+$ENTRY Error {
+  e.1 = <Prout e.1> <Stop >;
+}
+
+Stop {
+  'abrakadabra' = ;
+}

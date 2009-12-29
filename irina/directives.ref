@@ -1,0 +1,11 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+/*%%%
+  DECLARE_CHAR '.' = _;
+  DECLARE_CHAR '-' = _;
+  DECLARE_EXTERNAL_SYMBOL = True;
+  DECLARE_EXTERNAL_SYMBOL = False;
+  DECLARE_EXTERNAL_SYMBOL = regular;
+  DECLARE_EXTERNAL_SYMBOL = special;
+*/

@@ -1,0 +1,25 @@
+This directory contains several demo programs to give you an idea how
+to use the Lisp-related part of InteLib.
+
+
+eratosf/   is a program which finds prime numbers; it is written in Lisp
+           and can run under lisp interpreter as well as having been translated
+           into C++/InteLib. It is a pretty simple demonstration on how to
+           use a Lisp-implemented module from within your C++ program, how
+           to bring the things together etc.
+
+erat_int/  is a version of the previous program which also demonstrates 
+           InteLib's ability to interrupt evaluations.
+
+permut/    is a program which prints all possible permutations of N by N.
+           To do so, a user-defined S-expression type is created. The type
+           is named SExpressionPermGen; its duty is to serve as a
+           permutation generator object, that is, to store the current
+           permutation and to compute the next one by request. The demo is
+           intended to show how to invent user-defined S-expression types
+           and C++-written Lisp functions.
+          
+perm_ufn/  is a version of the previous program which differs in the
+           technique used for creating Lisp functions in C++; instead of
+           usual classes, plain C++ functions (of the type UserFunction)
+           are used.

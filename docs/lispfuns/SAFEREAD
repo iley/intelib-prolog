@@ -1,0 +1,33 @@
+SAFEREAD
+
+(SAFEREAD <stream> [<error-value> [<eof-value> [<package>]]]])
+   OR 
+(SAFEREAD <string> [<error-value> [<eof-value> [<package>]]]])
+
+Reads an S-expression from the given <stream> or <string>. The
+<stream> (or <string>) argument is mandatory. 
+
+<Error-value> gives the value to return in case of a syntax error
+(e.g., EOF within an unterminated list, etc). <Eof-value> is what to
+return in case EOF is encountered before anything was read (e.g.,
+there were some whitespace, then EOF). Both values default to the
+empty list '().
+
+<Package> specifies the package to use to generate symbols. By default, 
+no package is used and SExpressionClassicAtom's are generated instead
+of symbols (note that in this case the corresponding objects will be
+EQL, but not EQ; classic atom is effectively a string which is printed
+without quotes). Please note that since InteLib 0.5.81 it is possible to
+establish a default InteLib Reader (with the help from PTheIntelibReader
+global variable), which itself can hold a package. Use NIL as this
+parameter to enforce using the DummyPackage -- the one which generate
+ClassicAtoms.
+
+WARNING! Since this envolves a global variable, please be warned that
+establishing an alternative default reader AND using the 4th parameter in
+SAFEREAD make the function non-multithread-safe. This is likely to be
+fixed, though.
+
+The function is called so because, as opposit to the CL's READ, it
+doesn't encourage the programmer to trust the incoming data thus
+producing vulnerabilities.

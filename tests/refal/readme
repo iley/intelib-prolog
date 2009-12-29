@@ -1,0 +1,7 @@
+1. If you DO want to look how fast InteLib implementation of Refal is,
+you need usual refc and refgo translators. Please read ../../irina/README,
+configure REFC and REFGO values in ../../irina/Makefile
+and type "make" here.
+2. If you DON'T want to look how fast InteLib implementation of Refal is
+and just want to run usual Refal tests (without t_time),
+please type "make notime" here. 

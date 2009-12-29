@@ -1,0 +1,8 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+/*%%%
+  MODULE_NAME = irina;
+  DECLARE_PUBLIC_FUNCTION = Start;
+  DECLARE_CHAR '.' = _;
+*/

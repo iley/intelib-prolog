@@ -1,0 +1,4 @@
+
+This file is under construction now. Please take a look on
+doxygen(tm)-generated documentation, may be it contains 
+what you need.

@@ -1,0 +1,9 @@
+PRIN1
+
+(PRIN1 <what> [<stream>])
+
+Print the textual representation of the <what> argument to the
+stream.
+
+NOTE that this function needs INTELIB_TEXT_REPRESENTATION to be
+enabled.

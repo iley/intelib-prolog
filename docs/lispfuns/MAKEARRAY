@@ -1,0 +1,12 @@
+MAKEARRAY
+
+(MAKEARRAY [<dimension>])
+
+The function creates and returns a new array object. If <dimension> is
+given and non-zero, the array of that many elements is created, and there
+is no possibility to resize it. If the argument is zero or ommited, the
+array of a dynamic length is created, that is, whenever you do AREF on it,
+there will be no error and new elements are allocated whenever needed.
+
+Unlike Common Lisp, there's no multidimensional arrays in InteLib Lisp as
+for now. Also, there's no resizeable arrays in Common Lisp.

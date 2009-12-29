@@ -1,0 +1,9 @@
+STRING2NUM
+
+(STRING2NUM <string>)
+
+
+The string must satisfy the regular expression '(+|-|)([0-9]+)(|\.[0-9]*)'
+(that is, may have a leading + or -, any number of digits and no more than
+one decimal point). The function interpretes the string as a number's 
+representation and returns the number. 

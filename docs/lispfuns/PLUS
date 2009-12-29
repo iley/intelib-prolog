@@ -1,0 +1,12 @@
+PLUS
+
+(PLUS arg0 ...)
+
+
+Given no argunments, returns 0. If the first argument is a
+SExpressionString (or its derived class), then the function expects all the
+arguments to be strings and returns their concatenation. Otherwise, acts just
+like Common Lisp's '+'. 
+
+Note there are only 2 numberic types in Intelib Lisp, SExpressionInt and
+SExpressionFloat.

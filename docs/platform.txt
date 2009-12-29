@@ -1,0 +1,6 @@
+The present version is known to compile under Linux with gcc (g++) 3.3.*,
+both for 32-bit and 64-bit architectures.  Gnu Make is needed to build it.
+
+Please help me to make the list! Try to build it on other OSes 
+by other compilers, including other versions of gcc. Then, 
+drop me a line.

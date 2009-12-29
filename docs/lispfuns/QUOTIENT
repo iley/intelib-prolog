@@ -1,0 +1,17 @@
+QUOTIENT
+
+(QUOTIENT arg0 ...)
+
+
+Acts just like Common Lisp's '/', that is, takes the first argument
+(which must be given), divides it by the second, then divides the
+result by third etc. If at any step at least one of the operands is
+of type float, then the result is float. If the operands are integers, 
+AND give modulo 0, then the result is integer. If operands are integers
+but modulo isn't 0, they are converted to float. This is because there's
+no 'rational' type in InteLib Lisp. 
+
+For example: 
+  (/ 20.0 2.0) => 10.0
+  (/ 1 2) => 0.5
+  (/ 16 8) => 2

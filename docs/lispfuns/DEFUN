@@ -1,0 +1,20 @@
+DEFUN
+
+(DEFUN symb lambda-list body)
+
+Defines a new lisp function just like in Common Lisp with the following
+differences:
+  * symb must be a symbol (that is, convertable to LExpressionSymbol class). 
+Setf-lists are not allowed, because SETF is supported in another way.
+  * lambda-list can't have keywords such as &aux, &rest, &key, &optional 
+etc (that is, it doesn't handle them as keywords, just as symbols)
+  * lambda-list can be dotted or even be a symbol. Just like in Scheme, 
+it means that the symbol after the dot is to be bound to the list of the
+resting arguments given to the function. In case a symbol is placed 
+instead of a list, it is bound to the whole list of the given argiments.
+E.g., (DEFUN (A . B) ...) in InteLib Lisp means the same thing as 
+(DEFUN (A &rest B) ...) in CL, and simply (DEFUN A ...) stands for 
+(DEFUN (&rest A) ...).
+
+DEFUN makes a lexical closure saving all the active lexical bindings, and 
+then assigns it to the given symbol as its function.

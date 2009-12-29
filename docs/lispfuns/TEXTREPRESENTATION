@@ -1,0 +1,12 @@
+TEXTREPRESENTATION
+
+(TEXTREPRESENTATION <object>)
+
+This function returns the text representation of a given <object>, 
+that is, whatever LReference::TextRepresentation() method returns
+for it. 
+
+NOTE the INTELIB_TEXT_REPRESENTATIONS macro must be defined to 1 in 
+order this function to work. If the macro is either defined to smt. else
+or undefned, the function will return the same (irrelevant) string for 
+any given object.

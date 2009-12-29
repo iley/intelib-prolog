@@ -1,0 +1,13 @@
+This demo is just like the ``permut'' demo; please read ../permut/README
+for its details.
+
+The only difference is the technique used to create Lisp functions within
+the C++ part of the program. Unlike ``permut'', where usual classes were
+used just like in the InteLib's standard Lisp library, this one uses
+UserLispFunctions which are effectively just functions, not classes.
+
+Do 
+
+    diff . ../permut
+
+to see the difference.

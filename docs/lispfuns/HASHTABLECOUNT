@@ -1,0 +1,6 @@
+HASHTABLECOUNT
+
+(HASHTABLECOUNT <hashtable>)
+
+The first parameter must be a hash table. The function returns the
+amount of items in the given table.

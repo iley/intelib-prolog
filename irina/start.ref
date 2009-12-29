@@ -1,0 +1,17 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$EXTERN Lexical;
+$EXTERN Syntax;
+$EXTERN Linker;
+
+
+$ENTRY Start {
+  e.Files = <Linker <Process e.Files>>;
+}
+
+Process {
+  t.File e.Files = <Syntax <Lexical t.File>> <Process e.Files>;
+    = ;
+  e.Foo = <Prout 'Bug in "Process" function. View field: ' e.Foo>;
+}

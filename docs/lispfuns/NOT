@@ -1,0 +1,9 @@
+NOT
+
+(NOT arg0)
+
+Checks if the arg0 is false. 
+
+
+Note: if false and empty list are different with your settings, this is
+not the same as (NULL arg0).

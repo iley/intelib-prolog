@@ -1,0 +1,356 @@
+                          I N T E L I B
+             Guidelines on building and bootstrapping
+
+                             Copyright (c) Andrey V. Stolyarov, 2000-2009
+
+*************************************************************************
+* 0. Determining whether you agree to use this software
+
+PLEASE read the text of GNU Lesser General Public License v.2.1 *and* GNU
+General Public License v.2. Make sure you understand both licenses,
+including (but not limited to) the fact that is is still illegal to use the
+library in a generic proprietary software project; you *MUST* take some
+certain (and non-trivial) actions to obey the license, at least provide
+your users with the source of the library and the object code of everything
+else so that your user can change the library and then relink the whole
+thing.
+
+Please also be sure you understand that only the library (that is, the
+files in sexpress/, tools/, genlisp/, lisp/ and scheme/ directories) is
+available under GNU LGPL, and all the accompanying software (translators
+and tests) come under strict GPL.  Some of the library code comes from the
+ill/ and ils/ directories (the debug assistant interpreter, implemented as
+the IntelibLispLoop class), and this code is also available under strict
+GNU GPL, not LGPL.  This is not a problem though as the IntelibLispLoop
+class is not normally linked with a production version of your program.
+
+If you need to use the library in any other way than under GPL, please
+take a look at http://www.intelib.org/license.html
+
+
+
+*************************************************************************
+* 1.  What's by default
+
+The build system of the library is relatively flexible.  Most of its
+features are explained in further sections of this text; however, it is
+very likely you don't need all the details right for the first time
+building the library.
+
+If in doubt, try the simple default building and installing.  Only look for
+the detailed explanation in case you're dissatisfied with the default or
+just courious ;-)
+
+There are two things you'll need to know.  First, the library is built with
+GNU make.  Under Linux, it is usually the default make.  Under other OSes,
+try gmake instead of make. 
+
+Second, please note the Makefiles supplied with the library do *NOT* create
+any shared library objects (.so).  As to my experience, shared libraries
+mostly produce problems not profits.  I personally don't welcome the
+well-known Windoze DLL hell in the Unix world.
+
+Now, simply change to the intelib-0.x.xx/ directory (where 0.x.xx is the
+version number) and type:
+
+  % make
+
+(or, if your system's default make is not GNU make, use gmake instead; in
+the rest of this text, it is assumed you use the correct name instead of
+just 'make').
+
+This will build the library and bootstrap the interpreters and translators
+for both InteLib Lisp and InteLib Scheme.
+
+The build process could fail complaining about absence of GNU Readline
+library header files.  If you see such a complain, you probably don't have
+the development files (headers) of GNU readline installed in your system.
+If for some reason you don't want to install them (a package named like
+readline-devel), you can disable using of GNU readline:
+
+  % make USE_READLINE=no
+
+though it's not a very good idea: if you try to use NILL or NILS one day,
+e.g. for debugging purposes, you'll notice it is inconvenient to work with
+them when readline support is disabled.  Better consider installing the
+development files for GNU readline.
+
+The modules of the library are by default being built in the build/
+directory; the library files libintelib.a and libintelib_interp.a are also
+created there.  Besides that, the include files' tree, consisting both of
+copied and created header files, is deployed under the same build/
+directory, thus allowing to use it both for -I and -L options of g++.
+
+The interpreters and translators are currently being bootstrapped within
+their source directories.  This may change once, but for now please note
+this doesn't allow to build InteLib from the source tree residing on a
+readonly partition or a directory.
+
+Anyway, you might want to install the library, headers and translators on
+the system-wide basis; you'll need root access (or at least write
+permission to /usr/local and /usr/local/{bin,lib,include}) to do so.
+The detailed explanation is found below; for the default instalation, just
+type
+
+  % make install
+
+after you've built all the stuff.  By default, the headers, library files
+and the translator binaries are installed into /usr/local/intelib-0.x.xx
+directory (where 0.x.xx is the version number), and the respective
+symbolic links are made:
+
+  /usr/local/intelib            --> /usr/local/intelib-0.x.xx
+  /usr/local/include/intelib    --> /usr/local/intelib/include
+  /usr/local/bin/{ill,nill,...} --> /usr/local/intelib/bin/{...}
+  /usr/local/lib/libintelib*.a  --> /usr/local/intelib/lib/{...}
+
+Please note that not all existing *nix systems are tuned to use
+/usr/local/* tree for default.  In Linux, there's perhaps nothing to worry
+about.  Under FreeBSD, however, you'll need to specify
+
+  -I/usr/local/include -L/usr/local/lib
+
+at your g++ command line.
+
+
+
+*************************************************************************
+* 2. Building the library
+
+
+The library may be customized with a few compile-time options which affect
+the dialects of Lisp and Scheme the library actually imitate. See the
+header files for the default values. In most cases, you don't need to
+change the dialect, and, btw, even if you believe some options should be
+altered, think twice.  Only the default set of options gets tested actively. 
+
+If you're going to use the default library configuration only, you can
+simply build it in the directory $(INTELIB)/build.  Just issue 
+
+  % make library
+
+in the InteLib's root directory and it will do what you need. 
+
+If you decide to use modified option set in a particular project, you'd
+better compile binaries into a different directory which will belong to
+your project exclusively and will contain the library files compiled with
+your choosen options.  In the following example, we assume your project is
+located in the directory /myproject, and you wish to place the object files
+into /myproject/intelib_bin, while the InteLib itself is unpacked to
+/my/home/intelib.
+
+First, make the directory:
+
+  % mkdir /myproject/intelib_bin
+
+then use your favourite text editor to create the file
+/myproject/intelib_bin/defines.mk which is then automatcally included by
+Makefile. You need to place a single line in the file which will assign
+the CONDDEFINES variable.  Something like the following will serve. 
+
+   CONDDEFINES = "-DINTELIB_RUNTIME_CHECKS=1" \
+                 "-DINTELIB_LISP_CLSTYLE_EMPTY_LIST=0" \
+                 "-DINTELIB_LISP_CLSTYLE_BOOLEANS=0"
+
+As of now, you're ready to build. So, type
+
+  % cd /my/home/intelib
+  % make library TARGETDIR=/myproject/intelib_bin
+
+so then the Makefile will include your /myproject/intelib_bin/defines.mk
+and build the library objects inside your /myproject/intelib_bin
+directory. 
+
+The target directory will contain the file libintelib.a (the library), the
+file libintelib_interp.a (the interpreter-related stuff which is strict
+GPLed), some header files named lfun_XXX.hpp, sch_XXX.hpp and some files
+with the extension ``.lsp'' and ``.scm''.  The two former are intended for
+the ILL and ILS translator, so you can simply ignore them.  The files
+lfun_XXX.hpp and sch_XXX.hpp contain headers for classes representing Lisp
+and Scheme functions; e.g., if you need the function COND, you've got to
+include lfun_std.hpp; if you need CAR or FIRST, you'll need lfun_sel.hpp,
+etc.  The target directory also contains some symbolic links which allow
+you to specify the target directory as the only directory both as include
+and library dir to your compiler, like this:
+
+  % gcc -Iintelib_bin -Lintelib_bin ...
+
+It is sometimes (specially if you recompile your library frequently)
+useful not to remove intermediate object files (*.o) from the build
+directory. To prevent them from being deleted, specify KEEP_OBJECTS=yes.
+In some versions this can be the default, so you might need either to
+specify KEEP_OBJECTS=no or to edit the toplevel Makefile to change this
+default, if you wish the object files to be deleted after building the
+library.
+
+
+
+*************************************************************************
+* 3.  Bootstrapping translators
+
+First of all, if you just need a working translator, then just type
+'make bootstrap' and it probably will do what you need.  If it worked
+for you, then you can skip the rest of this text because it only contains
+some technical details which are normally behind the scene.
+
+The build process could fail complaining about absence of the include
+file named <readline/readline.h>. If you see such a complain, you probably
+don't have the development files (headers) of GNU readline installed in
+your system. If for some reason you don't want to install them (a package
+named like readline-devel), you can disable using of GNU readline:
+
+  % make bootstrap USE_READLINE=no
+
+though it's not a very good idea: if you try to use NILL or NILS one day,
+e.g. for debugging purposes, you'll notice it is inconvenient to work with
+them when readline support is disabled.
+
+The ILL and ILS translators (for InteLib Lisp and InteLib Scheme) are
+written in InteLib Lisp and Scheme theirselves.  In both cases, there's
+only one C++ file (illmain.cpp and ilsmain.cpp), which has the main()
+function so the translator source can be translated into C++ and compiled
+with your C++ compiler.  The problem is that you need the ILL translator in
+order to translate the Lisp source into C++ before you compile the ILL
+translator binary, and the same applies to Scheme.  So, you need ILL before
+you compile ILL.  *Nice*, heh.  This classic problem of chicken and egg is
+always there when you deal with translators.
+
+From the other hand, the interpreters of InteLib Lisp and InteLib Scheme
+(a.k.a. NILL and NILS) are implemented solely in C++ and need no
+bootstrapping.  So they can be used to break the chicken-egg endless loop.
+
+    NOTE for InteLib longtimers: since ILL can now be bootstrapped using 
+    the NILL interpreter, the old-fashioned CL2CPP became totally deprecated 
+    and had been abandoned. All the facilities of compatibility with 
+    Common Lisp are now deprecated as well; you can notice there are no 
+    file ill/compatcl.lsp anymore. There is no separate notion of 
+    long_bootstrap now. 
+
+The bootstrapping process for ILL will take the following steps:
+
+    1) The NILL interpreter binary is built using C++ translator. No Lisp
+is needed to do so.
+    2) The ILL's source code, ill.lsp, is run under NILL in the batch mode,
+having itself (ill.lsp) as the input. Scientists would say that the Lisp
+part of ILL is self-applied. This step produces files ill_nill.cxx and
+ill_nill.hxx. The file nill_run.lsp is used as the main Lisp file on 
+this step.
+    3) The first ILL binary (named ill_nill) is produces by compiling and
+linking the module ill_nill.[ch]xx together with illmain.cpp.
+    4) The binary ill_nill is applied to ill.lsp again with certain
+parameters so that the files named ill_n_t.[ch]xx are generated. The token
+'_n_t' stands for NILL_TEST. 
+    5) The files ill_n_t.[ch]xx are diff'ed against ill_nill.[ch]xx to make
+sure that the ill_nill binary works correctly (we consider it working
+correctly if it produces exactly the same results from ill.lsp as ILL do 
+being run under NILL).
+    6) The binary ill_nill is applied to ill.lsp again, this time producing
+ill.[ch]xx files. They are compiled together with illmain.cpp to produce
+the ill_new binary which is the candidate for being the result of the
+bootstrapping.
+    7) The ill_new binary is tested. To do so, it is once again applied to
+ill.lsp producing the files ill_t.[ch]xx, which are diff'ed against
+ill.[ch]xx. 
+    8) If the test is successfull, the ill_new binary is renamed to ill.
+Bootstrap completed.
+
+The bootstrap process for ILS is the same, using the respectively changed
+file names.
+
+
+
+
+*************************************************************************
+* 4.  Installing InteLib system-wide
+
+4.1.  Primary installation modes
+
+The previously-mentioned goal 'make install' is also tunable and can do the
+installation on different manners.  First of all, there are two primary
+modes of installation, the 'native' one and the 'non-native', also known as
+'separate directory'.
+
+The 'native' install mode is intended to be used together with a package
+management system, in which case the package manager remembers what files
+are installed and where, so the uninstallation task can be (and should be)
+delegated to the package management system.  you might want to use this
+installation mode to prepare a .rpm or .deb for yor Linux distro, and as
+well as within the FreeBSD port collection.
+
+The 'separate directory' install mode, which is the default, is typically
+used when InteLib is downloaded as the source tarball, then unpacked, built
+and installed.
+
+Just to get the idea: 'native' mode would install InteLib, e.g., to
+/usr/local/lib, /usr/local/include and /usr/local/bin (or even without
+'local', just select the right prefix), while 'separate directory' would
+create /usr/local/intelib-0.x.xx/{bin,lib,include}, install there, then
+provide a set of symlinks from /usr/local/{bin,lib,include}.  Generally
+this installation style makes it easier to uninstall.
+
+
+
+4.2.  Tunable parameters
+
+By default, the 'separate directory' mode is used.  To try the native mode,
+type
+
+  % make install INSTALLMODE=native
+
+In both modes, there's the PREFIX variable, which defaults to '/usr/local'
+in the 'native' mode and to '/usr/local/intelib-0.x.xx' in the 'separate
+directory' mode.  Further, there's the DESTDIR variable, which is, if
+defined, sets the directory to use instead of the root directory.  For
+example, if you're going to prepare a package for Linux, you might want to
+do smth. like
+
+  % make install INTSTALLMODE=native PREFIX=/usr DESTDIR=/home/joe/pkg
+
+It is generally senseless (although still possible) to use the DESTDIR
+variable in the 'separate directory' mode.
+
+The directories to install binaries, include files, and library files, are
+controlled by the BINDIR, INCLUDEDIR, and LIBDIR variables, respectively.
+They all default to the respective $(PREFIX)/{bin,include,lib} directories,
+but you can change either of them, if you want so.
+
+
+
+4.3.  Symbolic links for the 'separate directory' mode
+
+When the 'separate directory' installation is made, some useful symbolic
+links are created.  If you want to disable them entirely, try smth. like
+
+  % make install SYMLINK_PREFIX=""
+
+Now let's explain the symlinks in the hope you find them useful.  First of
+all, unless you set your PREFIX not to contain the version suffix, symlink
+is created on the same level as the intelib-0.x.xx directory.  The symlink
+points to the installation directory and is named likewise, with the
+version number suffix striped off.  For example, the default installation
+creates the directory /usr/local/intelib-0.x.xx and also makes a link named
+/usr/local/intelib which points to it.
+
+If you don't want this particular symlink to be created, set your PREFIX
+manually, and set the VERSION_SUFFIX variable to be something ugly, not
+appearing in the PREFIX string (e.g., VERSION_SUFFIX=abrakadabra, but NOT
+just VERSION_SUFFIX="", because the empty suffix is found in any string).
+
+The rest of symbolic links are created within the directory tree determined
+by the SYSPREFIX variable, which is /usr/local by default.  Be sure to set
+it accordingly if you install somewhere else.
+
+The following symlinks are made:
+
+   - $(SYSPREFIX)/bin/{ill,nill,ils,nils,illdef._ls,ilsdef._cs} pointing
+     to the respective files in $(PREFIX)/bin
+   - $(SYSPREFIX)/lib/libintelib.a and $(SYSPREFIX)/lib/libintelib_interp.a
+     pointing to the respective files in $(PREFIX)/lib
+   - $(SYSPREFIX)/include/intelib pointing to $(PREFIX)/include/intelib 
+
+You might want to set SYSPREFIX so that the $(SYSPREFIX)/bin is in your
+$PATH, and $(SYSPREFIX)/{bin,include} are found and used by your compiler
+and linker to search for library and include files.
+
+It is definitely possible to disable creation of all those symlinks and
+just to use the -I and -L options of your gcc.

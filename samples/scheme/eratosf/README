@@ -1,0 +1,27 @@
+
+  This directory contains a simple program which finds prime numbers with
+Eratosfen's algorythm.  The program is not so efficient; it is only a demo, 
+remember. 
+
+  The program itself resides in `eratosf.scm' file.
+
+  The file `main.cpp' is a main file to compile with a C++ translator. 
+Before doing so, you must translate the Scheme code into C++/InteLib 
+notation with the ILS translator.  See the Makefile for details.  Take a 
+look at `eratosf.[ch]xx' files which are the result of the translation, but
+don't try editing them, since they're NOT a source code despite they look 
+so human-readable.  The only right thing to edit is the source in file
+`eratosf.scm'.
+
+  You might want to use the following commands:
+
+% make run             # to compile it using ILL and run as a C++ program
+% make nrun            # to run the program using interactive interpreter
+# make clean           # to remove all the generated files
+
+  PLEASE NOTE the Makefile assumes you have already compiled and INSTALLED
+InteLib.  If you didn't install it, use 'INTELIB=../../..' at your command
+line, like this:
+
+        make run INTELIB=../../..
+

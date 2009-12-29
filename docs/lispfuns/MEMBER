@@ -1,0 +1,16 @@
+MEMBER
+
+(MEMBER <what> <list> [<test>])
+
+If <what> is a member of <list> (in the sence of EQL), returns the rest
+of the list starting with the matched element (just like in Common Lisp).
+Othervise, returns false. If the <list> is dotted, the value after the
+dot is silently ignored.
+
+If the value of <test> is given, it must be a predicate of two arguments, 
+first of them for <what>, and the second is for an item of the <list>; 
+it will be used instead of EQL.
+
+NOTE InteLib Lisp doesn't have key parameters so this version accepts 
+the <test> argument as optional; it doesn't accept anything like CL's
+MEMBER's :key or :test-not.

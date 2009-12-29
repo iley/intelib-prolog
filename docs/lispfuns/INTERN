@@ -1,0 +1,11 @@
+INTERN
+
+(INTERN <name> <package>)
+
+The function finds the symbol with the name <name> within the package
+object given as the <package> argument. The symbol is created if it
+didn't exist before. 
+
+This function differs from the Common Lisp one in that the second
+argument is mandatory. This is because there is no *package* variable
+in Intelib Lisp.

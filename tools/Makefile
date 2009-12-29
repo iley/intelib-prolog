@@ -1,0 +1,70 @@
+# +-------------------------------------------------------------------------+
+# |               I__n__t__e__L__i__b           0.6.21 development          |
+# | Copyright (c) Andrey Vikt. Stolyarov <crocodil_AT_croco.net> 2000-2008. |
+# |                                                                         |
+# | This is free software. The library part is available under              |
+# |                               GNU LESSER GENERAL PUBLIC LICENSE v.2.1.  |
+# | GNU LGPL v2.1 is found in docs/gnu_gpl2.txt,  or at  http://www.gnu.org |
+# |     Please see also docs/readme.txt and visit http://www.intelib.org    |
+# |                                                                         |
+# | !!! THERE IS NO WARRANTY OF ANY KIND, NEITHER EXPRESSED NOR IMPLIED !!! |
+# +-------------------------------------------------------------------------+
+
+
+
+
+SHELL = /bin/sh
+
+TARGETDIR = $(CURDIR)
+
+ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+else
+TARGETDIRFP = $(TARGETDIR)
+endif
+
+TARGETLIBNAME = libintelibtools.a
+
+-include $(TARGETDIRFP)/defines.mk
+
+OPTIMIZATION = -O2
+
+COMPILEFLAGS = $(OPTIMIZATION) -Wall -Woverloaded-virtual -Wsynth \
+		-ggdb -fpic $(CONDDEFINES) 
+CXXFLAGS = $(COMPILEFLAGS) 
+
+LIBSOURCES = chr2snum.cpp prprint.cpp spkghsh.cpp sstream.cpp \
+	vecread.cpp hshread.cpp numunif.cpp slexer.cpp sreader.cpp \
+	stackrep.cpp 
+
+
+OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
+
+none:
+	@echo No default rule
+
+all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
+
+$(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES) 
+	$(AR) crs $@ $(OBJFILES) 
+
+all_add:        $(OBJFILES) 
+	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) 
+
+$(TARGETDIRFP)/%.o:	%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(TARGETDIRFP)/t_deps.mk: $(LIBSOURCES) Makefile
+	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) \
+	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
+
+
+clean:	
+	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
+		test buf gmon.out t_deps.mk
+
+FORCE:
+
+ifneq (clean, $(MAKECMDGOALS))
+-include $(TARGETDIRFP)/t_deps.mk
+endif

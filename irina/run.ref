@@ -1,0 +1,738 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$EXTERN VeryStart;
+$EXTERN GetCurrentVersion;
+$EXTERN CompileCall;
+
+$ENTRY Go {
+  = 	<WriteFiles
+	<VeryStart <LastStop <CheckFiles <Check <ReadCommandLine>>>>>>
+	<Compile <Dg Wasbflag>>;
+}
+
+CheckFiles {
+  s.Errors (e.FileName) e.Foo,
+	<ExistFile e.FileName> : True = 
+	(e.FileName)
+	<CheckFiles s.Errors e.Foo>;
+  s.Errors (e.FileName) e.Foo = 
+	<PrintRunError s.Errors NOTEXISTS e.FileName>
+	<CheckFiles <Add s.Errors 1> e.Foo>;
+  s.Errors = s.Errors;
+  e.Foo = <Prout 'Bug in "CheckFiles" function. View field: ' e.Foo>;
+}
+
+LastStop {
+  e.Foo 0 = e.Foo;
+  e.Foo = 
+	<Prout '\nUse "-h" flag for help.\n'>
+	<Exit 1>;
+}
+
+Compile {
+  False = ;
+  True = <CompilingStage 1>;
+  e.Foo = <Prout 'Bug in "Compile" function. View field: ' e.Foo>;
+}
+
+StagesNumber {
+  = 2;
+}
+
+CompilingStage {
+  s.Number = <CheckCompiling s.Number <CompileCall s.Number>>;
+  e.Foo = <Prout 'Bug in "CompilingStage" function. View field: ' e.Foo>;
+}
+
+CheckCompiling {
+  s.Number 0, <StagesNumber> : s.Number = ;
+  s.Number 0 = <CompilingStage <Add s.Number 1>>;
+  e.Foo = <PrintRunError 0 CANTCOMPILE>;  
+}
+
+WriteFiles {
+  (e.File1) (e.File2) =
+	<WriteFile 0 (e.File1)>
+	<WriteFile 1 (e.File2)>;
+    = <Exit 1>;
+  e.Foo = <Prout 'Bug in "WriteFiles" function. View field: ' e.Foo>;
+}
+
+WriteFile {
+  s.Errors ((e.FileName) (e.FileContents)) =
+	<Open 'w' 1 e.FileName>
+	<Putout 1 e.FileContents>
+	<Close 1>;
+  e.Foo = <Prout 'Bug in "WriteFile" function. View field: ' e.Foo>;
+}
+
+ReadCommandLine {
+   = <ReadCommandLine2 1 <Arg 1>>;
+}
+
+ReadCommandLine2 {
+  s.ArgNumber = ;
+  s.ArgNumber e.Arg = (e.Arg) <ReadCommandLine2 <Add (s.ArgNumber) 1> <Arg <Add (s.ArgNumber) 1>>>;
+}
+
+IsMinusH {
+  = True;
+  ('~h') = True;
+  ('~-help') = True;
+  e.Foo = False;
+}
+
+IsMinusA {
+  ('~a') = True;
+  ('~-about') = True;
+  e.Foo = False;
+}
+
+IsMinusV {
+  ('~V') = True;
+  ('~-version') = True;
+  e.Foo = False;
+}
+
+IsMinusB {
+  ('~b') = True;
+  ('~-binary') = True;
+  e.Foo = False;
+}
+
+IsMinusL {
+  ('~l') = True;
+  e.Foo = False;
+}
+
+IsMinusO {
+  ('~o') = True;
+  e.Foo = False;
+}
+
+IsFlag {
+  ('~' e.Foo) = True;
+  e.Foo = False;
+}
+
+Check {
+  e.Foo, <IsMinusH e.Foo> : True = <PrintHelp>;
+  e.Foo, <IsMinusA e.Foo> : True = <PrintAbout>;
+  e.Foo, <IsMinusV e.Foo> : True = <PrintVersion>;
+  e.Foo =
+	<StopChecking
+		<IsStateS
+			('directives.ref')
+			False
+			False
+			False
+			0
+			e.Foo
+		>
+	>;
+}
+
+StopChecking {
+  e.Foo t.Dirs s.Bflag s.Errors =
+	<Br Wasbflag '=' s.Bflag>
+	s.Errors
+	t.Dirs
+	e.Foo;
+  e.Foo = <Prout 'Bug in "StopChecking" function. View field: ' e.Foo>;
+}
+
+IsStateS {
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusO t.Term> : True,
+	s.Oflag : True =
+	<PrintRunError s.Errors WASOFLAG>
+	<IsStateO
+		t.Dirs
+		s.Lflag
+		s.Bflag
+                s.Oflag
+		<Add s.Errors 1>
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusO t.Term> : True,
+	s.Bflag : False =
+	<PrintRunError s.Errors NOBFLAG>
+	<IsStateO
+		t.Dirs
+		s.Lflag
+		s.Bflag
+                True
+		<Add s.Errors 1>
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusO t.Term> : True = 
+	<IsStateO
+		t.Dirs
+		s.Lflag
+		s.Bflag
+                True
+		s.Errors
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusL t.Term> : True,
+	s.Lflag : True =
+	<PrintRunError s.Errors WASLFLAG>
+	<IsStateL
+		t.Dirs
+		s.Lflag
+		s.Bflag
+                s.Oflag
+		<Add s.Errors 1>
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusL t.Term> : True,
+	s.Bflag : True =
+	<PrintRunError s.Errors L_AND_B>
+	<IsStateL
+		t.Dirs
+		True
+		s.Bflag
+		<Add s.Errors 1>
+                s.Oflag
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusL t.Term> : True =
+	<IsStateL
+		t.Dirs
+		True
+		s.Bflag
+                s.Oflag
+		s.Errors e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusB t.Term> : True,
+	s.Bflag : True =
+	<PrintRunError s.Errors WASBFLAG>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 1> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusB t.Term> : True,
+	s.Lflag : True =
+	<PrintRunError s.Errors L_AND_B>
+	<IsStateS
+		t.Dirs s.Lflag True s.Oflag
+		<Add s.Errors 1> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusB t.Term> : True =
+	<IsStateS
+		t.Dirs s.Lflag True s.Oflag
+		s.Errors e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors () e.Bar =
+	<PrintRunError s.Errors BADFILENAME>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 1> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsFlag t.Term> : True =
+	<PrintRunError s.Errors INVALID_FLAG t.Term>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 1> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar =
+	t.Term
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		s.Errors e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors =
+	t.Dirs s.Bflag s.Errors;
+  e.Foo = <Prout 'Bug in "IsStateS" function. View field: ' e.Foo>;
+}
+
+IsStateL {
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusO t.Term> : True,
+	s.Oflag : True =
+	<PrintRunError s.Errors DIRMISS>
+	<PrintRunError <Add s.Errors 1> WASOFLAG>
+	<IsStateO
+		t.Dirs
+		s.Lflag
+		s.Bflag
+                s.Oflag
+		<Add s.Errors 2>
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusO t.Term> : True,
+	s.Bflag : False =
+	<PrintRunError s.Errors DIRMISS>
+	<PrintRunError <Add s.Errors 1> NOBFLAG>
+	<IsStateO
+		t.Dirs
+		s.Lflag
+		s.Bflag
+                True
+		<Add s.Errors 2>
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusO t.Term> : True =
+	<PrintRunError s.Errors DIRMISS>
+	<IsStateO
+		t.Dirs
+		s.Lflag
+		s.Bflag
+                True
+		<Add s.Errors 1>
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusL t.Term> : True,
+	s.Lflag : True =
+	<PrintRunError s.Errors DIRMISS>
+	<PrintRunError <Add s.Errors 1> WASLFLAG>
+	<IsStateL
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 2> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusB t.Term> : True,
+	s.Bflag : True =
+	<PrintRunError s.Errors DIRMISS>
+	<PrintRunError <Add s.Errors 1> WASBFLAG>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 2> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusB t.Term> : True =
+	<PrintRunError s.Errors DIRMISS>
+	<PrintRunError <Add s.Errors 1> L_AND_B>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 2> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors () e.Bar =
+	<PrintRunError s.Errors BADFILENAME>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 1> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsFlag t.Term> : True =
+	<PrintRunError s.Errors INVALID_FLAG t.Term>
+	<PrintRunError <Add s.Errors 1> DIRMISS>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 2> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar =
+	<IsStateS
+		t.Term s.Lflag s.Bflag s.Oflag
+		s.Errors e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors = 
+	<PrintRunError s.Errors DIRMISS>
+	t.Dirs s.Bflag <Add s.Errors 1>;
+  e.Foo = <Prout 'Bug in "IsStateL" function. View field: ' e.Foo>;
+}
+
+IsStateO {
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusO t.Term> : True,
+	s.Oflag : True =
+	<PrintRunError s.Errors BINNAMEMISS>
+	<PrintRunError <Add s.Errors 1> WASOFLAG>
+	<IsStateO
+		t.Dirs
+		s.Lflag
+		s.Bflag
+                s.Oflag
+		<Add s.Errors 2>
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusL t.Term> : True,
+	s.Lflag : True =
+	<PrintRunError s.Errors BINNAMEMISS>
+	<PrintRunError <Add s.Errors 1> WASLFLAG>
+	<IsStateL
+		t.Dirs
+		s.Lflag
+		s.Bflag
+                s.Oflag
+		<Add s.Errors 2>
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusL t.Term> : True,
+	s.Bflag : True =
+	<PrintRunError s.Errors BINNAMEMISS>
+	<PrintRunError <Add s.Errors 1> L_AND_B>
+	<IsStateL
+		t.Dirs
+		True
+		s.Bflag
+		<Add s.Errors 2>
+                s.Oflag
+		e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusL t.Term> : True =
+	<PrintRunError s.Errors BINNAMEMISS>
+	<IsStateL
+		t.Dirs
+		True
+		s.Bflag
+                s.Oflag
+		<Add s.Errors 1> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusB t.Term> : True,
+	s.Bflag : True =
+	<PrintRunError s.Errors BINNAMEMISS>
+	<PrintRunError <Add s.Errors 1> WASBFLAG>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 2> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusB t.Term> : True,
+	s.Lflag : True =
+	<PrintRunError s.Errors BINNAMEMISS>
+	<PrintRunError <Add s.Errors 1> L_AND_B>
+	<IsStateS
+		t.Dirs s.Lflag True s.Oflag
+		<Add s.Errors 2> e.Bar
+	>;
+   t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsMinusB t.Term> : True =
+	<PrintRunError s.Errors BINNAMEMISS>
+	<IsStateS
+		t.Dirs s.Lflag True s.Oflag
+		<Add s.Errors 1> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors () e.Bar =
+	<PrintRunError s.Errors BADFILENAME>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 1> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar,
+	<IsFlag t.Term> : True =
+	<PrintRunError s.Errors INVALID_FLAG t.Term>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		<Add s.Errors 1> e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors t.Term e.Bar =
+	<Rp BinaryFile'='t.Term>
+	<IsStateS
+		t.Dirs s.Lflag s.Bflag s.Oflag
+		s.Errors e.Bar
+	>;
+  t.Dirs s.Lflag s.Bflag s.Oflag s.Errors =
+	t.Dirs s.Bflag s.Errors;
+  e.Foo = <Prout 'Bug in "IsStateO" function. View field: ' e.Foo>;
+}
+
+PrintRunError {
+  0 e.Error =
+	<Prout '\nFollowing errors were found:\n'>
+	<PrintRunErrorContents 0 e.Error>;
+  s.Errors e.Error = 
+	<PrintRunErrorContents s.Errors e.Error>;
+  e.Foo = <Prout 'Bug in "PrintRunError" function. View field: ' e.Foo>;
+}
+
+PrintRunErrorContents {
+  s.Errors e.Error =
+	<Prout <Symb <Add s.Errors 1> > '. ' <Contents e.Error>>;
+  e.Foo = <Prout 'Bug in "PrintRunErrorContents" function. View field: ' e.Foo>;
+}
+
+Contents {
+  DIRMISS = 'Directives file name missing.';
+  BADFILENAME e.Name = '"' e.Name '" is a bad file name.';
+  INVALID_FLAG (e.Flag) = '"' <NoTilde e.Flag> '" is an invalid flag.';
+  WASLFLAG = '"-l" flag can be used only once.';
+  WASBFLAG = '"-b" flag can be used only once.';
+  L_AND_B = '"-l" and "-b" flags can not be used together.';
+  NOTEXISTS e.File = '"' e.File '" file does not exist.';
+  CANTCOMPILE = 'Compiling failed.';
+  NOBFLAG = '"-o" flag can be used only with "-b" one.';
+  WASOFLAG = '"-o" flag can be used only once.';
+  BINNAMEMISS = 'Binary file name missing.';
+  e.Foo = e.Foo;
+}
+
+PrintAbout {
+  = 
+	<Prout
+	',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,~+$$8DDDD88O$::,,,,,,,,,,,,,,,,,.,,,,,,,,,,,.....\n'
+    	',,,,,,,,,,,,,,,,,,,,,,,,,,,,~Z88DNDNNNNDNNNNND7:,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,..\n'
+    	',,,,,,,,,,,,,,,,,,,,,,,,,,=O8DNNNNDNNNNNNNDNNNDN+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.'
+	>
+	<Prout
+    	',,,,,,,,,,,,,,,,,,,,,,,,:$DNNNNNNDDNNNDNNNNNNNNNDN:,,,,,,,,,,,,,,,,,,,,,,,,,,,,.\n'
+    	',,,,,,,,,,,,,,,,,,,,,,:~8D8DDNNND8DNNDNDDNMMMNNNNDDO,,,,,,,,,,,,,,,,,,,,,,,,,,,.\n'
+    	',,,,,,,,,,,,,,,,,,,,,:7ODNDNNNND8888DNNNDNNNMNNNNNNND~,,,,,,,,,,,,,,,,,,,,,,,,,.'
+	>
+	<Prout
+    	',,,,,,,,,,,,,,,,,,,,:ZDDDD8DDD8Z$7$$O88NDDNNMNNNNNNND8=,,,,,,,,,,,,,,,,,,,,,,,,,\n'
+    	',,,,,,,,,,,,,,,,,,,:8DDN8$77IIIII77ZZO8DDDNNNMNNNNNNNNO=:,,,,,,,,,,,,,,,,,,,,,,,\n'
+    	',,,,,,,,,,,,,,,,,,:DNDDN7I????III7$ZOO8DNNDNNMNNNNNNNDNO~,,,,,,,,,,,,,,,,,,,,,,,'
+	>
+	<Prout
+    	',,,,,,,,,,,,,,,,,:DNN8D8?I?++??II$ZOOO8DDNNDNNMMNNNNNNND$:,,,,,,,,,,,,,,,,,,,,,.\n'
+    	',,,,,,,,,,,,,,,,,+NNN8D8+?++++I77$$ZZOODDNNNNNMMNNNNNNND8=:,:,,,,,,,,,,,,,,,,,,,\n'
+    	',,,,,,,,,,,,,,,,,?DDMDN8=7~=+I77IZM7$7$MNNNNNNMNNNNDNNDNDZ=:,,,,,,,,,,,,,,,,,,,.'
+	>
+	<Prout
+    	',,,,,,,,,,,,,,,,,?NDNNNOI?==+?I$$DMMMMMMMMMMMMMMNNNND8DDDD7~,,,,,,,,,,,,,,,,,,,.\n'
+    	',,,,,,,,,,,,,,,,,+NNNMMZ7Z$Z7D$7I$NNNNNNNMNMMNMNZ$77$I~IDDOI~:,,,,,,,,,,,,,,,,..\n'
+    	',,,,,,,,,,,,,,,,,NNNNNM++ZNMMII7DMNNNMNNDNNNNMN88ZIND$I=DDDO+~:,,,,,,,,,,,,,,,..'
+	>
+	<Prout
+    	',,,,,,,,,,,,,,,,,~NNNNM++I8OI?ZNMNNMMMMMM8NMDM8ZZZ?++$7==NDDO+~:,,,,,,,,,,,,,,..\n'
+    	',,,,,,,,,,,,,,:,~DNNMMM==?M??+DMNDMMMMMMMNNMM8OZ$DOO?+++?$DD8$=~::,,,,,,,,,,,,..\n'
+    	',,,.::,,,,,,,:~IDNNMMNN~~+Z???NMNNNNNNNNMMNMMN8DZ8DOZZ7I?+N88Z7I::,,,,,,,,,,,,..'
+	>
+	<Prout
+    	',,,,,:,,,,,,~~$8NNMMMMMI=IN++I?MNNMNNNMMMMNMMNNDZ$77I777+??DOOZ7+:,,,,,,,,,,,...\n'
+    	',,,,,,,,,,,:~I$DNNNMNNNM+NNO?7?MNNNNMNMMMMMDDND8NDN88$I?I=ID8OZ8$+:,,,,,,,,,,,..\n'
+    	',::::::::::~+ODNNNMMMMMMDMN7OI7+NMMMMMMMMMD8NNDNDOZZZ$=+?=+ND8ZOZ8:,,,,,,,,,,...'
+	>
+	<Prout
+    	'::::::::::~=IDNNNMNNNMMMMDNN$?II??DMMMMMDD8DMNNDD88O7Z++?+INN8OI787:,,,,,,,,,...\n'
+    	':::::::::~=IZNNNNNNNNMMMMMMMNNNNNMMMN8DN8O8MMNNNNNMD8DMNNNNNDDO$+$O:,,,,,,,,,...\n'
+    	'::::::::~+IZDNNNNNNMMMMMMMMMNNMMNMNNNNMMO8MMMMNNMMMMMMNNNNNNNDO$I7O:,,,,,,,,,...'
+	>
+	<Prout
+    	':::::~:~I$ONNNNNMNNMMMMMMMMMMNNMMMNNNNNNNNMMMMMMMMMMMMNMNNMNDD$ZI8I:,,,,,,,,,...\n'
+    	'::::~~=+O8NNNNNNMNMMMMMMMMMMMMNMMNNNNNNMNMMMMMMNMMMMMNMMMMMNND$88I=::,,,,,,,,...\n'
+    	'::::~~=ZODNNNMNMNMNMNMMMMMMMMNMNMNNNNMNMMMMNMMMMMMMMMMMNMNNNNDOOZ=:::,:,,,,,,,..'
+	>
+	<Prout
+    	'::::~=I$8NNNMMMMMMNNNMMMMMMMMMMNMMMMMNMNMMNMMMMMMMMMMMMMMMNNNNNNNDN~:::,,,,,,,..\n'
+    	':::~~=ZONNNMMMMMMMMMMMMMNNMMMMNNMMMNMNMMMMMMMMMMMMMMMMMMMMNMNNMNNNNN+~:,,,,,,...\n'
+    	':~~~?$8NNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMNNMMMMMMMMMMMMMMMMMMNNNNNNNNNNNM,:,,,,,..\n'
+    	'~~==OO8NMNNNMMMMMMMMMMMMMMMMMMMMMMMMNNMMMMMNMMMMMMMMMMMMMMMNNNNNNMMNNMNN?,,,,,,.'
+	>
+	<Prout
+    	'~~~=Z8NNNNNMNMMMMMMMMMMMMMMMMMMMMMMMNMMMMMMMMMMMNMMMMMMMMMNMNNMNMMMNNNMNN~::,,,.\n'
+    	':~~?DDNNMMNMMNMMMMMMMMMMNNNMMMMMMMMMMNMMMMMMMMMMNMMMMMMMMMMNNMNMNMNMNMMNNN,,,,..\n'
+    	'~~~OONNMMMNMMNMMMMMMMMMNMMNMMMMMMMMMMMMMMMMMMMMNMMMMMMMMMNMNNNNNMNMMMNNNNN:,,,..\n'
+    	'~~~OONNMMMMMMMMMMMMMMMMMMMNNMMMMMNMMMMMMNNMMMMMNMMMMMMMMMMMNNNMNMNNNNNMNNN=,,,..'
+	>
+	<Prout
+    	'~:~+ONNNMMMMMMMMMMMMMMNMMMMMNMMMMMMMMMMMMMMMMMMNNMMMMMMMMMNNNNNMNMNMNNNNNN7,,,..\n'
+    	'~~~?8NNNMMMMMMMMMMMMMNNMMMMNMMMMMMMMMMMMMMMMMMMNMMMNMMMNMMMMNNNNMMNNMNNNNND,,,..\n'
+    	'~+7$MNMMMMMMMMMMMMMMMMNMMMMNMMMMMMMMMMMMMMMMMMMNMMMMMMMMMNMNNNNMNMNNNMNNNNM,,,..\n'
+    	'==O87=NMMMMMMMMMMMMMMMNMMMMNMMMMMMMMMMMMMMMMMMMNMMMMMMMMNMNNNNNNMNMNNNNNNNN,,,,,'
+	>
+	<Prout
+    	'+O===~NMMMMMMMMMMMMMMMNMMMMNMMMMMMMMMMMMMMMMMMNNMMMMMMMMMMNMNNNNNMNNNNMMNNN::,,.\n'
+    	'I~~=I=IMMNMMMMMMMMMMMMMNNMMNMMMMMMMMMMMMMMMMMMNNMMMMMMMMMNNNNNNNMNNNNMNNNNN~:,,.\n'
+    	'~=~~=~~NNNMNMMMMMMMMMMMDO7MNMMMMMMMMMMMMMMMMMNNNMMMMMMMMMMMNMNNMNMMNNMMMNNNI::,,\n'
+    	'~~~=~~~NNNNMMMMMMMMMMMN8M8NNMMMMMMMMMMMMMMMMNNNNMMMMMMMMMMMMNNNNMMNMNMNNNNNZ~:,,'
+	>
+	<Prout
+    	'~~=~~~~DNNNMMMMMMMMMMMMDMIMMMMMMMMMMMMMMMMMMNNNNMMMMMMMMMMMMMMNNMMMNNNMMNNNZ~~:,\n'
+    	'~=~~~~~~NMMMMMMMMMMMMMNNM7NMMMMMMMMMMMMMMMMNNNNMMMMMMMMMMMMMMMNNNMMNNMNMNNN$~~::\n'
+    	'~==~~~~~MMMMMMMMMMMMMMMMD8NMMMMMMMMMMMMMMMMNNNNMMMMMMMMMMMMMMNNNMNNMNNMMMNMM$=~~\n'
+    	'========MMMMMMMMMMMMMMN+M8NMMMMMMMMMMMMMMMNNNNNMMMMMMMMMMMMMMNMMMMMNMMMMMMNMM7=+'
+	>
+	<Prout
+    	'====~~=+NMMMMNMMMMMMMMM==NNMMMMMMMMMMMMMMNNNNNNMMMMMMMMMMMMMNMMNMMMMNNMMMMMMMM++\n'
+    	'=======?MMMMMMMMMMMMMNN+?MDMMMMMMMMMMMMMMNNNNNMMMMMMMMMMMMMMMMMMMNMMMMMMMNMMMNI?\n'
+    	'=======+MMMMMMMMMMMMMMND+NDMMMMMMMMMMMMMMNNNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMNMMMNN?'
+	>
+	<Prout
+    	'++===+++MMMMMMMMMMMMMMNDMMNMMMMMMMMMMMMMMNNNNNMMMMMMMMMMMMMMMMMNMNMMMMMMNMMMNNN?\n'
+    	'+++====+MMMMMMMMMMMMMMN+?ONMMMMMMMMMMMMMMNNNNNMMMMMMMMMMMMMMMMNMMMMNMNMNNNMNNNII\n'
+    	'++++++=+DMMMMMMMMMMMMMM=~MMMMMMMMMMMMMMMMMNNNMMMMMMMMMMMMMMMMMMMMMMMNMMMMMNNNI?I\n'
+	>
+	<Prout
+	'..............                             . ..,,~I$OMNDNMMMMMMMMMMMMMMMMMMNNDD8\n'
+	'.................                       .....,~+I7DMMD8NMMMMMMMMMMMMMMMMMMMMMMMM\n'
+	'..................                      ....,+?+$NMMDMMMMMMMMMMMMMMMMMMMMMMMMMMM\n'
+	'..........................          ......,~++ZMMMNNNNMMMMMMMNMMMNNMMMMMMMMMMMMM'
+	>
+	<Prout
+	'...........................    . ........~+IZNNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n'
+	'.............................   ........:+78NNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n'
+	'....................................,,~I88NNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n'
+	'....................,,,,...........,~=78DNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM'
+	>
+	<Prout
+	' ..................,,,,,,,......,:+$Z8NNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n'
+	'     ..............,,,::::,,,,,,~OMNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n'
+	'     .............,,,,::::::,,,~7NMNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n'
+	'        ..........,,,:::~~=+???$NMMMMMMMMMN8O$77$$ZO8NMMMMMMMMMMMMMMMMMMMMMMMMMM\n'
+	'          ........,,::::~~+?7ZODMMMMMMMMNO$7I??II777$O8DNNMMMMMMMMMMMMMMMMMMMMMM'
+	>
+	<Prout
+	'            ......,,:::~~=7ZODMMMMNNNDOI++++++++???II7ZO8DNMMMMMMMMMMMMMMMMMMMMM\n'
+	'               ...,,,::~=+$ODNMMMNDZI+=======+++???II$ZODNNMMMMMMMMMMMMMMMMMMMMM\n'
+	'               ....,,::~=+Z8NNMMMD$?=~~~~~====+++??II$Z8DNMMMMMMMMMMMMMMMMMMMMMM\n'
+	'               . ...,,:~=?8NMMMMZ=~~~~~~~~~====++++?I7$ODNMMMMMMMMMMMMMMMMMMMMMM'
+        >
+        <Prout
+	'                  ....,~+7DNMMMZ::~~~~~~~~~~===++++??I7$ZODNMMMMMMMMMMMMMMMMMMMM\n'
+	'               .  ....,~+7DNMMN+::::~~~~~~~~===+++++?II7$ZO8DNMMMMMMMMMMMMMMMMMM\n'
+	'     .    ...........,,:~?DMMM$,:::::~~~~~~~=====+++?II77$$ZZOOO8NMMMMMMMMMMMMMM\n'
+	'       ......,,::::::::::~DMMM7,::::::~~~~~~~===+++??II77$$$ZZZOO8NMMMMMMMMMMMMM\n'
+	'    . .,~+I7ZODNNMMMMMMMMMDNMMO:::::::::::~~~~~~=+?I77$$$777$$$$ZOODMMMMMMMMMMMM'
+	>
+	<Prout
+	' ,=$DMMMMMMMMMMMMMMMMMMMMMMMMMD~::,,,,,,,,::::~+?+==~==++?III7777$ZO8NMMMMMMMMMM\n'
+	'I8MMMMMMMMMMMMMMMMMMMMMMMMMMMMN=,,,,,,,,,,,::~+=~::::~~===?7IIII7$$ZODMMMMMMMMND\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM7,,,,,,,,,,::~~:::::~=++++??????II77$ZODMMMMMN8ND\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMZ,,,..,...,::::::::~=+??I777I????I77$$ZODNNND8O8O\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMN~.,,....,,,:~==::,~=+ON87?+?????II77$$ZO88D888NM\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM7=:::,,,,:~+??+I$Z888$$?++++++???III7$$$ZOOO$$DN'
+	>
+	<Prout
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMZ~::,,,,,:~+???$8O7II+++==++++????II77$$$ZZZ$ZNN\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM+.,::::,:=+???++===~~~~~~==+++???III77$$ZZZ$Z$I\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMD::,:~+~~++???+==~~~~~~~~==+++????II77$$ZZZZ$$7\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMZ:7Z=:=++??++=~~::~~~~~===++++???II7$$ZZZOO$$\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMO~:::~=+???+=~:,:::~~~=====+++???I77$$ZZODDO\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM+,:::~=+????+~:,,:::~~~~====++???II77$$ZODDM'
+	>
+	<Prout
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMN:,,::=++???III=,,,::::~~~====++??III77$ZODDN\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM~,,,:~==~::~+++:,,::::~~=====+++???I77$ZOD8N\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM?..,,:~~~I7~:==~:,::::~~~==+++++???I77$ZO88D\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM=...,:I7=~~+=~~~:~~~~~~~===++??+??II7$ZOO8D\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMZ...,,::,~==~~~~~~~~~~~~===++?????II7$ZOO8D\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM: .,,,,,~=~~~~~~~~~~~~~==+++++??II7ZOZOO8'
+        >
+        <Prout
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM8,.,,,,::::~~?$~,:~~~=~===+++??I$$$$$ZO8\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMZ.,,,:::::=?O$=::~~~~~==++++?I7$777$ZO8\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM~:++?77I?I+~~~~~~~=====++?I$777II7ZO8\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMZ.=+=~~++I~~~~~~~~~====+??77IIIII7$O8\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM~,,,:::::::~~~~~~===++?I???IIII7$O8'
+	>
+	<Prout
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM7.,,,,,,::::~~====+??=+??????I7$O8\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM=.,,,,,:::~~~===+++===+?????I7$O8\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM$...,,,::~~~~==~::~~==+?????I$O8\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM8: ..,,,::~~:,,,::~~=++++??7$O8\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMN~ .,,:~~:,,,,,,:~~=+++++?I$O8\n'
+	'MMMMMMMMMMMMMMMMMMMMMMMMNZ$$ZZZZ8MMMMMMMMMMMMMMMMMMMMM7+=~~~::::::::~=+++++?I$O8'
+	>
+	<Prout
+	'MMMMMMMMMMMMMMMMMMMMMMMN$III7777$NMMMMMMMMMMMMMMMMMMMMZ++===~~:::::~~==++++?7ZO8\n'
+	'MMMMMMMMMMMMMMMMMMMMMN$?+=++??III8MMMMMNNMMMMMMMMMMMMMNZI?++++===~~~==++++?I$O8O\n'
+	'MMMMMMMMMMMMMMMMMMMMD?=~~~=+?77ZZDMMMMMMMMMMMMMMMMMMMMMNZ$7II???++====++++?7Z8OO\n'
+	'MMMMMMMMMMMMMMMMMMMM$=~:~~+IZ8DNNMMMMMMMMMMMMMMMMMMMMMMMDOZ$7II???++++++???7O8OO\n'
+	'MMMMMMMMMMMMMMMMMMM$=:,,,:==+?I7NMMMMMMMMMMMMMMMMMMMMMMMMN8OZZ$77II???????IZ8OOO'
+	>
+	<Prout
+	'MMMMMMMMMMMMMMMMMMMI~,,,,,~~=+I$NMMMMMMMMMMMMMMMMMMMMMMMMMD8OOZ$777III????7O8OZO\n'
+	'MMMMMMMMMMMMMMMMMMO=:,....::~=+$MMMMMMMMMMMMMMMMMMMMMMMMMMND888OZZZ$7777II$88OO8\n'
+	'MMMMMMMMMMMMMMMMMMI~,,.....,::~7MMMMNNMMMMMMMMMMMMMMMMMMMMMND888OOOOZZZZZ$Z88888'
+	>
+	<Prout
+	'MMMMMMMMMMMMMMMMMN?:,,.....,,:~7MMMM8NMMMMMMMMMMMMMMMMMMMMMMD88D8OOOOOOOZZO88888\n'
+	'MMMMMMMMMMMMMMMMMO=:,,,.....,,,ZMMMDZDMMMMMMMMMMMMMMMMMMMMMMND888888OOOOOZOOZZOO\n'
+	'MMMMMMMMMMMMMMMMM$~,,,,,....,,,OMMM8ZDMMMMMMMMMMMMMMMMMMMMMMND888888OOOOOZZZ$$$Z\n'
+	'\n'
+	'(For Irina Nazarova\'s photos please visit http://flickr.com/photos/nonconstant/)'
+        >
+	<Prout
+	'\n'
+	'\n'
+	'This is IRINA, _I_ nteLib _R_ efal to C++\n'
+	'(_I_ ntellectual, _N_ ew & _A_ ll-inclusive) translator (version ' <GetCurrentVersion> ').\n'
+	'\n'
+	'It was written by Igor Bronstein <igor.bronstein_AT_intelib.org>.\n'
+	'\n'
+	'My greatest acknowledgment to all Irinas\n'
+	'who have influenced my life very much (in alphabetical order):\n'
+	'\n'
+	'Irina Bronstein (née Goykhberg),\n'
+	'Irina Gaynanova,\n'
+	'Irina Mikheyeva,\n'
+	'Irina Nazarova,\n'
+	'Irina Red\'kina\n'
+	'\n'
+	'and many others.\n'
+	'\n'
+	'And what concerns you, I wish you good luck and a nice day!\n'
+	'Be happy!'
+	>
+	<Exit 1>
+}
+
+PrintVersion {
+  =
+	<Prout 'IRINA ' <GetCurrentVersion>>
+	<Exit 1>
+}
+
+PrintHelp {
+  =
+	<Prout
+	'Command line arguments:\n'
+	'-h (--help) --- print this message.\n'
+	'-a (--about) --- print information about this program.'
+	>
+	<Prout
+	'-V (--version) --- print version.\n'
+	'[-l dirfilename] filename1 ... filenameN --- translate files using directives from '
+	'"dirfilename"\n(if this argument is missing --- from "directives.ref") file.'
+	>
+	<Prout
+	'-b [-o binaryname] filename1 ... filenameN --- compile files into '
+	'"binaryname"\nbinary file (if "-o" flag is missing --- into '
+	'"a.out" file)\n'
+	'(using default directives --- not compatible with "-l" flag).'
+	>
+	<Prout
+	'\n'
+	'Directives:\n'
+	'1. DECLARE_PUBLIC_FUNCTION = Symbol.\n'
+	'2. DECLARE_PUBLIC_SYMBOL = Symbol.\n'
+	'3. DECLARE_EXTERNAL_FUNCTION = Symbol.\n'
+	'4. DECLARE_EXTERNAL_SYMBOL = Symbol.\n'
+	'5. DECLARE_NAME Symbol or Variable = Symbol --- replace the left part with the symbol '
+	'Symbol during code generation.'
+	>
+	<Prout
+	'6. DECLARE_CHAR \'c\' = Symbol --- replace char \'c\' with the symbol '
+	'Symbol during code generation.'
+	>
+	<Prout
+	'7. MODULE_NAME = Symbol --- generate \'Symbol.[ch]xx\' files. '
+	'By default \'string\' = \'refalpart\'.\n'
+        '8. CXX_FILE_PATH = \'string\' --- generate cxx file \'string\'. '
+	'By default \'string\' = MODULE_NAME + \'.cxx\'.\n'
+	'9. HXX_FILE_PATH = \'string\' --- generate hxx file \'string\'. '
+	'By default \'string\' = MODULE_NAME + \'.hxx\'.'
+	>
+	<Prout
+	'10. DECLARE_USED_MODULE = \'string\' --- add line '
+	'\'#include "string"\' to cxx file.\n'
+	'11. INIT_FUNCTION_NAME = Symbol --- by default '
+	'Symbol = RefalInit.'
+	>
+        <Exit 1>
+}
+
+NoTilde {
+  '~' e.Foo = '-' e.Foo;
+  e.Foo = e.Foo;
+}
+

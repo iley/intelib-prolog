@@ -1,0 +1,6 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$ENTRY GetCurrentVersion {
+  = 'IRINA_VERSION';
+}

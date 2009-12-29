@@ -1,0 +1,229 @@
+
+                          I N T E L I B   
+         NILL - the iNteractive InteLib Lisp interpreter
+
+                          Copyright (c) Andrey Vikt. Stolyarov, 2005-2007
+
+*************************************************************************
+* 1. Introduction
+
+NILL is an interactive interpreter of InteLib Lisp.  It uses absolutely the
+same classes and functions as ILL do, so it is a good tool for debugging
+your modules and separate functions written in InteLib Lisp.  The behaviour
+of your code will be exactly the same as if you translate it with ILL and
+call these functions from C++. 
+
+The interpreter is built when you do 'make bootstrap' in your root of the
+InteLib tree (referenced hereinafter as $INTELIB). The binary is found in
+the $INTELIB/ill directory.
+
+Since InteLib 0.5.70, NILL needs the development files of GNU readline to
+build. If you don't have them and don't want (or don't know how :) to
+install the files, you can build without GNU readline using smth. like
+
+    make bootstrap USE_READLINE=no
+
+Please note though it is not a very good idea: GNU readline adds a lot of
+comfort and convenience to the interpreter's interface, such as editing
+current line with arrow keys, maintaining and using the history of your
+input and completing symbols' names with <TAB>.
+
+The environment you get into when you run NILL has symbols for all the
+Lisp functions implemented by the InteLib Lisp standard library, that is,
+to all the functions presented in $INTELIB/lisp/library directory. Besides
+that, the environment has some specific functions and global Lisp
+variables. 
+
+You can extend the interpreter with functions you write in C++; to do so,
+you'll have to recompile the interpreter. Certainly there will be no need
+for recompiling if you write your functions in InteLib Lisp.
+
+Please remember however that InteLib Lisp is *N*O*T* intended to be used as
+a stand-alone Lisp implementation. Trying to use it outside of the
+multiparadigm context (for which it is intended) you will shortly notice it
+has too few functions. Once again: it is senseless to try InteLib Lisp
+unless you use it as a secondary language in a C++ project.
+
+
+*************************************************************************
+* 2. Invocation rules
+
+As for now, the NILL command line has the following synopsis:
+
+ nill [-q] [{-i <file> | -x <expr> | -b <plugin>}] [(<mainfile>|-) [args]]
+
+   '-i' means the <file> (an ascii text file which contains some source code 
+in InteLib Lisp) must be loaded and processed before entering the main
+execution mode.
+   '-x' means that <expression> (a string which is itself an InteLib Lisp 
+code) must be executed (evaluated) before entering the main execution mode.
+   '-b' causes a NILL plugin (shared object, see below) to be loaded.
+   '-q' tells NILL to be quiet (that is, don't print the banner before 
+entering the interactive execution mode).
+   '--' means that there are no more options and all the rest of parameters 
+is to be processed as a name of the main file and the arguments. This is 
+useful if your main file name begins with a dash.
+
+The '-x' and '-i' options can be given any number of times, and they can be 
+mixed with each other.
+  
+If a <mainfile> or '-' is given, the interpreter will enter the BATCH MODE, 
+otherwise the INTERACTIVE MODE will be used. If you specify the <mainfile>
+or '-', you can also supply any number of arguments for your Lisp program.
+See the next section for details.
+
+
+*************************************************************************
+* 3. Modes of operation
+
+There are two modes NILL operates in: the BATCH MODE and the INTERACTIVE
+MODE.
+
+3.1. The Batch Mode of the interpreter
+
+The interpreter enters this mode if either the file name or a '-' was given
+at the command line.
+
+The file is opened for reading; if '-' was given instead of the file name,
+the standard input is used. Then, S-expressions are read from the file one
+by one and evaluated. Results are *not* printed in the batch mode; the only
+way to print something is to use InteLib Lisp i/o functions.
+
+Please be warned that if you give '-' so that the code is read from the
+stdin, and some functions of your code use input from stdin as well, this
+can lead to a confusion.
+
+
+3.2. The Interactive Mode of the interpreter
+
+In this mode the interpreter first outputs a text banner with some info
+regarding copyright and licenses. It then prints a prompt '> ' using
+standard output stream, then reads an S-expression form its standard input,
+evaluates it and prints the result. Error messages are printed at standard
+errors stream (stderr). The loop continues until either EOF is received on
+the stdin, or the (quit) function is executed.
+
+The *args* variable is always NIL in the interactive mode.
+
+Unless NILL was built with USE_READLINE=no, the GNU readline functionality
+is available in the interactive mode. See the GNU readline documentation
+for details. The NILL's 'application name' in the terms of readline, which
+you can use to customize readline's behaviour for NILL (with ~/.inputrc
+file) is (surprize!) "NILL".
+
+*************************************************************************
+* 4. NILL-specific functions and variables
+
+As for now, NILL implements three functions unavailable in ILL; also four
+global (dynamically bound) variables are made available in NILL.
+
+
+4.1 Functions
+
+The NILL-specific functions are 'LOAD', 'DLOAD', 'QUIT', 'BODY', 'TRACE'
+and 'UNTRACE'. Besides that, NILL has different behaviour for '%%%'.
+
+
+4.1.1. The 'LOAD' function loads a file (written in Lisp) and interpretes
+its top-level forms one by one. The syntax is (load "file.ext"). If there
+was a problem opening the file for reading, the function returns the Lisp
+boolean false (typically NIL). On success, the returned value is the value
+returned by the last top-level form in the file. If a syntax error occurs,
+the function generates an exception which than results in a error message
+like this:
+
+    #* Syntax error: unexpected eof line: 7 , expression began at: 3 
+
+
+4.1.2. The 'DLOAD' function loads a 'NILL plugin' file, which is
+effectively a shared object containing Lisp functions (and, possibly,
+symbols for other purposes). The $INTELIB/samples/permut/ directory
+contains an example on how to create such a plugin. The key idea is to
+provide an unmangled (that is, declared as extern "C") function 
+
+   void nill_lib_init_function(LReference *ref);
+
+which generates a list of symbols to be added to the interpreter and
+assigns the list to the given (by pointer) LReference object.
+
+Please note that the single argument of DLOAD, which is the path to the
+shared object's file, should contain at least one slash ('/'). If you load
+a file from the current directory, do cmth. like
+
+   (DLOAD "./nill_plugin.so")
+
+This is because dlopen(3) will search default system lib directories for
+your plugin otherwise.
+
+
+4.1.3. The 'QUIT' function breaks the main read-evaluate[-print] loop of
+the interpreter. Please note that the loop is broken only after the current
+top-level form is finished. That is, if you type something like 
+
+     > (mapcar #'(lambda (x) (quit)) (rplacd (setq a '(1)) a))
+
+your program will never quit despite that the function (quit) will be
+called infinite number of times (the list given as the second argument to
+mapcar is endless: (1 1 1 1 ...))
+
+
+4.1.4. The 'BODY' function returns the body of a lisp-written form, be 
+it a function, a macro or a nlambda. The return is done by reference so
+that you can use SETF both on the result or on any selection of it.
+Consider the following example:
+
+    > (defun f() (list 1 2 3))
+    F
+    > (f)
+    (1 2 3)
+    > (body #'f)
+    ((LIST 1 2 3))
+    > (setf (cadar (body #'f)) 77)
+    77
+    > (f)
+    (77 2 3)
+
+In this example, we have replaced the second element of the first (and the
+only) form of the function's body, which was the constant 1, with the
+constant 77. The result of the function has therefore changed.
+
+Please note that this feature can be used on the debugging stage to place
+break points (calls to the (break "...")) into the existing functions.
+
+4.1.5. The functions 'TRACE' and 'UNTRACE' allow to start and stop tracing
+of any of the existing functions. When a function is traced, its parameters
+will be printed each time it is called and the returning value will be
+printed when the function exits.
+
+4.1.6. The symbol '%%%' in NILL is bound to a form which gets any number of
+parameters, doesn't evaluate any of them and doesn't do anything (so you
+might want to call it ``no-operation''). It always returns NIL. This is
+done for compatibility with a code intended for ILL, in which '%%%' has
+special meaning.
+
+4.1.7. Using the function 'DLOAD' can shadow existing symbols, including
+the symbols which denote ``system'' functions. To make some safety, the
+above-mentioned symbols are also available under alternative (strange)
+names: '%%%LOAD', '%%%DLOAD', '%%%QUIT', '%%%BODY', '%%%TRACE' and
+'%%%UNTRACE'. It is strongly discouraged to use similar names in your Lisp
+programs.
+
+
+4.2. Variables
+
+There are four variables available in NILL: *standard-input*,
+*standard-output*, *standard-errors* and *args*. The first three are
+initially assigned to the SExpressionStream objects corresponding to the
+stdin, stdout and stderr streams respectively.
+
+The variable *args* is a list of zero or more strings which correspond to
+the extra <args> given at the NILL's command line, if any. If the
+interpreter is invoked in the INTERACTIVE MODE, the *args* variable equals
+to NIL. If we invoke the translator, say, with
+
+    % ./nill myfile.lsp a b cc dd
+
+then *args* will be bound to the list ("a" "b" "cc" "dd").
+
+Please note that *args* is NOT available (that is, there's no such symbol)
+during processing of '-x' and '-i' options.

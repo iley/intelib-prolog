@@ -1,0 +1,11 @@
+DEFVAR
+
+(DEFVAR symbol [value [doc...]])
+
+
+Makes the given symbol to be a global (dynamic) lisp variable. If value is
+present, then it is evaluated and assigned to the symbol. 
+
+Unlike Common Lisp, Intelib Lisp DEFVAR accepts an unlimited number of 
+parameters, but all excepth the first two are completely and silently 
+ignored. 

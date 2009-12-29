@@ -1,0 +1,21 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+$ENTRY Pragma {
+  (t.FileName e.Text) = (t.FileName <StateS e.Text>);
+  e.Foo = <Prout 'Bug in "Pragma" function. View field: ' e.Foo>;
+}
+
+StateS {
+  '/*%%%' e.Text = '$%%% {' <StatePragma e.Text>;
+  s.Char e.Text = s.Char <StateS e.Text>;
+    = ;
+  e.Foo = <Prout 'Bug in "StateS" function. View field: ' e.Foo>;
+}
+
+StatePragma {
+  '*/' e.Text = '}' <StateS e.Text>;
+  s.Char e.Text = s.Char <StatePragma e.Text>;
+    = ;
+  e.Foo = <Prout 'Bug in "StatePragma" function. View field: ' e.Foo>;
+}

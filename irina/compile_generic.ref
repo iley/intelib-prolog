@@ -1,0 +1,18 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$ENTRY CompileCall {
+  1 =
+	<System 'CXX -Wall -Wno-parentheses '
+		'-ggdb -I.. -O0 -c refalpart.cxx'>;
+  2 =
+	<System 'CXX -Wall -ggdb -I.. -O3 refalpart.o def_run.o '
+	        '-Lbin_lib -lsexpr -lirefal' <BinName <Dg BinaryFile>>>;
+  e.Foo = <Prout 'Bug in "CompileCall" function. View field: ' e.Foo>
+}
+
+BinName {
+  = ;
+  (e.Foo) = ' -o ' e.Foo;
+  e.Foo = <Prout 'Bug in "BinName" function. View field: ' e.Foo>;
+}

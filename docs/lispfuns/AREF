@@ -1,0 +1,8 @@
+AREF
+
+(AREF <array> <index>)
+
+Accesses the element of the <array> (which must be an array created by
+MAKEARRAY or an imported SExpressionVector expression) indexed by <index>,
+starting from zero. Unlike Common Lisp, only one index is supported. The
+function is always SETF-capable.

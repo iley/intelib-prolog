@@ -1,0 +1,11 @@
+MAKEHASHTABLE
+
+(MAKEHASHTABLE [<ignored>])
+
+The function creates and returns a new hash table. Unlike the
+Common Lisp MAKE-HASH-TABLE, this version always creates a table
+which uses EQUAL as the predicate to determine wether two keys 
+match. The optional parameter is accepted for historical reasons, 
+but is ignored.
+
+SEE ALSO: MAKEHASHTABLE_EQ, MAKEHASHTABLE_EQL

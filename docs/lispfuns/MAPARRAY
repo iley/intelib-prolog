@@ -1,0 +1,15 @@
+MAPARRAY
+
+(MAPARRAY <function> <array>)
+
+
+MAPARRAY operates on successive elements of the given array. The given 
+<function> is applied to the 0th, 1st, 2nd, ..., last elements of the 
+given <array>, which must be an object of the type SExpressionVector.
+
+MAPARRAY returns the number of elements. Values returned by <function> are
+silently ignored.
+
+MAPARRAY accepts functional objects as well as symbols with associated
+functions and lambda-lists as its first argument. It is not recommended
+though to make use of this. 

@@ -1,0 +1,5 @@
+DIFFERENCE
+
+(DIFFERENCE arg0 ...)
+
+Acts just like '-' in Common Lisp.

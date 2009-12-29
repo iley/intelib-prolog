@@ -1,0 +1,12 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+
+$EXTERN PrintErrors;
+
+$ENTRY CheckLexical {
+  (t.FileName e.FileCont (ErrorsList '=' ())) =
+	(t.FileName (ErrorsList '=' ()) e.FileCont);
+  (t.FileName e.FileCont (ErrorsList '=' (e.ErrorsList))) =
+	<PrintErrors (FileName '=' t.FileName) e.ErrorsList> ();
+  e.Foo = <Prout 'Bug in "CheckLexical" function. View field: ' e.Foo>;
+}

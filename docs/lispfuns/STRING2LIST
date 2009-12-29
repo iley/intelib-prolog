@@ -1,0 +1,5 @@
+STRING2LIST
+
+(STRING2LIST <string>)
+
+Converts a string into the list of its characters

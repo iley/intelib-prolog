@@ -1,0 +1,43 @@
+This demo prints all possible permutations from N by N, where N is given at
+the command line (default is N==5).  To do so, it uses an S-expression of
+special type SExpressionPermGen which is able to hold the current
+permutation and to create the next one using the current one. 
+
+The main intention of the demo is to illustrate how to create a
+user-invented S-expression, create user-defined functions and use them.  All
+the stuff is in the perm.[ch]pp module; the module provides the user-defined
+type SExpressionPermGen and two Lisp functions named CREATE_PG (creates the
+object of SExpressionPermGen which will generate permutations for the given
+N) and NEXT_PERMUTATION (which gets the next permutation from the given
+permutation generator object).
+
+Type 'make run' to run the demo, or 'make prog' if you just want to
+build the demo; you can run it typing smth. like './prog 7' to get all
+possible permutation from 7 by 7.
+
+PLEASE NOTE the Makefile assumes you have already compiled and INSTALLED
+InteLib.  If you didn't install it, use 'INTELIB=../../..' at your command
+line, like this:
+
+        make run INTELIB=../../..
+
+You can build the demo with the debugger module: 
+
+        make clean ; make prog ILLDEBUG=yes
+
+will do so for you.  Please note that the Makefile demands libreadline; if
+you for some reason don't have libreadline installed, just remove the
+appropriate parameter (``-lreadline'') from the Makefile.
+
+Being built this way, the program will stop and enter the interactive
+debugger loop right after each permutation is printed.  Press Ctrl-D (EOF)
+to cause the debugger loop to quit and continue the program.  Please note
+that the local LEXICAL variables (!) from the context where (break) appears
+will be available from within the loop; try playing with the variables
+named PERM and GENERATOR to see that.
+
+This demo also demonstrates how to create plugin libraries for NILL.  Try
+issuing command 'make nill_perm.so'; then, when it is ready, try loading it
+from NILL using '(dload "./nill_perm.so")' or similar (please note the path
+MUST contain at least one slash, or else NILL will try to find the library
+in the library path; see dload(3) manual page for details on this).

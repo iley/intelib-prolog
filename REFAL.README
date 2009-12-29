@@ -1,0 +1,11 @@
+WARNING! If this release includes something related to the Refal language,
+then be forewarned that all the Refal-related code is still EXPERIMENTAL.
+
+The obsolete translator rf2cpp is eliminated from InteLib and replaced
+with the new translator, named IRINA, contributed by Igor Bronstein,
+who also did some useful (and major) modifications to the Refal-machine
+implementation itself.  All the code is relatively new and was not tested
+as much as the Lisp/Scheme part was.
+
+We are specially interested in any feedback regarding the new Refal part of
+the library.

@@ -1,0 +1,9 @@
+TIMES
+
+(TIMES arg0 ...)
+
+
+Acts just like Common Lisp's '*'. 
+
+Note there are only 2 numberic types in Intelib Lisp, SExpressionInt and
+SExpressionFloat.

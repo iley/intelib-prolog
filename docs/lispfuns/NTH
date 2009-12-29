@@ -1,0 +1,17 @@
+NTH
+
+(NTH <n> <list>)
+
+returns  the <n>th element of <list>, where the car of the <list> is the
+``zeroth'' element. The argument <n> should be a non-negative integer. If the
+length  of the list is not greater than <n>, then the result is (), that is,
+nil. 
+
+NOTE this differs from the CommonLisp's one in that <n> could in fact be
+any number castable to integer; for negative values, () is returned. Also,
+this function is SETF-capable in InteLib Lisp unless <n> is out of range,
+in which case it is not SETF-capable, e.g.:
+
+(SETQ X '(1 2 3 4 5))
+(SETF (NTH 2 X) 333)   -> (1 2 333 4 5)
+(SETF (NTH 10 X) 777)  -> *error*

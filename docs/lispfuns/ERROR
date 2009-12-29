@@ -1,0 +1,10 @@
+ERROR
+
+(ERROR arg0 ...)
+
+Signal an error.  Unlike in Common Lisp, this version of ERROR function 
+evaluates all the given parameters, then makes a list of them and 
+throws an exception of the type LispX_user with the created list as a 
+parameter. 
+
+NOTE: this function therefore _never_ returns. 

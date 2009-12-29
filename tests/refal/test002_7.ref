@@ -1,0 +1,391 @@
+* INTELIB_CONTRIBUTED
+* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
+
+$EXTERN GetSymbolType;
+$EXTERN GetExternType;
+$EXTERN GetEntryType;
+$EXTERN GetNumberType;
+$EXTERN GetVarType;
+$EXTERN GetTextConstantType;
+$EXTERN GetDelimCode;
+$EXTERN GenerateName;
+$EXTERN IsStatic;
+$EXTERN TwoNewlines;
+$EXTERN Library;
+
+FirstFileNumber {
+  = 1;
+}
+
+$ENTRY AddFunctionsCode {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention)
+  (e.InitFunctionName)
+  e.Files =
+	<FinishAdding
+		(e.InitFunctionName)
+		<StartAdding
+			(e.PublicFunctions) (e.ExternalFunctions)
+  			(e.NamesConvention) (e.CharsConvention)
+			() () () <FirstFileNumber>
+  			e.Files
+		>
+	>;
+  e.Foo = <Prout 'Bug in "AddFunctionsCode" function. View field: ' e.Foo>;
+}
+
+StartAdding {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention)
+  (e.Already1) (e.Already2) (e.Already3) s.FileNumber =
+	(e.Already1) (e.Already2) (e.Already3);
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention)
+  (e.Already1) (e.Already2) (e.Already3) s.FileNumber (t.FileName e.FileCont) e.Files =
+	<StartAdding
+		(e.PublicFunctions) (e.ExternalFunctions)
+  		(e.NamesConvention) (e.CharsConvention)
+		<AddingFromOneFile
+			(e.PublicFunctions) (e.ExternalFunctions)
+  			(e.NamesConvention) (e.CharsConvention)
+			(e.Already1) (e.Already2) (e.Already3)
+			s.FileNumber e.FileCont
+		>
+		<Add s.FileNumber 1>
+		e.Files
+	>;
+  e.Foo = <Prout 'Bug in "StartAdding" function. View field: ' e.Foo>;
+}
+
+AddingFromOneFile {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention)
+  (e.Already1) (e.Already2) (e.Already3) s.FileNumber
+  (s.LineNumber0 s.ExternType) (s.LineNumber1 s.SymbolType e.Symbol)
+  (s.LineNumber2 s.DelimType Semicolon) e.Text,
+	<GetExternType> : s.ExternType,
+	<GetSymbolType> : s.SymbolType =
+	<AddingFromOneFile
+		(e.PublicFunctions) (e.ExternalFunctions)
+  		(e.NamesConvention) (e.CharsConvention)
+  		(e.Already1) (e.Already2) (e.Already3) s.FileNumber
+		e.Text
+	>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention)
+  (e.Already1) (e.Already2) (e.Already3) s.FileNumber
+  (s.LineNumber0 s.EntryType) (s.LineNumber1 s.SymbolType e.Ident)
+  ((s.LineNumber2 s.DelimType s.LCBracket) e.FunCont (s.LineNumber3 s.DelimType s.RCBracket)) e.Text,
+	<GetSymbolType> : s.SymbolType,
+	<GetEntryType> : s.EntryType,
+	<GetDelimCode '{'> : s.LCBracket,
+	<GetDelimCode '}'> : s.RCBracket =
+	<AddingFromOneFile
+		(e.PublicFunctions) (e.ExternalFunctions)
+  		(e.NamesConvention) (e.CharsConvention)
+		<AddToList
+			(e.PublicFunctions) (e.ExternalFunctions)
+  			(e.NamesConvention) (e.CharsConvention)
+			(e.Already1) (e.Already2) (e.Already3) s.FileNumber
+			(e.Ident)
+			(
+			<GenerateFunCont
+				(e.PublicFunctions) (e.ExternalFunctions)
+  				(e.NamesConvention) (e.CharsConvention) s.FileNumber
+				(e.Ident) e.FunCont
+			>
+			)
+		>
+		s.FileNumber e.Text
+	>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention)
+  (e.Already1) (e.Already2) (e.Already3) s.FileNumber
+  (s.LineNumber1 s.SymbolType e.Ident)
+  ((s.LineNumber2 s.DelimType s.LCBracket) e.FunCont (s.LineNumber3 s.DelimType s.RCBracket)) e.Text,
+	<GetSymbolType> : s.SymbolType,
+	<GetDelimCode '{'> : s.LCBracket,
+	<GetDelimCode '}'> : s.RCBracket =
+	<AddingFromOneFile
+		(e.PublicFunctions) (e.ExternalFunctions)
+  		(e.NamesConvention) (e.CharsConvention)
+		<AddToList
+			(e.PublicFunctions) (e.ExternalFunctions)
+  			(e.NamesConvention) (e.CharsConvention)
+			(e.Already1) (e.Already2) (e.Already3) s.FileNumber
+			(e.Ident)
+			(
+			<GenerateFunCont
+				(e.PublicFunctions) (e.ExternalFunctions)
+  				(e.NamesConvention) (e.CharsConvention) s.FileNumber
+				(e.Ident) e.FunCont
+			>
+			)
+		>
+		s.FileNumber e.Text
+	>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention)
+  (e.Already1) (e.Already2) (e.Already3) s.FileNumber =
+	(e.Already1) (e.Already2) (e.Already3);
+  e.Foo = <Prout 'Bug in "AddingFromOneFile" function. View field: ' e.Foo>;
+}
+
+NeedsPrefix {
+  (e.Ident) (e.Foo (s.LineNumber e.Ident) e.Bar) (e.ExternalFunctions) s.FileNumber = ;
+  (e.Ident) (e.PublicFunctions) (e.Foo (s.LineNumber e.Ident) e.Bar) s.FileNumber = ;
+  (e.Ident) (e.PublicFunctions) (e.ExternalFunctions) s.FileNumber,
+	<Library> : e.Foo (e.Ident) e.Bar = ;
+  (e.Ident) (e.PublicFunctions) (e.ExternalFunctions) s.FileNumber =
+	'file' <Symb s.FileNumber> '_';
+  e.Foo = <Prout 'Bug in "NeedsPrefix" function. View field: ' e.Foo>;
+}
+
+AddToList {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention)
+  (e.Already1) (e.Already2) (e.Already3) s.FileNumber (e.Name) (e.FunCont) =
+	(e.Already1
+		<IsStatic (e.Name) (e.PublicFunctions)>
+		'RfSymbol '
+		<NeedsPrefix (e.Name) (e.PublicFunctions) (e.ExternalFunctions) s.FileNumber>
+		<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Name)>
+		'("' e.Name '");\n'
+	)
+	(e.Already2
+		('void '
+		<NeedsPrefix (e.Name) (e.PublicFunctions) (e.ExternalFunctions) s.FileNumber>
+		<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Name)>
+		'() {\n'
+		e.FunCont
+		';\n'
+		'}\n'
+		)
+	)
+	(e.Already3
+		(
+		<NeedsPrefix (e.Name) (e.PublicFunctions) (e.ExternalFunctions) s.FileNumber>
+		<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Name)>
+		'();\n'
+		)
+	);
+  e.Foo = <Prout 'Bug in "AddToList" function. View field: ' e.Foo>;
+}
+
+FinishAdding {
+  (e.InitFunctionName) (e.Already1) (e.Already2) (e.Already3) =
+	e.Already1
+	<TwoNewlines>
+	<AddInitFunction (e.InitFunctionName) e.Already2>
+	'\n'
+	'void ' e.InitFunctionName '() {\n'
+	<MakeInitFunction (e.InitFunctionName) e.Already3>
+	'}\n';
+  e.Foo = <Prout 'Bug in "FinishAdding" function. View field: ' e.Foo>;
+}
+
+AddInitFunction {
+  (e.InitFunctionName) ('void ' e.Foo) e.Text =
+	'void ' e.InitFunctionName '_' e.Foo '\n'
+	<AddInitFunction (e.InitFunctionName) e.Text>;
+  (e.InitFunctionName) = ;
+  e.Foo = <Prout 'Bug in "AddInitFunction" function. View field: ' e.Foo>;
+}
+
+MakeInitFunction {
+  (e.InitFunctionName) (e.Foo) e.Text =
+	'\t' e.InitFunctionName '_' e.Foo
+	<MakeInitFunction (e.InitFunctionName) e.Text>;
+  (e.InitFunctionName) = ;
+  e.Foo = <Prout 'Bug in "MakeInitFunction" function. View field: ' e.Foo>;
+}
+
+GenerateFunCont {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  (e.Ident) e.FunCont =
+	'\t'
+	<NeedsPrefix (e.Ident) (e.PublicFunctions) (e.ExternalFunctions) s.FileNumber>
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Ident)>
+	<FunctionBody
+		(e.PublicFunctions) (e.ExternalFunctions)
+  		(e.NamesConvention) (e.CharsConvention) s.FileNumber
+		e.FunCont
+	>;
+  e.Foo = <Prout 'Bug in "GenerateFunCont" function. View field: ' e.Foo>;
+}
+
+FunctionBody {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  e.Foo (s.LineNumber s.DelimType Semicolon) e.Text =
+	'\n\t||\n\t'
+	<Clause
+		(e.PublicFunctions) (e.ExternalFunctions)
+		(e.NamesConvention) (e.CharsConvention) s.FileNumber
+		e.Foo
+	>
+	<FunctionBody
+		(e.PublicFunctions) (e.ExternalFunctions)
+  		(e.NamesConvention) (e.CharsConvention) s.FileNumber
+		e.Text
+	>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber = ;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  e.Foo =
+	'\n\t||\n\t'
+	<Clause
+		(e.PublicFunctions) (e.ExternalFunctions)
+  		(e.NamesConvention) (e.CharsConvention) s.FileNumber
+		e.Foo
+	>;
+  e.Foo = <Prout 'Bug in "FunctionBody" function. View field: ' e.Foo>;
+}
+
+Clause {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  e.Left 
+  (s.LineNumber1 s.DelimType Comma) e.Where (s.LineNumber2 s.DelimType Equal) e.Right =
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Left> ' & '
+	<Where (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Where> '\t^ '
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Right>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  e.Left (s.LineNumber s.DelimType Equal) e.Right =
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Left> '\t^ '
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Right>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  e.Left (s.LineNumber1 s.DelimType Comma) e.Where
+  (s.LineNumber2 s.DelimType Colon) ((s.LineNumber3 s.DelimType s.LCBracket) e.FunCont
+  (s.LineNumber4 s.DelimType s.RCBracket)) =
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Left> ' & '
+	<Where (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Where
+  	(s.LineNumber2 s.DelimType Colon)
+	((s.LineNumber3 s.DelimType s.LCBracket) e.FunCont (s.LineNumber4 s.DelimType
+  	s.RCBracket))>;
+  e.Foo = <Prout 'Bug in "Clause" function. View field: ' e.Foo>;
+}
+
+Where {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  e.Right
+  (s.LineNumber1 s.DelimType Colon) e.Left (s.LineNumber s.DelimType Comma) e.Where =
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Right> ' | '
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Left> ' & '
+	<Where (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Where>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  e.Right (s.LineNumber1 s.DelimType Colon)
+  ((s.LineNumber2 s.DelimType s.LCBracket) e.FunCont (s.LineNumber3 s.DelimType s.RCBracket)) =
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Right> ' |  RWITH(\n'
+	'\tRWITH'
+	<FunctionBody (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.FunCont>
+	'\n'
+	'\t)';
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  e.Right (s.LineNumber s.DelimType Colon) e.Left =
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Right> ' | '
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Left>;
+  e.Foo = <Prout 'Bug in "Where" function. View field: ' e.Foo>;
+}
+
+Expression {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  t.Term e.Foo = 
+	'(R|' <SimpleExpression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber t.Term e.Foo> ')';
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber = '(~R)';
+  e.Foo = <Prout 'Bug in "Expression" function. View field: ' e.Foo>;
+}
+
+SimpleExpression {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber t.Term =
+	<Term (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber t.Term>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber t.Term e.Foo =
+	<Term (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber t.Term> ', '
+	<SimpleExpression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Foo>;
+  e.Foo = <Prout 'Bug in "SimpleExpression" function. View field: ' e.Foo>;
+}
+
+Term {
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  ((s.LineNumber1 s.DelimType s.LBracket) e.Foo (s.LineNumber2 s.DelimType s.RBracket)),
+	<GetDelimCode '('> : s.LBracket,
+	<GetDelimCode ')'> : s.RBracket =
+	<Expression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Foo>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  ((s.LineNumber1 s.DelimType s.LFBracket) (s.LineNumber2 s.SymbolType e.Ident)
+  (s.LineNumber3 s.DelimType s.RFBracket)),
+	<GetSymbolType> : s.SymbolType,
+	<GetDelimCode '<'> : s.LFBracket,
+	<GetDelimCode '>'> : s.RFBracket =
+	'R<'
+	<NeedsPrefix (e.Ident) (e.PublicFunctions) (e.ExternalFunctions) s.FileNumber>
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Ident)>
+	'>R';
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  ((s.LineNumber1 s.DelimType s.LFBracket) (s.LineNumber2 s.SymbolType e.Ident)
+  e.Foo (s.LineNumber3 s.DelimType s.RFBracket)),
+	<GetSymbolType> : s.SymbolType,
+	<GetDelimCode '<'> : s.LFBracket,
+	<GetDelimCode '>'> : s.RFBracket =
+	'R<'
+	<NeedsPrefix (e.Ident) (e.PublicFunctions) (e.ExternalFunctions) s.FileNumber>
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Ident)>
+	', '
+	<SimpleExpression (e.PublicFunctions) (e.ExternalFunctions)
+  	(e.NamesConvention) (e.CharsConvention) s.FileNumber e.Foo>
+	'>R';
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  (s.LineNumber s.VarType e.Var),
+	<GetVarType> : s.VarType =
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Var)>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  (s.LineNumber s.SymbolType e.Ident),
+	<GetSymbolType> : s.SymbolType =
+	<GenerateName (e.NamesConvention) (e.CharsConvention) (e.Ident)>;
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  (s.LineNumber s.TextConstantType e.TextConstant),
+	<GetTextConstantType> : s.TextConstantType =
+  	'"' e.TextConstant '"';
+  (e.PublicFunctions) (e.ExternalFunctions)
+  (e.NamesConvention) (e.CharsConvention) s.FileNumber
+  (s.LineNumber s.NumberType e.Number),
+	<GetNumberType> : s.NumberType =
+	e.Number;
+  e.Foo = <Prout 'Bug in "Term" function. View field: ' e.Foo>;
+}

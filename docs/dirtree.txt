@@ -1,0 +1,100 @@
+                          I N T E L I B   
+              the directory tree layout description
+
+                             Copyright (c) Andrey V. Stolyarov, 2007-2009
+
+*************************************************************************
+
+The InteLib package consists of several layers, each of them having one 
+or more directories.  In this memo, the directory tree is described,
+together with the corresponding layers.
+
+
+*************************************************************************
+* 1.  The S-expressions as data structures.
+
+This layer consists of only one directory, 'sexpress/'.  In this directory,
+the S-expressions as a heterogenous data model is implemented.
+
+
+*************************************************************************
+* 2.  Tools
+
+Several directories implement different tools to operate S-expressions.
+
+2.1.  The 'tools/' directory implements:
+  - a generalized input/output streams wrapped into S-expressions
+  - a generic flexibly tunable S-expression reader, that is, a lexical
+    and syntax analyser for S-expressions represented as a text
+  - some supplementary things such as a hashtable-based package of
+    symbols (labels)
+  - arythmetic-related functions such as number type unification
+
+
+2.2.  The 'interact/' directory implements the interactive line reading
+mechanism used by interactive interpreters.  Depending on the compile time
+configuration, this may be implemented using GNU Readline library, or (in
+case the Readline support was disabled) simply getting a line with fgets().
+Please note that the contents of this directory comes under strict GPL
+rather than under LGPL, because of the restrictions of GNU Readline.
+
+2.3.  The 'genlisp/' directory contains the common part of computation
+models of Lisp and Scheme, including the InteLib Continuation, the basic
+notion for functions and special forms and the external variable interface.
+
+
+*************************************************************************
+* 3.  Language-specific computation models
+
+This includes the directories 'lisp/' and 'scheme/', in which the
+respective computation models are implemented.
+
+Some of InteLib versions also include the 'refal/' directory which
+implements the REFAL computation model; please take a look on the
+REFAL.README file before trying to use the contents of that directory.
+
+
+*************************************************************************
+* 4.  Interpreters and translators
+
+In this category, two directories exist, 'ill/' (for InteLib Lisp) and
+'ils/' (for InteLib Scheme).  Both contain the implementation of 
+interactive interpreters (nill and nils) and non-interactive translators
+(ill and ils) for the respective languages.
+
+Some files from these directories are compiled and added into the separate
+library file (usually named libintelib_interp.a) along with the contents of
+the 'interact/' directory.  This library can be used to implement custom
+interpreters of InteLib Lisp and InteLib Scheme (e.g., for embedding
+purposes).  Please note this library comes under strict GPL rather than
+LGPL.
+
+The distributons which include the 'refal/' directory should contain a
+directory named 'irina/' as well; this directory contains a translator from
+Refal to C++.
+
+
+*************************************************************************
+* 5.  Documentation and samples
+
+5.1.  The 'docs/' directory contains some documentation for the project.
+Besides some text files, there are two subdirectories.  The 'docs/lispfuns'
+directory enumerates some library functions of InteLib Lisp that are either
+not present in Common Lisp or differ from the Common Lisp prototypes.
+
+The 'docs/doxygen/' directory contains the configuration file for Doxygen
+(see http://www.stack.nl/~dimitri/doxygen/).  Using Doxygen you can extract
+the source code documentation right from the header files of the library.
+
+
+5.2.  The 'samples/' directory contains some simple programs that use
+InteLib.  These are a good starting point for integrating InteLib into your
+projects.
+
+
+5.3.  The 'tests/' directory contains some tests suites for various parts
+of InteLib.  The tests are performed in batch mode; use 'make run' command
+to start them.  Please be forewarned the tests will create their own builds
+of the library, so you'll need a lot of free disk space an spare time to
+run them all.
+

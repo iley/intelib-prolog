@@ -1,0 +1,18 @@
+GETHASH
+
+(GETHASH <key> <hashtable> [<default>])
+
+The first parameter must be a hash table. The function returns the value
+associated with the given <key> in the given <table>, or the <default>
+value if there is no record with the given key in the table. The function
+is always SETF-capable.
+
+WARNING! Unlike Common Lisp GETHASH function, this version may return the
+special value of the type SExpressionLabel which is textually represented
+as #<HASH_EMPTY_SLOT> if no default specified. Therefore, the only case
+when the third parameter might be safely omited is when the function is
+used within the first argument to SETF (in which case the returned value
+doesn't matter since it gets replaced anyway). For the courious, the value
+returned for empty slots is SExpressionHashTable::EmptySlotMark constant,
+but there's no right way to access the constant from the Lisp code (well,
+creating an empty hash and doing gethash on it will do).
