@@ -17,7 +17,7 @@ SHELL = /bin/sh
 
 CXX=g++
 TARGETDIRFP = $(CURDIR)/..
-DIRS = $(LISPLIBMODULES) 
+DIRS = $(MODULES)
 
 none:
 	@echo "No default rule here"
@@ -26,12 +26,7 @@ none:
 
 SUBTARGETS= $(addsuffix /ALL,$(DIRS) )
 
-all:	$(SUBTARGETS) 
-
-## $(TARGETDIRFP)/genfun.lsp
-
-## $(TARGETDIRFP)/genfun.lsp: genfun.lsp
-## 	cp $^ $@
+all:	$(SUBTARGETS)
 
 %/ALL:	% FORCE
 	cd $< && $(MAKE) all TARGETDIRFP=$(TARGETDIRFP) \

@@ -17,7 +17,7 @@ SHELL = /bin/sh
 
 CXX=g++
 TARGETDIRFP = $(CURDIR)/..
-DIRS = $(GENLISPLIBMODULES) 
+DIRS = $(MODULES)
 
 none:
 	@echo "No default rule here"

@@ -10,66 +10,14 @@
 # | !!! THERE IS NO WARRANTY OF ANY KIND, NEITHER EXPRESSED NOR IMPLIED !!! |
 # +-------------------------------------------------------------------------+
 
-
-
-
-SHELL = /bin/sh
-
-TARGETDIR = $(CURDIR)
-
-ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
-else
-TARGETDIRFP = $(TARGETDIR)
-endif
-
 TARGETLIBNAME = libintelibgenlisp.a
 
-GENLISPLIBMODULES = std str hsh io rdr m
+LIBSOURCES = $(wildcard *.cpp)
 
--include $(TARGETDIRFP)/defines.mk
+GENERATED_PREFIX = glsp
 
-OPTIMIZATION = -O2
+MODULES = std str hsh io rdr m
 
-COMPILEFLAGS = $(OPTIMIZATION) -Wall -Woverloaded-virtual -Wsynth \
-		-ggdb -fpic $(CONDDEFINES) 
-CXXFLAGS = $(COMPILEFLAGS) 
+GENERATED_FILES = $(MODULES:=.lsp)
 
-LIBSOURCES = conteval.cpp lispform.cpp binds.cpp extvar.cpp dumpcont.cpp
-
-OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
-
-none:
-	@echo No default rule
-
-all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
-
-$(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES) library/ALL
-	$(AR) crs $@ $(OBJFILES) $(TARGETDIRFP)/glsp_*.o
-
-all_add:        $(OBJFILES) library/ALL
-	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME)\
-		$(OBJFILES) $(TARGETDIRFP)/glsp_*.o
-
-
-$(TARGETDIRFP)/%.o:	%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(TARGETDIRFP)/gls_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
-
-library/ALL: FORCE
-	cd library && $(MAKE) all TARGETDIRFP=$(TARGETDIRFP) \
-  			CXXFLAGS="$(COMPILEFLAGS)" \
-  			GENLISPLIBMODULES="$(GENLISPLIBMODULES)"
-
-clean:	
-	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
-		test buf gmon.out gls_deps.mk
-
-FORCE:
-
-ifneq (clean, $(MAKECMDGOALS))
--include $(TARGETDIRFP)/gls_deps.mk
-endif
+include ../lib.mk
