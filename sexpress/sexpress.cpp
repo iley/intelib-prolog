@@ -18,7 +18,6 @@
 
 #include "../version.h"
 
-#include "sexpress.hpp"
 #include "iexcept.hpp"
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 #include <stdio.h>

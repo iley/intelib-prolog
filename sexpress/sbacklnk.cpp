@@ -13,9 +13,7 @@
 
 
 
-#include "sexpress.hpp"
 #if INTELIB_TEXT_REPRESENTATIONS == 1
-#include "sstring.hpp"
 #endif
 
 #include "sbacklnk.hpp"

@@ -14,7 +14,6 @@
 
 
 #include <string.h>
-#include "iexcept.hpp"
 #include "sstring.hpp"
 
 //////////////////////////////////

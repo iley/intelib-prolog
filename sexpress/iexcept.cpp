@@ -13,7 +13,6 @@
 
 
 
-#include "sexpress.hpp"
 #include "iexcept.hpp"
 
 IntelibX::IntelibX(const char *a_descr)

@@ -13,7 +13,6 @@
 
 
 
-#include "iexcept.hpp"
 #include "shashtbl.hpp"
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 #  include "sstring.hpp"
