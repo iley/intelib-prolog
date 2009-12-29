@@ -1,8 +1,10 @@
 SHELL = /bin/sh
 
-SOURCE_FILES=$(wildcard *.cpp)
+LFUN_PREFIX = $(TARGETDIRFP)/lfun_
 
-TARGET_FILES=$(addprefix $(TARGETDIRFP)/lfun_,$(SOURCE_FILES:.cpp=.o))
+CXXFILES = $(wildcard *.cpp)
+
+OBJFILES = $(addprefix $(LFUN_PREFIX),$(CXXFILES:.cpp=.o))
 
 none:
 	@echo "No default rule here"
@@ -11,24 +13,24 @@ COMMON_FILES = ../ilisplib.hpp ../ilisplib.mk
 
 -include ../../../version.mk
 
-$(TARGETDIRFP)/$(DIRNAME).lsp:	$(SOURCE_FILES) $(COMMON_FILES)
+$(TARGETDIRFP)/$(DIRNAME).lsp:	$(CXXFILES) $(COMMON_FILES)
 	echo "(ADD-LIB-HEADERS \"lfun_$(DIRNAME).hpp\")" > $@
 	$(CXX) -D INTELIB_LISP_TRANSLATOR_INFORMATION \
-		-include ../ilisplib.hpp -E -P $(SOURCE_FILES) >> $@
+		-include ../ilisplib.hpp -E -P $(CXXFILES) >> $@
 
-$(TARGETDIRFP)/lfun_$(DIRNAME).hpp:	$(SOURCE_FILES) $(COMMON_FILES)
+$(LFUN_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
 	@echo '/* GENERATED FILE -- DO NOT EDIT */' > $@
 	@echo '#if !defined(INTELIB_LFUN_$(DIRNAME)_SENTRY)' >> $@
 	@echo '#define INTELIB_LFUN_$(DIRNAME)_SENTRY' >> $@
-	[ -f $(DIRNAME)_hdr.inc ] && cat $(DIRNAME)_hdr.inc >> $@ || :
+	cat $(DIRNAME)_hdr.inc >> $@
 	@echo '#include "genlisp/lispform.hpp"' >> $@
 	$(CXX) -D INTELIB_LISP_LIBRARY_HEADER_GENERATION \
-		-include ../ilisplib.hpp -E -P $(SOURCE_FILES) >> $@
+		-include ../ilisplib.hpp -E -P $(CXXFILES) >> $@
 	@echo '#endif' >> $@
 
-$(TARGETDIRFP)/lfun_%.o:	%.cpp $(COMMON_FILES)
+$(LFUN_PREFIX)%.o:	%.cpp $(COMMON_FILES)
 	$(CXX) $(CXXFLAGS) -c -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION $< -o $@
 
-all:	$(TARGET_FILES) $(TARGETDIRFP)/$(DIRNAME).lsp \
+all:	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp \
 			$(TARGETDIRFP)/lfun_$(DIRNAME).hpp
