@@ -48,3 +48,6 @@ deps.mk: $(CXXFILES)
 	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION \
 		-MT $(LFUN_PREFIX)$(@:.mk=.o) $< >> deps.mk
+	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
+		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION \
+		-MT deps.mk $< >> deps.mk
