@@ -6,6 +6,8 @@ CXXFILES = $(wildcard *.cpp)
 
 OBJFILES = $(addprefix $(LFUN_PREFIX),$(CXXFILES:.cpp=.o))
 
+MKFILES = $(CXXFILES:.cpp=.mk)
+
 none:
 	@echo "No default rule here"
 
@@ -34,3 +36,15 @@ $(LFUN_PREFIX)%.o:	%.cpp $(COMMON_FILES)
 
 all:	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp \
 			$(TARGETDIRFP)/lfun_$(DIRNAME).hpp
+
+-include deps.mk
+
+deps.mk: $(CXXFILES)
+	rm -f deps.mk
+	touch deps.mk
+	$(MAKE) -f ../ilisplib.mk $(MKFILES)
+
+%.mk: %.cpp
+	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
+		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION \
+		-MT $(LFUN_PREFIX)$(@:.mk=.o) $< >> deps.mk
