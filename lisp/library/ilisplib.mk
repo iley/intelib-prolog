@@ -24,7 +24,7 @@ $(LFUN_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
 	@echo '/* GENERATED FILE -- DO NOT EDIT */' > $@
 	@echo '#if !defined(INTELIB_LFUN_$(DIRNAME)_SENTRY)' >> $@
 	@echo '#define INTELIB_LFUN_$(DIRNAME)_SENTRY' >> $@
-	cat $(DIRNAME)_hdr.inc >> $@
+	[ -f $(DIRNAME)_hdr.inc ] && cat $(DIRNAME)_hdr.inc >> $@ || :
 	@echo '#include "genlisp/lispform.hpp"' >> $@
 	$(CXX) -D INTELIB_LISP_LIBRARY_HEADER_GENERATION \
 		-include ../ilisplib.hpp -E -P $(CXXFILES) >> $@
