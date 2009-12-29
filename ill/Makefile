@@ -231,11 +231,9 @@ illdef._ls:	chartran._ls lib._ls illbdef.lsp
 	echo ") ; end of definitions " >> $@
 
 
-clean: FORCE
+clean:
 	rm -f trtgen sympkgen *.[ch]xx *.cpl *.o *._ls ill_new ill_nill
 	rm -f $(BINLIBDIR)/*.{o,lsp,a,hpp}
 	rm -f ill nill
 	
-
-FORCE:
-
+.PHONY: clean bootstrap quick_bootstrap
