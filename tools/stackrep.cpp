@@ -14,7 +14,6 @@
 
 
 #include <stdio.h> // for snprintf
-#include "../sexpress/sexpress.hpp"
 #include "../sexpress/sstring.hpp"
 
 SString stack_representation(SReference stack)

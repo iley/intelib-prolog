@@ -13,7 +13,6 @@
 
 
 
-#include "../sexpress/sexpress.hpp"
 #include "../sexpress/svector.hpp"
 #include "sreader.hpp"
 

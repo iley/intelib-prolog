@@ -14,7 +14,6 @@
 
 
 #include <string.h>
-#include "../sexpress/sexpress.hpp"
 #include "../sexpress/shashtbl.hpp"
 #include "sreader.hpp"
 

@@ -13,10 +13,7 @@
 
 
 
-#include <string.h>
-#include <ctype.h>
 
-#include "../sexpress/shashtbl.hpp"
 
 #include "spkghsh.hpp"
 
