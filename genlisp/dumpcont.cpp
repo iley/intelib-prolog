@@ -15,7 +15,6 @@
 
 #include "../tools/sstream.hpp"
 #include "conteval.hpp"
-#include "dumpcont.hpp"
 
 
 static void print_opcode_name(int opcode, SExpressionStream *stream)

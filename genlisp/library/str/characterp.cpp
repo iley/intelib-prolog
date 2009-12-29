@@ -19,7 +19,6 @@ DECLARE_CFUNCTION(SFunctionCharacterp, 1, 1, "#<FUNCTION CHARACTERP>")
 
 #ifdef INTELIB_GENLISP_LIBRARY_IMPLEMENTATION
 
-#include <string.h>
 void SFunctionCharacterp::
 DoApply(int paramsc, const SReference paramsv[], IntelibContinuation& lf) const
 {

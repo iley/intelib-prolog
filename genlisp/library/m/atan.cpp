@@ -19,7 +19,6 @@ DECLARE_CFUNCTION(SFunctionAtan, 1, 2, "#<FUNCTION ATAN>")
 
 #ifdef INTELIB_GENLISP_LIBRARY_IMPLEMENTATION
 
-#include <math.h>
 
 void SFunctionAtan::
 DoApply(int paramsc, const SReference paramsv[], IntelibContinuation& lf) const

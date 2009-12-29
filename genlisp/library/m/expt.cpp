@@ -19,7 +19,6 @@ DECLARE_CFUNCTION(SFunctionExpt,  2,  2,  "#<FUNCTION EXPT>")
 
 #ifdef INTELIB_GENLISP_LIBRARY_IMPLEMENTATION
 
-#include <math.h>
 
 void SFunctionExpt::
 DoApply(int paramsc, const SReference paramsv[], IntelibContinuation& lf) const
