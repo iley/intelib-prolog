@@ -21,7 +21,6 @@ DECLARE_SPECFORM(LFunctionMacrolet, "#<FORM MACROLET>", "MACROLET")
 
 #ifdef INTELIB_LISP_LIBRARY_IMPLEMENTATION
 
-#include "../../lcont.hpp"
 #include "../../llambda.hpp"
 
 enum do_bindings_mode { bindings_flet, bindings_labels, bindings_macrolet };

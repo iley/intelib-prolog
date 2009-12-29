@@ -19,7 +19,6 @@ DECLARE_SPECFORM(LFunctionWhile, "#<FUNCTION WHILE>", "WHILE")
 
 #ifdef INTELIB_LISP_LIBRARY_IMPLEMENTATION
 
-#include "../../../sexpress/slocatn.hpp"
 
 class LExpressionWhileIterator : public SExpressionGenericIterator {
     SReference test;

@@ -13,15 +13,12 @@
 
 
 
-#include "../sexpress/iexcept.hpp"
 #include "../sexpress/sstring.hpp"
 #include "llambda.hpp"
-#include "lcont.hpp"
 
 #include "lsymbol.hpp"
 
 #if INTELIB_DEBUG_PRINT >= 1
-#include <stdio.h>
 #endif
 
 IntelibTypeId

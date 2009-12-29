@@ -13,8 +13,6 @@
 
 
 
-#include "../sexpress/svector.hpp"
-#include "../sexpress/shashtbl.hpp"
 #include "lisp.hpp"
 #include "lreader.hpp"
 

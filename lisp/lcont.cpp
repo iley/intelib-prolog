@@ -13,10 +13,7 @@
 
 
 
-#include "../sexpress/iexcept.hpp"
 #include "../sexpress/sstring.hpp"
-#include "lisp.hpp"
-#include "lcont.hpp"
 #include "lsymbol.hpp"
 #include "llambda.hpp"
 

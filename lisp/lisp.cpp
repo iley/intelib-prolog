@@ -14,11 +14,9 @@
 
 
 #include "../sexpress/sstring.hpp"
-#include "lcont.hpp"
 //#include "lsymbol.hpp"
 #include "llambda.hpp"
 
-#include "lisp.hpp"
 
 
 LReference::LReference(UserLispFunction fun)

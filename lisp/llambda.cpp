@@ -15,7 +15,6 @@
 
 #include "../sexpress/sstring.hpp"
 #include "../sexpress/slocatn.hpp"
-#include "lcont.hpp"
 #include "lsymbol.hpp"
 #include "llambda.hpp"
 
