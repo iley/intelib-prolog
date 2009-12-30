@@ -119,7 +119,7 @@ $(TARGETDIRFP)/ill.o:	$(TARGETDIRFP)/ill.cxx $(TARGETDIRFP)/ill.hxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 ill_new: $(TARGETDIRFP)/ill_new
-
+	:
 
 
 $(TARGETDIRFP)/ill_new:	$(TARGETDIRFP)/ill.o illmain.cpp $(LIBDEPEND)
