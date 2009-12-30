@@ -51,7 +51,7 @@ all_add:        $(OBJFILES) library/ALL
 $(TARGETDIRFP)/%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TARGETDIRFP)/deps.mk: $(LIBSOURCES) Makefile
+$(TARGETDIRFP)/$(GENERATED_PREFIX)_deps.mk: $(LIBSOURCES) Makefile
 	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) \
 	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
 
@@ -61,7 +61,7 @@ library/ALL: FORCE
   			MODULES="$(MODULES)"
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
-		test buf gmon.out deps.mk *_deps.mk $(GENERATED_PREFIX)_*.hpp \
+		test buf gmon.out *deps.mk $(GENERATED_PREFIX)_*.hpp \
 		*.lsp \
 		*.scm
 
