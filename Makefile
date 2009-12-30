@@ -207,3 +207,5 @@ clean:
 	cd irina && $(MAKE) clean || :
 	rm -rf $(TARGETDIRFP) docs/doxygen/html
 	rm -rf docs/doxygen/man
+
+.PHONY: clean bootstrap install doxydocs default
