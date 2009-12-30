@@ -21,21 +21,26 @@ LISPMATH=yes
 # change this to "no" if you don't have GNU readline development files
 USE_READLINE=yes
 
-BINLIBDIR = ../build
-#BINLIBDIR = bin_lib
+TARGETDIR = ../build
+ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+else
+TARGETDIRFP = $(TARGETDIR)
+endif
+#TARGETDIRFP = bin_lib
 
 OSTYPE = $(shell uname -s)
 
 
-LOCALFLAGS = -fpic -funsigned-char -g -Wall -I./$(BINLIBDIR) 
+LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)
 
-#LIBINTELIB = -L./$(BINLIBDIR) -lilisp -lsexpr
-LIBINTELIB = -L./$(BINLIBDIR) -lintelib -lintelib_interp
-LFUNHEADERS = $(patsubst %,$(BINLIBDIR)/lfun_%.hpp,$(LISPLIBMODULES))
-LIBDEFLSPFILES = $(patsubst %,$(BINLIBDIR)/%.lsp,$(LISPLIBMODULES))
-#LIBDEPEND = $(LFUNHEADERS) $(BINLIBDIR)/libilisp.a $(BINLIBDIR)/libsexpr.a
-LIBDEPEND = $(LFUNHEADERS) $(BINLIBDIR)/libintelib.a \
-			$(BINLIBDIR)/libintelib_interp.a
+#LIBINTELIB = -L./$(TARGETDIRFP) -lilisp -lsexpr
+LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
+#LFUNHEADERS = $(patsubst %,$(TARGETDIRFP)/lfun_%.hpp,$(LISPLIBMODULES))
+LIBDEFLSPFILES = $(patsubst %,$(TARGETDIRFP)/%.lsp,$(LISPLIBMODULES))
+#LIBDEPEND = $(LFUNHEADERS) $(TARGETDIRFP)/libilisp.a $(TARGETDIRFP)/libsexpr.a
+LIBDEPEND = $(LFUNHEADERS) $(TARGETDIRFP)/libintelib.a \
+			$(TARGETDIRFP)/libintelib_interp.a
 
 
 ifeq ($(OSTYPE),Linux)
@@ -75,8 +80,8 @@ CXXFLAGS = $(LOCALFLAGS)
 #########################################################################
 
 
-$(BINLIBDIR)/libintelib.a $(BINLIBDIR)/libintelib_nill.a $(LFUNHEADERS):	
-	cd .. && $(MAKE) library TARGETDIR=ill/$(BINLIBDIR)
+$(TARGETDIRFP)/libintelib.a $(TARGETDIRFP)/libintelib_nill.a $(LFUNHEADERS):
+	cd .. && $(MAKE) library TARGETDIR=$(TARGETDIRFP)
 
 
 ###############################
@@ -155,13 +160,6 @@ quick_bootstrap:
 ###############################
 # Interpreter
 
-TARGETDIR = $(CURDIR)
-
-ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-    TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
-else
-    TARGETDIRFP = $(TARGETDIR)
-endif
 
 TARGETLIBNAME = libilldebug.a
 
@@ -227,7 +225,7 @@ illdef._ls:	chartran._ls lib._ls illbdef.lsp
 
 clean:
 	rm -f trtgen sympkgen *.[ch]xx *.cpl *.o *._ls ill_new ill_nill
-	rm -f $(BINLIBDIR)/*.{o,lsp,a,hpp}
+	rm -f $(TARGETDIRFP)/*.{o,lsp,a,hpp}
 	rm -f ill nill
 	
 .PHONY: clean bootstrap quick_bootstrap
