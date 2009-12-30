@@ -48,8 +48,6 @@ PREFIX=/usr/local
 SYMLINK_PREFIX=
 INCLUDEDIR=$(PREFIX)/include/intelib
 INCLUDEDIR_SYMLINK=no
-BINDIR=$(PREFIX)/bin
-LIBDIR=$(PREFIX)/lib
 #DOCDIR=$(PREFIX)/share/docs   # not used in this version
 
 else
@@ -64,11 +62,12 @@ else
 endif
 INCLUDEDIR=$(PREFIX)/include
 INCLUDEDIR_SYMLINK=yes
-BINDIR=$(PREFIX)/bin
-LIBDIR=$(PREFIX)/lib
 #DOCDIR=$(PREFIX)/share/docs   # not used in this version
 
 endif
+
+BINDIR=$(PREFIX)/bin
+LIBDIR=$(PREFIX)/lib
 
 
 INSTALL = install
