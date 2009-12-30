@@ -21,18 +21,25 @@ LISPMATH=yes
 # change this to "no" if you don't have GNU readline development files
 USE_READLINE=yes
 
-BINLIBDIR = ../build
+# The directory in which the library will be built
+TARGETDIR = ../build
+
+ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+else
+TARGETDIRFP = $(TARGETDIR)
+endif
 
 OSTYPE = $(shell uname -s)
 
-LOCALFLAGS = -fpic -funsigned-char -g -Wall -I./$(BINLIBDIR) 
+LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)
 
 SCHEMELIBMODULES = std str sel io rdr hsh m
-LIBINTELIB = -L./$(BINLIBDIR) -lintelib -lintelib_interp
-LFUNHEADERS = $(patsubst %,$(BINLIBDIR)/sch_%.hpp,$(SCHEMELIBMODULES))
-LIBDEFSCMFILES = $(patsubst %,$(BINLIBDIR)/%.scm,$(SCHEMELIBMODULES)) 
-LIBDEPEND = $(LFUNHEADERS) $(BINLIBDIR)/libintelib.a \
-			$(BINLIBDIR)/libintelib_interp.a
+LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
+LFUNHEADERS = $(patsubst %,$(TARGETDIRFP)/sch_%.hpp,$(SCHEMELIBMODULES))
+LIBDEFSCMFILES = $(patsubst %,$(TARGETDIRFP)/%.scm,$(SCHEMELIBMODULES))
+LIBDEPEND = $(LFUNHEADERS) $(TARGETDIRFP)/libintelib.a \
+			$(TARGETDIRFP)/libintelib_interp.a
 
 
 ifeq ($(OSTYPE),Linux)
@@ -59,8 +66,8 @@ else
 endif
 
 
-NILS = ./nils
-ILS= ./ils
+NILS = $(TARGETDIRFP)/nils
+ILS= $(TARGETDIRFP)/ils
 
 default:
 	@echo "No default rule here."
@@ -72,22 +79,22 @@ CXXFLAGS = $(LOCALFLAGS)
 ###############################
 # library symbols and other definitions
 
-sympkgen:	sympkgen.cpp
+$(TARGETDIRFP)/ssympkgen:	sympkgen.cpp
 	$(CXX) $(CXXFLAGS) $^ $(LIBINTELIB) -o $@
 
-sympkg.cxx:	sympkgen
-	cat $(LIBDEFSCMFILES) ilsbdef.scm | ./sympkgen > $@
+$(TARGETDIRFP)/ssympkg.cxx:	$(TARGETDIRFP)/ssympkgen
+	cat $(LIBDEFSCMFILES) ilsbdef.scm | $(TARGETDIRFP)/ssympkgen > $@
 
-sympkg.o:	sympkg.cxx
+$(TARGETDIRFP)/ssympkg.o:	$(TARGETDIRFP)/ssympkg.cxx
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
-trtgen:		trtgen.c
+$(TARGETDIRFP)/strtgen:		trtgen.c
 	$(CXX) $(CXXFLAGS) trtgen.c -o trtgen
 
-chartran._sc:	trtgen
-	./trtgen > $@
+$(TARGETDIRFP)/chartran._sc:	$(TARGETDIRFP)/trtgen
+	$(TARGETDIRFP)/trtgen > $@
 
-ilsdef._sc:	chartran._sc ilsbdef.scm
+$(TARGETDIRFP)/ilsdef._sc:	$(TARGETDIRFP)/chartran._sc ilsbdef.scm
 	echo '(%%%' > $@
 	cat $^ >> $@
 	#cat ../build/*.scm >> $@
@@ -97,13 +104,16 @@ ilsdef._sc:	chartran._sc ilsbdef.scm
 ###############################
 # Interpreter
 
-ils_loop.o: ils_loop.cpp ils_loop.hpp
+$(TARGETDIRFP)/ils_loop.o: ils_loop.cpp ils_loop.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
-nils.o: nils.cpp ils_loop.hpp ../version.h
+$(TARGETDIRFP)/nils.o: nils.cpp ils_loop.hpp ../version.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
-nils: nils.o ils_loop.o sympkg.o
+nils: $(TARGETDIRFP)/nils
+	:
+
+$(TARGETDIRFP)/nils: $(TARGETDIRFP)/nils.o $(TARGETDIRFP)/ils_loop.o $(TARGETDIRFP)/ssympkg.o
 	$(CXX) $(CXXFLAGS) $^  -o $@ \
 	  $(LIBINTELIB) $(LIBMATH) $(LIBREADLINE) $(LIBDL) -Wl,-export-dynamic
 
@@ -113,30 +123,41 @@ nils: nils.o ils_loop.o sympkg.o
 ###
 # build with NILS
 
-ils_nils.cxx ils_nils.hxx:	$(NILS)	ils.scm ilsdef._sc
+$(TARGETDIRFP)/ils_nils.cxx $(TARGETDIRFP)/ils_nils.hxx:	$(NILS)	ils.scm $(TARGETDIRFP)/ilsdef._sc
+	cp ils.scm $(TARGETDIRFP)
+	cd $(TARGETDIRFP) && \
 	$(NILS) -i ils.scm \
 		-x '(cmdlinedirectives "(MODULE-NAME \"ils_nils\")")'\
 		-x '(ils_main (quote ("ilsdef._sc" "ils.scm")))' -Q
 
-ils_nils.o:	ils_nils.cxx ils_nils.hxx ../version.h 
-	$(CXX) $(CXXFLAGS) -c ils_nils.cxx -o $@
+$(TARGETDIRFP)/ils_nils.o:	$(TARGETDIRFP)/ils_nils.cxx $(TARGETDIRFP)/ils_nils.hxx ../version.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-ils_nils:	ilsmain.cpp ils_nils.o $(LIBDEPEND)
-	$(CXX) $(CXXFLAGS) -DHXXFILE=\"ils_nils.hxx\" ils_nils.o \
+ils_nils: $(TARGETDIRFP)/ils_nils
+	:
+
+$(TARGETDIRFP)/ils_nils:	ilsmain.cpp $(TARGETDIRFP)/ils_nils.o $(LIBDEPEND)
+	$(CXX) $(CXXFLAGS) -DHXXFILE=\"ils_nils.hxx\" $(TARGETDIRFP)/ils_nils.o \
 		ilsmain.cpp -o $@ $(LIBINTELIB)
 
 ###
 # build with itself
 
 
-ils.cxx ils.hxx:	ils.scm ilsdef._sc
+$(TARGETDIRFP)/ils.cxx $(TARGETDIRFP)/ils.hxx:	ils.scm $(TARGETDIRFP)/ilsdef._sc
+	cp ils.scm $(TARGETDIRFP)
+	cd $(TARGETDIRFP) && \
 	$(ILS) ils.scm	
 
-ils.o:	ils.cxx ils.hxx 
-	$(CXX) $(CXXFLAGS) -c ils.cxx -o $@
+$(TARGETDIRFP)/ils.o:	$(TARGETDIRFP)/ils.cxx $(TARGETDIRFP)/ils.hxx
+	$(CXX) $(CXXFLAGS) -c $(TARGETDIRFP)/ils.cxx -o $@
 
-ils_new:	ils.o ilsmain.cpp $(LIBDEPEND)
-	$(CXX) $(CXXFLAGS) ils.o ilsmain.cpp $(LIBINTELIB) -o $@
+
+ils_new: $(TARGETDIRFP)/ils_new
+	:
+
+$(TARGETDIRFP)/ils_new:	$(TARGETDIRFP)/ils.o ilsmain.cpp $(LIBDEPEND)
+	$(CXX) $(CXXFLAGS) $(TARGETDIRFP)/ils.o ilsmain.cpp $(LIBINTELIB) -o $@
 
 
 
@@ -155,30 +176,30 @@ bootstrap:
 	@echo "-------------------------------------------------------------"
 	@echo "    Testing the newly-built binary                           "
 	@echo "-------------------------------------------------------------"
-	./ils_nils ils.scm \
+	$(TARGETDIRFP)/ils_nils ils.scm \
 		'(MODULE-NAME "ils_nils")' \
-		'(CXX-FILE-PATH "./ils_n_t.cxx")' \
+		'(CXX-FILE-PATH "$(TARGETDIRFP)/ils_n_t.cxx")' \
 		'(HXX-FILE-NAME "ils_nils.hxx")' \
-		'(HXX-FILE-PATH "./ils_n_t.hxx")'
-	diff ils_n_t.cxx ils_nils.cxx 
-	diff ils_n_t.hxx ils_nils.hxx 
+		'(HXX-FILE-PATH "$(TARGETDIRFP)/ils_n_t.hxx")'
+	diff $(TARGETDIRFP)/ils_n_t.cxx $(TARGETDIRFP)/ils_nils.cxx
+	diff $(TARGETDIRFP)/ils_n_t.hxx $(TARGETDIRFP)/ils_nils.hxx
 	@echo "-------------------------------------------------------------"
 	@echo "    Rebuilding the binary using ILS                          "
 	@echo "-------------------------------------------------------------"
-	$(MAKE) ils_new ILS=./ils_nils
+	$(MAKE) ils_new ILS=$(TARGETDIRFP)/ils_nils
 	@echo "-------------------------------------------------------------"
 	@echo "    Testing the newly-built binary                           "
 	@echo "-------------------------------------------------------------"
-	./ils_new ils.scm \
-		'(CXX-FILE-PATH "./ils_t.cxx")' \
+	$(TARGETDIRFP)/ils_new ils.scm \
+		'(CXX-FILE-PATH "$(TARGETDIRFP)/ils_t.cxx")' \
 		'(HXX-FILE-NAME "ils.hxx")' \
-		'(HXX-FILE-PATH "./ils_t.hxx")'
-	diff ils.cxx ils_t.cxx 
-	diff ils.hxx ils_t.hxx 
+		'(HXX-FILE-PATH "$(TARGETDIRFP)/ils_t.hxx")'
+	diff $(TARGETDIRFP)/ils.cxx $(TARGETDIRFP)/ils_t.cxx
+	diff $(TARGETDIRFP)/ils.hxx $(TARGETDIRFP)/ils_t.hxx
 	@echo "****************************************************"
 	@echo "              Everything seems O.k.  "
 	@echo "****************************************************"
-	mv ils_new ils	
+	mv $(TARGETDIRFP)/ils_new $(TARGETDIRFP)/ils
 
 quick_bootstrap:
 	@echo "-------------------------------------------------------------"
@@ -189,27 +210,19 @@ quick_bootstrap:
 	@echo "    Building an ILS binary by self-applying ILS under NILS   "
 	@echo "-------------------------------------------------------------"
 	$(MAKE) ils_nils
-	mv ils_nils ils	
+	mv $(TARGETDIRFP)/ils_nils $(TARGETDIRFP)/ils
 
 ###############################
 # Library
-
-TARGETDIR = $(CURDIR)
-
-ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-    TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
-else
-    TARGETDIRFP = $(TARGETDIR)
-endif
 
 TARGETLIBNAME = libilldebug.a
 
 -include $(TARGETDIRFP)/defines.mk
 
-lib: sympkg.o ils_loop.o 
+lib: $(TARGETDIRFP)/ssympkg.o $(TARGETDIRFP)/ils_loop.o
 	$(AR) crs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
-lib_add: sympkg.o ils_loop.o 
+lib_add: $(TARGETDIRFP)/ssympkg.o $(TARGETDIRFP)/ils_loop.o
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
 ###############################
@@ -219,7 +232,7 @@ lib_add: sympkg.o ils_loop.o
 	cd .. && $(MAKE) version.h
 
 clean:	FORCE	
-	rm -f *.o sympkgen *.cxx *.hxx *._sc ils nils ils_nils
+	rm -f *.o ssympkgen *.cxx *.hxx *._sc ils nils ils_nils
 
 	
 
