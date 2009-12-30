@@ -12,7 +12,7 @@
 
 
 
-SHELL=/bin/sh
+SHELL = /bin/sh
 
 # Try 'make bootstrap' as a good quick start. 
 # See docs/build.txt file for the details about building the library
@@ -29,13 +29,13 @@ TARGETDIRFP = $(TARGETDIR)
 endif
 
 # comment this out to get .o files removed after build
-KEEP_OBJECTS=yes
+KEEP_OBJECTS = yes
 
-USE_READLINE=yes
+USE_READLINE = yes
 
-OPTIMIZATION=-O2
+OPTIMIZATION = -O2
 
-VERSION_SUFFIX=$(word 1, $(shell head -1 Version))
+VERSION_SUFFIX = $(word 1, $(shell head -1 Version))
 
 #########################################
 # Various install tree descriptions
@@ -43,31 +43,31 @@ VERSION_SUFFIX=$(word 1, $(shell head -1 Version))
 ifeq ($(INSTALLMODE),native) 
 
     # 'native' install (choose ONE prefix)
-PREFIX=/usr/local
+PREFIX = /usr/local
 #PREFIX=/usr
-SYMLINK_PREFIX=
-INCLUDEDIR=$(PREFIX)/include/intelib
-INCLUDEDIR_SYMLINK=no
+SYMLINK_PREFIX = 
+INCLUDEDIR = $(PREFIX)/include/intelib
+INCLUDEDIR_SYMLINK = no
 #DOCDIR=$(PREFIX)/share/docs   # not used in this version
 
 else
 
 # 'separate directory' install
-SYSPREFIX=/usr/local
-PREFIX=$(SYSPREFIX)/intelib-$(VERSION_SUFFIX)
+SYSPREFIX = /usr/local
+PREFIX = $(SYSPREFIX)/intelib-$(VERSION_SUFFIX)
 ifneq ($(findstring -$(VERSION_SUFFIX),$(PREFIX)),)
-  SYMLINK_PREFIX=$(subst -$(VERSION_SUFFIX),,$(PREFIX))
+  SYMLINK_PREFIX = $(subst -$(VERSION_SUFFIX),,$(PREFIX))
 else
-  SYMLINK_PREFIX=$(PREFIX)
+  SYMLINK_PREFIX = $(PREFIX)
 endif
-INCLUDEDIR=$(PREFIX)/include
-INCLUDEDIR_SYMLINK=yes
+INCLUDEDIR = $(PREFIX)/include
+INCLUDEDIR_SYMLINK = yes
 #DOCDIR=$(PREFIX)/share/docs   # not used in this version
 
 endif
 
-BINDIR=$(PREFIX)/bin
-LIBDIR=$(PREFIX)/lib
+BINDIR = $(PREFIX)/bin
+LIBDIR = $(PREFIX)/lib
 
 
 INSTALL = install
