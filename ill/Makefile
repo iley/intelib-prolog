@@ -21,21 +21,25 @@ LISPMATH=yes
 # change this to "no" if you don't have GNU readline development files
 USE_READLINE=yes
 
-BINLIBDIR = ../build
-#BINLIBDIR = bin_lib
+TARGETDIR = ../build
+ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+else
+TARGETDIRFP = $(TARGETDIR)
+endif
+#TARGETDIRFP = bin_lib
 
 OSTYPE = $(shell uname -s)
 
 
-LOCALFLAGS = -fpic -funsigned-char -g -Wall -I./$(BINLIBDIR) 
+LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)
 
-#LIBINTELIB = -L./$(BINLIBDIR) -lilisp -lsexpr
-LIBINTELIB = -L./$(BINLIBDIR) -lintelib -lintelib_interp
-LFUNHEADERS = $(patsubst %,$(BINLIBDIR)/lfun_%.hpp,$(LISPLIBMODULES))
-LIBDEFLSPFILES = $(patsubst %,$(BINLIBDIR)/%.lsp,$(LISPLIBMODULES))
-#LIBDEPEND = $(LFUNHEADERS) $(BINLIBDIR)/libilisp.a $(BINLIBDIR)/libsexpr.a
-LIBDEPEND = $(LFUNHEADERS) $(BINLIBDIR)/libintelib.a \
-			$(BINLIBDIR)/libintelib_interp.a
+LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
+FUNHEADERS = $(patsubst %,$(TARGETDIRFP)/lfun_%.hpp,$(LISPLIBMODULES))
+LIBDEFLSPFILES = $(patsubst %,$(TARGETDIRFP)/%.lsp,$(LISPLIBMODULES))
+#LIBDEPEND = $(LFUNHEADERS) $(TARGETDIRFP)/libilisp.a $(TARGETDIRFP)/libsexpr.a
+LIBDEPEND = $(LFUNHEADERS) $(TARGETDIRFP)/libintelib.a \
+			$(TARGETDIRFP)/libintelib_interp.a
 
 
 ifeq ($(OSTYPE),Linux)
@@ -62,8 +66,8 @@ else
 endif
 
 
-NILL = ./nill
-ILL = ./ill
+NILL = $(TARGETDIRFP)/nill
+ILL = $(TARGETDIRFP)/ill
 
 default:
 	@echo "No default rule here."
@@ -75,79 +79,91 @@ CXXFLAGS = $(LOCALFLAGS)
 #########################################################################
 
 
-$(BINLIBDIR)/libintelib.a $(BINLIBDIR)/libintelib_nill.a $(LFUNHEADERS):	
-	cd .. && $(MAKE) library TARGETDIR=ill/$(BINLIBDIR)
+$(TARGETDIRFP)/libintelib.a $(TARGETDIRFP)/libintelib_nill.a $(LFUNHEADERS):
+	cd .. && $(MAKE) library TARGETDIR=$(TARGETDIRFP)
 
 
 ###############################
 # Build with nill 
 
-ill_nill.cxx ill_nill.hxx:	$(NILL)	ill.lsp nill_run.lsp illdef._ls
-	$(NILL) nill_run.lsp
+$(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx:	$(NILL)	ill.lsp nill_run.lsp $(TARGETDIRFP)/illdef._ls
+	cp nill_run.lsp ill.lsp $(TARGETDIRFP)
+	cd $(TARGETDIRFP) && $(NILL) $(TARGETDIRFP)/nill_run.lsp
 
-ill_nill.o:	ill_nill.cxx ill_nill.hxx ../version.h 
-	$(CXX) $(CXXFLAGS) -c ill_nill.cxx -o $@
+$(TARGETDIRFP)/ill_nill.o:	$(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx ../version.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-ill_nill:	illmain.cpp ill_nill.o $(LIBDEPEND)
+
+ill_nill: $(TARGETDIRFP)/ill_nill
+	:
+
+
+$(TARGETDIRFP)/ill_nill:	illmain.cpp $(TARGETDIRFP)/ill_nill.o $(LIBDEPEND)
 	@echo "-------------------------------------------------------------"
 	@echo "    Building an ILL binary by self-applying ILL under NILL   "
 	@echo "-------------------------------------------------------------"
-	$(CXX) $(CXXFLAGS) -DHXXFILE=\"ill_nill.hxx\" ill_nill.o \
-		illmain.cpp -o $@ $(LIBINTELIB)
+	$(CXX) $(CXXFLAGS) -DHXXFILE=\"ill_nill.hxx\" $(TARGETDIRFP)/ill_nill.o \
+		illmain.cpp -o $@ \
+		$(LIBINTELIB)
 
 
 
 #########################
 # Build a new ILL binary with ILL itself
 
-ill.cxx ill.hxx:	ill.lsp illdef._ls
-	$(ILL) ill.lsp	
+$(TARGETDIRFP)/ill.cxx $(TARGETDIRFP)/ill.hxx:	ill.lsp $(TARGETDIRFP)/illdef._ls
+	cp ill.lsp $(TARGETDIRFP)
+	cd $(TARGETDIRFP) && $(ILL) $(TARGETDIRFP)/ill.lsp
 
-ill.o:	ill.cxx ill.hxx 
-	$(CXX) $(CXXFLAGS) -c ill.cxx -o $@
+$(TARGETDIRFP)/ill.o:	$(TARGETDIRFP)/ill.cxx $(TARGETDIRFP)/ill.hxx
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-ill_new:	ill.o illmain.cpp $(LIBDEPEND)
+ill_new: $(TARGETDIRFP)/ill_new
+	:
+
+
+$(TARGETDIRFP)/ill_new:	$(TARGETDIRFP)/ill.o illmain.cpp $(LIBDEPEND)
 	@echo "-------------------------------------------------------------"
 	@echo "    Rebuilding the binary using ILL                          "
 	@echo "-------------------------------------------------------------"
-	$(CXX) $(CXXFLAGS) ill.o illmain.cpp $(LIBINTELIB) -o $@
+	$(CXX) $(CXXFLAGS) $(TARGETDIRFP)/ill.o illmain.cpp $(LIBINTELIB) -o $@
 
 
 #########################
 # Bootstrap 
 
 bootstrap:
-	$(MAKE) nill
-	$(MAKE) ill_nill
+	$(MAKE) nill TARGETDIR=$(TARGETDIRFP)
+	$(MAKE) ill_nill TARGETDIR=$(TARGETDIRFP)
 	@echo "-------------------------------------------------------------"
 	@echo "    Testing the newly-built binary                           "
 	@echo "-------------------------------------------------------------"
-	./ill_nill ill.lsp \
+	$(TARGETDIRFP)/ill_nill ill.lsp \
 		'(MODULE-NAME "ill_nill")' \
-		'(CXX-FILE-PATH "./ill_n_t.cxx")' \
+		'(CXX-FILE-PATH "$(TARGETDIRFP)/ill_n_t.cxx")' \
 		'(HXX-FILE-NAME "ill_nill.hxx")' \
-		'(HXX-FILE-PATH "./ill_n_t.hxx")'
-	diff ill_n_t.cxx ill_nill.cxx 
-	diff ill_n_t.hxx ill_nill.hxx 
-	$(MAKE) ill_new ILL=./ill_nill
+		'(HXX-FILE-PATH "$(TARGETDIRFP)/ill_n_t.hxx")'
+	diff $(TARGETDIRFP)/ill_n_t.cxx $(TARGETDIRFP)/ill_nill.cxx
+	diff $(TARGETDIRFP)/ill_n_t.hxx $(TARGETDIRFP)/ill_nill.hxx
+	$(MAKE) ill_new ILL=$(TARGETDIRFP)/ill_nill
 	@echo "-------------------------------------------------------------"
 	@echo "    Testing the newly-built binary                           "
 	@echo "-------------------------------------------------------------"
-	./ill_new ill.lsp \
-		'(CXX-FILE-PATH "./ill_t.cxx")' \
+	$(TARGETDIRFP)/ill_new ill.lsp \
+		'(CXX-FILE-PATH "$(TARGETDIRFP)/ill_t.cxx")' \
 		'(HXX-FILE-NAME "ill.hxx")' \
-		'(HXX-FILE-PATH "./ill_t.hxx")'
-	diff ill.cxx ill_t.cxx 
-	diff ill.hxx ill_t.hxx 
+		'(HXX-FILE-PATH "$(TARGETDIRFP)/ill_t.hxx")'
+	diff $(TARGETDIRFP)/ill.cxx $(TARGETDIRFP)/ill_t.cxx
+	diff $(TARGETDIRFP)/ill.hxx $(TARGETDIRFP)/ill_t.hxx
 	@echo "****************************************************"
 	@echo "              Everything seems O.k.  "
 	@echo "****************************************************"
-	mv ill_new ill	
+	mv $(TARGETDIRFP)/ill_new $(TARGETDIRFP)/ill
 
 quick_bootstrap:
 	$(MAKE) nill
 	$(MAKE) ill_nill
-	mv ill_nill ill	
+	mv $(TARGETDIRFP)/ill_nill $(TARGETDIRFP)/ill
 
 
 
@@ -155,45 +171,42 @@ quick_bootstrap:
 ###############################
 # Interpreter
 
-TARGETDIR = $(CURDIR)
-
-ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-    TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
-else
-    TARGETDIRFP = $(TARGETDIR)
-endif
 
 TARGETLIBNAME = libilldebug.a
 
 -include $(TARGETDIRFP)/defines.mk
 
-lib: sympkg.o ill_loop.o illtrace.o
+lib: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o $(TARGETDIRFP)/illtrace.o
 	$(AR) crs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
-lib_add: sympkg.o ill_loop.o illtrace.o
+lib_add: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o $(TARGETDIRFP)/illtrace.o
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
 
 
-sympkgen: sympkgen.cpp $(LIBDEPEND)
+$(TARGETDIRFP)/sympkgen: sympkgen.cpp $(LIBDEPEND)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LIBINTELIB)
 
-sympkg.cxx: sympkgen illdef._ls
-	./sympkgen < illdef._ls > $@
+$(TARGETDIRFP)/sympkg.cxx: $(TARGETDIRFP)/sympkgen $(TARGETDIRFP)/illdef._ls
+	$(TARGETDIRFP)/sympkgen < $(TARGETDIRFP)/illdef._ls > $@
 
-sympkg.o: sympkg.cxx
+$(TARGETDIRFP)/sympkg.o: $(TARGETDIRFP)/sympkg.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
-illtrace.o: illtrace.cpp illtrace.hpp
+$(TARGETDIRFP)/illtrace.o: illtrace.cpp illtrace.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
-ill_loop.o: ill_loop.cpp ill_loop.hpp
+$(TARGETDIRFP)/ill_loop.o: ill_loop.cpp ill_loop.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
-nill.o: nill.cpp ill_loop.hpp ../version.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@ 
+$(TARGETDIRFP)/nill.o: nill.cpp ill_loop.hpp ../version.h
+	$(CXX) $(CXXFLAGS) -c nill.cpp -o $@
 
-nill: nill.o sympkg.o ill_loop.o illtrace.o
+
+nill: $(TARGETDIRFP)/nill
+	:
+
+$(TARGETDIRFP)/nill: $(TARGETDIRFP)/nill.o $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o $(TARGETDIRFP)/illtrace.o
 	@echo "-------------------------------------------------------------"
 	@echo "    Building NILL interpreter                                "
 	@echo "-------------------------------------------------------------"
@@ -207,27 +220,27 @@ nill: nill.o sympkg.o ill_loop.o illtrace.o
 	cd .. && $(MAKE) version.h
 
 
-trtgen:		trtgen.c
-	$(CXX) $(CXXFLAGS) trtgen.c -o trtgen
+$(TARGETDIRFP)/trtgen:		trtgen.c
+	$(CXX) $(CXXFLAGS) trtgen.c -o $@
 
-chartran._ls:	trtgen
-	./trtgen > $@
+$(TARGETDIRFP)/chartran._ls:	$(TARGETDIRFP)/trtgen
+	$(TARGETDIRFP)/trtgen > $@
 
 #lib._ls:	$(LIBDEFLSPFILES)
-lib._ls:	$(LIBDEPEND)
+$(TARGETDIRFP)/lib._ls:	$(LIBDEPEND)
 	cat $(LIBDEFLSPFILES) >  $@
 
-illdef._ls:	chartran._ls lib._ls illbdef.lsp
+$(TARGETDIRFP)/illdef._ls:	$(TARGETDIRFP)/chartran._ls $(TARGETDIRFP)/lib._ls illbdef.lsp
 	echo "; InteLib Lisp default definitions, generated with" > $@
 	echo ";       make illdef._ls" >> $@
 	echo "(%%% " >> $@
-	cat chartran._ls illbdef.lsp lib._ls >> $@
+	cat $(TARGETDIRFP)/chartran._ls illbdef.lsp $(TARGETDIRFP)/lib._ls >> $@
 	echo ") ; end of definitions " >> $@
 
 
 clean:
 	rm -f trtgen sympkgen *.[ch]xx *.cpl *.o *._ls ill_new ill_nill
-	rm -f $(BINLIBDIR)/*.{o,lsp,a,hpp}
+	rm -f $(TARGETDIRFP)/*.{o,lsp,a,hpp}
 	rm -f ill nill
 	
 .PHONY: clean bootstrap quick_bootstrap
