@@ -89,10 +89,10 @@ $(TARGETDIRFP)/ssympkg.o:	$(TARGETDIRFP)/ssympkg.cxx
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
 $(TARGETDIRFP)/strtgen:		trtgen.c
-	$(CXX) $(CXXFLAGS) trtgen.c -o trtgen
+	$(CXX) $(CXXFLAGS) trtgen.c -o $@
 
-$(TARGETDIRFP)/chartran._sc:	$(TARGETDIRFP)/trtgen
-	$(TARGETDIRFP)/trtgen > $@
+$(TARGETDIRFP)/chartran._sc:	$(TARGETDIRFP)/strtgen
+	$(TARGETDIRFP)/strtgen > $@
 
 $(TARGETDIRFP)/ilsdef._sc:	$(TARGETDIRFP)/chartran._sc ilsbdef.scm
 	echo '(%%%' > $@
