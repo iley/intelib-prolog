@@ -98,8 +98,6 @@ library: $(TARGETDIRFP)
 	ln -sf $(CURDIR)/scheme $(TARGETDIRFP)
 	ln -sf $(CURDIR)/lisp $(TARGETDIRFP)
 	ln -sf $(CURDIR)/interact $(TARGETDIRFP)
-	ln -sf $(CURDIR)/ils $(TARGETDIRFP)
-	ln -sf $(CURDIR)/ill $(TARGETDIRFP)
 	ln -sf $(TARGETDIRFP) $(TARGETDIRFP)/intelib
 	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
