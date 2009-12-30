@@ -140,7 +140,7 @@ library: $(TARGETDIRFP)
 	$(MAKE) libintelib.a
 	$(MAKE) libintelib_interp.a
 ifeq ($(KEEP_OBJECTS),)
-	rm $(TARGETDIR)/*.o
+	rm $(TARGETDIRFP)/*.o
 endif
 
 $(TARGETDIRFP):	
