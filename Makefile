@@ -22,6 +22,12 @@ SHELL=/bin/sh
 # The directory in which the library will be built
 TARGETDIR = ./build
 
+ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+else
+TARGETDIRFP = $(TARGETDIR)
+endif
+
 # comment this out to get .o files removed after build
 KEEP_OBJECTS=yes
 
@@ -31,7 +37,7 @@ OPTIMIZATION=-O2
 
 VERSION_SUFFIX=$(word 1, $(shell head -1 Version))
 
-######
+#########################################
 # Various install tree descriptions
 
 ifeq ($(INSTALLMODE),native) 
@@ -72,14 +78,10 @@ INSTALL_BIN = $(INSTALL) -m 0755
 INSTALL_LIB = $(INSTALL) -m 0644
 INSTALL_DATA = $(INSTALL) -m 0644
 
-
 LDCONFIG = /sbin/ldconfig
 
-ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
-else
-TARGETDIRFP = $(TARGETDIR)
-endif
+#########################################
+
 
 default:	bootstrap
 	:
