@@ -39,7 +39,9 @@ all: $(DEPSMK)	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp \
 			$(LFUN_PREFIX)$(DIRNAME).hpp
 
 
-$(DEPSMK): $(MKFILES)
+$(DEPSMK):
+	touch $@
+	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
 
 %.mk: %.cpp
 	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \

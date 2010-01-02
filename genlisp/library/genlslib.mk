@@ -33,7 +33,9 @@ $(GLSP_PREFIX)%.o:	%.cpp
 all: $(DEPSMK) $(OBJFILES) $(GLSP_PREFIX)$(DIRNAME).hpp
 
 
-$(DEPSMK): $(MKFILES)
+$(DEPSMK):
+	touch $@
+	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
 
 %.mk: %.cpp
 	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
