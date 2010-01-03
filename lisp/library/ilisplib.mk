@@ -39,8 +39,8 @@ all: $(DEPSMK)	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp \
 			$(LFUN_PREFIX)$(DIRNAME).hpp
 
 
-$(DEPSMK):
-	touch $@
+$(DEPSMK): $(CXXFILES)
+	echo > $@
 	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
 
 %.mk: %.cpp
@@ -49,4 +49,16 @@ $(DEPSMK):
 		-MT $(LFUN_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
 	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION \
+		-MT $(DEPSMK) $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
+		-D INTELIB_LISP_TRANSLATOR_INFORMATION \
+		-MT $(TARGETDIRFP)/$(DIRNAME).lsp $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
+		-D INTELIB_LISP_TRANSLATOR_INFORMATION \
+		-MT $(DEPSMK) $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
+		-D INTELIB_LISP_LIBRARY_HEADER_GENERATION \
+		-MT $(LFUN_PREFIX)$(DIRNAME).hpp $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
+		-D INTELIB_LISP_LIBRARY_HEADER_GENERATION \
 		-MT $(DEPSMK) $< >> $(DEPSMK)
