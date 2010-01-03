@@ -25,9 +25,9 @@ USE_READLINE=yes
 TARGETDIR = ../build
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
 else
-TARGETDIRFP = $(TARGETDIR)
+TARGETDIRFP = $(TARGETDIR)/intelib
 endif
 
 OSTYPE = $(shell uname -s)
@@ -44,8 +44,21 @@ LIBDEPEND = $(LFUNHEADERS) $(TARGETDIRFP)/libintelib.a \
 
 ifeq ($(OSTYPE),Linux)
     LIBDL = -ldl
-else 
+    DYNAMIC = -export-dynamic
+    TDIR = $(TARGETDIRFP)
+else
+ifeq ($(OSTYPE),MinGW-win)
+    LIBDL = -L../win_port -ldl
+    DYNAMIC = -export-all-symbols
+    INCDL = -I../win_port
+# This string translates an absolute UNIX-like path to an absolute windows path
+# with double backslashes. E.g. /c/inelib -> c:\\intelib
+    TDIR = $(shell echo $(TARGETDIRFP) | sed 's/^\/\(.\)/\1:/' | sed 's/\//\\\\/g')
+else
     LIBDL = 
+    DYNAMIC = -export-dynamic
+    TDIR = $(TARGETDIRFP)
+endif
 endif
 
 # ifeq ($(LISPMATH),yes)
@@ -108,14 +121,14 @@ $(TARGETDIRFP)/ils_loop.o: ils_loop.cpp ils_loop.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
 $(TARGETDIRFP)/nils.o: nils.cpp ils_loop.hpp ../version.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@ 
+	$(CXX) $(CXXFLAGS) $(INCDL) -c $< -o $@ 
 
 nils: $(TARGETDIRFP)/nils
 	:
 
 $(TARGETDIRFP)/nils: $(TARGETDIRFP)/nils.o $(TARGETDIRFP)/ils_loop.o $(TARGETDIRFP)/ssympkg.o
 	$(CXX) $(CXXFLAGS) $^  -o $@ \
-	  $(LIBINTELIB) $(LIBMATH) $(LIBREADLINE) $(LIBDL) -Wl,-export-dynamic
+	  $(LIBINTELIB) $(LIBMATH) $(LIBREADLINE) $(LIBDL) -Wl,$(DYNAMIC)
 
 ###############################
 # Compiler
@@ -178,9 +191,9 @@ bootstrap:
 	@echo "-------------------------------------------------------------"
 	$(TARGETDIRFP)/ils_nils ils.scm \
 		'(MODULE-NAME "ils_nils")' \
-		'(CXX-FILE-PATH "$(TARGETDIRFP)/ils_n_t.cxx")' \
+		'(CXX-FILE-PATH "$(TDIR)/ils_n_t.cxx")' \
 		'(HXX-FILE-NAME "ils_nils.hxx")' \
-		'(HXX-FILE-PATH "$(TARGETDIRFP)/ils_n_t.hxx")'
+		'(HXX-FILE-PATH "$(TDIR)/ils_n_t.hxx")'
 	diff $(TARGETDIRFP)/ils_n_t.cxx $(TARGETDIRFP)/ils_nils.cxx
 	diff $(TARGETDIRFP)/ils_n_t.hxx $(TARGETDIRFP)/ils_nils.hxx
 	@echo "-------------------------------------------------------------"
@@ -191,9 +204,9 @@ bootstrap:
 	@echo "    Testing the newly-built binary                           "
 	@echo "-------------------------------------------------------------"
 	$(TARGETDIRFP)/ils_new ils.scm \
-		'(CXX-FILE-PATH "$(TARGETDIRFP)/ils_t.cxx")' \
+		'(CXX-FILE-PATH "$(TDIR)/ils_t.cxx")' \
 		'(HXX-FILE-NAME "ils.hxx")' \
-		'(HXX-FILE-PATH "$(TARGETDIRFP)/ils_t.hxx")'
+		'(HXX-FILE-PATH "$(TDIR)/ils_t.hxx")'
 	diff $(TARGETDIRFP)/ils.cxx $(TARGETDIRFP)/ils_t.cxx
 	diff $(TARGETDIRFP)/ils.hxx $(TARGETDIRFP)/ils_t.hxx
 	@echo "****************************************************"
