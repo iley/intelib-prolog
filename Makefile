@@ -23,9 +23,9 @@ SHELL = /bin/sh
 TARGETDIR = ./build
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
 else
-TARGETDIRFP = $(TARGETDIR)
+TARGETDIRFP = $(TARGETDIR)/intelib
 endif
 
 # comment this out to get .o files removed after build
@@ -39,6 +39,11 @@ VERSION_SUFFIX = $(word 1, $(shell head -1 Version))
 
 #########################################
 # Various install tree descriptions
+
+# Anyway Windows does not support symlinks as well as *nix
+ifeq ($(OSTYPE),MinGW-win)
+INSTALLMODE = native
+endif
 
 ifeq ($(INSTALLMODE),native) 
 
@@ -81,7 +86,6 @@ LDCONFIG = /sbin/ldconfig
 
 #########################################
 
-
 default:	bootstrap
 	:
 
@@ -89,51 +93,61 @@ bootstrap:
 	$(MAKE) library USE_READLINE=$(USE_READLINE)
 	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
-	[ -d irina ] && cd irina && $(MAKE)
+#	[ -d irina ] && cd irina && $(MAKE)
 
-libintelib.a:
-	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
+libintelib.a: win_port
+	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	cd tools && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+	cd tools && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	cd genlisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+	cd genlisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	cd scheme && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+	cd scheme && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	cd lisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+	cd lisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	[ -d refal ] && cd refal && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
+	[ -d refal ] && cd refal && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
 
 libintelib_interp.a:
-	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
+	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
-	cd ils && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP) \
+	cd ils && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
-	cd ill && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP) \
+	cd ill && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
 
 library: $(TARGETDIRFP)
+ifeq ($(OSTYPE),MinGW-win)
+# Windows version - without symlinks. Just copy needed files.
+	cp -R $(CURDIR)/sexpress $(TARGETDIRFP)
+	cp -R $(CURDIR)/tools $(TARGETDIRFP)
+	cp -R $(CURDIR)/genlisp $(TARGETDIRFP)
+	cp -R $(CURDIR)/scheme $(TARGETDIRFP)
+	cp -R $(CURDIR)/lisp $(TARGETDIRFP)
+	cp -R $(CURDIR)/interact $(TARGETDIRFP)
+else
 	ln -sf $(CURDIR)/sexpress $(TARGETDIRFP)
 	ln -sf $(CURDIR)/tools $(TARGETDIRFP)
 	ln -sf $(CURDIR)/genlisp $(TARGETDIRFP)
 	ln -sf $(CURDIR)/scheme $(TARGETDIRFP)
 	ln -sf $(CURDIR)/lisp $(TARGETDIRFP)
 	ln -sf $(CURDIR)/interact $(TARGETDIRFP)
-	ln -sf $(TARGETDIRFP) $(TARGETDIRFP)/intelib
+endif
+#	ln -sf $(TARGETDIRFP) $(TARGETDIRFP)/intelib
 	$(MAKE) libintelib.a
 	$(MAKE) libintelib_interp.a
 ifeq ($(KEEP_OBJECTS),)
@@ -141,8 +155,13 @@ ifeq ($(KEEP_OBJECTS),)
 endif
 
 $(TARGETDIRFP):	
-	mkdir $(TARGETDIRFP)
+	mkdir -p $(TARGETDIRFP)
 
+win_port:
+ifeq ($(OSTYPE),MinGW-win)
+	cd win_port && $(MAKE) TARGETDIR=$(TARGETDIRFP)/..
+endif
+	
 version.h:	Version
 	echo '#define INTELIB_VERSION "'`head -1 Version`'"' > $@
 	echo '#define INTELIB_VERSIONID '`tail -1 Version` >> $@
@@ -161,10 +180,10 @@ install:
 	$(INSTALL_HEADERS) $(TARGETDIRFP)/*.hpp $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL_DIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR)
 	$(INSTALL_LIB) $(TARGETDIRFP)/*.a $(DESTDIR)$(LIBDIR)
-	$(INSTALL_BIN) ill/ill ill/nill $(DESTDIR)$(BINDIR)
-	$(INSTALL_BIN) ils/ils ils/nils $(DESTDIR)$(BINDIR)
-	$(INSTALL_DATA) ill/illdef._ls $(DESTDIR)$(BINDIR)
-	$(INSTALL_DATA) ils/ilsdef._sc $(DESTDIR)$(BINDIR)
+	$(INSTALL_BIN) $(TARGETDIRFP)/ill $(TARGETDIRFP)/nill $(DESTDIR)$(BINDIR)
+	$(INSTALL_BIN) $(TARGETDIRFP)/ils $(TARGETDIRFP)/nils $(DESTDIR)$(BINDIR)
+	$(INSTALL_DATA) $(TARGETDIRFP)/illdef._ls $(DESTDIR)$(BINDIR)
+	$(INSTALL_DATA) $(TARGETDIRFP)/ilsdef._sc $(DESTDIR)$(BINDIR)
 ifndef DESTDIR
 ifeq ($(INCLUDEDIR_SYMLINK),yes)
 	cd $(DESTDIR)$(INCLUDEDIR) && ( [ -e intelib ] || ln -sfn . intelib )
@@ -193,18 +212,18 @@ endif
 
 
 clean:
-	cd sexpress && $(MAKE) clean
-	cd tools && $(MAKE) clean
-	cd genlisp && $(MAKE) clean
-	cd lisp && $(MAKE) clean
-	cd scheme && $(MAKE) clean
-	cd ill && $(MAKE) clean
-	cd ils && $(MAKE) clean
-	cd samples && $(MAKE) clean
-	cd tests && $(MAKE) clean
-	cd refal && $(MAKE) clean || :
-	cd irina && $(MAKE) clean || :
+	cd sexpress && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd tools && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd genlisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd lisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd scheme && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd ill && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd ils && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd refal && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
+#	cd irina && $(MAKE) clean || :
 	rm -rf $(TARGETDIRFP) docs/doxygen/html
 	rm -rf docs/doxygen/man
 
-.PHONY: clean bootstrap install doxydocs default
+.PHONY: clean win_port bootstrap install doxydocs default
