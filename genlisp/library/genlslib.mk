@@ -34,7 +34,7 @@ all: $(DEPSMK) $(OBJFILES) $(GLSP_PREFIX)$(DIRNAME).hpp
 
 
 $(DEPSMK):
-	touch $@
+	echo > $@
 	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
 
 %.mk: %.cpp
@@ -44,3 +44,10 @@ $(DEPSMK):
 	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
 		-D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION \
 		-MT $(DEPSMK) $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
+		-D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION \
+		-MT $(DEPSMK) $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
+		-D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION \
+		-MT $(GLSP_PREFIX)$(DIRNAME).hpp  $< >> $(DEPSMK)
+
