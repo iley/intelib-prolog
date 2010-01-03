@@ -19,14 +19,22 @@ else
 TARGETDIRFP = $(TARGETDIR)/intelib
 endif
 
+DLFCN=dlfcn-win32-r11
+
 LOCALFLAGS = -fpic -funsigned-char -g -Wall
 
 CXXFLAGS = $(LOCALFLAGS) 
 
-default: win_port.o
+default: dlfcn win_port.o
 
 win_port.o:	win_port.hpp win_port.cpp
 	$(CXX) $(CXXFLAGS) -c win_port.cpp -o $(TARGETDIRFP)/win_port.o
+
+dlfcn:
+	cd $(DLFCN) && configure && $(MAKE)
+	cp $(DLFCN)/dlfcn.h .
+	cp $(DLFCN)/libdl.a .
 	
 clean:
-	rm -f $(TARGETDIRFP)/win_port.o
+	rm -f $(TARGETDIRFP)/win_port.o libdl.a dlfcn.h
+	cd $(DLFCN) && $(MAKE) clean
