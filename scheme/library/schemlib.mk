@@ -62,3 +62,5 @@ $(DEPSMK):
 	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
 		-D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION \
 		-MT $(DEPSMK) $< >> $(DEPSMK)
+
+.PHONY: all none $(MKFILES)
