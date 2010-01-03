@@ -40,7 +40,7 @@ all: $(DEPSMK) $(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).scm \
 
 
 $(DEPSMK):
-	touch $@
+	echo > $@
 	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
 
 %.mk: %.cpp
@@ -49,4 +49,16 @@ $(DEPSMK):
 		-MT $(SCH_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
 	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
 		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION \
+		-MT $(DEPSMK) $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
+		-D INTELIB_SCHEME_TRANSLATOR_INFORMATION \
+		-MT $(TARGETDIRFP)/$(DIRNAME).scm $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
+		-D INTELIB_SCHEME_TRANSLATOR_INFORMATION \
+		-MT $(DEPSMK) $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
+		-D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION \
+		-MT $(SCH_PREFIX)$(DIRNAME).hpp $< >> $(DEPSMK)
+	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
+		-D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION \
 		-MT $(DEPSMK) $< >> $(DEPSMK)
