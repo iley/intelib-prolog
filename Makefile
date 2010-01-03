@@ -116,7 +116,7 @@ libintelib.a: win_port
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
 
-libintelib_interp.a:
+libintelib_interp.a: win_port
 	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
@@ -222,6 +222,7 @@ clean:
 	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
 	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
 	cd refal && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
+	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
 #	cd irina && $(MAKE) clean || :
 	rm -rf $(TARGETDIRFP) docs/doxygen/html
 	rm -rf docs/doxygen/man
