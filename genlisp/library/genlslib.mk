@@ -20,7 +20,7 @@ GEN_HPP = ../gen_hpp.sh
 DEPSMK = $(TARGETDIRFP)/gl$(DIRNAME)_deps.mk
 -include $(DEPSMK)
 
-none:
+none: FORCE
 	@echo "No default rule here"
 
 $(GLSP_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
@@ -30,14 +30,14 @@ $(GLSP_PREFIX)%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c -include ../genlslib.hpp \
 		-D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION $< -o $@
 
-all: $(DEPSMK) $(OBJFILES) $(GLSP_PREFIX)$(DIRNAME).hpp
+all: $(DEPSMK) $(OBJFILES) $(GLSP_PREFIX)$(DIRNAME).hpp FORCE
 
 
 $(DEPSMK):
 	echo > $@
 	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
 
-%.mk: %.cpp
+%.mk: %.cpp FORCE
 	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
 		-D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION \
 		-MT $(GLSP_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
@@ -51,4 +51,4 @@ $(DEPSMK):
 		-D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION \
 		-MT $(GLSP_PREFIX)$(DIRNAME).hpp  $< >> $(DEPSMK)
 
-.PHONY = all none $(MKFILES)
+FORCE:

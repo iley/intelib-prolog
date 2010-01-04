@@ -20,7 +20,7 @@ GEN_SCM = ../gen_scm.sh
 DEPSMK = $(TARGETDIRFP)/sch$(DIRNAME)_deps.mk
 -include $(DEPSMK)
 
-none:
+none: FORCE
 	@echo "No default rule here"
 
 
@@ -35,7 +35,7 @@ $(SCH_PREFIX)%.o:	%.cpp $(COMMON_FILES)
 	$(CXX) $(CXXFLAGS) -c -include ../schemlib.hpp \
 		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION $< -o $@
 
-all: $(DEPSMK) $(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).scm \
+all: $(DEPSMK) $(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).scm FORCE \
 			$(SCH_PREFIX)$(DIRNAME).hpp
 
 
@@ -43,7 +43,7 @@ $(DEPSMK):
 	echo > $@
 	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
 
-%.mk: %.cpp
+%.mk: %.cpp FORCE
 	$(CXX) $(CXXFLAGS) -MM -include ../schemlib.hpp \
 		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION \
 		-MT $(SCH_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
@@ -63,4 +63,4 @@ $(DEPSMK):
 		-D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION \
 		-MT $(DEPSMK) $< >> $(DEPSMK)
 
-.PHONY = all none $(MKFILES)
+FORCE:

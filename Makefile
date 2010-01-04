@@ -81,18 +81,17 @@ LDCONFIG = /sbin/ldconfig
 
 #########################################
 
-
-default:	bootstrap
+default:	bootstrap FORCE
 	:
 
-bootstrap:
+bootstrap: FORCE
 	$(MAKE) library USE_READLINE=$(USE_READLINE)
 	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 	[ -d irina ] && cd irina && $(MAKE)
 
-libintelib.a:
-	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
+libintelib.a: win_port FORCE
+	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
 	cd tools && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
@@ -112,8 +111,8 @@ libintelib.a:
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
 
-libintelib_interp.a:
-	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
+libintelib_interp.a: win_port FORCE
+	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
@@ -126,7 +125,16 @@ libintelib_interp.a:
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
 
-library: $(TARGETDIRFP)
+library: $(TARGETDIRFP) FORCE
+ifeq ($(OSTYPE),MinGW-win)
+# Windows version - without symlinks. Just copy needed files.
+	cp -R $(CURDIR)/sexpress $(TARGETDIRFP)
+	cp -R $(CURDIR)/tools $(TARGETDIRFP)
+	cp -R $(CURDIR)/genlisp $(TARGETDIRFP)
+	cp -R $(CURDIR)/scheme $(TARGETDIRFP)
+	cp -R $(CURDIR)/lisp $(TARGETDIRFP)
+	cp -R $(CURDIR)/interact $(TARGETDIRFP)
+else
 	ln -sf $(CURDIR)/sexpress $(TARGETDIRFP)
 	ln -sf $(CURDIR)/tools $(TARGETDIRFP)
 	ln -sf $(CURDIR)/genlisp $(TARGETDIRFP)
@@ -143,15 +151,20 @@ endif
 $(TARGETDIRFP):	
 	mkdir $(TARGETDIRFP)
 
+win_port: FORCE
+ifeq ($(OSTYPE),MinGW-win)
+	cd win_port && $(MAKE) TARGETDIR=$(TARGETDIRFP)/..
+endif
+	
 version.h:	Version
 	echo '#define INTELIB_VERSION "'`head -1 Version`'"' > $@
 	echo '#define INTELIB_VERSIONID '`tail -1 Version` >> $@
 
-doxydocs:
+doxydocs: FORCE
 	doxygen docs/doxygen/intelib.conf
 
 
-install:
+install: FORCE
 		# as the interact/ directory presently doesn't hold files,
 		# it is not to be mentioned here
 	for D in sexpress tools genlisp lisp scheme ill ils refal ; do \
@@ -192,19 +205,20 @@ endif
 endif
 
 
-clean:
-	cd sexpress && $(MAKE) clean
-	cd tools && $(MAKE) clean
-	cd genlisp && $(MAKE) clean
-	cd lisp && $(MAKE) clean
-	cd scheme && $(MAKE) clean
-	cd ill && $(MAKE) clean
-	cd ils && $(MAKE) clean
-	cd samples && $(MAKE) clean
-	cd tests && $(MAKE) clean
-	cd refal && $(MAKE) clean || :
-	cd irina && $(MAKE) clean || :
+clean: FORCE
+	cd sexpress && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd tools && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd genlisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd lisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd scheme && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd ill && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd ils && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd refal && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
+	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+#	cd irina && $(MAKE) clean || :
 	rm -rf $(TARGETDIRFP) docs/doxygen/html
 	rm -rf docs/doxygen/man
 
-.PHONY = clean bootstrap install doxydocs default
+FORCE:

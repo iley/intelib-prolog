@@ -132,9 +132,9 @@ $(TARGETDIRFP)/ill_new:	$(TARGETDIRFP)/ill.o illmain.cpp $(LIBDEPEND)
 #########################
 # Bootstrap 
 
-bootstrap:
-	$(MAKE) nill TARGETDIR=$(TARGETDIRFP)
-	$(MAKE) ill_nill TARGETDIR=$(TARGETDIRFP)
+bootstrap: FORCE
+	$(MAKE) nill TARGETDIR=$(TARGETDIRFP)/..
+	$(MAKE) ill_nill TARGETDIR=$(TARGETDIRFP)/..
 	@echo "-------------------------------------------------------------"
 	@echo "    Testing the newly-built binary                           "
 	@echo "-------------------------------------------------------------"
@@ -160,7 +160,7 @@ bootstrap:
 	@echo "****************************************************"
 	mv $(TARGETDIRFP)/ill_new $(TARGETDIRFP)/ill
 
-quick_bootstrap:
+quick_bootstrap: FORCE
 	$(MAKE) nill
 	$(MAKE) ill_nill
 	mv $(TARGETDIRFP)/ill_nill $(TARGETDIRFP)/ill
@@ -238,9 +238,9 @@ $(TARGETDIRFP)/illdef._ls:	$(TARGETDIRFP)/chartran._ls $(TARGETDIRFP)/lib._ls il
 	echo ") ; end of definitions " >> $@
 
 
-clean:
+clean: FORCE
 	rm -f trtgen sympkgen *.[ch]xx *.cpl *.o *._ls ill_new ill_nill
 	rm -f $(TARGETDIRFP)/*.{o,lsp,a,hpp}
 	rm -f ill nill
-	
-.PHONY = clean bootstrap quick_bootstrap
+
+FORCE:
