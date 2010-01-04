@@ -227,4 +227,4 @@ clean:
 	rm -rf $(TARGETDIRFP) docs/doxygen/html
 	rm -rf docs/doxygen/man
 
-.PHONY: clean win_port bootstrap install doxydocs default
+.PHONY = clean win_port bootstrap install doxydocs default

@@ -255,4 +255,4 @@ clean:
 	rm -f $(TARGETDIRFP)/*.{o,lsp,a,hpp}
 	rm -f ill nill
 	
-.PHONY: clean bootstrap quick_bootstrap
+.PHONY = clean bootstrap quick_bootstrap
