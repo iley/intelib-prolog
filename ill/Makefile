@@ -47,7 +47,7 @@ ifeq ($(OSTYPE),Linux)
     TDIR = $(TARGETDIRFP)
 else
 ifeq ($(OSTYPE),MinGW-win)
-    LIBDL = -L../win_port -ldl
+    LIBDL = -ldl
     DYNAMIC = -export-all-symbols
     INCDL = -I../win_port
 # This string translates an absolute UNIX-like path to an absolute windows path

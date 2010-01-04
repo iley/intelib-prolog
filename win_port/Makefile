@@ -25,18 +25,18 @@ LOCALFLAGS = -fpic -funsigned-char -g -Wall
 
 CXXFLAGS = $(LOCALFLAGS) 
 
-default: dlfcn.h libdl.a $(TARGETDIRFP)/win_port.o
+default: dlfcn.h $(TARGETDIRFP)/libdl.a $(TARGETDIRFP)/win_port.o
 
 $(TARGETDIRFP)/win_port.o:	win_port.hpp win_port.cpp
 	$(CXX) $(CXXFLAGS) -c win_port.cpp -o $(TARGETDIRFP)/win_port.o
 
-libdl.a:
+$(TARGETDIRFP)/libdl.a:
 	cd $(DLFCN) && configure && $(MAKE)
-	cp $(DLFCN)/libdl.a .
-	
+	cp $(DLFCN)/libdl.a $(TARGETDIRFP)
+
 dlfcn.h:
 	cp $(DLFCN)/dlfcn.h .
-	
+
 clean:
-	rm -f $(TARGETDIRFP)/win_port.o libdl.a dlfcn.h
+	rm -f $(TARGETDIRFP)/win_port.o $(TARGETDIRFP)/libdl.a dlfcn.h
 	cd $(DLFCN) && $(MAKE) clean
