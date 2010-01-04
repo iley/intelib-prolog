@@ -32,7 +32,7 @@ endif
 OSTYPE = $(shell uname -s)
 
 
-LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)
+LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. -I$(TARGETDIRFP)
 
 LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
 FUNHEADERS = $(patsubst %,$(TARGETDIRFP)/lfun_%.hpp,$(LISPLIBMODULES))

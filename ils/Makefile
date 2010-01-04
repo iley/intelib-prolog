@@ -32,7 +32,7 @@ endif
 
 OSTYPE = $(shell uname -s)
 
-LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)
+LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. -I$(TARGETDIRFP)
 
 SCHEMELIBMODULES = std str sel io rdr hsh m
 LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
