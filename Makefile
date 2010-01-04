@@ -86,16 +86,16 @@ LDCONFIG = /sbin/ldconfig
 
 #########################################
 
-default:	bootstrap
+default:	bootstrap FORCE
 	:
 
-bootstrap:
+bootstrap: FORCE
 	$(MAKE) library USE_READLINE=$(USE_READLINE)
 	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 #	[ -d irina ] && cd irina && $(MAKE)
 
-libintelib.a: win_port
+libintelib.a: win_port FORCE
 	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
@@ -116,7 +116,7 @@ libintelib.a: win_port
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
 
-libintelib_interp.a: win_port
+libintelib_interp.a: win_port FORCE
 	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
@@ -130,7 +130,7 @@ libintelib_interp.a: win_port
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
 
-library: $(TARGETDIRFP)
+library: $(TARGETDIRFP) FORCE
 ifeq ($(OSTYPE),MinGW-win)
 # Windows version - without symlinks. Just copy needed files.
 	cp -R $(CURDIR)/sexpress $(TARGETDIRFP)
@@ -157,7 +157,7 @@ endif
 $(TARGETDIRFP):	
 	mkdir -p $(TARGETDIRFP)
 
-win_port:
+win_port: FORCE
 ifeq ($(OSTYPE),MinGW-win)
 	cd win_port && $(MAKE) TARGETDIR=$(TARGETDIRFP)/..
 endif
@@ -166,11 +166,11 @@ version.h:	Version
 	echo '#define INTELIB_VERSION "'`head -1 Version`'"' > $@
 	echo '#define INTELIB_VERSIONID '`tail -1 Version` >> $@
 
-doxydocs:
+doxydocs: FORCE
 	doxygen docs/doxygen/intelib.conf
 
 
-install:
+install: FORCE
 		# as the interact/ directory presently doesn't hold files,
 		# it is not to be mentioned here
 	for D in sexpress tools genlisp lisp scheme ill ils refal ; do \
@@ -211,7 +211,7 @@ endif
 endif
 
 
-clean:
+clean: FORCE
 	cd sexpress && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
 	cd tools && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
 	cd genlisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
@@ -227,4 +227,4 @@ clean:
 	rm -rf $(TARGETDIRFP) docs/doxygen/html
 	rm -rf docs/doxygen/man
 
-.PHONY = clean win_port bootstrap install doxydocs default
+FORCE:

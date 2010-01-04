@@ -20,7 +20,7 @@ GEN_LSP = ../gen_lsp.sh
 DEPSMK = $(TARGETDIRFP)/l$(DIRNAME)_deps.mk
 -include $(DEPSMK)
 
-none:
+none: FORCE
 	@echo "No default rule here"
 
 
@@ -35,7 +35,7 @@ $(LFUN_PREFIX)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION $< -o $@
 
-all: $(DEPSMK)	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp \
+all: $(DEPSMK)	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp FORCE \
 			$(LFUN_PREFIX)$(DIRNAME).hpp
 
 
@@ -43,7 +43,7 @@ $(DEPSMK): $(CXXFILES)
 	echo > $@
 	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
 
-%.mk: %.cpp
+%.mk: %.cpp FORCE
 	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION \
 		-MT $(LFUN_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
@@ -63,4 +63,4 @@ $(DEPSMK): $(CXXFILES)
 		-D INTELIB_LISP_LIBRARY_HEADER_GENERATION \
 		-MT $(DEPSMK) $< >> $(DEPSMK)
 
-.PHONY = all none $(MKFILES)
+FORCE:
