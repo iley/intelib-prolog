@@ -211,18 +211,9 @@ endif
 
 clean: FORCE
 
-	cd sexpress && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd tools && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd genlisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd lisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd scheme && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd ill && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd ils && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd refal && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
-	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd irina && $(MAKE) clean || :
+	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
+	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
+	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
 	rm -rf $(TARGETDIR) docs/doxygen/html
 	rm -rf docs/doxygen/man
 
