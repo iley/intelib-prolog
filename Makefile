@@ -88,7 +88,10 @@ bootstrap: FORCE
 	$(MAKE) library USE_READLINE=$(USE_READLINE)
 	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
-#	[ -d irina ] && cd irina && $(MAKE)
+ifneq ($(OSTYPE,MinGW-win)
+# This feature still not supported in windows build.
+	[ -d irina ] && cd irina && $(MAKE)
+endif
 
 libintelib.a: win_port FORCE
 	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
@@ -152,7 +155,7 @@ endif
 $(TARGETDIRFP):	
 	mkdir -p $(TARGETDIRFP)
 
-win_port: FORCE
+win_port: $(TARGETDIRFP) FORCE
 ifeq ($(OSTYPE),MinGW-win)
 	cd win_port && $(MAKE) TARGETDIR=$(TARGETDIRFP)
 endif
@@ -207,18 +210,19 @@ endif
 
 
 clean: FORCE
-	cd sexpress && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-	cd tools && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-	cd genlisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-	cd lisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-	cd scheme && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-	cd ill && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-	cd ils && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-	cd refal && $(MAKE) clean TARGETDIR=$(TARGETDIRFP) || :
-	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
-#	cd irina && $(MAKE) clean || :
+
+	cd sexpress && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd tools && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd genlisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd lisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd scheme && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd ill && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd ils && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd refal && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
+	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd irina && $(MAKE) clean || :
 	rm -rf $(TARGETDIRFP) docs/doxygen/html
 	rm -rf docs/doxygen/man
 
