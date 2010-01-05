@@ -43,10 +43,10 @@ xx: $(TARGETDIRFP)/$(RSL) $(TARGETDIRFP)/wrap
 	$(TARGETDIRFP)/wrap $(FILES)
 
 $(TARGETDIRFP)/irina.o: irina.cxx
-	$(CXX) $(CXXFLAGS_GENFLAGS) -c $< -O0
+	$(CXX) $(CXXFLAGS_GENFLAGS) -c $< -O0 -o $@
 
 $(TARGETDIRFP)/run.o: run.cpp
-	$(CXX) $(CXXFLAGS_GENFLAGS) "-DIRINA_VERSION=\"$(IRINA_VERSION)\"" "-DCXX=\"$(CXX)\"" -c $<
+	$(CXX) $(CXXFLAGS_GENFLAGS) "-DIRINA_VERSION=\"$(IRINA_VERSION)\"" "-DCXX=\"$(CXX)\"" -c $< -o $@
 
 $(TARGETDIRFP)/def_run.o: def_run.cpp
 	$(CXX) $(CXXFLAGS_GENFLAGS) -c $<
