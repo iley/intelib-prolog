@@ -93,7 +93,7 @@ bootstrap: FORCE
 	$(MAKE) library USE_READLINE=$(USE_READLINE)
 	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
-ifneq ($(OSTYPE,MinGW-win)
+ifneq ($(OSTYPE),MinGW-win)
 # This feature still not supported in windows build.
 	[ -d irina ] && cd irina && $(MAKE)
 endif
@@ -227,7 +227,7 @@ clean: FORCE
 	cd refal && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
 	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
 	cd irina && $(MAKE) clean || :
-	rm -rf $(TARGETDIRFP) docs/doxygen/html
+	rm -rf $(TARGETDIR) docs/doxygen/html
 	rm -rf docs/doxygen/man
 
 FORCE:
