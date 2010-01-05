@@ -1,6 +1,8 @@
 # INTELIB_CONTRIBUTED
 # Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
 
+SHELL = /bin/sh
+
 OPTIMIZATION = -O3
 PROFILING =
 
@@ -15,56 +17,66 @@ RSLPLUS = run.rsl+start.rsl+lexical.rsl+errors.rsl+checklexical.rsl+syntax.rsl+b
 FILES = start.ref lexical.ref errors.ref checklexical.ref syntax.ref brackets.ref types.ref library.ref checksyntax.ref directivessyntax.ref linker.ref morelinker.ref checklinker.ref generate.ref generatehxx.ref generatecxx.ref functionscode.ref version.ref verystart.ref removesc.ref
 IRINA_VERSION = 0.3.0
 
-irina: irina.o run.o def_run.o bin_lib/libsexpr.a bin_lib/libirefal.a
-	$(CXX) $(CXXFLAGS) irina.o run.o -Lbin_lib -lsexpr\
-				-lirefal -o $@
+TARGETDIR = ../build
 
-version.ref: version_generic.ref
-	sed 's/IRINA_VERSION/'$(IRINA_VERSION)'/g' version_generic.ref > version.ref
+ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
+else
+TARGETDIRFP = $(TARGETDIR)/intelib
+endif
 
-compile.ref: compile_generic.ref
-	sed 's/CXX/'$(CXX)'/g' compile_generic.ref > compile.ref
+$(TARGETDIRFP)/irina: $(TARGETDIRFP)/irina.o $(TARGETDIRFP)/run.o $(TARGETDIRFP)/def_run.o\
+    $(TARGETDIRFP)/libsexpr.a $(TARGETDIRFP)/libirefal.a
+	$(CXX) $(CXXFLAGS) $(TARGETDIRFP)/irina.o $(TARGETDIRFP)/run.o -L$(TARGETDIRFP) -lsexpr\
+				-libirefal -o $@
 
-%.rsl:	%.ref
+$(TARGETDIRFP)/version.ref: version_generic.ref
+	sed 's/IRINA_VERSION/'$(IRINA_VERSION)'/g' version_generic.ref > $(TARGETDIRFP)/version.ref
+
+$(TARGETDIRFP)/compile.ref: compile_generic.ref
+	sed 's/CXX/'$(CXX)'/g' compile_generic.ref > $(TARGETDIRFP)/compile.ref
+
+$(TARGETDIRFP)/%.rsl:	%.ref
 	$(REFC) $<
 
-xx: $(RSL) wrap
-	./wrap $(FILES)
+xx: $(TARGETDIRFP)/$(RSL) $(TARGETDIRFP)/wrap
+	$(TARGETDIRFP)/wrap $(FILES)
 
-irina.o: irina.cxx
+$(TARGETDIRFP)/irina.o: irina.cxx
 	$(CXX) $(CXXFLAGS_GENFLAGS) -c $< -O0
 
-run.o: run.cpp
+$(TARGETDIRFP)/run.o: run.cpp
 	$(CXX) $(CXXFLAGS_GENFLAGS) "-DIRINA_VERSION=\"$(IRINA_VERSION)\"" "-DCXX=\"$(CXX)\"" -c $<
 
-def_run.o: def_run.cpp
+$(TARGETDIRFP)/def_run.o: def_run.cpp
 	$(CXX) $(CXXFLAGS_GENFLAGS) -c $<
 
-wrap: wrap.cpp $(RSL)
+$(TARGETDIRFP)/wrap: wrap.cpp $(TARGETDIRFP)/$(RSL)
 	$(CXX) "-DREFGO=\"$(REFGO)\"" "-DRSLPLUS=\"$(RSLPLUS)\"" $(CXXFLAGS) wrap.cpp -o $@
 
 ###############################
 # Build our very own library binary version
 
-bin_lib:
-	mkdir bin_lib
+$(TARGETDIRFP):
+	mkdir -p $(TARGETDIRFP)
 
-bin_lib/libsexpr.a:	bin_lib	FORCE
-	cd ../sexpress && $(MAKE) all TARGETDIR=../irina/bin_lib \
+$(TARGETDIRFP)/libsexpr.a:	$(TARGETDIRFP) FORCE
+	cd ../sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
 		OPTIMIZATION=$(OPTIMIZATION) PROFILING=$(PROFILING)
 
-bin_lib/libirefal.a:	bin_lib FORCE
-	cd ../refal && $(MAKE) all TARGETDIR=../irina/bin_lib \
+$(TARGETDIRFP)/libirefal.a:	$(TARGETDIRFP) FORCE
+	cd ../refal && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
 		OPTIMIZATION=$(OPTIMIZATION) PROFILING=$(PROFILING)
 
 ###############################
 
 clean:
-	rm -rf *.rsl *.o core buf irina wrap bin_lib version.ref compile.ref
+	rm -rf $(TARGETDIRFP)/*.rsl $(TARGETDIRFP)/*.o $(TARGETDIRFP)/core $(TARGETDIRFP)/buf \
+	$(TARGETDIRFP)/irina $(TARGETDIRFP)/wrap $(TARGETDIRFP)/version.ref $(TARGETDIRFP)/compile.ref
 
 FORCE:
 	:
 
-all: wrap irina
+all: $(TARGETDIRFP)/wrap $(TARGETDIRFP)/irina
 
 ###############################
