@@ -10,7 +10,7 @@
 // +-------------------------------------------------------------------------+
 
 
-
+#include "path.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +49,6 @@ static LListConstructor L;
 const char *version = INTELIB_VERSION;
 
 const char defsfilename[] = "illdef._ls";   
-const char dirseparator = '/';
 const char dirseparatorstr[2] = {dirseparator, 0};
 const char illdefsenvvar[] = "ILLDEFSFILE";
 
@@ -100,7 +99,7 @@ SString DefsFilePath(const char *argv0)
     char *cur = pathvar;
     char *next = pathvar;
     do {
-        while(*next && *next != ':') next++;
+        while(*next && *next != pathseparator) next++;
         if(*next) { *next = 0; next++; }
         SString path(cur);
         path += dirseparatorstr;

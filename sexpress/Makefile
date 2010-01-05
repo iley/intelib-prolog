@@ -18,9 +18,9 @@ SHELL = /bin/sh
 TARGETDIR = $(CURDIR)
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
 else
-TARGETDIRFP = $(TARGETDIR)
+TARGETDIRFP = $(TARGETDIR)/intelib
 endif
 
 TARGETLIBNAME = libsexpr.a
