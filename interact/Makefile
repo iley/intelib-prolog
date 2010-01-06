@@ -18,9 +18,9 @@ SHELL = /bin/sh
 TARGETDIR = $(CURDIR)
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
 else
-TARGETDIRFP = $(TARGETDIR)
+TARGETDIRFP = $(TARGETDIR)/intelib
 endif
 
 TARGETLIBNAME = libintelibinteract.a
@@ -46,15 +46,15 @@ LIBSOURCES = ireadln.cpp
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
-none:
+none: FORCE
 	@echo No default rule
 
-all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
+all:	$(TARGETDIRFP)/$(TARGETLIBNAME) FORCE
 
 $(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES) 
 	$(AR) crs $@ $(OBJFILES) 
 
-all_add:        $(OBJFILES) 
+all_add:        $(OBJFILES) FORCE
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) 
 
 $(TARGETDIRFP)/%.o:	%.cpp
@@ -83,7 +83,7 @@ $(TARGETDIRFP)/ii_deps.mk: $(LIBSOURCES) Makefile
 	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
 
 
-clean:	
+clean: FORCE
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
 		test buf gmon.out ii_deps.mk
 

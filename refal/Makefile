@@ -15,12 +15,12 @@
 
 SHELL = /bin/sh
 
-TARGETDIR = $(CURDIR)
+TARGETDIR = ../build
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
 else
-TARGETDIRFP = $(TARGETDIR)
+TARGETDIRFP = $(TARGETDIR)/intelib
 endif
 
 
@@ -32,6 +32,11 @@ LIBSOURCES = refal.cpp rclause.cpp rvars.cpp rfmatch.cpp
 LIBFUNSOURCES = $(notdir $(wildcard library/*.cpp))
 
 -include $(TARGETDIRFP)/defines.mk
+
+
+ifeq ($(OSTYPE),MinGW-win)
+WIN_PORT = $(TARGETDIRFP)/win_port.o
+endif
 
 
 
@@ -50,18 +55,23 @@ OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
 FUNOBJFILES = $(patsubst %,$(TARGETDIRFP)/rfun_%,$(LIBFUNSOURCES:.cpp=.o))
 
-all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
+all: $(TARGETDIRFP)/$(TARGETLIBNAME)
 
-$(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES) $(FUNOBJFILES)
+$(TARGETDIRFP)/$(TARGETLIBNAME):  $(WIN_PORT) $(OBJFILES) $(FUNOBJFILES)
 	$(AR) crs $@ $(OBJFILES) $(FUNOBJFILES)
 
-all_add:        $(OBJFILES) $(FUNOBJFILES)
+all_add: $(WIN_PORT) $(OBJFILES) $(FUNOBJFILES)
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) \
-	$(FUNOBJFILES)
+	$(FUNOBJFILES) $(WIN_PORT)
 
 
 $(TARGETDIRFP)/%.o:		%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(WIN_PORT):
+ifeq ($(OSTYPE), MinGW-win)
+	cd .. && $(MAKE) win_port
+endif
 
 $(TARGETDIRFP)/rfun_%.o:	library/%.cpp
 	$(CXX) $(CXXFLAGS_GENFLAGS) -c $< -o $@

@@ -23,16 +23,16 @@ USE_READLINE=yes
 
 TARGETDIR = ../build
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
 else
-TARGETDIRFP = $(TARGETDIR)
+TARGETDIRFP = $(TARGETDIR)/intelib
 endif
 #TARGETDIRFP = bin_lib
 
 OSTYPE = $(shell uname -s)
 
 
-LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)
+LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. -I$(TARGETDIRFP)
 
 LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
 FUNHEADERS = $(patsubst %,$(TARGETDIRFP)/lfun_%.hpp,$(LISPLIBMODULES))
@@ -41,11 +41,23 @@ LIBDEFLSPFILES = $(patsubst %,$(TARGETDIRFP)/%.lsp,$(LISPLIBMODULES))
 LIBDEPEND = $(LFUNHEADERS) $(TARGETDIRFP)/libintelib.a \
 			$(TARGETDIRFP)/libintelib_interp.a
 
-
 ifeq ($(OSTYPE),Linux)
     LIBDL = -ldl
-else 
+    DYNAMIC = -export-dynamic
+    TDIR = $(TARGETDIRFP)
+else
+ifeq ($(OSTYPE),MinGW-win)
+    LIBDL = -ldl
+    DYNAMIC = -export-all-symbols
+    INCDL = -I../win_port
+# This string translates an absolute UNIX-like path to an absolute windows path
+# with double backslashes. E.g. /c/inelib -> c:\\intelib
+    TDIR = $(shell echo $(TARGETDIRFP) | sed 's/^\/\(.\)/\1:/' | sed 's/\//\\\\/g')
+else
     LIBDL = 
+    DYNAMIC = -export-dynamic
+    TDIR = $(TARGETDIRFP)
+endif
 endif
 
 ifeq ($(LISPMATH),yes)
@@ -80,7 +92,7 @@ CXXFLAGS = $(LOCALFLAGS)
 
 
 $(TARGETDIRFP)/libintelib.a $(TARGETDIRFP)/libintelib_nill.a $(LFUNHEADERS):
-	cd .. && $(MAKE) library TARGETDIR=$(TARGETDIRFP)
+	cd .. && $(MAKE) library TARGETDIR=$(TARGETDIRFP)/..
 
 
 ###############################
@@ -140,9 +152,9 @@ bootstrap: FORCE
 	@echo "-------------------------------------------------------------"
 	$(TARGETDIRFP)/ill_nill ill.lsp \
 		'(MODULE-NAME "ill_nill")' \
-		'(CXX-FILE-PATH "$(TARGETDIRFP)/ill_n_t.cxx")' \
+		'(CXX-FILE-PATH "$(TDIR)/ill_n_t.cxx")' \
 		'(HXX-FILE-NAME "ill_nill.hxx")' \
-		'(HXX-FILE-PATH "$(TARGETDIRFP)/ill_n_t.hxx")'
+		'(HXX-FILE-PATH "$(TDIR)/ill_n_t.hxx")'
 	diff $(TARGETDIRFP)/ill_n_t.cxx $(TARGETDIRFP)/ill_nill.cxx
 	diff $(TARGETDIRFP)/ill_n_t.hxx $(TARGETDIRFP)/ill_nill.hxx
 	$(MAKE) ill_new ILL=$(TARGETDIRFP)/ill_nill
@@ -150,9 +162,9 @@ bootstrap: FORCE
 	@echo "    Testing the newly-built binary                           "
 	@echo "-------------------------------------------------------------"
 	$(TARGETDIRFP)/ill_new ill.lsp \
-		'(CXX-FILE-PATH "$(TARGETDIRFP)/ill_t.cxx")' \
+		'(CXX-FILE-PATH "$(TDIR)/ill_t.cxx")' \
 		'(HXX-FILE-NAME "ill.hxx")' \
-		'(HXX-FILE-PATH "$(TARGETDIRFP)/ill_t.hxx")'
+		'(HXX-FILE-PATH "$(TDIR)/ill_t.hxx")'
 	diff $(TARGETDIRFP)/ill.cxx $(TARGETDIRFP)/ill_t.cxx
 	diff $(TARGETDIRFP)/ill.hxx $(TARGETDIRFP)/ill_t.hxx
 	@echo "****************************************************"
@@ -200,7 +212,7 @@ $(TARGETDIRFP)/ill_loop.o: ill_loop.cpp ill_loop.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
 $(TARGETDIRFP)/nill.o: nill.cpp ill_loop.hpp ../version.h
-	$(CXX) $(CXXFLAGS) -c nill.cpp -o $@
+	$(CXX) $(CXXFLAGS) $(INCDL) -c nill.cpp -o $@
 
 
 nill: $(TARGETDIRFP)/nill
@@ -211,7 +223,7 @@ $(TARGETDIRFP)/nill: $(TARGETDIRFP)/nill.o $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP
 	@echo "    Building NILL interpreter                                "
 	@echo "-------------------------------------------------------------"
 	$(CXX) $(CXXFLAGS) $^  -o $@ \
-	  $(LIBINTELIB) $(LIBMATH) $(LIBREADLINE) $(LIBDL) -Wl,-export-dynamic
+	  $(LIBINTELIB) $(LIBMATH) $(LIBREADLINE) $(LIBDL) -Wl,$(DYNAMIC)
 
 ###############################
 # Common targets
