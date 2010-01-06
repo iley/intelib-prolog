@@ -6,15 +6,13 @@ CXXFILES=$(wildcard *.cpp)
 
 OBJFILES=$(addprefix $(GLSP_PREFIX),$(CXXFILES:.cpp=.o))
 
-MKFILES = $(CXXFILES:.cpp=.mk)
-
 COMMON_FILES = ../genlslib.hpp ../genlslib.mk
 
 -include ../../../version.mk
 
-
 GEN_HPP = ../gen_hpp.sh
 
+GEN_DEPSMK = ../../../gen_deps_mk.sh
 
 
 DEPSMK = $(TARGETDIRFP)/gl$(DIRNAME)_deps.mk
@@ -32,23 +30,17 @@ $(GLSP_PREFIX)%.o:	%.cpp
 
 all: $(DEPSMK) $(OBJFILES) $(GLSP_PREFIX)$(DIRNAME).hpp FORCE
 
-
 $(DEPSMK):
-	echo > $@
-	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
-
-%.mk: %.cpp FORCE
-	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
-		-D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION \
-		-MT $(GLSP_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
-	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
-		-D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION \
-		-MT $(DEPSMK) $< >> $(DEPSMK)
-	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
-		-D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION \
-		-MT $(DEPSMK) $< >> $(DEPSMK)
-	$(CXX) $(CXXFLAGS) -MM -include ../genlslib.hpp \
-		-D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION \
-		-MT $(GLSP_PREFIX)$(DIRNAME).hpp  $< >> $(DEPSMK)
+	$(GEN_DEPSMK) --cxx $(CXX) \
+		--cxxflags "$(CXXFLAGS) -include ../genlslib.hpp -D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION" \
+		--prefix $(GLSP_PREFIX) \
+		--files "$(CXXFILES)" \
+		--deps-mk $@
+	$(GEN_DEPSMK) --cxx $(CXX) \
+		--cxxflags "$(CXXFLAGS) -include ../genlslib.hpp -D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION" \
+		--prefix $(GLSP_PREFIX) \
+		--files "$(CXXFILES)" \
+		--suffix "hpp" \
+		--deps-mk $@
 
 FORCE:
