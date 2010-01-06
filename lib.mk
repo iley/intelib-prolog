@@ -35,6 +35,12 @@ CXXFLAGS = $(COMPILEFLAGS)
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
+DEPSMK = $(TARGETDIRFP)/$(GENERATED_PREFIX)_deps.mk
+
+GEN_DEPSMK = ../gen_deps_mk.sh
+
+
+
 none:
 	@echo No default rule
 
@@ -51,8 +57,12 @@ all_add:        $(OBJFILES) library/ALL
 $(TARGETDIRFP)/%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TARGETDIRFP)/$(GENERATED_PREFIX)_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
+$(DEPSMK): Makefile
+	$(GEN_DEPSMK) --cxx $(CXX) \
+		--cxxflags $(CXXFLAGS) \
+		--prefix $(TARGETDIRFP) \
+		--files "$(LIBSOURCES)" \
+		--output $@
 
 library/ALL: FORCE
 	cd library && $(MAKE) all TARGETDIRFP=$(TARGETDIRFP) \
