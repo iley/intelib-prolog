@@ -33,23 +33,19 @@ COMPILEFLAGS = $(OPTIMIZATION) -Wall -Woverloaded-virtual -Wsynth \
 		-ggdb -fpic $(CONDDEFINES) 
 CXXFLAGS = $(COMPILEFLAGS) 
 
-LIBSOURCES = chr2snum.cpp prprint.cpp spkghsh.cpp sstream.cpp \
-	vecread.cpp hshread.cpp numunif.cpp slexer.cpp sreader.cpp \
-	stackrep.cpp 
-
+LIBSOURCES = $(wildcard *.cpp)
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
-none:
+
+none: FORCE
 	@echo No default rule
 
-all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
+all: FORCE
+	$(AR) crs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES)
 
-$(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES) 
-	$(AR) crs $@ $(OBJFILES) 
-
-all_add:        $(OBJFILES) 
-	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) 
+all_add: FORCE
+	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES)
 
 $(TARGETDIRFP)/%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -57,7 +53,7 @@ $(TARGETDIRFP)/%.o:	%.cpp
 $(TARGETDIRFP)/t_deps.mk: $(LIBSOURCES) Makefile
 	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
 
-clean:	
+clean: FORCE
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
 		test buf gmon.out t_deps.mk
 
