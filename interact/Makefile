@@ -79,8 +79,7 @@ endif
 	touch $@
 
 $(TARGETDIRFP)/ii_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
+	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
 
 
 clean: FORCE

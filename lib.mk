@@ -52,8 +52,7 @@ $(TARGETDIRFP)/%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(TARGETDIRFP)/$(GENERATED_PREFIX)_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
+	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
 
 library/ALL: FORCE
 	cd library && $(MAKE) all TARGETDIRFP=$(TARGETDIRFP) \
