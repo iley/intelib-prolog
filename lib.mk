@@ -59,7 +59,7 @@ $(TARGETDIRFP)/%.o:	%.cpp
 
 $(DEPSMK): Makefile
 	$(GEN_DEPSMK) --cxx $(CXX) \
-		--cxxflags $(CXXFLAGS) \
+		--cxxflags "$(CXXFLAGS)" \
 		--prefix $(TARGETDIRFP) \
 		--files "$(LIBSOURCES)" \
 		--deps-mk $@
@@ -77,5 +77,5 @@ clean:
 FORCE:
 
 ifneq (clean, $(MAKECMDGOALS))
--include $(TARGETDIRFP)/deps.mk
+-include $(DEPSMK)
 endif
