@@ -77,9 +77,7 @@ $(TARGETDIRFP)/rfun_%.o:	library/%.cpp
 	$(CXX) $(CXXFLAGS_GENFLAGS) -c $< -o $@
 
 $(TARGETDIRFP)/rf_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) -I../sexpress $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
-
+	$(CXX) -MM $(INTELIB_VERSION) -I../sexpress $(LIBSOURCES) > $@ 
 
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o *.a gmon.out rf_deps.mk 

@@ -55,9 +55,7 @@ $(TARGETDIRFP)/%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(TARGETDIRFP)/t_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
-
+	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
 
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \

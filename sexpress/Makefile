@@ -59,9 +59,7 @@ all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
 
 
 $(TARGETDIRFP)/sx_deps.mk: $(LIBSOURCES) Makefile ../version.h
-	$(CXX) -MM -I.. $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
-
+	$(CXX) -MM -I.. $(LIBSOURCES) > $@
 
 
 clean:	
