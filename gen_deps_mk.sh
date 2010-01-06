@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -v
 #
 # Run 'gcc -MM' with configurable object file name.
 # It generate dependencies both for object and deps.mk

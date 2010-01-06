@@ -46,10 +46,10 @@ GEN_DEPSMK = ../gen_deps_mk.sh
 none: FORCE
 	@echo No default rule
 
-all: FORCE
+all: FORCE $(OBJFILES)
 	$(AR) crs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES)
 
-all_add: FORCE
+all_add: FORCE $(OBJFILES)
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES)
 
 $(TARGETDIRFP)/%.o:	%.cpp
@@ -60,7 +60,7 @@ $(DEPSMK): Makefile
 		--cxxflags $(CXXFLAGS) \
 		--prefix $(TARGETDIRFP) \
 		--files "$(LIBSOURCES)" \
-		--output $@
+		--deps-mk $@
 
 clean: FORCE
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
@@ -69,5 +69,5 @@ clean: FORCE
 FORCE:
 
 ifneq (clean, $(MAKECMDGOALS))
--include $(TARGETDIRFP)/t_deps.mk
+-include $(DEPSMK)
 endif

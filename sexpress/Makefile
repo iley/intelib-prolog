@@ -67,7 +67,7 @@ $(DEPSMK): Makefile
 		--cxxflags "$(CXXFLAGS) -I.." \
 		--prefix $(TARGETDIRFP) \
 		--files "$(LIBSOURCES)" \
-		--output $@
+		--deps-mk $@
 
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \

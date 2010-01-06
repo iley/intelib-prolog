@@ -62,7 +62,7 @@ $(DEPSMK): Makefile
 		--cxxflags $(CXXFLAGS) \
 		--prefix $(TARGETDIRFP) \
 		--files "$(LIBSOURCES)" \
-		--output $@
+		--deps-mk $@
 
 library/ALL: FORCE
 	cd library && $(MAKE) all TARGETDIRFP=$(TARGETDIRFP) \
