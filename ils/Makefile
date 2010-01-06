@@ -104,10 +104,10 @@ $(TARGETDIRFP)/ssympkg.o:	$(TARGETDIRFP)/ssympkg.cxx
 $(TARGETDIRFP)/strtgen:		trtgen.c
 	$(CXX) $(CXXFLAGS) trtgen.c -o $@
 
-$(TARGETDIRFP)/chartran._sc:	$(TARGETDIRFP)/strtgen
+$(TARGETDIRFP)/schartran._sc:	$(TARGETDIRFP)/strtgen
 	$(TARGETDIRFP)/strtgen > $@
 
-$(TARGETDIRFP)/ilsdef._sc:	$(TARGETDIRFP)/chartran._sc ilsbdef.scm
+$(TARGETDIRFP)/ilsdef._sc:	$(TARGETDIRFP)/schartran._sc ilsbdef.scm
 	echo '(%%%' > $@
 	cat $^ >> $@
 	#cat ../build/*.scm >> $@
