@@ -23,9 +23,9 @@ SHELL = /bin/sh
 TARGETDIR = ./build
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
 else
-TARGETDIRFP = $(TARGETDIR)/intelib
+TARGETDIRFP = $(TARGETDIR)
 endif
 
 # comment this out to get .o files removed after build
@@ -39,11 +39,6 @@ VERSION_SUFFIX = $(word 1, $(shell head -1 Version))
 
 #########################################
 # Various install tree descriptions
-
-# Anyway Windows does not support symlinks as well as *nix
-ifeq ($(OSTYPE),MinGW-win)
-INSTALLMODE = native
-endif
 
 ifeq ($(INSTALLMODE),native) 
 
@@ -96,36 +91,36 @@ bootstrap: FORCE
 #	[ -d irina ] && cd irina && $(MAKE)
 
 libintelib.a: win_port FORCE
-	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
+	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	cd tools && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
+	cd tools && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	cd genlisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
+	cd genlisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	cd scheme && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
+	cd scheme && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	cd lisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
+	cd lisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	[ -d refal ] && cd refal && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
+	[ -d refal ] && cd refal && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
 
 libintelib_interp.a: win_port FORCE
-	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
+	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
-	cd ils && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP)/.. \
+	cd ils && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
-	cd ill && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP)/.. \
+	cd ill && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP) \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
@@ -147,7 +142,7 @@ else
 	ln -sf $(CURDIR)/lisp $(TARGETDIRFP)
 	ln -sf $(CURDIR)/interact $(TARGETDIRFP)
 endif
-#	ln -sf $(TARGETDIRFP) $(TARGETDIRFP)/intelib
+	ln -sf $(TARGETDIRFP) $(TARGETDIRFP)/intelib
 	$(MAKE) libintelib.a
 	$(MAKE) libintelib_interp.a
 ifeq ($(KEEP_OBJECTS),)
@@ -159,7 +154,7 @@ $(TARGETDIRFP):
 
 win_port: FORCE
 ifeq ($(OSTYPE),MinGW-win)
-	cd win_port && $(MAKE) TARGETDIR=$(TARGETDIRFP)/..
+	cd win_port && $(MAKE) TARGETDIR=$(TARGETDIRFP)
 endif
 	
 version.h:	Version
@@ -212,17 +207,17 @@ endif
 
 
 clean: FORCE
-	cd sexpress && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd tools && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd genlisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd lisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd scheme && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd ill && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd ils && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
-	cd refal && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
-	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/..
+	cd sexpress && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
+	cd tools && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
+	cd genlisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
+	cd lisp && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
+	cd scheme && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
+	cd ill && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
+	cd ils && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
+	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
+	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
+	cd refal && $(MAKE) clean TARGETDIR=$(TARGETDIRFP) || :
+	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)
 #	cd irina && $(MAKE) clean || :
 	rm -rf $(TARGETDIRFP) docs/doxygen/html
 	rm -rf docs/doxygen/man

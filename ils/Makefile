@@ -25,9 +25,9 @@ USE_READLINE=yes
 TARGETDIR = ../build
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
 else
-TARGETDIRFP = $(TARGETDIR)/intelib
+TARGETDIRFP = $(TARGETDIR)
 endif
 
 OSTYPE = $(shell uname -s)
