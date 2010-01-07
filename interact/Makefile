@@ -57,24 +57,16 @@ $(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES)
 all_add:        $(OBJFILES) FORCE
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) 
 
-$(TARGETDIRFP)/ireadln.o: ireadln.cpp $(TARGETDIRFP)/.check_readline\
+$(TARGETDIRFP)/ireadln.o: ireadln.cpp .check_readline\
 	../sexpress/sexpress.hpp ../tools/sreader.hpp ../tools/sstream.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TARGETDIRFP)/.check_readline:
+.check_readline:
 ifeq ($(USE_READLINE),yes)
-	@echo '#include<stdio.h>'              > _cr.c
-	@echo '#include <readline/readline.h>' >> _cr.c
-	@$(CXX) -c _cr.c -o /dev/null > /dev/null 2>&1 || \
-		(echo "NO GNU READLINE FOUND.";\
-		echo "INSTALL IT OR TRY";\
-		echo "             $(MAKE) [<your target>] USE_READLINE=no";\
-		exit 1)
-	rm -f _cr.c || :
+	CXX=$(CXX) MAKE=$(MAKE) ./check_readline.sh
 else 
 	@:
 endif
-	touch $@
 
 $(TARGETDIRFP)/ii_deps.mk: $(LIBSOURCES) Makefile
 	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
