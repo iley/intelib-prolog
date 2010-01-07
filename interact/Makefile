@@ -46,6 +46,12 @@ LIBSOURCES = ireadln.cpp
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
+DEPSMK = $(TARGETDIRFP)/ii_deps.mk
+
+GEN_DEPSMK = ../gen_deps_mk.sh
+
+
+
 none: FORCE
 	@echo No default rule
 
@@ -57,8 +63,7 @@ $(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES)
 all_add:        $(OBJFILES) FORCE
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) 
 
-$(TARGETDIRFP)/ireadln.o: ireadln.cpp .check_readline\
-	../sexpress/sexpress.hpp ../tools/sreader.hpp ../tools/sstream.hpp
+$(TARGETDIRFP)/ireadln.o: ireadln.cpp .check_readline
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .check_readline:
@@ -68,9 +73,12 @@ else
 	@:
 endif
 
-$(TARGETDIRFP)/ii_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
-
+$(DEPSMK): Makefile
+	$(GEN_DEPSMK) --cxx $(CXX) \
+		--cxxflags $(CXXFLAGS) \
+		--prefix $(TARGETDIRFP) \
+		--files "$(LIBSOURCES)" \
+		--deps-mk $@
 
 clean: FORCE
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
@@ -79,5 +87,5 @@ clean: FORCE
 FORCE:
 
 ifneq (clean, $(MAKECMDGOALS))
--include $(TARGETDIRFP)/ii_deps.mk
+-include $(DEPSMK)
 endif
