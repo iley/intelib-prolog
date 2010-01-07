@@ -57,11 +57,9 @@ $(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES)
 all_add:        $(OBJFILES) FORCE
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) 
 
-$(TARGETDIRFP)/%.o:	%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
 $(TARGETDIRFP)/ireadln.o: ireadln.cpp $(TARGETDIRFP)/.check_readline\
 	../sexpress/sexpress.hpp ../tools/sreader.hpp ../tools/sstream.hpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(TARGETDIRFP)/.check_readline:
 ifeq ($(USE_READLINE),yes)
