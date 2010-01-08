@@ -19,24 +19,26 @@ else
 TARGETDIRFP = $(TARGETDIR)/intelib
 endif
 
-DLFCN = dlfcn-win32-r11
+CC = gcc
 
 LOCALFLAGS = -fpic -funsigned-char -g -Wall
 
 CXXFLAGS = $(LOCALFLAGS) 
 
-default: dlfcn.h $(TARGETDIRFP)/libdl.a $(TARGETDIRFP)/win_port.o
+default: $(TARGETDIRFP)/libdl.a $(TARGETDIRFP)/win_port.o
 
 $(TARGETDIRFP)/win_port.o:	win_port.hpp win_port.cpp
 	$(CXX) $(CXXFLAGS) -c win_port.cpp -o $(TARGETDIRFP)/win_port.o
 
-$(TARGETDIRFP)/libdl.a:
-	cd $(DLFCN) && configure && $(MAKE)
-	cp $(DLFCN)/libdl.a $(TARGETDIRFP)
+$(TARGETDIRFP)/libdl.a: $(TARGETDIRFP)/dlfcn.o
+	ar cru $(TARGETDIRFP)/libdl.a $(TARGETDIRFP)/dlfcn.o
+	ranlib $(TARGETDIRFP)/libdl.a
+
+$(TARGETDIRFP)/dlfcn.o:
+	$(CC) -o $(TARGETDIRFP)/dlfcn.o -c dlfcn.c -Wall -O3 -fomit-frame-pointer
 
 dlfcn.h:
 	cp $(DLFCN)/dlfcn.h .
 
 clean:
-	rm -f $(TARGETDIRFP)/win_port.o $(TARGETDIRFP)/libdl.a dlfcn.h
-	cd $(DLFCN) && $(MAKE) clean
+	rm -f $(TARGETDIRFP)/win_port.o $(TARGETDIRFP)/dlfcn.o $(TARGETDIRFP)/libdl.a
