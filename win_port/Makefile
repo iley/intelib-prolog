@@ -25,7 +25,13 @@ LOCALFLAGS = -fpic -funsigned-char -g -Wall
 
 CXXFLAGS = $(LOCALFLAGS) 
 
-default: $(TARGETDIRFP)/libdl.a $(TARGETDIRFP)/win_port.o
+ifeq ($(OSTYPE), MinGW-win)
+LIBDL = $(TARGETDIRFP)/libdl.a
+else
+LIBDL = 
+endif
+
+default: $(LIBDL) $(TARGETDIRFP)/win_port.o
 
 $(TARGETDIRFP)/win_port.o:	win_port.hpp win_port.cpp
 	$(CXX) $(CXXFLAGS) -c win_port.cpp -o $(TARGETDIRFP)/win_port.o
@@ -37,8 +43,5 @@ $(TARGETDIRFP)/libdl.a: $(TARGETDIRFP)/dlfcn.o
 $(TARGETDIRFP)/dlfcn.o:
 	$(CC) -o $(TARGETDIRFP)/dlfcn.o -c dlfcn.c -Wall -O3 -fomit-frame-pointer
 
-dlfcn.h:
-	cp $(DLFCN)/dlfcn.h .
-
 clean:
-	rm -f $(TARGETDIRFP)/win_port.o $(TARGETDIRFP)/dlfcn.o $(TARGETDIRFP)/libdl.a
+	rm -f $(TARGETDIRFP)/win_port.o $(TARGETDIRFP)/dlfcn.o $(LIBDL)
