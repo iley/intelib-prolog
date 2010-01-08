@@ -4,7 +4,7 @@ LFUN_PREFIX = $(TARGETDIRFP)/lfun_
 
 CXXFILES = $(wildcard *.cpp)
 
-OBJFILES = $(addprefix $(LFUN_PREFIX),$(CXXFILES:.cpp=.o))
+OBJFILES = $(addprefix $(LFUN_PREFIX)$(DIRNAME),$(CXXFILES:.cpp=.o))
 
 MKFILES = $(CXXFILES:.cpp=.mk)
 
@@ -34,7 +34,7 @@ $(LFUN_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
 	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_LFUN_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc -c "$(CXXFILES)" > $@
 
 
-$(LFUN_PREFIX)%.o: %.cpp
+$(LFUN_PREFIX)$(DIRNAME)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION $< -o $@
 
@@ -44,7 +44,7 @@ all: $(DEPSMK)	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp FORCE \
 $(DEPSMK):
 	$(GEN_DEPSMK) --cxx $(CXX) \
 		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_LIBRARY_IMPLEMENTATION" \
-		--prefix $(LFUN_PREFIX) \
+		--prefix $(LFUN_PREFIX)$(DIRNAME) \
 		--files "$(CXXFILES)" \
 		--deps-mk $@
 	$(GEN_DEPSMK) --cxx $(CXX) \

@@ -4,7 +4,7 @@ SCH_PREFIX=$(TARGETDIRFP)/sch_
 
 CXXFILES=$(wildcard *.cpp)
 
-OBJFILES=$(addprefix $(SCH_PREFIX),$(CXXFILES:.cpp=.o))
+OBJFILES=$(addprefix $(SCH_PREFIX)$(DIRNAME),$(CXXFILES:.cpp=.o))
 
 MKFILES = $(CXXFILES:.cpp=.mk)
 
@@ -34,7 +34,7 @@ $(SCH_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
 	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_SCHEMLIB_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc -c "$(CXXFILES)" > $@
 
 
-$(SCH_PREFIX)%.o:	%.cpp $(COMMON_FILES)
+$(SCH_PREFIX)$(DIRNAME)%.o:	%.cpp $(COMMON_FILES)
 	$(CXX) $(CXXFLAGS) -c -include ../schemlib.hpp \
 		-D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION $< -o $@
 
@@ -44,7 +44,7 @@ all: $(DEPSMK) $(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).scm FORCE \
 $(DEPSMK):
 	$(GEN_DEPSMK) --cxx $(CXX) \
 		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION" \
-		--prefix $(SCH_PREFIX) \
+		--prefix $(SCH_PREFIX)$(DIRNAME) \
 		--files "$(CXXFILES)" \
 		--deps-mk $@
 	$(GEN_DEPSMK) --cxx $(CXX) \
