@@ -32,6 +32,11 @@ endif
 
 OSTYPE = $(shell uname -s)
 
+DEPSMK = $(TARGETDIRFP)/ils_deps.mk
+
+GEN_DEPSMK = ../gen_deps_mk.sh
+
+
 LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. -I$(TARGETDIRFP)
 
 SCHEMELIBMODULES = std str sel io rdr hsh m
@@ -172,6 +177,19 @@ ils_new: $(TARGETDIRFP)/ils_new
 $(TARGETDIRFP)/ils_new:	$(TARGETDIRFP)/ils.o ilsmain.cpp $(LIBDEPEND)
 	$(CXX) $(CXXFLAGS) $(TARGETDIRFP)/ils.o ilsmain.cpp $(LIBINTELIB) -o $@
 
+
+$(DEPSMK): Makefile
+	echo > $@
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS)" \
+		--output "$(TARGETDIRFP)/ssympkgen" \
+		--files "sympkgen.cpp" \
+		--deps-mk "$@"
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS)" \
+		--prefix "$(TARGETDIRFP)/" \
+		--files "ssympkg.cxx ils_loop.cpp" \
+		--deps-mk "$@"
 
 
 ###############################
