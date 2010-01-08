@@ -49,7 +49,7 @@ $(TARGETDIRFP)/run.o: run.cpp
 	$(CXX) $(CXXFLAGS_GENFLAGS) "-DIRINA_VERSION=\"$(IRINA_VERSION)\"" "-DCXX=\"$(CXX)\"" -c $< -o $@
 
 $(TARGETDIRFP)/def_run.o: def_run.cpp
-	$(CXX) $(CXXFLAGS_GENFLAGS) -c $<
+	$(CXX) $(CXXFLAGS_GENFLAGS) -c $< -o $@
 
 $(TARGETDIRFP)/wrap: wrap.cpp $(TARGETDIRFP)/$(RSL)
 	$(CXX) "-DREFGO=\"$(REFGO)\"" "-DRSLPLUS=\"$(RSLPLUS)\"" $(CXXFLAGS) wrap.cpp -o $@
