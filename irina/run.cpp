@@ -715,11 +715,6 @@ void lstring2file(SReference ref, int &errnum)
     fclose(fl);
 }
 
-bool exited_and_with_zero(int status)
-{
-    return (WIFEXITED(status) != 0 && WEXITSTATUS(status) == 0);
-}
-
 void compile(int &errnum) {
     int result;
 
