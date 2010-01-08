@@ -217,7 +217,6 @@ endif
 clean: FORCE
 	cd samples && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
 	cd tests && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
-	cd win_port && $(MAKE) clean TARGETDIR=$(TARGETDIRFP)/.. || :
 	rm -rf $(TARGETDIR) docs/doxygen/html
 	rm -rf docs/doxygen/man
 
