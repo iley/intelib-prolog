@@ -50,7 +50,7 @@ int execute_cmd_vp(const char *file, char * const argv[])
 	
 	cmd = new char[cmd_length];
 	char *p = cmd;
-	for (const char **arg = argv; *arg; arg++)
+	for (char * const *arg = argv; *arg; arg++)
 	{
 		const char *g = *arg;
 		while (*g) *p++ = *g++;
