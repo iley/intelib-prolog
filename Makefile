@@ -93,10 +93,7 @@ bootstrap: FORCE
 	$(MAKE) library USE_READLINE=$(USE_READLINE)
 	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
-ifneq ($(OSTYPE),MinGW-win)
-# This feature still not supported in windows build.
 	[ -d irina ] && cd irina && $(MAKE)
-endif
 
 libintelib.a: win_port FORCE
 	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
