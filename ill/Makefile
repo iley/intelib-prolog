@@ -23,9 +23,9 @@ USE_READLINE=yes
 
 TARGETDIR = ../build
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
 else
-TARGETDIRFP = $(TARGETDIR)/intelib
+TARGETDIRFP = $(TARGETDIR)
 endif
 #TARGETDIRFP = bin_lib
 
@@ -92,7 +92,7 @@ CXXFLAGS = $(LOCALFLAGS)
 
 
 $(TARGETDIRFP)/libintelib.a $(TARGETDIRFP)/libintelib_nill.a $(LFUNHEADERS):
-	cd .. && $(MAKE) library TARGETDIR=$(TARGETDIRFP)/..
+	cd .. && $(MAKE) library TARGETDIR=$(TARGETDIRFP)
 
 
 ###############################
@@ -145,8 +145,8 @@ $(TARGETDIRFP)/ill_new:	$(TARGETDIRFP)/ill.o illmain.cpp $(LIBDEPEND)
 # Bootstrap 
 
 bootstrap: FORCE
-	$(MAKE) nill TARGETDIR=$(TARGETDIRFP)/..
-	$(MAKE) ill_nill TARGETDIR=$(TARGETDIRFP)/..
+	$(MAKE) nill TARGETDIR=$(TARGETDIRFP)
+	$(MAKE) ill_nill TARGETDIR=$(TARGETDIRFP)
 	@echo "-------------------------------------------------------------"
 	@echo "    Testing the newly-built binary                           "
 	@echo "-------------------------------------------------------------"

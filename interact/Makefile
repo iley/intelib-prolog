@@ -18,9 +18,9 @@ SHELL = /bin/sh
 TARGETDIR = $(CURDIR)
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
 else
-TARGETDIRFP = $(TARGETDIR)/intelib
+TARGETDIRFP = $(TARGETDIR)
 endif
 
 TARGETLIBNAME = libintelibinteract.a
@@ -79,8 +79,7 @@ endif
 	touch $@
 
 $(TARGETDIRFP)/ii_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
+	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
 
 
 clean: FORCE
