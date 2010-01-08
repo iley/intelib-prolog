@@ -11,7 +11,7 @@ pid_t getppid();
 
 #endif
 
-int execute_cmd_lp(const char *file, const char *arg0, ...);
-int execute_cmd_vp(const char *file, const char *argv[]);
+int execute_cmd_lp(const char *file, char * const arg0, ...);
+int execute_cmd_vp(const char *file, char * const argv[]);
 
 #endif

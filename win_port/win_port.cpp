@@ -12,6 +12,8 @@
 
 #endif
 
+#include <stdarg.h>
+
 #ifdef _WIN32
 // Not necessary for *nix
 pid_t getppid()
@@ -35,7 +37,7 @@ pid_t getppid()
 
 #endif
 
-int execute_cmd_vp(const char *file, const char *argv[])
+int execute_cmd_vp(const char *file, char * const argv[])
 {
 #ifdef _WIN32
 // Windows-like process execution
@@ -96,8 +98,23 @@ int execute_cmd_vp(const char *file, const char *argv[])
 #endif
 }
 
-int execute_cmd_lp(const char *file, const char *arg0, ...)
+int execute_cmd_lp(const char *file, char * const arg0, ...)
 {
-	int res = execute_cmd_vp(file, &arg0);
+	va_list vl;
+	int argc = 0;
+	
+	va_start(vl, arg0);
+	while (va_arg(vl, char*)) argc++;
+	va_end(vl);
+	
+	char **argv = new char*[argc + 1];
+
+	va_start(vl, arg0);
+	for (int i = 0; i < argc; i++)
+		argv[i] = va_arg(vl, char*);
+	va_end(vl);
+	
+	int res = execute_cmd_vp(file, argv);
+	delete []argv;
 	return res;
 }
