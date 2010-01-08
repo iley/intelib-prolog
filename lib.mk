@@ -58,6 +58,7 @@ $(TARGETDIRFP)/%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(DEPSMK): Makefile
+	echo > $@
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS)" \
 		--prefix "$(TARGETDIRFP)/" \

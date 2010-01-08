@@ -42,6 +42,7 @@ all: $(DEPSMK) $(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).scm FORCE \
 			$(SCH_PREFIX)$(DIRNAME).hpp
 
 $(DEPSMK):
+	echo > $@
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION" \
 		--prefix "$(SCH_PREFIX)$(DIRNAME)" \

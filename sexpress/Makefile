@@ -63,6 +63,7 @@ all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
 	:
 
 $(DEPSMK): Makefile
+	echo > $@
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -I.." \
 		--prefix "$(TARGETDIRFP)/" \

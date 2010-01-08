@@ -42,6 +42,7 @@ all: $(DEPSMK)	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp FORCE \
 			$(LFUN_PREFIX)$(DIRNAME).hpp
 
 $(DEPSMK):
+	echo > $@
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_LIBRARY_IMPLEMENTATION" \
 		--prefix "$(LFUN_PREFIX)$(DIRNAME)" \

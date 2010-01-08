@@ -74,6 +74,7 @@ else
 endif
 
 $(DEPSMK): Makefile
+	echo > $@
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS)" \
 		--output "$(TARGETDIRFP)/ireadln.o" \

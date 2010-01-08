@@ -83,6 +83,7 @@ $(TARGETDIRFP)/rfun_%.o:	library/%.cpp
 	$(CXX) $(CXXFLAGS_GENFLAGS) -c $< -o $@
 
 $(DEPSMK):
+	echo > $@
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags '-I../sexpress' \
 		--prefix "$(TARGETDIRFP)/" \
