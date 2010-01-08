@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 
 #include "sexpress/sstring.hpp"
 
@@ -20,7 +19,7 @@
 #define BUFSIZE 1024
 #define DEFAULT_DIRECTIVES "directives.ref"
 
-
+#include "win_port.hpp"
 
 RfFormConstructor R;
 
@@ -716,58 +715,26 @@ void lstring2file(SReference ref, int &errnum)
     fclose(fl);
 }
 
-bool exited_and_with_zero(int status)
-{
-    return (WIFEXITED(status) != 0 && WEXITSTATUS(status) == 0);
-}
-
 void compile(int &errnum) {
-    int status;
+    int result;
 
-    int child_pid = fork();
+	result = execute_cmd_lp(CXX, CXX, "-Wall", "-Wno-parentheses",
+		"-ggdb", "-I..", "-O0",	"-c", "refalpart.cxx", NULL);
 
-    if (child_pid == -1)
+    if (result == -1)
     {
         print_error(errnum, CANTCOMPILE, 0);
-        return;
-    }
-
-    if (!child_pid) {
-        execlp(CXX, CXX, "-Wall", "-Wno-parentheses",
-               "-ggdb", "-I..", "-O0",
-               "-c", "refalpart.cxx", (char *)0);
         exit(1);
     }
-    else {
-        wait(&status);
-        if (!exited_and_with_zero(status)) {
-            print_error(errnum, CANTCOMPILE, 0);
-            exit(1);
-        }
-    }
 
-    child_pid = fork();
+	result = execute_cmd_lp(CXX, CXX, "-Wall", "-ggdb", "-I..", "-O3",
+		"refalpart.o", "def_run.o", "-Lbin_lib", "-lsexpr",	"-lirefal",
+		"-o", (binary_name != 0) ? binary_name : "a.out", NULL);
 
-    if (child_pid == -1)
+    if (result == -1)
     {
         print_error(errnum, CANTCOMPILE, 0);
-        return;
-    }
-
-    if (!child_pid) {
-        execlp(CXX, CXX, "-Wall", "-ggdb", "-I..", "-O3",
-               "refalpart.o", "def_run.o", "-Lbin_lib", "-lsexpr",
-               "-lirefal",
-               "-o", (binary_name != 0) ? binary_name : "a.out",
-               (char *)0);
         exit(1);
-    }
-    else {
-        wait(&status);
-        if (!exited_and_with_zero(status)) {
-            print_error(errnum, CANTCOMPILE, 0);
-            exit(1);
-        }
     }
 }
 

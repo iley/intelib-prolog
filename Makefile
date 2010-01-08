@@ -93,10 +93,7 @@ bootstrap: FORCE
 	$(MAKE) library USE_READLINE=$(USE_READLINE)
 	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
 	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
-ifneq ($(OSTYPE),MinGW-win)
-# This feature still not supported in windows build.
 	[ -d irina ] && cd irina && $(MAKE)
-endif
 
 libintelib.a: win_port FORCE
 	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
@@ -161,9 +158,7 @@ $(TARGETDIRFP):
 	mkdir -p $(TARGETDIRFP)
 
 win_port: $(TARGETDIRFP) FORCE
-ifeq ($(OSTYPE),MinGW-win)
 	cd win_port && $(MAKE) TARGETDIR=$(TARGETDIRFP)/..
-endif
 	
 version.h:	Version
 	echo '#define INTELIB_VERSION "'`head -1 Version`'"' > $@
