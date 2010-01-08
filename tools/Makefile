@@ -57,7 +57,7 @@ $(TARGETDIRFP)/%.o:	%.cpp
 
 $(DEPSMK): Makefile
 	$(GEN_DEPSMK) --cxx $(CXX) \
-		--cxxflags $(CXXFLAGS) \
+		--cxxflags "$(CXXFLAGS)" \
 		--prefix $(TARGETDIRFP) \
 		--files "$(LIBSOURCES)" \
 		--deps-mk $@
