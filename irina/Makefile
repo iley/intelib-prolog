@@ -7,7 +7,7 @@ OPTIMIZATION = -O3
 PROFILING =
 
 CXXFLAGS = -Wall -ggdb -I.. $(OPTIMIZATION) $(PROFILING)
-CXXFLAGS_GENFLAGS = -Wall -Wno-parentheses -ggdb -I.. $(OPTIMIZATION) $(PROFILING)
+CXXFLAGS_GENFLAGS = -Wall -Wno-parentheses -ggdb -I.. -I../win_port $(OPTIMIZATION) $(PROFILING)
 
 REFC=`which refc`
 REFGO=`which refgo`
@@ -27,8 +27,8 @@ endif
 
 $(TARGETDIRFP)/irina: $(TARGETDIRFP)/irina.o $(TARGETDIRFP)/run.o $(TARGETDIRFP)/def_run.o\
     $(TARGETDIRFP)/libsexpr.a $(TARGETDIRFP)/libirefal.a
-	$(CXX) $(CXXFLAGS) $(TARGETDIRFP)/irina.o $(TARGETDIRFP)/run.o -L$(TARGETDIRFP) -lsexpr\
-				-lirefal -o $@
+	$(CXX) $(CXXFLAGS) $(TARGETDIRFP)/irina.o $(TARGETDIRFP)/run.o $(TARGETDIRFP)/win_port.o \
+		-L$(TARGETDIRFP) -lsexpr -lirefal -o $@
 
 $(TARGETDIRFP)/version.ref: version_generic.ref
 	sed 's/IRINA_VERSION/'$(IRINA_VERSION)'/g' version_generic.ref > $(TARGETDIRFP)/version.ref
