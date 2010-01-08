@@ -63,11 +63,11 @@ all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
 	:
 
 $(DEPSMK): Makefile
-	$(GEN_DEPSMK) --cxx $(CXX) \
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -I.." \
-		--prefix $(TARGETDIRFP) \
+		--prefix "$(TARGETDIRFP)" \
 		--files "$(LIBSOURCES)" \
-		--deps-mk $@
+		--deps-mk "$@"
 
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \

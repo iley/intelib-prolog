@@ -74,11 +74,11 @@ else
 endif
 
 $(DEPSMK): Makefile
-	$(GEN_DEPSMK) --cxx $(CXX) \
-		--cxxflags $(CXXFLAGS) \
-		--prefix $(TARGETDIRFP) \
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS)" \
+		--prefix "$(TARGETDIRFP)" \
 		--files "$(LIBSOURCES)" \
-		--deps-mk $@
+		--deps-mk "$@"
 
 clean: FORCE
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \

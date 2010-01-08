@@ -42,22 +42,22 @@ all: $(DEPSMK)	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp FORCE \
 			$(LFUN_PREFIX)$(DIRNAME).hpp
 
 $(DEPSMK):
-	$(GEN_DEPSMK) --cxx $(CXX) \
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_LIBRARY_IMPLEMENTATION" \
-		--prefix $(LFUN_PREFIX)$(DIRNAME) \
+		--prefix "$(LFUN_PREFIX)$(DIRNAME)" \
 		--files "$(CXXFILES)" \
-		--deps-mk $@
+		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx $(CXX) \
 		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_LIBRARY_HEADER_GENERATION" \
-		--prefix $(LFUN_PREFIX) \
+		--prefix "$(LFUN_PREFIX)" \
 		--files "$(CXXFILES)" \
 		--suffix "hpp" \
-		--deps-mk $@
+		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx $(CXX) \
 		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_TRANSLATOR_INFORMATION" \
-		--prefix $(LFUN_PREFIX) \
+		--prefix "$(LFUN_PREFIX)" \
 		--files "$(CXXFILES)" \
 		--suffix "lsp" \
-		--deps-mk $@
+		--deps-mk "$@"
 
 FORCE:

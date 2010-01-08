@@ -42,22 +42,22 @@ all: $(DEPSMK) $(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).scm FORCE \
 			$(SCH_PREFIX)$(DIRNAME).hpp
 
 $(DEPSMK):
-	$(GEN_DEPSMK) --cxx $(CXX) \
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION" \
-		--prefix $(SCH_PREFIX)$(DIRNAME) \
+		--prefix "$(SCH_PREFIX)$(DIRNAME)" \
 		--files "$(CXXFILES)" \
-		--deps-mk $@
-	$(GEN_DEPSMK) --cxx $(CXX) \
+		--deps-mk "$@"
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION" \
-		--prefix $(SCH_PREFIX) \
+		--prefix "$(SCH_PREFIX)" \
 		--files "$(CXXFILES)" \
 		--suffix "hpp" \
-		--deps-mk $@
-	$(GEN_DEPSMK) --cxx $(CXX) \
+		--deps-mk "$@"
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_TRANSLATOR_INFORMATION" \
-		--prefix $(SCH_PREFIX) \
+		--prefix "$(SCH_PREFIX)" \
 		--files "$(CXXFILES)" \
 		--suffix "scm" \
-		--deps-mk $@
+		--deps-mk "$@"
 
 FORCE:

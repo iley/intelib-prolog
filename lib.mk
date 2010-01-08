@@ -58,11 +58,11 @@ $(TARGETDIRFP)/%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(DEPSMK): Makefile
-	$(GEN_DEPSMK) --cxx $(CXX) \
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS)" \
-		--prefix $(TARGETDIRFP) \
+		--prefix "$(TARGETDIRFP)" \
 		--files "$(LIBSOURCES)" \
-		--deps-mk $@
+		--deps-mk "$@"
 
 library/ALL: FORCE
 	cd library && $(MAKE) all TARGETDIRFP=$(TARGETDIRFP) \

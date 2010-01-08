@@ -31,16 +31,16 @@ $(GLSP_PREFIX)$(DIRNAME)%.o:	%.cpp
 all: $(DEPSMK) $(OBJFILES) $(GLSP_PREFIX)$(DIRNAME).hpp FORCE
 
 $(DEPSMK):
-	$(GEN_DEPSMK) --cxx $(CXX) \
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../genlslib.hpp -D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION" \
-		--prefix $(GLSP_PREFIX)$(DIRNAME) \
+		--prefix "$(GLSP_PREFIX)$(DIRNAME)" \
 		--files "$(CXXFILES)" \
-		--deps-mk $@
-	$(GEN_DEPSMK) --cxx $(CXX) \
+		--deps-mk "$@"
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../genlslib.hpp -D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION" \
-		--prefix $(GLSP_PREFIX) \
+		--prefix "$(GLSP_PREFIX)" \
 		--files "$(CXXFILES)" \
 		--suffix "hpp" \
-		--deps-mk $@
+		--deps-mk "$@"
 
 FORCE:

@@ -83,16 +83,16 @@ $(TARGETDIRFP)/rfun_%.o:	library/%.cpp
 	$(CXX) $(CXXFLAGS_GENFLAGS) -c $< -o $@
 
 $(DEPSMK):
-	$(GEN_DEPSMK) --cxx $(CXX) \
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags '-I../sexpress' \
-		--prefix $(TARGETDIRFP)/rf_ \
+		--prefix "$(TARGETDIRFP)/rf_" \
 		--files "$(LIBSOURCES)" \
-		--deps-mk $@
-	$(GEN_DEPSMK) --cxx $(CXX) \
+		--deps-mk "$@"
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags '$(CXXFLAGS_GENFLAGS)' \
-		--prefix $(TARGETDIRFP)/rfun_ \
+		--prefix "$(TARGETDIRFP)/rfun_" \
 		--files "$(wildcard library/*.cpp)" \
-		--deps-mk $@
+		--deps-mk "$@"
 
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o *.a gmon.out rf_deps.mk 
