@@ -4,7 +4,7 @@ LFUN_PREFIX = $(TARGETDIRFP)/lfun_
 
 CXXFILES = $(wildcard *.cpp)
 
-OBJFILES = $(addprefix $(LFUN_PREFIX),$(CXXFILES:.cpp=.o))
+OBJFILES = $(addprefix $(LFUN_PREFIX)$(DIRNAME),$(CXXFILES:.cpp=.o))
 
 MKFILES = $(CXXFILES:.cpp=.mk)
 
@@ -16,6 +16,9 @@ COMMON_FILES = ../ilisplib.hpp ../ilisplib.mk
 GEN_HPP = ../gen_hpp.sh
 
 GEN_LSP = ../gen_lsp.sh
+
+GEN_DEPSMK = ../../../gen_deps_mk.sh
+
 
 DEPSMK = $(TARGETDIRFP)/l$(DIRNAME)_deps.mk
 -include $(DEPSMK)
@@ -31,36 +34,29 @@ $(LFUN_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
 	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_LFUN_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc -c "$(CXXFILES)" > $@
 
 
-$(LFUN_PREFIX)%.o: %.cpp
+$(LFUN_PREFIX)$(DIRNAME)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -include ../ilisplib.hpp \
 		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION $< -o $@
 
 all: $(DEPSMK)	$(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).lsp FORCE \
 			$(LFUN_PREFIX)$(DIRNAME).hpp
 
-
-$(DEPSMK): $(CXXFILES)
+$(DEPSMK):
 	echo > $@
-	$(MAKE) $(MKFILES) TARGETDIRFP=$(TARGETDIRFP)
-
-%.mk: %.cpp FORCE
-	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
-		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION \
-		-MT $(LFUN_PREFIX)$(@:.mk=.o) $< >> $(DEPSMK)
-	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
-		-D INTELIB_LISP_LIBRARY_IMPLEMENTATION \
-		-MT $(DEPSMK) $< >> $(DEPSMK)
-	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
-		-D INTELIB_LISP_TRANSLATOR_INFORMATION \
-		-MT $(TARGETDIRFP)/$(DIRNAME).lsp $< >> $(DEPSMK)
-	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
-		-D INTELIB_LISP_TRANSLATOR_INFORMATION \
-		-MT $(DEPSMK) $< >> $(DEPSMK)
-	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
-		-D INTELIB_LISP_LIBRARY_HEADER_GENERATION \
-		-MT $(LFUN_PREFIX)$(DIRNAME).hpp $< >> $(DEPSMK)
-	$(CXX) $(CXXFLAGS) -MM -include ../ilisplib.hpp \
-		-D INTELIB_LISP_LIBRARY_HEADER_GENERATION \
-		-MT $(DEPSMK) $< >> $(DEPSMK)
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_LIBRARY_IMPLEMENTATION" \
+		--prefix "$(LFUN_PREFIX)$(DIRNAME)" \
+		--files "$(CXXFILES)" \
+		--deps-mk "$@"
+	$(GEN_DEPSMK) --cxx $(CXX) \
+		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_LIBRARY_HEADER_GENERATION" \
+		--output "$(LFUN_PREFIX)$(DIRNAME).hpp"
+		--files "$(CXXFILES)" \
+		--deps-mk "$@"
+	$(GEN_DEPSMK) --cxx $(CXX) \
+		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_TRANSLATOR_INFORMATION" \
+		--output $(TARGETDIRFP)/$(DIRNAME).lsp \
+		--files "$(CXXFILES)" \
+		--deps-mk "$@"
 
 FORCE:

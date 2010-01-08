@@ -23,13 +23,18 @@ USE_READLINE=yes
 
 TARGETDIR = ../build
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
 else
-TARGETDIRFP = $(TARGETDIR)/intelib
+TARGETDIRFP = $(TARGETDIR)
 endif
 #TARGETDIRFP = bin_lib
 
 OSTYPE = $(shell uname -s)
+
+DEPSMK = $(TARGETDIRFP)/ill_deps.mk
+
+GEN_DEPSMK = ../gen_deps_mk.sh
+
 
 
 LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. -I$(TARGETDIRFP)
@@ -92,7 +97,7 @@ CXXFLAGS = $(LOCALFLAGS)
 
 
 $(TARGETDIRFP)/libintelib.a $(TARGETDIRFP)/libintelib_nill.a $(LFUNHEADERS):
-	cd .. && $(MAKE) library TARGETDIR=$(TARGETDIRFP)/..
+	cd .. && $(MAKE) library TARGETDIR=$(TARGETDIRFP)
 
 
 ###############################
@@ -145,8 +150,8 @@ $(TARGETDIRFP)/ill_new:	$(TARGETDIRFP)/ill.o illmain.cpp $(LIBDEPEND)
 # Bootstrap 
 
 bootstrap: FORCE
-	$(MAKE) nill TARGETDIR=$(TARGETDIRFP)/..
-	$(MAKE) ill_nill TARGETDIR=$(TARGETDIRFP)/..
+	$(MAKE) nill TARGETDIR=$(TARGETDIRFP)
+	$(MAKE) ill_nill TARGETDIR=$(TARGETDIRFP)
 	@echo "-------------------------------------------------------------"
 	@echo "    Testing the newly-built binary                           "
 	@echo "-------------------------------------------------------------"
@@ -224,6 +229,20 @@ $(TARGETDIRFP)/nill: $(TARGETDIRFP)/nill.o $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP
 	@echo "-------------------------------------------------------------"
 	$(CXX) $(CXXFLAGS) $^  -o $@ \
 	  $(LIBINTELIB) $(LIBMATH) $(LIBREADLINE) $(LIBDL) -Wl,$(DYNAMIC)
+
+
+$(DEPSMK): Makefile
+	echo > $@
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS)" \
+		--output "$(TARGETDIRFP)/sympkgen" \
+		--files "sympkgen.cpp" \
+		--deps-mk "$@"
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS)" \
+		--prefix "$(TARGETDIRFP)/" \
+		--files "sympkg.cxx illtrace.cpp ill_loop.cpp" \
+		--deps-mk "$@"
 
 ###############################
 # Common targets

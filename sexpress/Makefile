@@ -18,9 +18,9 @@ SHELL = /bin/sh
 TARGETDIR = $(CURDIR)
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
 else
-TARGETDIRFP = $(TARGETDIR)/intelib
+TARGETDIRFP = $(TARGETDIR)
 endif
 
 TARGETLIBNAME = libsexpr.a
@@ -42,6 +42,11 @@ LIBSOURCES = sexpress.cpp iexcept.cpp \
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
+DEPSMK = $(TARGETDIRFP)/sx_deps.mk
+
+GEN_DEPSMK = ../gen_deps_mk.sh
+
+
 none:
 	@echo No default rule
 
@@ -57,10 +62,13 @@ $(TARGETDIRFP)/$(TARGETLIBNAME):	$(OBJFILES)
 all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
 	:
 
-
-$(TARGETDIRFP)/sx_deps.mk: $(LIBSOURCES) Makefile ../version.h
-	$(CXX) -MM -I.. $(LIBSOURCES) > $@
-
+$(DEPSMK): Makefile
+	echo > $@
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS) -I.." \
+		--prefix "$(TARGETDIRFP)/" \
+		--files "$(LIBSOURCES)" \
+		--deps-mk "$@"
 
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \

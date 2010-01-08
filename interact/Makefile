@@ -18,9 +18,9 @@ SHELL = /bin/sh
 TARGETDIR = $(CURDIR)
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
 else
-TARGETDIRFP = $(TARGETDIR)/intelib
+TARGETDIRFP = $(TARGETDIR)
 endif
 
 TARGETLIBNAME = libintelibinteract.a
@@ -46,6 +46,12 @@ LIBSOURCES = ireadln.cpp
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
+DEPSMK = $(TARGETDIRFP)/ii_deps.mk
+
+GEN_DEPSMK = ../gen_deps_mk.sh
+
+
+
 none: FORCE
 	@echo No default rule
 
@@ -57,30 +63,23 @@ $(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES)
 all_add:        $(OBJFILES) FORCE
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) 
 
-$(TARGETDIRFP)/%.o:	%.cpp
+$(TARGETDIRFP)/ireadln.o: ireadln.cpp .check_readline
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TARGETDIRFP)/ireadln.o: ireadln.cpp $(TARGETDIRFP)/.check_readline\
-	../sexpress/sexpress.hpp ../tools/sreader.hpp ../tools/sstream.hpp
-
-$(TARGETDIRFP)/.check_readline:
+.check_readline:
 ifeq ($(USE_READLINE),yes)
-	@echo '#include<stdio.h>'              > _cr.c
-	@echo '#include <readline/readline.h>' >> _cr.c
-	@$(CXX) -c _cr.c -o /dev/null > /dev/null 2>&1 || \
-		(echo "NO GNU READLINE FOUND.";\
-		echo "INSTALL IT OR TRY";\
-		echo "             $(MAKE) [<your target>] USE_READLINE=no";\
-		exit 1)
-	rm -f _cr.c || :
+	CXX=$(CXX) MAKE=$(MAKE) ./check_readline.sh
 else 
 	@:
 endif
-	touch $@
 
-$(TARGETDIRFP)/ii_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
-
+$(DEPSMK): Makefile
+	echo > $@
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS)" \
+		--output "$(TARGETDIRFP)/ireadln.o" \
+		--files "$(LIBSOURCES)" \
+		--deps-mk "$@"
 
 clean: FORCE
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
@@ -89,5 +88,5 @@ clean: FORCE
 FORCE:
 
 ifneq (clean, $(MAKECMDGOALS))
--include $(TARGETDIRFP)/ii_deps.mk
+-include $(DEPSMK)
 endif

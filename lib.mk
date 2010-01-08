@@ -20,9 +20,9 @@ SHELL = /bin/sh
 TARGETDIR = $(CURDIR)
 
 ifneq ($(TARGETDIR),$(filter /%,$(TARGETDIR)))
-TARGETDIRFP = $(CURDIR)/$(TARGETDIR)/intelib
+TARGETDIRFP = $(CURDIR)/$(TARGETDIR)
 else
-TARGETDIRFP = $(TARGETDIR)/intelib
+TARGETDIRFP = $(TARGETDIR)
 endif
 
 -include $(TARGETDIRFP)/defines.mk
@@ -34,6 +34,12 @@ COMPILEFLAGS = $(OPTIMIZATION) -Wall -Woverloaded-virtual -Wsynth \
 CXXFLAGS = $(COMPILEFLAGS) 
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
+
+DEPSMK = $(TARGETDIRFP)/$(GENERATED_PREFIX)_deps.mk
+
+GEN_DEPSMK = ../gen_deps_mk.sh
+
+
 
 none:
 	@echo No default rule
@@ -51,8 +57,13 @@ all_add:        $(OBJFILES) library/ALL
 $(TARGETDIRFP)/%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TARGETDIRFP)/$(GENERATED_PREFIX)_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) > $@
+$(DEPSMK): Makefile
+	echo > $@
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS)" \
+		--prefix "$(TARGETDIRFP)/" \
+		--files "$(LIBSOURCES)" \
+		--deps-mk "$@"
 
 library/ALL: FORCE
 	cd library && $(MAKE) all TARGETDIRFP=$(TARGETDIRFP) \
@@ -67,5 +78,5 @@ clean:
 FORCE:
 
 ifneq (clean, $(MAKECMDGOALS))
--include $(TARGETDIRFP)/deps.mk
+-include $(DEPSMK)
 endif
