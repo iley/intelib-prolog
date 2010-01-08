@@ -42,6 +42,11 @@ LIBSOURCES = sexpress.cpp iexcept.cpp \
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
+DEPSMK = $(TARGETDIRFP)/sx_deps.mk
+
+GEN_DEPSMK = ../gen_deps_mk.sh
+
+
 none:
 	@echo No default rule
 
@@ -57,12 +62,13 @@ $(TARGETDIRFP)/$(TARGETLIBNAME):	$(OBJFILES)
 all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
 	:
 
-
-$(TARGETDIRFP)/sx_deps.mk: $(LIBSOURCES) Makefile ../version.h
-	$(CXX) -MM -I.. $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
-
-
+$(DEPSMK): Makefile
+	echo > $@
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS) -I.." \
+		--prefix "$(TARGETDIRFP)/" \
+		--files "$(LIBSOURCES)" \
+		--deps-mk "$@"
 
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \

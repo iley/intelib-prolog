@@ -55,6 +55,12 @@ OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
 FUNOBJFILES = $(patsubst %,$(TARGETDIRFP)/rfun_%,$(LIBFUNSOURCES:.cpp=.o))
 
+GEN_DEPSMK = ../gen_deps_mk.sh
+
+DEPSMK = $(TARGETDIRFP)/rf_deps.mk
+
+
+
 all: $(TARGETDIRFP)/$(TARGETLIBNAME)
 
 $(TARGETDIRFP)/$(TARGETLIBNAME):  $(WIN_PORT) $(OBJFILES) $(FUNOBJFILES)
@@ -76,10 +82,18 @@ endif
 $(TARGETDIRFP)/rfun_%.o:	library/%.cpp
 	$(CXX) $(CXXFLAGS_GENFLAGS) -c $< -o $@
 
-$(TARGETDIRFP)/rf_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) -I../sexpress $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
-
+$(DEPSMK):
+	echo > $@
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags '-I../sexpress' \
+		--prefix "$(TARGETDIRFP)/" \
+		--files "$(LIBSOURCES)" \
+		--deps-mk "$@"
+	cd library && $(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags '$(CXXFLAGS_GENFLAGS)' \
+		--prefix "$(TARGETDIRFP)/rfun_" \
+		--files "$(LIBFUNSOURCES)" \
+		--deps-mk "$@"
 
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o *.a gmon.out rf_deps.mk 
@@ -87,5 +101,5 @@ clean:
 FORCE:
 
 ifneq (clean, $(MAKECMDGOALS))
--include $(TARGETDIRFP)/rf_deps.mk
+-include $(DEPSMK)
 endif

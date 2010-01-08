@@ -33,38 +33,42 @@ COMPILEFLAGS = $(OPTIMIZATION) -Wall -Woverloaded-virtual -Wsynth \
 		-ggdb -fpic $(CONDDEFINES) 
 CXXFLAGS = $(COMPILEFLAGS) 
 
-LIBSOURCES = chr2snum.cpp prprint.cpp spkghsh.cpp sstream.cpp \
-	vecread.cpp hshread.cpp numunif.cpp slexer.cpp sreader.cpp \
-	stackrep.cpp 
-
+LIBSOURCES = $(wildcard *.cpp)
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
-none:
+DEPSMK = $(TARGETDIRFP)/t_deps.mk
+
+GEN_DEPSMK = ../gen_deps_mk.sh
+
+
+
+none: FORCE
 	@echo No default rule
 
-all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
+all: FORCE $(OBJFILES)
+	$(AR) crs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES)
 
-$(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES) 
-	$(AR) crs $@ $(OBJFILES) 
-
-all_add:        $(OBJFILES) 
-	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) 
+all_add: FORCE $(OBJFILES)
+	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES)
 
 $(TARGETDIRFP)/%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TARGETDIRFP)/t_deps.mk: $(LIBSOURCES) Makefile
-	$(CXX) -MM $(INTELIB_VERSION) $(LIBSOURCES) \
-	| sed '/^[^ ]/s/^/$(subst /,\/,$(TARGETDIRFP))\//g' > $@
+$(DEPSMK): Makefile
+	echo > $@
+	$(GEN_DEPSMK) --cxx "$(CXX)" \
+		--cxxflags "$(CXXFLAGS)" \
+		--prefix "$(TARGETDIRFP)/" \
+		--files "$(LIBSOURCES)" \
+		--deps-mk "$@"
 
-
-clean:	
+clean: FORCE
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
 		test buf gmon.out t_deps.mk
 
 FORCE:
 
 ifneq (clean, $(MAKECMDGOALS))
--include $(TARGETDIRFP)/t_deps.mk
+-include $(DEPSMK)
 endif
