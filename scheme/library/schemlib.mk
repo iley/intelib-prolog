@@ -55,7 +55,7 @@ $(DEPSMK):
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_TRANSLATOR_INFORMATION" \
-		--prefix "$(SCH_PREFIX)" \
+		--prefix "$(TARGETDIRFP)/" \
 		--files "$(CXXFILES)" \
 		--suffix "scm" \
 		--deps-mk "$@"

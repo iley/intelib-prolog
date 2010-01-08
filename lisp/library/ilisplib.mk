@@ -55,7 +55,7 @@ $(DEPSMK):
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx $(CXX) \
 		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_TRANSLATOR_INFORMATION" \
-		--prefix "$(LFUN_PREFIX)" \
+		--prefix "$(TARGETDIRFP)/" \
 		--files "$(CXXFILES)" \
 		--suffix "lsp" \
 		--deps-mk "$@"
