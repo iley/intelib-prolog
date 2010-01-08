@@ -12,9 +12,8 @@
 
 #endif
 
-#include <stdio.h>
-using namespace std;
-
+#ifdef _WIN32
+// Not necessary for *nix
 pid_t getppid()
 {
 	int pid = GetCurrentProcessId();
@@ -33,6 +32,8 @@ pid_t getppid()
     CloseHandle(h);
 	return -1;
 }
+
+#endif
 
 int execute_cmd_vp(const char *file, const char *argv[])
 {

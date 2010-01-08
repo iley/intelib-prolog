@@ -161,9 +161,7 @@ $(TARGETDIRFP):
 	mkdir -p $(TARGETDIRFP)
 
 win_port: $(TARGETDIRFP) FORCE
-ifeq ($(OSTYPE),MinGW-win)
 	cd win_port && $(MAKE) TARGETDIR=$(TARGETDIRFP)/..
-endif
 	
 version.h:	Version
 	echo '#define INTELIB_VERSION "'`head -1 Version`'"' > $@
