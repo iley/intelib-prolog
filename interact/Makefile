@@ -76,7 +76,7 @@ endif
 $(DEPSMK): Makefile
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS)" \
-		--prefix "$(TARGETDIRFP)" \
+		--output "$(TARGETDIRFP)/ireadln.o" \
 		--files "$(LIBSOURCES)" \
 		--deps-mk "$@"
 

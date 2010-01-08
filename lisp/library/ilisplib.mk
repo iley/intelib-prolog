@@ -49,15 +49,13 @@ $(DEPSMK):
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx $(CXX) \
 		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_LIBRARY_HEADER_GENERATION" \
-		--prefix "$(LFUN_PREFIX)" \
+		--output "$(LFUN_PREFIX)$(DIRNAME).hpp"
 		--files "$(CXXFILES)" \
-		--suffix "hpp" \
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx $(CXX) \
 		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp -D INTELIB_LISP_TRANSLATOR_INFORMATION" \
-		--prefix "$(TARGETDIRFP)/" \
+		--output $(TARGETDIRFP)/$(DIRNAME).lsp \
 		--files "$(CXXFILES)" \
-		--suffix "lsp" \
 		--deps-mk "$@"
 
 FORCE:

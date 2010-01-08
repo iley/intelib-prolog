@@ -49,15 +49,13 @@ $(DEPSMK):
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION" \
-		--prefix "$(SCH_PREFIX)" \
+		--output "$(SCH_PREFIX)$(DIRNAME).hpp" \
 		--files "$(CXXFILES)" \
-		--suffix "hpp" \
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_TRANSLATOR_INFORMATION" \
-		--prefix "$(TARGETDIRFP)/" \
+		--ouput "$(TARGETDIRFP)/$(DIRNAME).scm" \
 		--files "$(CXXFILES)" \
-		--suffix "scm" \
 		--deps-mk "$@"
 
 FORCE:

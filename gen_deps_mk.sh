@@ -32,6 +32,10 @@ do
         shift
         SUFFIX=$1
         shift
+    elif [ "$1" = '--output' ]; then
+        shift
+        OUTPUT=$1
+        shift
     else
         break
     fi
@@ -39,7 +43,11 @@ done
 
 for FILE in $CPPFILES
 do
-    OBJECT=`echo $FILE | sed "s/\.[^.]*$/.$SUFFIX/"`
-    $CXX $CXXFLAGS -MM -MT $PREFIX$OBJECT $FILE >> $DEPSMK
+    if [ "$OUTPUT" = "" ]; then
+        OBJECT=`echo $FILE | sed "s/\.[^.]*$/.$SUFFIX/"`
+        $CXX $CXXFLAGS -MM -MT $PREFIX$OBJECT $FILE >> $DEPSMK
+    else
+        $CXX $CXXFLAGS -MM -MT $OUTPUT $FILE >> $DEPSMK
+    fi
     $CXX $CXXFLAGS -MM -MT $DEPSMK $FILE >> $DEPSMK
 done 

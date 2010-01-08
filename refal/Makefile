@@ -85,13 +85,13 @@ $(TARGETDIRFP)/rfun_%.o:	library/%.cpp
 $(DEPSMK):
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags '-I../sexpress' \
-		--prefix "$(TARGETDIRFP)/rf_" \
+		--prefix "$(TARGETDIRFP)/" \
 		--files "$(LIBSOURCES)" \
 		--deps-mk "$@"
-	$(GEN_DEPSMK) --cxx "$(CXX)" \
+	cd library && $(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags '$(CXXFLAGS_GENFLAGS)' \
 		--prefix "$(TARGETDIRFP)/rfun_" \
-		--files "$(wildcard library/*.cpp)" \
+		--files "$(LIBFUNSOURCES)" \
 		--deps-mk "$@"
 
 clean:	

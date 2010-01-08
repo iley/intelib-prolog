@@ -38,9 +38,8 @@ $(DEPSMK):
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS) -include ../genlslib.hpp -D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION" \
-		--prefix "$(GLSP_PREFIX)" \
+		--output "$(GLSP_PREFIX)$(DIRNAME).hpp" \
 		--files "$(CXXFILES)" \
-		--suffix "hpp" \
 		--deps-mk "$@"
 
 FORCE:
