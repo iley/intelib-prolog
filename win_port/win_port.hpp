@@ -1,3 +1,8 @@
+/*
+ Intelib Contributed
+ Copyright (c) Denis Klychkov, 2010 (<qwerta_AT_live.ru>)
+*/
+
 #ifndef WINDOWS_PORT
 #define WINDOWS_PORT
 
