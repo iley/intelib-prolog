@@ -1,0 +1,278 @@
+                             I N T E L I B   
+                    source files attribution policy
+
+                               Copyright (c) Andrey Vikt. Stolyarov, 2010
+*************************************************************************
+* 1. Introduction
+
+
+As InteLib becomes a real open project developed by multiple authors, the
+question arises how the files of which the library consists should be
+attributed.
+
+There's an opinion that files as such can hold no attribution at all,
+leaving all the "official" problems to these upper-case-named files within
+the root directory of the project, named COPYRIGHT, COPYING, LICENSE,
+WARRANTY and so on.  This perfectly fits the Linus Torvalds' concept
+expressed in one well-known phrase: "write code, not law".  However, before
+we adopt this "simplified" policy we must first agree that the library as a
+whole is owned by some "entity" such as "InteLib team" or whatever... or,
+as an alternative, we can agree to transfer all the copyrights to a single
+person.  In this case we really can disregard the fact that, after all,
+each of the files of the library has its own list of real authors and, by
+the way, can be potentially found useful outside of the project.
+
+Well... Okay, let me just say I'm not ready to transfer my rights to any
+entity such as "InteLib team", I'm only ready to license the library (under
+GNU [L]GPL), but not to give away my rights as such.  Sorry guys if someone
+finds this not good, but the things are just as they are.  From the other
+hand, I find it inconvenient to ask others on the team to transfer their
+rights to me (why should I, after all? I don't pay them money!)
+
+By the way, even if we could agree to do one of the two abovementioned
+things, it could help us not to place copyright notices on each of the
+files, but wouldn't excuse us from the authorship attribution such as
+"written by...", "modified by...", etc.  Moral rights, including the
+authorship, can not be transferred.
+
+So, being the owner of most of the code, I decided to leave the things to
+go along their most natural way: let each contributor keep his/her rights
+to the code they write.  Hence, every source file in the project must have
+the comment in it's first lines, which displays the appropriate copyright
+notices.  BTW, most of the known open source projects do the same, so we're
+not inventing any new wheels.
+
+
+
+*************************************************************************
+* 2.  What does it mean to keep your copyright
+
+
+First of all, don't forget the library is licensed under LGPL, and some
+parts of it are even licensed under strict GPL.  This actually means you
+can *NOT* license files you contribute to the library under any other
+licenses;  if your file becomes a part of the library, it automatically
+falls under one of these licenses (if you don't agree, the only option for
+you is not to contribute anything to the library).  Okay, there are lots of
+detailed explanation of all these around, search the Internet for them if
+you need.
+
+This can make a (false) feeling that copyright is not a big deal, as the
+soft is GPLed anyway.  However, this is not _exactly_ true.  If you hold
+the copyright on some work, you actually have more rights than any person
+who uses the same work under the license.  Unlike your users, you, as the
+copyright owner, can license the work not only under GPL but under any
+other license, if you decide so.  Okay, if there is a group work and there
+are other copyright owners, you must either establish an agreement with
+them, or get rid of their copyrighted material before you do so, but you
+still can.
+
+Keep this in mind.
+
+Certainly, the copyright sign as such is only a sign which says "Hey, this
+is mine!" (BTW, it does NOT mean -- as such -- "I wrote this" or smth.
+alike, copyright means property ownership, not authorship or any other
+moral rights).  However, your rights exist without any such signs, and no
+signs can affect your rights, as well as the rights of others.  So, if you
+misplace the copyright sign, you thereby only misinform the public, and
+nothing else -- as nothing really changes from the legal point of view.
+So, please always be accurate and make sure you place all the copyright
+notices exactly where they belong.  Really, you don't want to misinform
+anyone, do you? 
+
+
+
+*************************************************************************
+* 3.  When you become the copyright holder and what exactly do you own
+
+
+Well, any work you do, provided that the work is "state-of-the-art" (okay,
+I don't know what is it, exactly, but I know for sure any programming is),
+you automatically become the author of it and the copyright owner of it,
+unless you've got some legally effective deal with someone else, which
+takes your rights away from you and gives them to that person/entity.  Such
+a thing usually happens when you work for some company as a programmer, in
+this case you still become the author, but not the copyright holder:
+rather, the company does.  However, this doesn't apply to the case of
+InteLib.  Well... make sure you don't work on you contributions to InteLib
+when you're at work, if you're a programmer -- you understand why, don't
+you?
+
+So, the simplest situation is when you just write a file which didn't
+exist before.  In this case, you're the only copyright owner of it.
+
+When you modify someone else's work, the situation complicates a bit.
+You've got the right on the changes you made, but the original author
+remains to be the owner of the things which didn't change.  So, who is the
+owner of the file?  The answer is: you both.  You place your copyright
+notice in the file, but you must keep the original copyright notice intact.
+BTW, both GPL and common sense require you make it clear what changes
+exactly do you apply.  It is nothing special to have more than one owner.
+Hmmm, I'm nearly sure you saw such situations before.
+
+If you only make minor changes, you can gracefully acknowledge this fact
+writing "Portions copyright" instead of just "Copyright".  Legally
+speaking, this doesn't make a difference, but is still appreciated.
+
+If your changes are so major that only some little pieces remain original,
+then you still can NOT (!) change the original copyright notice, but you
+can put your notice at the first place, appending smth. like "based on the
+work by...", and then the original copyright notice, which must remain
+unchanged.
+
+The last possibility is when you rework the file so completely that you're
+absolutely sure no single piece of original code is still there.  In this
+case, you can remove the original copyright: effectively, this is not a
+"derived work", but rather a "completely new work".
+
+
+
+*************************************************************************
+* 4.  Formal rules
+
+
+4.1.  The attribution comment's placement and structure
+
+
+The comment containing the attribution MUST start from exactly the first
+line of the file; the only exception is made for interpreted scripts where
+the first line must set the interpreter; in this case, the attribution
+comment should start within the first 10 lines of the file, and before
+anything which can technically be moved down.
+
+If the file is a C++ source (.cpp, .hpp or whatever), '//' comments are
+used.  If the file can be used as a plain C source (e.g. it is a header to
+be included from plain C files, traditional /* */ comments are used, with
+both '/*' and '*/' on their own lines, and all the lines within the comment
+prenended with ' *' (space-asterisk), so that all the asterisks form a
+column.  For sources in other languages, the appropriate line-comment
+tokens are to be used, e.g., ';' in Lisp, '#' in makefiles, and so on.
+
+In the examples below, the C++-style comment signs are used.
+
+The first line of the comment must be formed of the name of InteLib and the
+URL of the official site: http://www.intelib.org, with such an amount of
+spaces between them so the URL is ended exactly on the (67+N)th position on
+the screen, where N is the length of the comment token (2 for C++, 1 for
+Lisp, etc) -- so that the last char ('g' in 'org') is located in the same
+column with the exclamation sign withis the warranty disclaimer (see
+below).  So, the line will look like this:
+
+//  InteLib                                    http://www.intelib.org
+
+The next line should display the name of the file as a path related to the
+InteLib's project root, e.g.:
+
+//  The file sexpress/sexpress.hpp
+
+You can add an optional description of the file, indented with four spaces,
+e.g:
+
+//  The file sexpress/sexpress.hpp
+//      definitions of basic S-expression classes
+
+The decription is optional and can be omited.  Either way, there must be a
+blank line after that.
+
+Next, the copyright notice(s) follow.  If there are more than one notice,
+please do NOT separate them with any blank lines.  Another TWO blank lines
+are left after the last copyright notice.  See below for guidelines on
+forming the copyright notice.
+
+After that, exactly the following text must appear:
+
+//  This is free software, licensed under GNU LGPL v.2.1
+//  See the file COPYING for further details.
+//
+//  THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
+//  Please see the file WARRANTY for the detailed explanation.
+
+Whenever applicable, 'GNU LGPL v.2.1' must be replaced with
+'GNU GPL v.2'.  
+
+
+
+4.2.  The copyright notice structure
+
+
+Basically speaking, a copyright notice must consit of the following:
+
+  - the word 'Copyright', or words 'Portions copyright', whichever fits
+    better;
+  - the sign '(c)' (please do NOT use the non-ascii character which
+    displays 'c' within the circle; don't use non-ascii characters in
+    programs at all, I mean, never);
+  - the author's name, followed by the comma character;
+  - the two years: first is when the work was first created, and the second
+    is when it was last modified.  If it is the same year, it appears only
+    once.  If the two years are sequential, they're separated with a comma,
+    otherwise they're separated with the dash.
+
+Here are some examples:
+
+//  Copyright (c) John The Programmer, 2007
+//  Copyright (c) Ivan Ivanovich Ivanov, 2007,2008
+//  Portions copyright (c) Joe The Hacker, 2001-2010
+
+You may add an explanation of your changes right after your own copyright
+notice, indented with four spaces, e.g.:
+
+//  Copyright (c) John D. Doe, 2010
+//      Added the class LExpressionJondDoeCoolExpression
+
+Such an explanation right in the copyright notice is neither obligatory nor
+encouragted, though.  Better use comments later in the file to mark your
+changes.
+
+
+4.3. When and how do you place and modify the copyright notices
+
+
+Forst of all, PLEASE MAKE A DECISION HOW EXACTLY YOUR NAME IS TO APPEAR IN
+THE COPYRIGHT NOTICES and always use that particular representation.  Do
+not change the case of chars, do not add or remove dots after initials (you
+can use a dot, or you can decide not to, but please be consistent), do not
+add or remove spaces, etc.  If you use a nickname, please use the same one
+every time.  Either use quote signs for the nickname, or not, but do the
+same every time.  This is because there are some cases when we might need
+to grep on for files copyrighted by a particular person. 
+
+If you're creating a new file, place the notice with your name and with the
+current year.
+
+If you're changing a file in which there's only YOUR copyright notice,
+please check the years, and ajust them if needed.  Never change the first
+year, but replace the last year with the current one if it is different.
+
+If you're changing a file in which there are some others' copyright
+notices, please leave them all as they are, NOT TOUCHING THE YEARS! -- but
+add your own copyright notice, too, with the current year.  You MAY use
+'Portions copyright' instead of just 'Copyright' in case you decide so.
+Be sure to add some comments (_below_ the main attribution comment) to
+identify your contribution to the file, with dates.  Such comments must be
+sorted by date, latest first.
+
+If there are some other's copyright notices as well as our own, already,
+then check the years of YOUR notice (but not the others') and adjust, if
+needed.  Be sure to update the comments that identify the changes of
+different contributors so that it remains clear what you did.
+
+If you are creating another file (that is, under another name) but it is
+based on the previously existed file copyrighted by someone else, please
+add the line 'Based on the file originally named NNNNNNN' right before the
+original copyright notices, and only then add your own copyright notice.
+This is the only case when a blank line should be left between the original
+notices and your own notice.
+
+The last question is what to do if there's no copyright notice in the file
+you're editing.  Hmm, first of all, this should never happen.  It's a kind
+of accident.  The right thing to do is to ask guys around for some
+information about who is the author.  Once the author is identified, ask
+him/her to add the appropriate notice to the file; then, add your notice in
+the usual manner.
+
+If (and only if) you *really* have no time to investigate, than leave the
+file just as is.  Please note that in this case you can't place your
+copyright notice: really, you're not the only author, so the file
+displaying only one notice would misinform the public.  No information is
+better than wrong information.
