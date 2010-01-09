@@ -1,5 +1,13 @@
-# Intelib Contributed
-# Copyright (c) Denis Klychkov, 2010 (<qwerta_AT_live.ru>)
+#  InteLib                                    http://www.intelib.org
+#  The file win_port/win_port.cpp
+#
+#  Copyright (c) Denis Klychkov, 2010 (<qwerta_AT_live.ru>)
+#
+#  This is free software, licensed under GNU LGPL v.2.1
+#  See the file COPYING for further details.
+#
+#  THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
+#  Please see the file WARRANTY for the detailed explanation.
 
 SHELL = /bin/sh
 
