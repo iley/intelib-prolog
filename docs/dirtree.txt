@@ -1,7 +1,7 @@
                           I N T E L I B   
               the directory tree layout description
 
-                             Copyright (c) Andrey V. Stolyarov, 2007-2009
+                          Copyright (c) Andrey Vikt. Stolyarov, 2007-2009
 
 *************************************************************************
 
@@ -23,7 +23,7 @@ the S-expressions as a heterogenous data model is implemented.
 Several directories implement different tools to operate S-expressions.
 
 2.1.  The 'tools/' directory implements:
-  - a generalized input/output streams wrapped into S-expressions
+  - generalized input/output streams wrapped into S-expressions
   - a generic flexibly tunable S-expression reader, that is, a lexical
     and syntax analyser for S-expressions represented as a text
   - some supplementary things such as a hashtable-based package of

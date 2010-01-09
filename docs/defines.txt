@@ -1,7 +1,7 @@
                           I N T E L I B   
             The library's compile-time options summary
 
-                             Copyright (c) Andrey V. Stolyarov, 2004-2007
+                          Copyright (c) Andrey Vikt. Stolyarov, 2004-2007
 
 *************************************************************************
 

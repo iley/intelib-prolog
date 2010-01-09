@@ -1,7 +1,7 @@
                           I N T E L I B
              Guidelines on building and bootstrapping
 
-                             Copyright (c) Andrey V. Stolyarov, 2000-2009
+                          Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
 
 *************************************************************************
 * 0. Determining whether you agree to use this software
