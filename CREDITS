@@ -1,0 +1,10 @@
+The library consists of the code created by the following people:
+
+Andrey Vikt. Stolyarov wrote the most of the code;
+
+Olga Frolova (Shtefan) wrote the first version of TRACE suppport for the
+   NILL interpreter (later modified by others)
+
+Igor Bronstein reworked the Refal computation model and wrote the IRINA
+   translator
+

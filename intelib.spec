@@ -1,5 +1,5 @@
 Name: intelib
-Version: 0.6.21
+Version: 0.6.22
 Release: 0
 
 Summary: A C++ library which lets one do Lisp programming within C++

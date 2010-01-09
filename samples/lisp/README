@@ -8,9 +8,6 @@ eratosf/   is a program which finds prime numbers; it is written in Lisp
            use a Lisp-implemented module from within your C++ program, how
            to bring the things together etc.
 
-erat_int/  is a version of the previous program which also demonstrates 
-           InteLib's ability to interrupt evaluations.
-
 permut/    is a program which prints all possible permutations of N by N.
            To do so, a user-defined S-expression type is created. The type
            is named SExpressionPermGen; its duty is to serve as a

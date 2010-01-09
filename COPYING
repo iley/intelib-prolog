@@ -1,3 +1,10 @@
+Most parts of the InteLib library are written and copyrighted
+(c) by Andrey Vikt. Stolyarov 2000-2010
+Some files are either written or modified by other people; these files may
+have different copyright status.  The official copyright notice is placed 
+in each source file of the library.  Please see the file CREDITS for the 
+list of contributors.
+
 InteLib is free software. 
 
 The library part (the sexpress/, tools/, lisp/ and scheme/ directories,
