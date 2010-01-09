@@ -1,10 +1,14 @@
 The library consists of the code created by the following people:
 
-Andrey Vikt. Stolyarov wrote the most of the code;
+Andrey Vikt. Stolyarov wrote most of the code;
 
-Olga Frolova (Shtefan) wrote the first version of TRACE suppport for the
+Olga Frolova (Shtefan) wrote the first version of TRACE support for the
    NILL interpreter (later modified by others)
 
 Igor Bronstein reworked the Refal computation model and wrote the IRINA
    translator
+
+Vasiliy Kulikov reworked the build system (Makefiles et al)
+
+Denis Klychkov prepared Win32 port
 
