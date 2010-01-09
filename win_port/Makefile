@@ -1,7 +1,7 @@
 #  InteLib                                    http://www.intelib.org
 #  The file win_port/Makefile
 #
-#  Copyright (c) Denis Klychkov, 2010 (<qwerta_AT_live.ru>)
+#  Copyright (c) Denis Klychkov, 2010
 #
 #  This is free software, licensed under GNU LGPL v.2.1
 #  See the file COPYING for further details.
