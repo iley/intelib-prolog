@@ -1,5 +1,19 @@
 #!/bin/sh
 #
+#   InteLib                                    http://www.intelib.org
+#   The file scheme/library/gen_hpp.sh
+# 
+#   Copyright (c) Vasiliy Kulikov (<segooon_AT_gmail.com>), 2010
+# 
+#   This is free software, licensed under GNU LGPL v.2
+#   See the file COPYING for further details.
+# 
+#   THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
+#   Please see the file WARRANTY for the detailed explanation.
+#
+
+
+#
 # Arguments: -h _hdr.inc
 #            -s _SENTRY_NAME_
 #

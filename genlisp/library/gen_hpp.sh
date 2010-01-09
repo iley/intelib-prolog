@@ -1,5 +1,22 @@
 #!/bin/sh
 #
+#   InteLib                                    http://www.intelib.org
+#   The file genlisp/library/gen_hpp.sh
+# 
+#   Copyright (c) Vasiliy Kulikov (<segooon_AT_gmail.com>), 2010
+# 
+#   This is free software, licensed under GNU LGPL v.2
+#   See the file COPYING for further details.
+# 
+#   THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
+#   Please see the file WARRANTY for the detailed explanation.
+#
+
+
+# Run 'gcc -MM' with configurable object file name.
+# It generate dependencies both for object and deps.mk
+#
+#
 # Arguments: -h _hdr.inc
 #            -s _SENTRY_NAME_
 #

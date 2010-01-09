@@ -1,6 +1,16 @@
-# This file is included in intelib/$1/Makefile
-# where $1 is one of lisp/ genlisp/ scheme/ sexpress/ tools/.
-#
+#   InteLib                                    http://www.intelib.org
+#   The file lib.mk
+# 
+#   Copyright (c) Vasiliy Kulikov (<segooon_AT_gmail.com>), 2010
+# 
+#   This is free software, licensed under GNU LGPL v.2
+#   See the file COPYING for further details.
+# 
+#   THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
+#   Please see the file WARRANTY for the detailed explanation.
+
+
+# This file is included from intelib/{lisp,genlisp,scheme,sexpress,tools}/Makefile
 #
 # To include this .mk to your Makefile, you have to define variables:
 #
