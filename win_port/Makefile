@@ -1,5 +1,5 @@
 #  InteLib                                    http://www.intelib.org
-#  The file win_port/win_port.cpp
+#  The file win_port/Makefile
 #
 #  Copyright (c) Denis Klychkov, 2010 (<qwerta_AT_live.ru>)
 #
