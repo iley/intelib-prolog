@@ -1,4 +1,4 @@
-Basic Windows build instructions
+Basic Windows build instructions:
 
 1)	Download and install MinGW compiler and MSYS (http://www.mingw.org).
 
@@ -17,13 +17,13 @@ Basic Windows build instructions
 	make install OSTYPE=MinGW-windows
 
 	This will install intelib into your virtual /usr/local/ dir of MSYS.
-	
-Latter if you want to use intelib you must specify explicit search paths for the
+
+Latter if you want to use intelib you must specify explicit search paths for
 include and lib paths (for MSYS console they are -I/usr/local/include and
--L/usr/local/lib). It is also recommended to add /usr/local/bin into
+-L/usr/local/lib). It is also recommended to add /usr/local/bin to
 your PATH variable of MSYS.
 If you don't want to use MSYS-console you have to specify real paths.
 E.g. you have MSYS installed in c:\MSYS. Then real path to includes will be
 c:\MSYS\local\include.
 
-More information about intelib build you can find in docs/build.txt.
+More information about intelib building you can find in docs/build.txt.
