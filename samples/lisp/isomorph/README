@@ -1,0 +1,5 @@
+This is a very simple demo typically used in papers devoted to InteLib
+to show the very InteLib idea.  The isomorph.cpp file implements the
+IOMORPHIC function using InteLib technique of representing Lisp expressions
+with C++ arithmetics.  The main.cpp file is to show how to use that
+function.
