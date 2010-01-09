@@ -142,9 +142,9 @@ anything which can technically be moved down.
 
 If the file is a C++ source (.cpp, .hpp or whatever), '//' comments are
 used.  If the file can be used as a plain C source (e.g. it is a header to
-be included from plain C files, traditional /* */ comments are used, with
+be included from plain C files), traditional /* */ comments are used, with
 both '/*' and '*/' on their own lines, and all the lines within the comment
-prenended with ' *' (space-asterisk), so that all the asterisks form a
+prepended with ' *' (space-asterisk), so that all the asterisks form a
 column.  For sources in other languages, the appropriate line-comment
 tokens are to be used, e.g., ';' in Lisp, '#' in makefiles, and so on.
 
@@ -155,7 +155,7 @@ URL of the official site: http://www.intelib.org, with such an amount of
 spaces between them so the URL is ended exactly on the (67+N)th position on
 the screen, where N is the length of the comment token (2 for C++, 1 for
 Lisp, etc) -- so that the last char ('g' in 'org') is located in the same
-column with the exclamation sign withis the warranty disclaimer (see
+column with the exclamation sign with the warranty disclaimer (see
 below).  So, the line will look like this:
 
 //  InteLib                                    http://www.intelib.org
@@ -171,7 +171,7 @@ e.g:
 //  The file sexpress/sexpress.hpp
 //      definitions of basic S-expression classes
 
-The decription is optional and can be omited.  Either way, there must be a
+The description is optional and can be omited.  Either way, there must be a
 blank line after that.
 
 Next, the copyright notice(s) follow.  If there are more than one notice,
@@ -195,7 +195,7 @@ Whenever applicable, 'GNU LGPL v.2.1' must be replaced with
 4.2.  The copyright notice structure
 
 
-Basically speaking, a copyright notice must consit of the following:
+Basically speaking, a copyright notice must consist of the following:
 
   - the word 'Copyright', or words 'Portions copyright', whichever fits
     better;
@@ -221,14 +221,14 @@ notice, indented with four spaces, e.g.:
 //      Added the class LExpressionJondDoeCoolExpression
 
 Such an explanation right in the copyright notice is neither obligatory nor
-encouragted, though.  Better use comments later in the file to mark your
+encouraged, though.  Better use comments later in the file to mark your
 changes.
 
 
 4.3. When and how do you place and modify the copyright notices
 
 
-Forst of all, PLEASE MAKE A DECISION HOW EXACTLY YOUR NAME IS TO APPEAR IN
+First of all, PLEASE MAKE A DECISION HOW EXACTLY YOUR NAME IS TO APPEAR IN
 THE COPYRIGHT NOTICES and always use that particular representation.  Do
 not change the case of chars, do not add or remove dots after initials (you
 can use a dot, or you can decide not to, but please be consistent), do not
@@ -241,7 +241,7 @@ If you're creating a new file, place the notice with your name and with the
 current year.
 
 If you're changing a file in which there's only YOUR copyright notice,
-please check the years, and ajust them if needed.  Never change the first
+please check the years, and adjust them if needed.  Never change the first
 year, but replace the last year with the current one if it is different.
 
 If you're changing a file in which there are some others' copyright
