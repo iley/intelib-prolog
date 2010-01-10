@@ -10,10 +10,11 @@
 # 
 #   THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
 #   Please see the file WARRANTY for the detailed explanation.
-#
+
+
 # Runs 'gcc -MM' with configurable object file name.
 # It generates dependencies both for object and deps.mk
-#
+
 
 SUFFIX=o
 

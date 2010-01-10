@@ -10,20 +10,21 @@
 #   Please see the file WARRANTY for the detailed explanation.
 
 
-# This file is included from intelib/{lisp,genlisp,scheme,sexpress,tools}/Makefile
+# This file is included from
+#         $intelib/{lisp,genlisp,scheme,sexpress,tools}/Makefile
 #
-# To include this .mk from your Makefile, you have to define variables:
+# To include this .mk from your Makefile, you need to define variables:
 #
 # TARGETLIBNAME = name of .a library
 #
-# LIBSOURCES = $(wildcard *.cpp) is good idea
+# LIBSOURCES = $(wildcard *.cpp) is a good idea
 #
 # GENERATED_PREFIX = lfun or another prefix for generated .hpp files
 #
 # MODULES = all directories in library/
 #
 # GENERATED_FILES = $(MODULES:=.lsp)
-#
+
 
 SHELL = /bin/sh
 
