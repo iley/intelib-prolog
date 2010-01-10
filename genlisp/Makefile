@@ -1,7 +1,7 @@
 #   InteLib                                    http://www.intelib.org
 #   The file genlisp/Makefile
 # 
-#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+#   Copyright (c) Vasiliy Kulikov, 2010
 # 
 # 
 #   This is free software, licensed under GNU LGPL v.2.1

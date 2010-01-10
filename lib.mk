@@ -1,5 +1,8 @@
 #   InteLib                                    http://www.intelib.org
 #   The file lib.mk
+#
+#   Based on the file originally named lisp/Makefile.
+#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
 # 
 #   Copyright (c) Vasiliy Kulikov, 2010
 # 
