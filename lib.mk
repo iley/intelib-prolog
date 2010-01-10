@@ -12,7 +12,7 @@
 
 # This file is included from intelib/{lisp,genlisp,scheme,sexpress,tools}/Makefile
 #
-# To include this .mk to your Makefile, you have to define variables:
+# To include this .mk from your Makefile, you have to define variables:
 #
 # TARGETLIBNAME = name of .a library
 #
