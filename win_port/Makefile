@@ -3,6 +3,7 @@
 #
 #  Copyright (c) Denis Klychkov, 2010
 #
+#
 #  This is free software, licensed under GNU LGPL v.2.1
 #  See the file COPYING for further details.
 #
