@@ -70,6 +70,7 @@ she decides to modify the library.
                    files written in traditional Lisp syntax into a C++ 
                    modules.  
  - build.txt       How to build the library and bootstrap the translator
+ - win_mingw.txt   Basic instructions on building under Windows
  - lispfuns/*      Information on IntelibLisp-specific functions; see
                    lispfuns/readme.txt.
 

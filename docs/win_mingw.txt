@@ -1,0 +1,36 @@
+                          I N T E L I B
+              Building for Win32 using MinGW compiler
+
+                               Copyright (c) Denis Klychkov, 2010
+                               Copyright (c) Andrey Vikt. Stolyarov, 2010
+
+*************************************************************************
+
+1) Download and install MinGW compiler and MSYS (http://www.mingw.org).
+
+2) Open MSYS-console and go to the intelib directory.
+
+3) Type:
+
+      make OSTYPE=MinGW-win USE_READLINE=no
+
+The first parameter tells the make system to use MinGW-windows compiler;
+the second forces it not to use GNU Readline which is not supported yet
+in Windows build.
+
+4) Type:
+
+      make install OSTYPE=MinGW-windows
+
+This will install intelib into your virtual /usr/local/ dir of MSYS.
+
+In order to use InteLib you must specify explicit search paths for
+include and lib paths (for MSYS console they are -I/usr/local/include and
+-L/usr/local/lib).  It is also recommended to add /usr/local/bin to
+your PATH variable of MSYS.
+
+If you don't want to use MSYS-console you have to specify real paths.
+For example, if MSYS is installed in c:\MSYS, then the real iinclude path 
+will be c:\MSYS\local\include.
+
+Please read docs/build.txt for more details about building InteLib.
