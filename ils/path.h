@@ -10,8 +10,8 @@
 //  THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
 //  Please see the file WARRANTY for the detailed explanation.
 
-#ifndef PATH_H
-#define PATH_H
+#ifndef INTELIB_PATH_H_SENTRY
+#define INTELIB_PATH_H_SENTRY
 
 #ifdef _WIN32
 
