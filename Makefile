@@ -1,5 +1,5 @@
 #   InteLib                                    http://www.intelib.org
-#   The file Makefile
+#   The top-level Makefile
 # 
 #   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
 # 
