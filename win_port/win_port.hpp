@@ -9,8 +9,8 @@
 //  THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
 //  Please see the file WARRANTY for the detailed explanation.
 
-#ifndef WINDOWS_PORT
-#define WINDOWS_PORT
+#ifndef INTELIB_WIN_PORT_HPP_SENTRY
+#define INTELIB_WIN_PORT_HPP_SENTRY
 
 #ifdef _WIN32
 
