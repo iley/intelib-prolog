@@ -2,6 +2,7 @@
 #   The file interact/Makefile
 # 
 #   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+#   Portions copyright (c) Denis Klychkov, 2010
 # 
 # 
 #   This is free software, licensed under GNU LGPL v.2.1

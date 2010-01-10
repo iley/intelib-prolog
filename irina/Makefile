@@ -1,5 +1,15 @@
-# INTELIB_CONTRIBUTED
-# Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+#   InteLib                                    http://www.intelib.org
+#   The top level Makefile
+# 
+#   Copyright (c) Igor Bronshtein
+#   Portions copyright (c) Denis Klychkov, 2010
+# 
+# 
+#   This is free software, licensed under GNU GPL v.2
+#   See the file COPYING for further details.
+# 
+#   THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
+#   Please see the file WARRANTY for the detailed explanation.
 
 SHELL = /bin/sh
 

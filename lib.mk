@@ -2,6 +2,7 @@
 #   The file lib.mk
 # 
 #   Copyright (c) Vasiliy Kulikov (<segooon_AT_gmail.com>), 2010
+#   Portions copyright (c) Denis Klychkov, 2010
 # 
 #   This is free software, licensed under GNU LGPL v.2
 #   See the file COPYING for further details.

@@ -1,5 +1,15 @@
-// INTELIB_CONTRIBUTED
-// Written by Igor Bronstein (<igor.bronstein_AT_intelib.org>)
+//  InteLib                                    http://www.intelib.org
+//  The file irina/run.cpp
+//
+//  Copyright (c) Igor Bronstein
+//  Portions copyright (c) Denis Klychkov, 2010
+//
+//
+//  This is free software, licensed under GNU LGPL v.2.1
+//  See the file COPYING for further details.
+//
+//  THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
+//  Please see the file WARRANTY for the detailed explanation.
 
 #include <string.h>
 #include <stdio.h>
