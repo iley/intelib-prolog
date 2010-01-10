@@ -39,7 +39,8 @@ DEPSMK = $(TARGETDIRFP)/ils_deps.mk
 GEN_DEPSMK = ../gen_deps_mk.sh
 
 
-LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. -I$(TARGETDIRFP)
+LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. \
+			 -I$(TARGETDIRFP)
 
 SCHEMELIBMODULES = std str sel io rdr hsh m
 LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
@@ -58,9 +59,10 @@ ifeq ($(OSTYPE),MinGW-win)
     LIBDL = -ldl
     DYNAMIC = -export-all-symbols
     INCDL = -I../win_port
-# This string translates an absolute UNIX-like path to an absolute windows path
-# with double backslashes. E.g. /c/inelib -> c:\\intelib
-    TDIR = $(shell echo $(TARGETDIRFP) | sed 's/^\/\(.\)/\1:/' | sed 's/\//\\\\/g')
+# This string translates an absolute UNIX-like path to an absolute windows
+# path with double backslashes. E.g. /c/inelib -> c:\\intelib
+    TDIR = $(shell echo $(TARGETDIRFP) | sed 's/^\/\(.\)/\1:/' | \
+		   	 sed 's/\//\\\\/g')
 else
     LIBDL = 
     DYNAMIC = -export-dynamic
@@ -133,7 +135,8 @@ $(TARGETDIRFP)/nils.o: nils.cpp ils_loop.hpp ../version.h
 nils: $(TARGETDIRFP)/nils
 	:
 
-$(TARGETDIRFP)/nils: $(TARGETDIRFP)/nils.o $(TARGETDIRFP)/ils_loop.o $(TARGETDIRFP)/ssympkg.o
+$(TARGETDIRFP)/nils: $(TARGETDIRFP)/nils.o $(TARGETDIRFP)/ils_loop.o \
+		$(TARGETDIRFP)/ssympkg.o
 	$(CXX) $(CXXFLAGS) $^  -o $@ \
 	  $(LIBINTELIB) $(LIBMATH) $(LIBREADLINE) $(LIBDL) -Wl,$(DYNAMIC)
 
@@ -143,14 +146,16 @@ $(TARGETDIRFP)/nils: $(TARGETDIRFP)/nils.o $(TARGETDIRFP)/ils_loop.o $(TARGETDIR
 ###
 # build with NILS
 
-$(TARGETDIRFP)/ils_nils.cxx $(TARGETDIRFP)/ils_nils.hxx:	$(NILS)	ils.scm $(TARGETDIRFP)/ilsdef._sc
+$(TARGETDIRFP)/ils_nils.cxx $(TARGETDIRFP)/ils_nils.hxx:	$(NILS)	\
+		ils.scm $(TARGETDIRFP)/ilsdef._sc
 	cp ils.scm $(TARGETDIRFP)
 	cd $(TARGETDIRFP) && \
 	$(NILS) -i ils.scm \
 		-x '(cmdlinedirectives "(MODULE-NAME \"ils_nils\")")'\
 		-x '(ils_main (quote ("ilsdef._sc" "ils.scm")))' -Q
 
-$(TARGETDIRFP)/ils_nils.o:	$(TARGETDIRFP)/ils_nils.cxx $(TARGETDIRFP)/ils_nils.hxx ../version.h
+$(TARGETDIRFP)/ils_nils.o:	$(TARGETDIRFP)/ils_nils.cxx \
+		$(TARGETDIRFP)/ils_nils.hxx ../version.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 ils_nils: $(TARGETDIRFP)/ils_nils
@@ -164,7 +169,8 @@ $(TARGETDIRFP)/ils_nils:	ilsmain.cpp $(TARGETDIRFP)/ils_nils.o $(LIBDEPEND)
 # build with itself
 
 
-$(TARGETDIRFP)/ils.cxx $(TARGETDIRFP)/ils.hxx:	ils.scm $(TARGETDIRFP)/ilsdef._sc
+$(TARGETDIRFP)/ils.cxx $(TARGETDIRFP)/ils.hxx:	ils.scm \
+		$(TARGETDIRFP)/ilsdef._sc
 	cp ils.scm $(TARGETDIRFP)
 	cd $(TARGETDIRFP) && \
 	$(ILS) ils.scm	

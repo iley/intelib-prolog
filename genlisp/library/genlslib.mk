@@ -36,7 +36,8 @@ none: FORCE
 	@echo "No default rule here"
 
 $(GLSP_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
-	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_GLSP_$(DIRNAME)_SENTRY" -c "$(CXXFILES)" > $@
+	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_GLSP_$(DIRNAME)_SENTRY" \
+		-c "$(CXXFILES)" > $@
 
 $(GLSP_PREFIX)$(DIRNAME)%.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c -include ../genlslib.hpp \
@@ -47,12 +48,14 @@ all: $(DEPSMK) $(OBJFILES) $(GLSP_PREFIX)$(DIRNAME).hpp FORCE
 $(DEPSMK):
 	echo > $@
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
-		--cxxflags "$(CXXFLAGS) -include ../genlslib.hpp -D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION" \
+		--cxxflags "$(CXXFLAGS) -include ../genlslib.hpp \
+		   -D INTELIB_GENLISP_LIBRARY_IMPLEMENTATION" \
 		--prefix "$(GLSP_PREFIX)$(DIRNAME)" \
 		--files "$(CXXFILES)" \
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
-		--cxxflags "$(CXXFLAGS) -include ../genlslib.hpp -D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION" \
+		--cxxflags "$(CXXFLAGS) -include ../genlslib.hpp \
+		   -D INTELIB_GENLISP_LIBRARY_HEADER_GENERATION" \
 		--output "$(GLSP_PREFIX)$(DIRNAME).hpp" \
 		--files "$(CXXFILES)" \
 		--deps-mk "$@"

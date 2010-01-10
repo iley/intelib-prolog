@@ -39,12 +39,12 @@ GEN_DEPSMK = ../gen_deps_mk.sh
 
 
 
-LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. -I$(TARGETDIRFP)
+LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. \
+			 -I$(TARGETDIRFP)
 
 LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
 FUNHEADERS = $(patsubst %,$(TARGETDIRFP)/lfun_%.hpp,$(LISPLIBMODULES))
 LIBDEFLSPFILES = $(patsubst %,$(TARGETDIRFP)/%.lsp,$(LISPLIBMODULES))
-#LIBDEPEND = $(LFUNHEADERS) $(TARGETDIRFP)/libilisp.a $(TARGETDIRFP)/libsexpr.a
 LIBDEPEND = $(LFUNHEADERS) $(TARGETDIRFP)/libintelib.a \
 			$(TARGETDIRFP)/libintelib_interp.a
 
@@ -57,9 +57,10 @@ ifeq ($(OSTYPE),MinGW-win)
     LIBDL = -ldl
     DYNAMIC = -export-all-symbols
     INCDL = -I../win_port
-# This string translates an absolute UNIX-like path to an absolute windows path
-# with double backslashes. E.g. /c/inelib -> c:\\intelib
-    TDIR = $(shell echo $(TARGETDIRFP) | sed 's/^\/\(.\)/\1:/' | sed 's/\//\\\\/g')
+# This string translates an absolute UNIX-like path to an absolute windows 
+# path with double backslashes. E.g. /c/inelib -> c:\\intelib
+    TDIR = $(shell echo $(TARGETDIRFP) | sed 's/^\/\(.\)/\1:/' | \
+		     sed 's/\//\\\\/g')
 else
     LIBDL = 
     DYNAMIC = -export-dynamic
@@ -105,11 +106,13 @@ $(TARGETDIRFP)/libintelib.a $(TARGETDIRFP)/libintelib_nill.a $(LFUNHEADERS):
 ###############################
 # Build with nill 
 
-$(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx:	$(NILL)	ill.lsp nill_run.lsp $(TARGETDIRFP)/illdef._ls
+$(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx:	$(NILL)	ill.lsp \
+		nill_run.lsp $(TARGETDIRFP)/illdef._ls
 	cp nill_run.lsp ill.lsp $(TARGETDIRFP)
 	cd $(TARGETDIRFP) && $(NILL) $(TARGETDIRFP)/nill_run.lsp
 
-$(TARGETDIRFP)/ill_nill.o:	$(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx ../version.h
+$(TARGETDIRFP)/ill_nill.o:	$(TARGETDIRFP)/ill_nill.cxx \
+		$(TARGETDIRFP)/ill_nill.hxx ../version.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 
@@ -130,7 +133,8 @@ $(TARGETDIRFP)/ill_nill:	illmain.cpp $(TARGETDIRFP)/ill_nill.o $(LIBDEPEND)
 #########################
 # Build a new ILL binary with ILL itself
 
-$(TARGETDIRFP)/ill.cxx $(TARGETDIRFP)/ill.hxx:	ill.lsp $(TARGETDIRFP)/illdef._ls
+$(TARGETDIRFP)/ill.cxx $(TARGETDIRFP)/ill.hxx:	ill.lsp \
+		$(TARGETDIRFP)/illdef._ls
 	cp ill.lsp $(TARGETDIRFP)
 	cd $(TARGETDIRFP) && $(ILL) $(TARGETDIRFP)/ill.lsp
 
@@ -195,10 +199,12 @@ TARGETLIBNAME = libilldebug.a
 
 -include $(TARGETDIRFP)/defines.mk
 
-lib: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o $(TARGETDIRFP)/illtrace.o
+lib: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o \
+		$(TARGETDIRFP)/illtrace.o
 	$(AR) crs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
-lib_add: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o $(TARGETDIRFP)/illtrace.o
+lib_add: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o \
+		$(TARGETDIRFP)/illtrace.o
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
 
@@ -225,7 +231,8 @@ $(TARGETDIRFP)/nill.o: nill.cpp ill_loop.hpp ../version.h
 nill: $(TARGETDIRFP)/nill
 	:
 
-$(TARGETDIRFP)/nill: $(TARGETDIRFP)/nill.o $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o $(TARGETDIRFP)/illtrace.o
+$(TARGETDIRFP)/nill: $(TARGETDIRFP)/nill.o $(TARGETDIRFP)/sympkg.o \
+		$(TARGETDIRFP)/ill_loop.o $(TARGETDIRFP)/illtrace.o
 	@echo "-------------------------------------------------------------"
 	@echo "    Building NILL interpreter                                "
 	@echo "-------------------------------------------------------------"
@@ -263,7 +270,8 @@ $(TARGETDIRFP)/chartran._ls:	$(TARGETDIRFP)/trtgen
 $(TARGETDIRFP)/lib._ls:	$(LIBDEPEND)
 	cat $(LIBDEFLSPFILES) >  $@
 
-$(TARGETDIRFP)/illdef._ls:	$(TARGETDIRFP)/chartran._ls $(TARGETDIRFP)/lib._ls illbdef.lsp
+$(TARGETDIRFP)/illdef._ls:	$(TARGETDIRFP)/chartran._ls \
+		$(TARGETDIRFP)/lib._ls illbdef.lsp
 	echo "; InteLib Lisp default definitions, generated with" > $@
 	echo ";       make illdef._ls" >> $@
 	echo "(%%% " >> $@

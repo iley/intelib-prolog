@@ -45,7 +45,8 @@ $(TARGETDIRFP)/$(DIRNAME).scm:	$(CXXFILES) $(COMMON_FILES)
 	CXX=$(CXX) $(GEN_SCM) -h "sch_$(DIRNAME).hpp" -c "$(CXXFILES)" > $@
 
 $(SCH_PREFIX)$(DIRNAME).hpp:	$(CXXFILES) $(COMMON_FILES)
-	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_SCHEMLIB_$(DIRNAME)_SENTRY" -h $(DIRNAME)_hdr.inc -c "$(CXXFILES)" > $@
+	CXX=$(CXX) $(GEN_HPP) -s "INTELIB_SCHEMLIB_$(DIRNAME)_SENTRY" -h \
+		$(DIRNAME)_hdr.inc -c "$(CXXFILES)" > $@
 
 
 $(SCH_PREFIX)$(DIRNAME)%.o:	%.cpp $(COMMON_FILES)
@@ -58,17 +59,20 @@ all: $(DEPSMK) $(OBJFILES) $(TARGETDIRFP)/$(DIRNAME).scm FORCE \
 $(DEPSMK):
 	echo > $@
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
-		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION" \
+		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp \
+		   -D INTELIB_SCHEME_LIBRARY_IMPLEMENTATION" \
 		--prefix "$(SCH_PREFIX)$(DIRNAME)" \
 		--files "$(CXXFILES)" \
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
-		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION" \
+		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp \
+		   -D INTELIB_SCHEME_LIBRARY_HEADER_GENERATION" \
 		--output "$(SCH_PREFIX)$(DIRNAME).hpp" \
 		--files "$(CXXFILES)" \
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
-		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp -D INTELIB_SCHEME_TRANSLATOR_INFORMATION" \
+		--cxxflags "$(CXXFLAGS) -include ../schemlib.hpp \
+		   -D INTELIB_SCHEME_TRANSLATOR_INFORMATION" \
 		--ouput "$(TARGETDIRFP)/$(DIRNAME).scm" \
 		--files "$(CXXFILES)" \
 		--deps-mk "$@"
