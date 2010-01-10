@@ -1,5 +1,5 @@
 #   InteLib                                    http://www.intelib.org
-#   The top level Makefile
+#   The file irina/Makefile
 # 
 #   Copyright (c) Igor Bronshtein
 #   Portions copyright (c) Denis Klychkov, 2010
