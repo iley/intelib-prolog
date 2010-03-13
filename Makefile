@@ -34,7 +34,12 @@ endif
 # comment this out to get .o files removed after build
 KEEP_OBJECTS = yes
 
+ifeq ($(OSTYPE), MinGW-win)
+# Windows version does not support GNU/Readline
+USE_READLINE = no
+else
 USE_READLINE = yes
+endif
 
 OPTIMIZATION = -O2
 

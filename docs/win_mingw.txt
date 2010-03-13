@@ -12,11 +12,7 @@
 
 3) Type:
 
-      make OSTYPE=MinGW-win USE_READLINE=no
-
-The first parameter tells the make system to use MinGW-windows compiler;
-the second forces it not to use GNU Readline which is not supported yet
-in Windows build.
+      make OSTYPE=MinGW-win
 
 4) Type:
 
