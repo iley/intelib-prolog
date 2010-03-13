@@ -1,7 +1,7 @@
 #   InteLib                                    http://www.intelib.org
 #   The file ill/Makefile
 # 
-#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 #   Portions copyright (c) Vasiliy Kulikov, 2010
 #   Portions copyright (c) Denis Klychkov, 2010
 # 
@@ -39,9 +39,8 @@ DEPSMK = $(TARGETDIRFP)/ill_deps.mk
 GEN_DEPSMK = ../gen_deps_mk.sh
 
 
-
 LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. \
-			 -I$(TARGETDIRFP)
+		 -I$(TARGETDIRFP) -DINTELIB_SHAREDIR=\"$(SHAREDIR)\"
 
 LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
 FUNHEADERS = $(patsubst %,$(TARGETDIRFP)/lfun_%.hpp,$(LISPLIBMODULES))
@@ -59,7 +58,7 @@ ifeq ($(OSTYPE),MinGW-win)
     DYNAMIC = -export-all-symbols
     INCDL = -I../win_port
 # This string translates an absolute UNIX-like path to an absolute windows 
-# path with double backslashes. E.g. /c/inelib -> c:\\intelib
+# path with double backslashes. E.g. /c/intelib -> c:\\intelib
     TDIR = $(shell echo $(TARGETDIRFP) | sed 's/^\/\(.\)/\1:/' | \
 		     sed 's/\//\\\\/g')
 else
@@ -86,16 +85,18 @@ else
     USEREADLINEFLAG = -DINTELIB_USE_READLINE=0
 endif
 
-
 NILL = $(TARGETDIRFP)/nill
 ILL = $(TARGETDIRFP)/ill
+
+CXXFLAGS = $(LOCALFLAGS) 
+
+
 
 default:
 	@echo "No default rule here."
 	@echo "If you only need to get a working binary, the most"
 	@echo "appropriate target for you is 'bootstrap'"
 
-CXXFLAGS = $(LOCALFLAGS) 
 
 #########################################################################
 
@@ -121,11 +122,12 @@ ill_nill: $(TARGETDIRFP)/ill_nill
 	:
 
 
-$(TARGETDIRFP)/ill_nill:	illmain.cpp $(TARGETDIRFP)/ill_nill.o $(LIBDEPEND)
+$(TARGETDIRFP)/ill_nill: illmain.cpp $(TARGETDIRFP)/ill_nill.o $(LIBDEPEND)
 	@echo "-------------------------------------------------------------"
 	@echo "    Building an ILL binary by self-applying ILL under NILL   "
 	@echo "-------------------------------------------------------------"
-	$(CXX) $(CXXFLAGS) -DHXXFILE=\"ill_nill.hxx\" $(TARGETDIRFP)/ill_nill.o \
+	$(CXX) $(CXXFLAGS) -DHXXFILE=\"ill_nill.hxx\"\
+		$(TARGETDIRFP)/ill_nill.o \
 		illmain.cpp -o $@ \
 		$(LIBINTELIB)
 

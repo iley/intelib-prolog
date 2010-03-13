@@ -962,7 +962,7 @@
   (cond ((null form) 3) ; (L)
         ((characterp form) 3) ;;;;;;;;; FOR COMMON LISP ONLY !
         ((classicatomp form) (stringlength 
-           (first (gethash (chartran (classicatomname form)) symbtable nil))
+           (first (gethash (chartran (classicatomname form)) symbtable '("")))
         ))
         ((extvarnamep form) (stringlength form))
         ((stringp form) (+ 2 (stringlength form)))
@@ -972,7 +972,7 @@
         ((eql form 't) 1)
         ((eql form 'lambda) 6) 
         ((symbolp form) (stringlength 
-           (first (gethash (chartran (symbolname form)) symbtable nil))
+           (first (gethash (chartran (symbolname form)) symbtable '("")))
         ))
         ((atom form) (error 'err_internal "strange atom encountered" form))
         ((isdottedlist form)  ; dotted list ((L| A, B, C)|| D) 

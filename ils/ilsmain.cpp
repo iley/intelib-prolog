@@ -72,7 +72,17 @@ SString DefsFilePath(const char *argv0)
     // first, check the environment variable
     const char * envpath = getenv(illdefsenvvar);
     if(envpath) return envpath;
-  
+
+    // if there is a compile-time share dir path, try using it
+#ifdef INTELIB_SHAREDIR
+    SString res(INTELIB_SHAREDIR);
+    res += dirseparatorstr;
+    res += defsfilename;
+    if(access(res.c_str(), R_OK) == 0) {
+        return res;
+    }
+#endif
+
     // now, try to extract the path from the argv[0]
     const char *last_slash = 0;
     for(const char *p = argv0; *p; p++) 
@@ -86,33 +96,43 @@ SString DefsFilePath(const char *argv0)
             *p = argv0[i];
         for(i=0; i < (signed)sizeof(defsfilename); i++, p++) 
             *p = defsfilename[i];
-        SString ret(buf);
-        delete [] buf;
-        return ret;
-    }
-  
-    // Well, looks like we were run using PATH variable
-    char *pathvar = strdup(getenv("PATH"));
-    char *cur = pathvar;
-    char *next = pathvar;
-    do {
-        while(*next && *next != pathseparator) next++;
-        if(*next) { *next = 0; next++; }
-        SString path(cur);
-        path += dirseparatorstr;
-        SString binpath = path + argv0;
-        if(access(binpath.c_str(), X_OK) == 0) {
-            // our binary file found. good. 
-            free(pathvar);
-            path += defsfilename;
-            return path;
+        if(access(buf, R_OK) == 0) {
+            SString ret(buf);
+            delete[] buf;
+            return ret;
+        } else {
+            delete[] buf;
         }
-        cur = next;
-    } while (*cur);
-    free(pathvar);
-  
-    // nothing found... lets just try the current directory
-    return defsfilename;
+    } else {
+        // Well, looks like we were run using PATH variable
+        char *pathvar = strdup(getenv("PATH"));
+        char *cur = pathvar;
+        char *next = pathvar;
+        do {
+            while(*next && *next != pathseparator) next++;
+            if(*next) { *next = 0; next++; }
+            SString path(cur);
+            path += dirseparatorstr;
+            SString binpath = path + argv0;
+            if(access(binpath.c_str(), X_OK) == 0) {
+                // our binary file found. good. 
+                free(pathvar);
+                path += defsfilename;
+                // if defsfile is also there, return it
+                if(access(path.c_str(), R_OK) == 0)
+                    return path;
+            }
+            cur = next;
+        } while (*cur);
+        free(pathvar);
+    }
+
+    // nothing found so far; let's just try the current directory
+    if(access(defsfilename, R_OK) == 0)
+        return defsfilename;
+
+    // okay, no luck at all - give up
+    return "";
 }
 
 bool verbose = false;

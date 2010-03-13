@@ -1,7 +1,7 @@
 #   InteLib                                    http://www.intelib.org
 #   The top level Makefile
 # 
-#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 #   Copyright (c) Vasiliy Kulikov, 2010
 #   Portions copyright (c) Denis Klychkov, 2010
 # 
@@ -56,7 +56,8 @@ PREFIX = /usr/local
 SYMLINK_PREFIX = 
 INCLUDEDIR = $(PREFIX)/include/intelib
 INCLUDEDIR_SYMLINK = no
-#DOCDIR=$(PREFIX)/share/docs   # not used in this version
+SHAREDIR = $(PREFIX)/share/intelib
+#DOCDIR=$(PREFIX)/share/docs/intelib   # not used in this version
 
 else
 
@@ -70,6 +71,7 @@ else
 endif
 INCLUDEDIR = $(PREFIX)/include
 INCLUDEDIR_SYMLINK = yes
+SHAREDIR = $(PREFIX)/share
 #DOCDIR=$(PREFIX)/share/docs   # not used in this version
 
 endif
@@ -94,8 +96,10 @@ default:	bootstrap FORCE
 
 bootstrap: FORCE
 	$(MAKE) library USE_READLINE=$(USE_READLINE)
-	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
-	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE)
+	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE) \
+					SHAREDIR=$(SHAREDIR)
+	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE) \
+					SHAREDIR=$(SHAREDIR)
 	[ -d irina ] && cd irina && $(MAKE)
 
 libintelib.a: win_port FORCE
@@ -114,7 +118,8 @@ libintelib.a: win_port FORCE
 	cd lisp && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				TARGETLIBNAME=$@
-	[ -d refal ] && cd refal && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
+	[ -d refal ] &&\
+	cd refal && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
@@ -179,12 +184,15 @@ install: FORCE
 		$(INSTALL_HEADERS) $$D/*.hpp  $(DESTDIR)$(INCLUDEDIR)/$$D ; \
 	done
 	$(INSTALL_HEADERS) $(TARGETDIRFP)/*.hpp $(DESTDIR)$(INCLUDEDIR)
-	$(INSTALL_DIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL_DIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR) \
+					$(DESTDIR)$(SHAREDIR)
 	$(INSTALL_LIB) $(TARGETDIRFP)/*.a $(DESTDIR)$(LIBDIR)
-	$(INSTALL_BIN) $(TARGETDIRFP)/ill $(TARGETDIRFP)/nill $(DESTDIR)$(BINDIR)
-	$(INSTALL_BIN) $(TARGETDIRFP)/ils $(TARGETDIRFP)/nils $(DESTDIR)$(BINDIR)
-	$(INSTALL_DATA) $(TARGETDIRFP)/illdef._ls $(DESTDIR)$(BINDIR)
-	$(INSTALL_DATA) $(TARGETDIRFP)/ilsdef._sc $(DESTDIR)$(BINDIR)
+	$(INSTALL_BIN) $(TARGETDIRFP)/ill $(TARGETDIRFP)/nill\
+					$(DESTDIR)$(BINDIR)
+	$(INSTALL_BIN) $(TARGETDIRFP)/ils $(TARGETDIRFP)/nils\
+					$(DESTDIR)$(BINDIR)
+	$(INSTALL_DATA) $(TARGETDIRFP)/illdef._ls $(DESTDIR)$(SHAREDIR)
+	$(INSTALL_DATA) $(TARGETDIRFP)/ilsdef._sc $(DESTDIR)$(SHAREDIR)
 ifndef DESTDIR
 ifeq ($(INCLUDEDIR_SYMLINK),yes)
 	cd $(DESTDIR)$(INCLUDEDIR) && ( [ -e intelib ] || ln -sfn . intelib )

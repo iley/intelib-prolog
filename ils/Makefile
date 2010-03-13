@@ -41,7 +41,7 @@ GEN_DEPSMK = ../gen_deps_mk.sh
 
 
 LOCALFLAGS = -fpic -funsigned-char -g -Wall -I$(TARGETDIRFP)/.. \
-			 -I$(TARGETDIRFP)
+		 -I$(TARGETDIRFP) -DINTELIB_SHAREDIR=\"$(SHAREDIR)\"
 
 SCHEMELIBMODULES = std str sel io rdr hsh m
 LIBINTELIB = -L$(TARGETDIRFP) -lintelib -lintelib_interp
@@ -92,12 +92,14 @@ endif
 NILS = $(TARGETDIRFP)/nils
 ILS= $(TARGETDIRFP)/ils
 
+CXXFLAGS = $(LOCALFLAGS) 
+
+
 default:
 	@echo "No default rule here."
 	@echo "If you only need to get a working binary, the most"
 	@echo "appropriate target for you is 'bootstrap'"
 
-CXXFLAGS = $(LOCALFLAGS) 
 
 ###############################
 # library symbols and other definitions
