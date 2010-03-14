@@ -91,7 +91,7 @@ $(DEPSMK):
 		--prefix "$(TARGETDIRFP)/" \
 		--files "$(LIBSOURCES)" \
 		--deps-mk "$@"
-	cd library && $(GEN_DEPSMK) --cxx "$(CXX)" \
+	cd library && ../$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags '$(CXXFLAGS_GENFLAGS)' \
 		--prefix "$(TARGETDIRFP)/rfun_" \
 		--files "$(LIBFUNSOURCES)" \
