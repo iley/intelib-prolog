@@ -285,9 +285,11 @@ bool IntelibContinuation::AcceptsLocation() const
         todo_stack_pointer > 0 &&
         (
             todo_stack[todo_stack_pointer-1].opcode == assign_location ||
-            todo_stack[todo_stack_pointer-1].opcode == set_context &&
+            (
+                todo_stack[todo_stack_pointer-1].opcode == set_context &&
                 todo_stack_pointer > 1 &&
                 todo_stack[todo_stack_pointer-2].opcode == assign_location
+            )
         );
 }
 
