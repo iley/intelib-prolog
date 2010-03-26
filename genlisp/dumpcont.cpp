@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file genlisp/dumpcont.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -62,9 +62,6 @@ static void print_opcode_name(int opcode, SExpressionStream *stream)
                 break;
             case IntelibContinuation::generic_iteration:
                 stream->Puts("generic_iteration");
-                break;
-            case IntelibContinuation::iteration_callback:
-                stream->Puts("iteration_callback");
                 break;
             default:
                 stream->Puts("extra/");

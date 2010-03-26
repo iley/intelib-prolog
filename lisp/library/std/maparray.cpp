@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file lisp/library/std/maparray.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -28,34 +28,28 @@ class LExpressionMaparrayIterator : public SExpressionGenericIterator {
     SExpressionVector *vec;
     SReference fun;
     int next_index;
-public:
-    static IntelibTypeId TypeId;
 
+public:
     LExpressionMaparrayIterator(const SReference &afun,
                                 const SReference &avecref,
                                 SExpressionVector *avec)
-        : SExpressionGenericIterator(TypeId),
-          vecref(avecref), vec(avec), fun(afun), next_index(0)
+        : vecref(avecref), vec(avec), fun(afun), next_index(0)
     {}
+
+private:
     ~LExpressionMaparrayIterator() {}
 
-    void ScheduleTest(IntelibContinuation& lf) {}
-
-    bool NeedAnotherIteration(IntelibContinuation& lf) const {
-        return next_index < vec->Size();
-    }
-
-    void ScheduleIteration(IntelibContinuation &lf) {
-        lf.PushResult(fun);
-        lf.PushResult((*vec)[next_index]);
-        next_index++;
-        lf.PushTodo(1);
-    }
-
-    void CollectResultOfIteration(IntelibContinuation &lf) {}
-
-    void ReturnFinalValue(IntelibContinuation &lf) {
-        lf.RegularReturn(vec->Size());
+    void DoIteration(IntelibContinuation &lf) {
+        if(next_index < vec->Size()) {
+            lf.PushTodo(IntelibContinuation::generic_iteration, this);
+            lf.PushTodo(IntelibContinuation::drop_result);
+            lf.PushResult(fun);
+            lf.PushResult((*vec)[next_index]);
+            next_index++;
+            lf.PushTodo(1);
+        } else {
+            lf.RegularReturn(vec->Size());
+        }
     }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -63,9 +57,6 @@ public:
         { return "#<-MAPARRAY ITERATOR->"; }
 #endif
 };
-
-IntelibTypeId
-LExpressionMaparrayIterator::TypeId(&SExpression::TypeId,true);
 
 void LFunctionMaparray::
 DoApply(int paramsc, const SReference paramsv[], IntelibContinuation& lf) const
