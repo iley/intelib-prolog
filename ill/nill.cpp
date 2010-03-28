@@ -209,24 +209,28 @@ void execute_lisp_expressions(IntelibLispLoop &loop, const char* expr)
     }
 }
 
+static bool interruption_flag = false;
+
 void sigint_handler(int unused)
 {
     signal(SIGINT, sigint_handler);
-    IntelibContinuation::InterruptEvaluator();
+    interruption_flag = true;
 }
 
 int run_interactive(IntelibLispLoop &loop)
 {
+    interruption_flag = false;
     signal(SIGINT, sigint_handler);
+    loop.SetExtraBreakFlag(&interruption_flag);
     for(;;) {
-        try {
-            loop.Go();
-            break;
-        }
-        catch(IntelibContinuation::Interruption &i) {
+        interruption_flag = false;
+        loop.Go();
+        if(interruption_flag)
             printf("\n#* interrupted *\n");
-        }
+        else
+            break;
     }
+    loop.SetExtraBreakFlag(0);
     return 0;
 }
 

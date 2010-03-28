@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file ill/ill_loop.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU GPL v.2
@@ -54,9 +54,9 @@ public:
     LFunctionNooperation() : SExpressionForm() {}
     ~LFunctionNooperation() {}
     virtual SString TextRepresentation() const 
-        { return "#<FORM %%%>"; }                       
+    { return "#<FORM %%%>"; }                       
     virtual void Call(const SReference &, IntelibContinuation &lf) const 
-        { lf.RegularReturn(*PTheEmptyList); }            
+    { lf.RegularReturn(*PTheEmptyList); }            
 };
 
 /////////////////////////////////////////////////////////
@@ -68,12 +68,12 @@ public:
         : SExpressionForm(), the_loop(a_loop) {}
     ~LFunctionQuit() {}
     virtual SString TextRepresentation() const 
-        { return "#<FORM QUIT>"; }                       
+    { return "#<FORM QUIT>"; }                       
     virtual void Call(const SReference &params, IntelibContinuation &lf) const 
-        {
-             the_loop->Break(params);
-             lf.RegularReturn(params); 
-        }            
+    {
+         the_loop->Break(params);
+         lf.RegularReturn(params); 
+    }            
 };
 
 /////////////////////////////////////////////////////////
@@ -238,11 +238,27 @@ SReference IntelibLispLoop::Go(const SStreamRef &in,
             break;
         }
         try {
-            LReference res =
-                lf ? r.Evaluate(*static_cast<LispContinuation*>(lf)) 
-                   : r.Evaluate();
-            out->Puts(res.TextRepresentation().c_str());
-            out->Puts("\n");
+            IntelibContinuation *cont = lf ? lf : new LispContinuation;
+            try {
+                int mark = cont->GetMark();
+                cont->PushTodo(LispContinuation::just_evaluate, r);
+                while(
+                    !break_flag &&
+                    (!extra_break_flag || !*extra_break_flag) &&
+                    !cont->Ready(mark)
+                )
+                    cont->Step();
+                if(cont->Ready(mark)) {
+                    LReference res = cont->Get();
+                    out->Puts(res.TextRepresentation().c_str());
+                    out->Puts("\n");
+                }
+            }
+            catch(...) {
+                if(!lf) delete cont;
+                throw;
+            }
+            if(!lf) delete cont;
         }
         catch(const IntelibX_reader_error &ex) {
             SString s("#* Syntax error: ");
@@ -274,7 +290,7 @@ SReference IntelibLispLoop::Go(const SStreamRef &in,
             err->Puts(s.c_str());
             PTheIntelibReader->Drop();
         }
-    } while(!break_flag);
+    } while(!break_flag && (extra_break_flag ? !*extra_break_flag : true));
 
     if(local_reader) {
         if(PTheIntelibReader == local_reader)
@@ -304,14 +320,23 @@ SReference IntelibLispLoop::Load(const SStreamRef &in, const char *fname)
             break;
         }
         try {
-            r.Evaluate();
+            //r.Evaluate();
+            LispContinuation cont;
+            int mark = cont.GetMark();
+            cont.PushTodo(LispContinuation::just_evaluate, r);
+            while(
+                !break_flag &&
+                (!extra_break_flag || !*extra_break_flag) &&
+                !cont.Ready(mark)
+            )
+                cont.Step();
         }
         catch(IntelibX& ex) {
             LListConstructor L;
             ex.AddStack((L|"#* reading line", PTheIntelibReader->GetLine()));
             throw;
         }
-    } while(!break_flag);
+    } while(!break_flag && (extra_break_flag ? !*extra_break_flag : true));
 
     return exit_code;
 }

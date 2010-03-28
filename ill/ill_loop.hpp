@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file ill/ill_loop.hpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU GPL v.2
@@ -24,6 +24,7 @@ class IntelibContinuation;
 
 class IntelibLispLoop {
     bool break_flag;
+    bool *extra_break_flag;
     SReference exit_code;
     SReference package;
 public:
@@ -44,6 +45,7 @@ public:
 
     void Break(const SReference &a_exit_code);
     void Unbreak() { break_flag = false; }
+    void SetExtraBreakFlag(bool *a_flag = 0) { extra_break_flag = a_flag; }
 };
 
 class SString;
