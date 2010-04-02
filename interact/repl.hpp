@@ -1,5 +1,5 @@
 //   InteLib                                    http://www.intelib.org
-//   The file ill/ill_loop.hpp
+//   The file interact/repl.hpp
 // 
 //   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
@@ -13,27 +13,27 @@
 
 
 
-#ifndef INTELIB_ILL_LOOP_HPP_SENTRY
-#define INTELIB_ILL_LOOP_HPP_SENTRY
+#ifndef INTELIB_REPL_HPP_SENTRY
+#define INTELIB_REPL_HPP_SENTRY
 
 #include "../sexpress/sexpress.hpp"
 #include "../tools/sstream.hpp"
-#include "../lisp/lisp.hpp"
 
 class IntelibContinuation;
 
-class IntelibLispLoop {
+class IntelibRepl {
     bool break_flag;
     bool *extra_break_flag;
     SReference exit_code;
     SReference package;
 public:
-    IntelibLispLoop(const SReference& a_package);
-    ~IntelibLispLoop() {}
+    IntelibRepl(const SReference& a_package);
+    virtual ~IntelibRepl() {}
     
-    bool ImportSymbol(const LReference& symb, 
-                      const char *name = 0, 
-                      bool safe = false);
+    virtual bool ImportSymbol(const SReference& symb, 
+                              const char *name = 0, 
+                              bool safe = false) = 0;
+    virtual void ImportLexicalSymbols(IntelibContinuation *lf) = 0;
 
     SReference Go(IntelibContinuation *a_lf = 0);
     SReference Go(const SStreamRef &in, 

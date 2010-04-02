@@ -44,7 +44,7 @@ COMPILEFLAGS = $(OPTIMIZATION) -Wall -Woverloaded-virtual -Wsynth \
 		-ggdb -fpic $(CONDDEFINES) $(USEREADLINEFLAG)
 CXXFLAGS = $(COMPILEFLAGS) 
 
-LIBSOURCES = ireadln.cpp
+LIBSOURCES = ireadln.cpp ill_loop.cpp
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
