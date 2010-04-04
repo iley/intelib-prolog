@@ -67,7 +67,7 @@ $(DEPSMK):
 	$(GEN_DEPSMK) --cxx $(CXX) \
 		--cxxflags "$(CXXFLAGS) -include ../ilisplib.hpp \
 		   -D INTELIB_LISP_LIBRARY_HEADER_GENERATION" \
-		--output "$(LFUN_PREFIX)$(DIRNAME).hpp"
+		--output "$(LFUN_PREFIX)$(DIRNAME).hpp" \
 		--files "$(CXXFILES)" \
 		--deps-mk "$@"
 	$(GEN_DEPSMK) --cxx $(CXX) \
