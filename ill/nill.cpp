@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file ill/nill.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU GPL v.2
@@ -27,7 +27,7 @@
 #include "../lisp/lpackage.hpp"
 #include "../lisp/lreader.hpp"
 
-#include "ill_loop.hpp"
+#include "nillrepl.hpp"
 
 #include "../version.h"
 
