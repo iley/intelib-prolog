@@ -336,22 +336,7 @@ public:
     void SetContext(const SReference &cont) { current_context = cont; }
 
 private:
-    static bool pending_interruption;
-    static bool interruptions_suspended;
-public:
-        //! Interrupt the evaluation
-    static void InterruptEvaluator() { pending_interruption = true; }
-        //! Cancels the interruption of the evaluation
-    static void RemoveInterruption() { pending_interruption = false; }
-        //! Temporaryly disallow interruptions
-    static void SuspendInterruptions() { interruptions_suspended = true; }
-        //! Allow interruptions again
-    static void ResumeInterruptions() { interruptions_suspended = false; }
 
-    //! Evaluator is effectively interrupted throwing object of this class
-    class Interruption {};
-
-private:
     bool IsTrue(const SReference& expr)
         { return expr.GetPtr() != PTheFalseValue->GetPtr(); }
     void JustEvaluate(const SReference& expr);

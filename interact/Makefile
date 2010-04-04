@@ -1,7 +1,7 @@
 #   InteLib                                    http://www.intelib.org
 #   The file interact/Makefile
 # 
-#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 #   Portions copyright (c) Vasiliy Kulikov, 2010
 #   Portions copyright (c) Denis Klychkov, 2010
 # 
@@ -44,7 +44,7 @@ COMPILEFLAGS = $(OPTIMIZATION) -Wall -Woverloaded-virtual -Wsynth \
 		-ggdb -fpic $(CONDDEFINES) $(USEREADLINEFLAG)
 CXXFLAGS = $(COMPILEFLAGS) 
 
-LIBSOURCES = ireadln.cpp
+LIBSOURCES = ireadln.cpp repl.cpp
 
 OBJFILES = $(patsubst %,$(TARGETDIRFP)/%,$(LIBSOURCES:.cpp=.o))
 
@@ -66,6 +66,9 @@ all_add:        $(OBJFILES) FORCE
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES) 
 
 $(TARGETDIRFP)/ireadln.o: ireadln.cpp .check_readline
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(TARGETDIRFP)/repl.o: repl.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .check_readline:

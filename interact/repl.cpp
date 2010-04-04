@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
-//   The file ill/ill_loop.cpp
+//   The file interact/repl.cpp, formerly known as ill/ill_loop.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU GPL v.2
@@ -11,31 +11,18 @@
 //   Please see the file WARRANTY for the detailed explanation.
 
 
-
-
 #include "../sexpress/sexpress.hpp"
 #include "../tools/sreader.hpp"
 #include "../tools/sstream.hpp"
+#include "../tools/spkghsh.hpp"
 #include "../genlisp/conteval.hpp"
 #include "../genlisp/lispform.hpp"
-#include "../lisp/lisp.hpp"
-#include "../lisp/lsymbol.hpp"
-#include "../lisp/lpackage.hpp"
-#include "../lisp/lreader.hpp"
-#include "../lisp/llambda.hpp"
-
-#ifndef INTELIB_NILL_TRACE_SUPPORT
-#define INTELIB_NILL_TRACE_SUPPORT 1
-#endif
-
-#if INTELIB_NILL_TRACE_SUPPORT == 1
-#include "illtrace.hpp"
-#endif
 
 
-#include "ill_loop.hpp"
 
-    // defined in ../sexpress/ireadln.cpp
+#include "repl.hpp"
+
+    // defined in ireadln.cpp
 SReference intelib_read_line(const SStreamRef &in,
                              const SStreamRef &out,
                              const SStreamRef &err,
@@ -44,76 +31,47 @@ SReference intelib_read_line(const SStreamRef &in,
                              const SString &prompt);
 
 
-   // implemented in sexpress/stackrep.cpp
+   // implemented in tools/stackrep.cpp
 SString stack_representation(SReference stack);
 
 /////////////////////////////////////////////////////////
 
-class LFunctionNooperation : public SExpressionForm {
+class SFunctionNooperation : public SExpressionForm {
 public:
-    LFunctionNooperation() : SExpressionForm() {}
-    ~LFunctionNooperation() {}
+    SFunctionNooperation() : SExpressionForm() {}
+    ~SFunctionNooperation() {}
     virtual SString TextRepresentation() const 
-        { return "#<FORM %%%>"; }                       
+    { return "#<FORM %%%>"; }                       
     virtual void Call(const SReference &, IntelibContinuation &lf) const 
-        { lf.RegularReturn(*PTheEmptyList); }            
+    { lf.RegularReturn(*PTheEmptyList); }            
 };
 
 /////////////////////////////////////////////////////////
 
-class LFunctionQuit : public SExpressionForm {
-    IntelibLispLoop *the_loop;
+class SFunctionQuit : public SExpressionForm {
+    IntelibRepl *the_loop;
 public:
-    LFunctionQuit(IntelibLispLoop *a_loop) 
+    SFunctionQuit(IntelibRepl *a_loop) 
         : SExpressionForm(), the_loop(a_loop) {}
-    ~LFunctionQuit() {}
+    ~SFunctionQuit() {}
     virtual SString TextRepresentation() const 
-        { return "#<FORM QUIT>"; }                       
+    { return "#<FORM QUIT>"; }                       
     virtual void Call(const SReference &params, IntelibContinuation &lf) const 
-        {
-             the_loop->Break(params);
-             lf.RegularReturn(params); 
-        }            
-};
-
-/////////////////////////////////////////////////////////
-
-class LFunctionBody : public SExpressionFunction {
-public:
-    LFunctionBody() : SExpressionFunction(1, 1) {}
-    ~LFunctionBody() {}
-
-    virtual SString TextRepresentation() const 
-    { return "#<FUNCTION BODY>"; } 
-
-    virtual void DoApply(int paramsc, const SReference paramsv[], 
-                         IntelibContinuation &lf) const
     {
-        LExpressionLambda *f =
-            paramsv[0].DynamicCastGetPtr<LExpressionLambda>();
-        if(f) { 
-            lf.ReferenceReturn(f->GetBody(), paramsv[0]);
-            return;
-        }
-        LExpressionMacro *m =
-            paramsv[0].DynamicCastGetPtr<LExpressionMacro>();
-        if(m) { 
-            lf.ReferenceReturn(m->GetBody(), paramsv[0]);
-            return;
-        }
-        lf.RegularReturn(*PTheEmptyList);
+         the_loop->Break(params);
+         lf.RegularReturn(params); 
     }            
 };
 
 
 /////////////////////////////////////////////////////////
 
-class LFunctionLoad : public SExpressionFunction {
-    IntelibLispLoop *the_loop;
+class SFunctionLoad : public SExpressionFunction {
+    IntelibRepl *the_loop;
 public:
-    LFunctionLoad(IntelibLispLoop *a_loop) 
+    SFunctionLoad(IntelibRepl *a_loop) 
         : SExpressionFunction(1, 1), the_loop(a_loop) {}
-    ~LFunctionLoad() {}
+    ~SFunctionLoad() {}
 
     virtual SString TextRepresentation() const 
     { return "#<FUNCTION LOAD>"; }                       
@@ -135,42 +93,19 @@ public:
 
 /////////////////////////////////////////////////////////
 
-IntelibLispLoop::IntelibLispLoop(const SReference& a_package) 
-    : package(a_package)
+void IntelibRepl::AddCommonSymbols()
 {
-    LSymbol noop("%%%");
-    noop->SetFunction(LReference(new LFunctionNooperation));
-    ImportSymbol(noop);
-
-    LSymbol quit("QUIT");
-    quit->SetFunction(LReference(new LFunctionQuit(this)));
-    ImportSymbol(quit);
-    ImportSymbol(quit, "%%%QUIT");
-
-    LSymbol load("LOAD");
-    load->SetFunction(LReference(new LFunctionLoad(this)));
-    ImportSymbol(load);
-    ImportSymbol(load, "%%%LOAD");
-
-    LSymbol body("BODY");
-    body->SetFunction(LReference(new LFunctionBody));
-    ImportSymbol(body);
-    ImportSymbol(body, "%%%BODY");
-
-#if INTELIB_NILL_TRACE_SUPPORT == 1
-    LSymbol trace("TRACE");
-    trace->SetFunction(LReference(new LFunctionTrace));
-    ImportSymbol(trace);
-    ImportSymbol(trace, "%%%TRACE");
-
-    LSymbol untrace("UNTRACE");
-    untrace->SetFunction(LReference(new LFunctionUntrace));
-    ImportSymbol(untrace);
-    ImportSymbol(untrace, "%%%UNTRACE");
-#endif
+    MakeFunctionalSymbol(new SFunctionNooperation, "%%%");
+    MakeFunctionalSymbol(new SFunctionQuit(this), "QUIT", "%%%QUIT");
+    MakeFunctionalSymbol(new SFunctionLoad(this), "LOAD", "%%%LOAD");
 }
 
-SReference IntelibLispLoop::Go(IntelibContinuation *a_lf)
+IntelibRepl::IntelibRepl(const SReference& a_package) 
+    : package(a_package)
+{
+}
+
+SReference IntelibRepl::Go(IntelibContinuation *a_lf)
 {
     SStreamStdin in;
     SStreamStdout out;
@@ -178,47 +113,39 @@ SReference IntelibLispLoop::Go(IntelibContinuation *a_lf)
     return Go(in, out, err, a_lf);
 }
 
-bool IntelibLispLoop::ImportSymbol(const LReference& symb, 
+#if 0
+bool IntelibRepl::ImportSymbol(const LReference& symb, 
                                    const char *name, 
                                    bool safe)
 {
-    return 
-        static_cast<LExpressionPackage*>(package.GetPtr())->
-            Import(symb, name, safe);
 }
+#endif
 
-SReference IntelibLispLoop::Go(const SStreamRef &in, 
-                               const SStreamRef &out, 
-                               const SStreamRef &err, 
-                               IntelibContinuation *lf)
+SReference IntelibRepl::Go(const SStreamRef &in, 
+                           const SStreamRef &out, 
+                           const SStreamRef &err, 
+                           IntelibContinuation *lf)
 {
     break_flag = false;
     exit_code = SReference();
 
     if(lf) {
-        SReference lex_symbols =
-            static_cast<LExpressionContext*>(lf->GetContext().GetPtr())
-                ->GetAllSymbols();
-        while(!lex_symbols.IsEmptyList()) {
-            LSymbolRef symb(lex_symbols.Car());
-            ImportSymbol(symb);
-            lex_symbols = lex_symbols.Cdr();
-        }
+        ImportLexicalSymbols(lf);
     }
 
-    LExpressionPackage *pkg = 
-        static_cast<LExpressionPackage*>(package.GetPtr());
+    SExpressionHashPackage *pkg = 
+        static_cast<SExpressionHashPackage*>(package.GetPtr());
 
-    static LispReader *local_reader = 0;
+    static IntelibReader *local_reader = 0;
     if(!PTheIntelibReader) {
-        if(!local_reader) local_reader = new LispReader;
+        if(!local_reader) local_reader = MakeLocalReader();
         PTheIntelibReader = local_reader;
     }
 
     PTheIntelibReader->SetPackage(pkg);
 
     do {
-        LReference r;
+        SReference r;
         try {
             if(PTheIntelibReader->IsReady())
                 r = PTheIntelibReader->Get();
@@ -238,11 +165,27 @@ SReference IntelibLispLoop::Go(const SStreamRef &in,
             break;
         }
         try {
-            LReference res =
-                lf ? r.Evaluate(*static_cast<LispContinuation*>(lf)) 
-                   : r.Evaluate();
-            out->Puts(res.TextRepresentation().c_str());
-            out->Puts("\n");
+            IntelibContinuation *cont = lf ? lf : MakeLocalContinuation();
+            try {
+                int mark = cont->GetMark();
+                cont->PushTodo(IntelibContinuation::just_evaluate, r);
+                while(
+                    !break_flag &&
+                    (!extra_break_flag || !*extra_break_flag) &&
+                    !cont->Ready(mark)
+                )
+                    cont->Step();
+                if(cont->Ready(mark)) {
+                    SReference res = cont->Get();
+                    out->Puts(SpecificTextRepresentation(res).c_str());
+                    out->Puts("\n");
+                }
+            }
+            catch(...) {
+                if(!lf) delete cont;
+                throw;
+            }
+            if(!lf) delete cont;
         }
         catch(const IntelibX_reader_error &ex) {
             SString s("#* Syntax error: ");
@@ -274,7 +217,7 @@ SReference IntelibLispLoop::Go(const SStreamRef &in,
             err->Puts(s.c_str());
             PTheIntelibReader->Drop();
         }
-    } while(!break_flag);
+    } while(!break_flag && (extra_break_flag ? !*extra_break_flag : true));
 
     if(local_reader) {
         if(PTheIntelibReader == local_reader)
@@ -286,37 +229,47 @@ SReference IntelibLispLoop::Go(const SStreamRef &in,
     return exit_code;
 }
 
-SReference IntelibLispLoop::Load(const SStreamRef &in, const char *fname)
+SReference IntelibRepl::Load(const SStreamRef &in, const char *fname)
 {
     break_flag = false;
     exit_code = SReference();
 
-    LExpressionPackage *pkg = 
-        static_cast<LExpressionPackage*>(package.GetPtr());
+    SExpressionHashPackage *pkg = 
+        static_cast<SExpressionHashPackage*>(package.GetPtr());
     PTheIntelibReader->SetPackage(pkg);
     if(fname)
         PTheIntelibReader->SetLine(1, fname);
 
+    IntelibContinuation *cont = MakeLocalContinuation();
+
     do {
-        LReference r = PTheIntelibReader->Read(in);
+        SReference r = PTheIntelibReader->Read(in);
         if(r==IntelibReader::EofMarker) {
-            Break(*PTheLispBooleanTrue);
+            Break(cont->True());
             break;
         }
         try {
-            r.Evaluate();
+            int mark = cont->GetMark();
+            cont->PushTodo(IntelibContinuation::just_evaluate, r);
+            while(
+                !break_flag &&
+                (!extra_break_flag || !*extra_break_flag) &&
+                !cont->Ready(mark)
+            )
+                cont->Step();
         }
         catch(IntelibX& ex) {
-            LListConstructor L;
+            SListConstructor L;
             ex.AddStack((L|"#* reading line", PTheIntelibReader->GetLine()));
+            delete cont;
             throw;
         }
-    } while(!break_flag);
-
+    } while(!break_flag && (extra_break_flag ? !*extra_break_flag : true));
+    delete cont;
     return exit_code;
 }
 
-void IntelibLispLoop::Break(const SReference &a_exit_code)
+void IntelibRepl::Break(const SReference &a_exit_code)
 {
     break_flag = true;
     exit_code = a_exit_code;

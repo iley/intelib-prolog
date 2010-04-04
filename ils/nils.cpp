@@ -29,7 +29,7 @@
 #include "../scheme/schreadr.hpp"
 #include "sch_std.hpp"
 
-#include "ils_loop.hpp"
+#include "nilsrepl.hpp"
 
 #include "../version.h"
 
@@ -209,24 +209,28 @@ void execute_scheme_expressions(IntelibSchemeLoop &loop, const char* expr)
     }
 }
 
+static bool interruption_flag;
+
 void sigint_handler(int unused)
 {
     signal(SIGINT, sigint_handler);
-    SchemeContinuation::InterruptEvaluator();
+    interruption_flag = true;
 }
 
 int run_interactive(IntelibSchemeLoop &loop)
 {
+    interruption_flag = false;
     signal(SIGINT, sigint_handler);
+    loop.SetExtraBreakFlag(&interruption_flag);
     for(;;) {
-        try {
-            loop.Go();
-            break;
-        }
-        catch(SchemeContinuation::Interruption &i) {
+        interruption_flag = false;
+        loop.Go();
+        if(interruption_flag)
             printf("\n#* interrupted *\n");
-        }
+        else
+            break;
     }
+    loop.SetExtraBreakFlag(0);
     return 0;
 }
 

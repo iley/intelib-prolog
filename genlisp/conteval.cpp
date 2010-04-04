@@ -107,10 +107,6 @@ SReference IntelibContinuation::Get()
 
 bool IntelibContinuation::Step()
 {
-    if(pending_interruption && !interruptions_suspended) {
-        pending_interruption = false;
-        throw Interruption();
-    }
     int opcode;
     SReference param;
 #if INTELIB_CONTINUATION_KEEPS_STACK_INFO == 1
@@ -504,11 +500,6 @@ void IntelibContinuation::DoFunctionCall(const SReference &fun_ref,
     }
     fun->Apply(paramscount, paramsvector, *this);
 }
-
-
-bool IntelibContinuation::pending_interruption = false;
-bool IntelibContinuation::interruptions_suspended = false;
-
 
 
 IntelibTypeId SExpressionGenericIterator::TypeId(&SExpression::TypeId, false);
