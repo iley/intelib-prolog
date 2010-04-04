@@ -101,7 +101,7 @@ void IntelibRepl::AddCommonSymbols()
 }
 
 IntelibRepl::IntelibRepl(const SReference& a_package) 
-    : package(a_package)
+    : break_flag(false), extra_break_flag(0), exit_code(), package(a_package)
 {
 }
 
@@ -113,13 +113,6 @@ SReference IntelibRepl::Go(IntelibContinuation *a_lf)
     return Go(in, out, err, a_lf);
 }
 
-#if 0
-bool IntelibRepl::ImportSymbol(const LReference& symb, 
-                                   const char *name, 
-                                   bool safe)
-{
-}
-#endif
 
 SReference IntelibRepl::Go(const SStreamRef &in, 
                            const SStreamRef &out, 

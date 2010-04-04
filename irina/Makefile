@@ -38,7 +38,7 @@ endif
 $(TARGETDIRFP)/irina: $(TARGETDIRFP)/irina.o $(TARGETDIRFP)/run.o $(TARGETDIRFP)/def_run.o\
     $(TARGETDIRFP)/libsexpr.a $(TARGETDIRFP)/libirefal.a
 	$(CXX) $(CXXFLAGS) $(TARGETDIRFP)/irina.o $(TARGETDIRFP)/run.o $(TARGETDIRFP)/win_port.o \
-		-L$(TARGETDIRFP) -lsexpr -lirefal -o $@
+		-L$(TARGETDIRFP) -lirefal -lsexpr -o $@
 
 $(TARGETDIRFP)/version.ref: version_generic.ref
 	sed 's/IRINA_VERSION/'$(IRINA_VERSION)'/g' version_generic.ref > $(TARGETDIRFP)/version.ref

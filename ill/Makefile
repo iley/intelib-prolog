@@ -108,7 +108,9 @@ $(TARGETDIRFP)/libintelib.a $(TARGETDIRFP)/libintelib_nill.a $(LFUNHEADERS):
 ###############################
 # Build with nill 
 
-$(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx:	$(NILL)	ill.lsp \
+a: $(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx
+
+$(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx: $(NILL) ill.lsp \
 		nill_run.lsp $(TARGETDIRFP)/illdef._ls
 	cp nill_run.lsp ill.lsp $(TARGETDIRFP)
 	cd $(TARGETDIRFP) && $(NILL) $(TARGETDIRFP)/nill_run.lsp
@@ -122,7 +124,8 @@ ill_nill: $(TARGETDIRFP)/ill_nill
 	:
 
 
-$(TARGETDIRFP)/ill_nill: illmain.cpp $(TARGETDIRFP)/ill_nill.o $(LIBDEPEND)
+$(TARGETDIRFP)/ill_nill: illmain.cpp $(TARGETDIRFP)/ill_nill.hxx\
+			$(TARGETDIRFP)/ill_nill.o $(LIBDEPEND)
 	@echo "-------------------------------------------------------------"
 	@echo "    Building an ILL binary by self-applying ILL under NILL   "
 	@echo "-------------------------------------------------------------"

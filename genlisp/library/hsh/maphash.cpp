@@ -42,6 +42,8 @@ public:
             lf.PushResult(nextval.Cdr());
             lf.PushTodo(2);
             nextval = iter.GetNext();
+        } else {
+            lf.ReturnUnspecified();
         }
     }
 

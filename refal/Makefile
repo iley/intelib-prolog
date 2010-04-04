@@ -14,7 +14,8 @@
 
 TARGETLIBNAME = libirefal.a
 
-LIBSOURCES = $(wildcard *.cpp)
+LIBSOURCES = rclause.cpp refal.cpp rfmatch.cpp rvars.cpp
+
 
 GENERATED_PREFIX = rffun
 
