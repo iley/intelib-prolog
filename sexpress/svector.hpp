@@ -275,6 +275,12 @@ public:
         { return SVectorRef(SVectorRef::operator[](i), 1/*unused*/); }
 };
 
+template <int dim>
+class SMatrix : public SMatrixRef<dim> {
+public:
+    SMatrix() : SMatrixRef<dim>(SVector()) {}
+};
+
 //! Exception: vector is not resizeable
 /*! Attempt to resize (that is, range violation) a vector which was 
     created as a fixed size one

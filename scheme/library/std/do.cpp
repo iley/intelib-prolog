@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file scheme/library/std/do.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -26,14 +26,13 @@ class SchExpressionDoIterator : public SExpressionGenericIterator {
     SReference body;
     SReference *varstepvector;
     int varstepcount;
+    bool first;
 public:
-    static IntelibTypeId TypeId;
 
     SchExpressionDoIterator(const SReference &atest, const SReference &abody)
-        : SExpressionGenericIterator(TypeId), test(atest), body(abody),
-          varstepvector(0), varstepcount(0)
+        : test(atest), body(abody), varstepvector(0), varstepcount(0),
+          first(true)
     {}
-    ~SchExpressionDoIterator() { if(varstepvector) delete[] varstepvector; }
 
     void SetIterationVector(int n, SReference *vec)
     {
@@ -41,36 +40,39 @@ public:
         varstepvector = vec;
     }
 
-    void ScheduleTest(IntelibContinuation& lf)
-    {
-        lf.PushTodo(IntelibContinuation::just_evaluate, test.Car());
-    }
 
-    bool NeedAnotherIteration(IntelibContinuation& lf) const {
+private:
+    ~SchExpressionDoIterator() { if(varstepvector) delete[] varstepvector; }
+
+    void DoIteration(IntelibContinuation &lf) {
+        if(first) {
+            lf.PushTodo(IntelibContinuation::generic_iteration, this);
+            lf.PushTodo(IntelibContinuation::just_evaluate, test.Car());
+            first = false;
+            return;
+        }
+
         SReference res;
         lf.PopResult(res);
-        return res.GetPtr() == PTheSchemeBooleanFalse->GetPtr();
-    }
+        bool not_done = (res.GetPtr() == PTheSchemeBooleanFalse->GetPtr());
 
-    void ScheduleIteration(IntelibContinuation &lf) {
-        ScheduleTest(lf);
-        for(int i = 0; i < varstepcount; i++) {
-            lf.PushTodo(IntelibContinuation::assign_to, varstepvector[2*i]);
-            lf.PushTodo(IntelibContinuation::just_evaluate, varstepvector[2*i+1]);
-        }
-        lf.PushTodo(IntelibContinuation::drop_result);
-        lf.PushTodo(IntelibContinuation::evaluate_progn, body);
-    }
-
-    void CollectResultOfIteration(IntelibContinuation &lf) {
-        // nothing to do
-    }
-
-    void ReturnFinalValue(IntelibContinuation &lf) {
-        if(test.Cdr().IsEmptyList()) {
-            lf.ReturnUnspecified();
+        if(not_done) {
+            lf.PushTodo(IntelibContinuation::generic_iteration, this);
+            lf.PushTodo(IntelibContinuation::just_evaluate, test.Car());
+            for(int i = 0; i < varstepcount; i++) {
+                lf.PushTodo(IntelibContinuation::assign_to,
+                            varstepvector[2*i]);
+                lf.PushTodo(IntelibContinuation::just_evaluate,
+                            varstepvector[2*i+1]);
+            }
+            lf.PushTodo(IntelibContinuation::drop_result);
+            lf.PushTodo(IntelibContinuation::evaluate_progn, body);
         } else {
-            lf.PushTodo(IntelibContinuation::evaluate_progn, test.Cdr());
+            if(test.Cdr().IsEmptyList()) {
+                lf.ReturnUnspecified();
+            } else {
+                lf.PushTodo(IntelibContinuation::evaluate_progn, test.Cdr());
+            }
         }
     }
 
@@ -79,7 +81,6 @@ public:
 #endif
 };
 
-IntelibTypeId SchExpressionDoIterator::TypeId(&SExpression::TypeId,true);
 
 static void analyze_vars(const SReference& vars,
                          SchContextRef& tempcontext,
@@ -131,10 +132,6 @@ Call(const SReference &paramsv, IntelibContinuation& lf) const
     SchContextRef tempcontext(new SchExpressionContext(lf.GetContext()));
 
     SchExpressionDoIterator *iter = new SchExpressionDoIterator(test, body);
-    lf.PushTodo(IntelibContinuation::generic_iteration, SReference(iter));
-
-    iter->ScheduleTest(lf);
-    lf.PushTodo(IntelibContinuation::set_context, tempcontext);
 
     int varcnt;
     SReference *varstepvec;
@@ -143,6 +140,8 @@ Call(const SReference &paramsv, IntelibContinuation& lf) const
 
     iter->SetIterationVector(varcnt, varstepvec);
 
+    lf.PushTodo(IntelibContinuation::generic_iteration, SReference(iter));
+    lf.PushTodo(IntelibContinuation::set_context, tempcontext);
 }
 
 #endif

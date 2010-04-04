@@ -1,7 +1,7 @@
 #   InteLib                                    http://www.intelib.org
 #   The file ils/Makefile
 # 
-#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 #   Portions copyright (c) Vasiliy Kulikov, 2010
 #   Portions copyright (c) Denis Klychkov, 2010
 # 
@@ -129,16 +129,16 @@ $(TARGETDIRFP)/ilsdef._sc:	$(TARGETDIRFP)/schartran._sc ilsbdef.scm
 ###############################
 # Interpreter
 
-$(TARGETDIRFP)/ils_loop.o: ils_loop.cpp ils_loop.hpp
+$(TARGETDIRFP)/nilsrepl.o: nilsrepl.cpp nilsrepl.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
-$(TARGETDIRFP)/nils.o: nils.cpp ils_loop.hpp ../version.h
+$(TARGETDIRFP)/nils.o: nils.cpp nilsrepl.hpp ../version.h
 	$(CXX) $(CXXFLAGS) $(INCDL) -c $< -o $@ 
 
 nils: $(TARGETDIRFP)/nils
 	:
 
-$(TARGETDIRFP)/nils: $(TARGETDIRFP)/nils.o $(TARGETDIRFP)/ils_loop.o \
+$(TARGETDIRFP)/nils: $(TARGETDIRFP)/nils.o $(TARGETDIRFP)/nilsrepl.o \
 		$(TARGETDIRFP)/ssympkg.o
 	$(CXX) $(CXXFLAGS) $^  -o $@ \
 	  $(LIBINTELIB) $(LIBMATH) $(LIBREADLINE) $(LIBDL) -Wl,$(DYNAMIC)
@@ -199,7 +199,7 @@ $(DEPSMK): Makefile
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS)" \
 		--prefix "$(TARGETDIRFP)/" \
-		--files "ssympkg.cxx ils_loop.cpp" \
+		--files "ssympkg.cxx nilsrepl.cpp" \
 		--deps-mk "$@"
 
 
@@ -261,10 +261,10 @@ TARGETLIBNAME = libilldebug.a
 
 -include $(TARGETDIRFP)/defines.mk
 
-lib: $(TARGETDIRFP)/ssympkg.o $(TARGETDIRFP)/ils_loop.o
+lib: $(TARGETDIRFP)/ssympkg.o $(TARGETDIRFP)/nilsrepl.o
 	$(AR) crs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
-lib_add: $(TARGETDIRFP)/ssympkg.o $(TARGETDIRFP)/ils_loop.o
+lib_add: $(TARGETDIRFP)/ssympkg.o $(TARGETDIRFP)/nilsrepl.o
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
 ###############################

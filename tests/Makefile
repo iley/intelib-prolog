@@ -13,7 +13,8 @@
 
 
 
-TESTDIRS= sexpress lisp scheme refal prolog
+TESTDIRS= sexpress lisp scheme prolog
+#TESTDIRS= sexpress lisp scheme refal prolog
 OPTIMIZATION = -O0
 INCDIRS = -I. -I.. -I../..
 CXXFLAGS = $(OPTIMIZATION) -ggdb -Wall $(INCDIRS) $(CONDDEFINES)
@@ -21,7 +22,8 @@ CXXFLAGS = $(OPTIMIZATION) -ggdb -Wall $(INCDIRS) $(CONDDEFINES)
 
 rund run:
 	for D in $(TESTDIRS) ; do \
-		([ -d $$D ] && cd $$D && $(MAKE) $(MAKECMDGOALS)) || true; \
+		([ -d $$D -a -d ../$$D ] && cd $$D && $(MAKE) $(MAKECMDGOALS))\
+			|| true; \
 	done
 
 brief:

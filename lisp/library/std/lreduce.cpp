@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file lisp/library/std/lreduce.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -24,47 +24,40 @@ class LExpressionLreduceIterator : public SExpressionGenericIterator {
     SReference fun;
     SReference val;
     SReference rest;
+    bool not_first;
 public:
-    static IntelibTypeId TypeId;
 
     LExpressionLreduceIterator(const SReference &afun,
                                const SReference &aval,
                                const SReference &arest)
-        : SExpressionGenericIterator(TypeId),
-          fun(afun), val(aval), rest(arest)
+        : fun(afun), val(aval), rest(arest), not_first(false)
     {}
+
+private:
     ~LExpressionLreduceIterator() {}
 
-    void ScheduleTest(IntelibContinuation& lf) {}
-
-    bool NeedAnotherIteration(IntelibContinuation& lf) const {
-        return !rest.IsEmptyList();
+    void DoIteration(IntelibContinuation &lf) {
+        if(not_first)
+            lf.PopResult(val);
+        not_first = true;
+        if(!rest.IsEmptyList()) {
+            lf.PushTodo(IntelibContinuation::generic_iteration, this);
+            lf.PushResult(fun);
+            lf.PushResult(val);
+            lf.PushResult(rest.Car());
+            lf.PushTodo(2);
+            rest = rest.Cdr();
+        } else {
+            lf.RegularReturn(val);
+        }
     }
 
-    void ScheduleIteration(IntelibContinuation &lf) {
-        lf.PushResult(fun);
-        lf.PushResult(val);
-        lf.PushResult(rest.Car());
-        lf.PushTodo(2);
-        rest = rest.Cdr();
-    }
-
-    void CollectResultOfIteration(IntelibContinuation &lf) {
-        lf.PopResult(val);
-    }
-
-    void ReturnFinalValue(IntelibContinuation &lf) {
-        lf.RegularReturn(val);
-    }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     class SString TextRepresentation() const
         { return "#<-LREDUCE ITERATOR->"; }
 #endif
 };
-
-IntelibTypeId
-LExpressionLreduceIterator::TypeId(&SExpression::TypeId,true);
 
 void LFunctionLreduce::
 DoApply(int paramsc, const SReference paramsv[], IntelibContinuation& lf) const

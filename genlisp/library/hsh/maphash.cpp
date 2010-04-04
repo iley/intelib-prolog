@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file genlisp/library/hsh/maphash.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -24,36 +24,27 @@ class SExpressionMaphashIterator : public SExpressionGenericIterator {
     SExpressionHashTable::Iterator iter;
     SReference nextval;
 public:
-    static IntelibTypeId TypeId;
 
     SExpressionMaphashIterator(const SReference &a_fun,
-                                 SExpressionHashTable *hash)
-        : SExpressionGenericIterator(TypeId),
-          fun(a_fun), iter(*hash)
+                               SExpressionHashTable *hash)
+        : fun(a_fun), iter(*hash)
     {
         nextval = iter.GetNext();
     }
     ~SExpressionMaphashIterator() {}
 
-    bool NeedAnotherIteration(IntelibContinuation& lf) const {
-        return nextval.GetPtr() != 0;
-    }
-
-    void ScheduleIteration(IntelibContinuation &lf) {
-        lf.PushResult(fun);
-        lf.PushResult(nextval.Car());
-        lf.PushResult(nextval.Cdr());
-        lf.PushTodo(2);
-        nextval = iter.GetNext();
-    }
-
-    void CollectResultOfIteration(IntelibContinuation &lf) {
-        SReference res;
-        lf.PopResult(res);
-    }
-
-    void ReturnFinalValue(IntelibContinuation &lf) {
-        lf.ReturnUnspecified();
+    void DoIteration(IntelibContinuation &lf) {
+        if(nextval.GetPtr()) {
+            lf.PushTodo(IntelibContinuation::generic_iteration, this);
+            lf.PushTodo(IntelibContinuation::drop_result);
+            lf.PushResult(fun);
+            lf.PushResult(nextval.Car());
+            lf.PushResult(nextval.Cdr());
+            lf.PushTodo(2);
+            nextval = iter.GetNext();
+        } else {
+            lf.ReturnUnspecified();
+        }
     }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -61,9 +52,6 @@ public:
         { return "#<-MAPHASH ITERATOR->"; }
 #endif
 };
-
-IntelibTypeId
-SExpressionMaphashIterator::TypeId(&SExpression::TypeId,true);
 
 void SFunctionMaphash::
 DoApply(int paramsc, const SReference paramsv[], IntelibContinuation& lf) const

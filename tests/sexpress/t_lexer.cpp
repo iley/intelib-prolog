@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file tests/sexpress/t_lexer.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU GPL v.2
@@ -228,6 +228,24 @@ int main()
             TESTTR("get_true", lexer.Get(), "(#T . 1)");
             TESTB("feed_true4", lexer.FeedChar(' ') == lexer.res_ready);
             TESTTR("get_true", lexer.Get(), "(#(# . 1)");
+        }
+        TestSubsection("planner lexic");
+        {
+            IntelibSLexAnalyser lexer;
+
+            TESTB("add_dottoken",
+                lexer.AddTokenStarter(".", string_dasher_fun));
+            TESTB("feed_float1", lexer.FeedChar('2') == lexer.res_continue);
+            TESTB("feed_float2", lexer.FeedChar('.') == lexer.res_continue);
+            TESTB("feed_float3", lexer.FeedChar('3') == lexer.res_continue);
+            TESTB("feed_float4", lexer.FeedChar(' ') == lexer.res_ready);
+            TEST("float_read", lexer.Get().Car().GetFloat(), 2.3);
+            TESTB("feed_dottoken1", lexer.FeedChar('.') == lexer.res_continue);
+            TESTB("feed_dottoken2", lexer.FeedChar('x') == lexer.res_continue);
+            TESTB("feed_dottoken3", lexer.FeedChar('y') == lexer.res_continue);
+            TESTB("feed_dottoken4", lexer.FeedChar(' ') == lexer.res_ready);
+            TESTTR("float_read", lexer.Get().Car(), "\"--xy--\"");
+            
         }
         TestScore();
     }

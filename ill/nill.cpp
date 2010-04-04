@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file ill/nill.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU GPL v.2
@@ -27,7 +27,7 @@
 #include "../lisp/lpackage.hpp"
 #include "../lisp/lreader.hpp"
 
-#include "ill_loop.hpp"
+#include "nillrepl.hpp"
 
 #include "../version.h"
 
@@ -209,24 +209,28 @@ void execute_lisp_expressions(IntelibLispLoop &loop, const char* expr)
     }
 }
 
+static bool interruption_flag = false;
+
 void sigint_handler(int unused)
 {
     signal(SIGINT, sigint_handler);
-    IntelibContinuation::InterruptEvaluator();
+    interruption_flag = true;
 }
 
 int run_interactive(IntelibLispLoop &loop)
 {
+    interruption_flag = false;
     signal(SIGINT, sigint_handler);
+    loop.SetExtraBreakFlag(&interruption_flag);
     for(;;) {
-        try {
-            loop.Go();
-            break;
-        }
-        catch(IntelibContinuation::Interruption &i) {
+        interruption_flag = false;
+        loop.Go();
+        if(interruption_flag)
             printf("\n#* interrupted *\n");
-        }
+        else
+            break;
     }
+    loop.SetExtraBreakFlag(0);
     return 0;
 }
 

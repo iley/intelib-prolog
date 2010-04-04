@@ -107,10 +107,6 @@ SReference IntelibContinuation::Get()
 
 bool IntelibContinuation::Step()
 {
-    if(pending_interruption && !interruptions_suspended) {
-        pending_interruption = false;
-        throw Interruption();
-    }
     int opcode;
     SReference param;
 #if INTELIB_CONTINUATION_KEEPS_STACK_INFO == 1
@@ -167,9 +163,6 @@ bool IntelibContinuation::Step()
                 break;
             case generic_iteration:
                 GenericIteration(param);
-                break;
-            case iteration_callback:
-                IterationCallback(param);
                 break;
             default:
                 CustomCommand(opcode, param);
@@ -460,24 +453,7 @@ void IntelibContinuation::GenericIteration(const SReference &param)
 {
     SExpressionGenericIterator *iter =
         static_cast<SExpressionGenericIterator*>(param.GetPtr()); 
-    if(iter->NeedAnotherIteration(*this)) {
-            // return it to the stack
-        PushTodo(generic_iteration, param);
-            // schedule the callback
-        PushTodo(iteration_callback, param);
-            // let the iteration plan execution of its body
-        iter->ScheduleIteration(*this);
-    } else {
-            // no more iterations, just compute the final value
-        iter->ReturnFinalValue(*this);
-    }
-}
-
-void IntelibContinuation::IterationCallback(const SReference &param)
-{
-    SExpressionGenericIterator *iter =
-        static_cast<SExpressionGenericIterator*>(param.GetPtr()); 
-    iter->CollectResultOfIteration(*this);
+    iter->DoIteration(*this);
 }
 
 void IntelibContinuation::PlacePrognToStack(const SReference &rest)
@@ -526,9 +502,7 @@ void IntelibContinuation::DoFunctionCall(const SReference &fun_ref,
 }
 
 
-bool IntelibContinuation::pending_interruption = false;
-bool IntelibContinuation::interruptions_suspended = false;
-
+IntelibTypeId SExpressionGenericIterator::TypeId(&SExpression::TypeId, false);
 
 
 IntelibX_continuation_unknown_operation::

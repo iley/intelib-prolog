@@ -1,6 +1,0 @@
-* INTELIB_CONTRIBUTED
-* Written by Igor Bronstein (<igor.bronstein_AT_gmail.com>)
-
-$ENTRY GetCurrentVersion {
-  = '0.2.00';
-}

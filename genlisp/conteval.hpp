@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file genlisp/conteval.hpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -94,7 +94,7 @@ public:
 /*! The InteLib Continuation is a stack-based virtual machine intended
     to perform Lisp-like evaluations.  This class is used as a base for
     Lisp-specific and Scheme-specific classes.
-
+    
     The machine holds two stacks, the result_stack and the todo_stack.
     The result_stack contains SReference's to which evaluations result;
     its fragments are used as argument vectors for functions, therefore
@@ -290,10 +290,8 @@ public:
             //! Generic iteration
             /*! See SExpressionGenericIteration */
         generic_iteration =  -13,
-            //! Generic iteration implementation subcommand
-        iteration_callback = -14,
             //! -max_command is the count of defined commands
-        max_command = -14
+        max_command = -13
     };
 
         //! Add an instruction to the todo stack
@@ -338,22 +336,7 @@ public:
     void SetContext(const SReference &cont) { current_context = cont; }
 
 private:
-    static bool pending_interruption;
-    static bool interruptions_suspended;
-public:
-        //! Interrupt the evaluation
-    static void InterruptEvaluator() { pending_interruption = true; }
-        //! Cancels the interruption of the evaluation
-    static void RemoveInterruption() { pending_interruption = false; }
-        //! Temporaryly disallow interruptions
-    static void SuspendInterruptions() { interruptions_suspended = true; }
-        //! Allow interruptions again
-    static void ResumeInterruptions() { interruptions_suspended = false; }
 
-    //! Evaluator is effectively interrupted throwing object of this class
-    class Interruption {};
-
-private:
     bool IsTrue(const SReference& expr)
         { return expr.GetPtr() != PTheFalseValue->GetPtr(); }
     void JustEvaluate(const SReference& expr);
@@ -364,7 +347,6 @@ private:
     void BailOnFalse();
     void AssignLocation();
     void GenericIteration(const SReference& expr);
-    void IterationCallback(const SReference& expr);
 
     bool AcceptsLocation() const;
 
@@ -385,42 +367,37 @@ protected:
 };
 
 //! Interface class used for iterations (such as LOOP or MAPCAR)
-/*! The instructions generic_iteration and iteration_callback of
-    the IntelibContinuation class use an object derived from this
-    class to perform iterative evaluations.
+/*! The instruction generic_iteration of the IntelibContinuation class
+    use an object derived from this class to perform iterative evaluations.
 
     The operation is as follows: when the IntelibContinuation encounters
     the generic_iteration instruction (whose parameter must always be a
-    subclass of SExpressionGenericIterator), it calls the
-    NeedAnotherIteration() method; if it returns true, it pushes to
-    the todo stack another generic_iteration with the same object,
-    then pushes the iteration_callback (which will call the
-    CollectResultOfIteration method), then calls the ScheduleIteration()
-    to give the object a chance to schedule its own stuff.  Therefore,
-    during the iteration this stuff will be evaluated first, then
-    CollectResultOfIteration will be called, and then the decision-making
-    generic_iteration instruction is performed again.
+    subclass of SExpressionGenericIterator), it temporariry memorizes the
+    object (so that it doesn't get deleted) and calls the DoIteration()
+    method.  It is the duty of the method either to push another
+    generic_interation command with the same object to the ToDo stack,
+    or to push the final commands in case no more iterations are needed.
 
     \warning Make sure you don't reenter the IntelibContinuation::Step()
-    (the evaluator) from within any of the methods of this class, or else
+    (the evaluator) from within the methods of this class, or else
     you definitely break the CALL/CC!  Simply speaking, just NEVER TRY
-    TO EVALUATE ANYTHING RIGHT FROM THE METHODS, rather schedule the needed
+    TO EVALUATE ANYTHING RIGHT FROM THE METHOD, rather schedule the needed
     evaluations as explained above.
  */
 class SExpressionGenericIterator : public SExpression {
 public:
-    SExpressionGenericIterator(IntelibTypeId &tid)
-        : SExpression(tid) {}
-    ~SExpressionGenericIterator() {}
+    static IntelibTypeId TypeId;
 
-        //! Should we continue?
-    virtual bool NeedAnotherIteration(IntelibContinuation& lf) const = 0;
-        //! Push the appropriate stuff to the todo list
-    virtual void ScheduleIteration(IntelibContinuation &lf) = 0;
-        //! Retrieve the result(s) of the last iteration
-    virtual void CollectResultOfIteration(IntelibContinuation &lf) = 0;
-        //! What do we return after the iteration is complete
-    virtual void ReturnFinalValue(IntelibContinuation &lf) = 0;
+    SExpressionGenericIterator() : SExpression(TypeId) {}
+
+        //! The method to be called
+        /*! IntelibContinuation calls this in response to the
+            generic_iteration command
+         */
+    virtual void DoIteration(IntelibContinuation& lf) = 0;
+
+protected:
+    ~SExpressionGenericIterator() {}
 };
 
     //! Unknown instruction code in the IntelibContinuation class

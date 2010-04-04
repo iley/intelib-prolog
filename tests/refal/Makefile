@@ -14,7 +14,7 @@
 
 
 ifdef TARGETDIR
--include bin_$(TARGETDIR)/defines.mk
+-include bin_$(TARGETDIR)/intelib/defines.mk
 endif
 
 OPTIMIZATION = -O0
@@ -29,7 +29,7 @@ TARGETDIRS = default
 
 ifdef TARGETDIR
 BINTESTS = $(patsubst %,bin_$(TARGETDIR)/%,$(TESTS))
--include bin_$(TARGETDIR)/defines.mk
+-include bin_$(TARGETDIR)/intelib/defines.mk
 endif
 
 ALLSOURCES = $(wildcard *.[ch]pp)
@@ -67,8 +67,8 @@ run_dir: $(BINTESTS)
 	@echo "@@@ * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 	@echo "@@@ * Processing directory bin_$(TARGETDIR)"
 	@echo "@@@ * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-	for T in $(BINTESTS) ; do \
-		$$T  ; \
+	@for T in $(BINTESTS) ; do \
+		$$T || echo "@@@ * $$T FAILED AS A WHOLE " '!!!' ; \
 	done
 
 brief:
@@ -82,26 +82,28 @@ log:
 
 ifdef TARGETDIR
 
-LIB_OBJECTS = bin_$(TARGETDIR)/libirefal.a bin_$(TARGETDIR)/libsexpr.a 
+LIB_OBJECTS = bin_$(TARGETDIR)/intelib/libirefal.a
+	bin_$(TARGETDIR)/iintelib/libsexpr.a 
 
 bin_$(TARGETDIR):
 	mkdir -p $@
+	mkdir -p $@/intelib
 
 bin_$(TARGETDIR)/%:	%.cpp ../tests.o $(LIB_OBJECTS)
 	$(CXX) $(CXXFLAGS_GENFLAGS) $^ -o $@ $(CONDDEFINES) 
 
-bin_$(TARGETDIR)/libsexpr.a:	bin_$(TARGETDIR) FORCE
+bin_$(TARGETDIR)/intelib/libsexpr.a:	bin_$(TARGETDIR) FORCE
 	cd ../../sexpress && $(MAKE) all \
 		TARGETDIR=../tests/refal/bin_$(TARGETDIR) \
 		OPTIMIZATION=$(OPTIMIZATION)
 
-bin_$(TARGETDIR)/libirefal.a:	bin_$(TARGETDIR) FORCE
+bin_$(TARGETDIR)/intelib/libirefal.a:	bin_$(TARGETDIR) FORCE
 	cd ../../refal && $(MAKE) all \
 		TARGETDIR=../tests/refal/bin_$(TARGETDIR) \
 		OPTIMIZATION=$(OPTIMIZATION) 
 
-bin_$(TARGETDIR)/defines.mk: bin_$(TARGETDIR) $(TARGETDIR)_defines.mk
-	cp $(TARGETDIR)_defines.mk bin_$(TARGETDIR)/defines.mk
+bin_$(TARGETDIR)/intelib/defines.mk: bin_$(TARGETDIR) $(TARGETDIR)_defines.mk
+	cp $(TARGETDIR)_defines.mk bin_$(TARGETDIR)/intelib/defines.mk
 	
 endif
 

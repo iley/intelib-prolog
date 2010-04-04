@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file lisp/library/std/remove.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -26,41 +26,37 @@ class LExpressionRemoveIterator : public SExpressionGenericIterator {
     SReference val;
     SReference src;
     SQueue res;
+    bool not_first;
 public:
-    static IntelibTypeId TypeId;
 
     LExpressionRemoveIterator(const SReference &fun,
                               const SReference &aval,
                               const SReference &list)
-        : SExpressionGenericIterator(TypeId),
-          predicate(fun), val(aval), src(list), res()
+        : predicate(fun), val(aval), src(list), res(), not_first(false)
     {}
+
+private:
     ~LExpressionRemoveIterator() {}
 
-    void ScheduleTest(IntelibContinuation& lf) {}
-
-    bool NeedAnotherIteration(IntelibContinuation& lf) const {
-        return !src.IsEmptyList();
-    }
-
-    void ScheduleIteration(IntelibContinuation &lf) {
-        lf.PushResult(predicate);
-        lf.PushResult(val);
-        lf.PushResult(src.Car());
-        lf.PushTodo(2);
-    }
-
-    void CollectResultOfIteration(IntelibContinuation &lf) {
-        SReference r;
-        lf.PopResult(r);
-        if(!LReference(r).IsTrue()) {
-            res.Append(src.Car());
+    void DoIteration(IntelibContinuation &lf) {
+        if(not_first) {
+            SReference r;
+            lf.PopResult(r);
+            if(!LReference(r).IsTrue()) {
+                res.Append(src.Car());
+            }
+            src = src.Cdr();
         }
-        src = src.Cdr();
-    }
-
-    void ReturnFinalValue(IntelibContinuation &lf) {
-        lf.RegularReturn(res);
+        not_first = true;
+        if(!src.IsEmptyList()) {
+            lf.PushTodo(IntelibContinuation::generic_iteration, this);
+            lf.PushResult(predicate);
+            lf.PushResult(val);
+            lf.PushResult(src.Car());
+            lf.PushTodo(2);
+        } else {
+            lf.RegularReturn(res);
+        }
     }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -68,9 +64,6 @@ public:
         { return "#<-REMOVE ITERATOR->"; }
 #endif
 };
-
-IntelibTypeId
-LExpressionRemoveIterator::TypeId(&SExpression::TypeId,true);
 
 
 static LReference do_remove2(const LReference &item,

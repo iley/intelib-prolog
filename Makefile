@@ -101,11 +101,11 @@ default:	bootstrap FORCE
 
 bootstrap: FORCE
 	$(MAKE) library USE_READLINE=$(USE_READLINE)
-	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE) \
-					SHAREDIR=$(SHAREDIR)
 	cd ill && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE) \
 					SHAREDIR=$(SHAREDIR)
-	[ -d irina ] && cd irina && $(MAKE)
+	cd ils && $(MAKE) bootstrap USE_READLINE=$(USE_READLINE) \
+					SHAREDIR=$(SHAREDIR)
+#	[ -d irina ] && cd irina && $(MAKE)
 
 libintelib.a: win_port FORCE
 	cd sexpress && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
@@ -134,11 +134,11 @@ libintelib_interp.a: win_port FORCE
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
-	cd ils && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP)/.. \
+	cd ill && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
-	cd ill && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP)/.. \
+	cd ils && $(MAKE) lib_add TARGETDIR=$(TARGETDIRFP)/.. \
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@

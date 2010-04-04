@@ -25,7 +25,7 @@
 
 
 
-LReference square(int paramsc, const SReference *paramsv)
+SReference square(int paramsc, const SReference *paramsv)
 {
     int i = paramsv[0].GetInt();
     return LReference(i*i);

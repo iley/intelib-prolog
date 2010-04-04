@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file tests/sexpress/t_vector.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU GPL v.2
@@ -37,7 +37,7 @@ int main()
         TestSection("SVector");
         TestSubsection("Matrix");
         {
-            SMatrixRef<5> matrix;
+            SMatrix<5> matrix;
             matrix[1][2][1][0][1] = 123;
             matrix[2][1][0][1][4] = 777;
 
@@ -99,21 +99,21 @@ int main()
             SVector v;
             for(int i=0; i<5; i++) v[i]=i;
             TEST("text_rep", v->TextRepresentation().c_str(),
-                 "#<[0 1 2 3 4]>");
+                 "#~(0 1 2 3 4)");
 
         }
         TestSubsection("Range Copying");
         {
-            SVectorRef v;
+            SVector v;
             for(int i=0; i<15; i++) v[i]=i;
 
             SVectorRange r(v,5,3);
             TEST("range_copy", r.Copy()->TextRepresentation().c_str(),
-                 "#<[5 6 7]>");
+                 "#~(5 6 7)");
             TESTB("copy_keeps_positive_resizeability",
                  r.Copy()->IsResizeable());
 
-            SVectorRef vn(5);
+            SVector vn(5);
             for(int i=0; i<5; i++) vn[i]=i*100;
             SVectorRange rn(vn,1,2);
             TESTB("copy_keeps_negative_resizeability",
@@ -129,42 +129,48 @@ int main()
         }
         TestSubsection("Range Erasing");
         {
-            SVectorRef v;
+            SVector v;
             for(int i=0; i<15; i++) v[i]=i;
             SVectorRange r(v,3,10);
             r.Erase();
             TEST("range_erase", v->TextRepresentation().c_str(),
-                 "#<[0 1 2 13 14]>");
+                 "#~(0 1 2 13 14)");
             TEST("range_erase_size", v->Size(), 5);
             TEST("range_erase_range_len", r.Copy()->Size(), 0);
 
         }
         TestSubsection("Range Replacing");
         {
-            SVectorRef v, w;
+            SVector v, w;
             for(int i=0; i<15; i++) v[i]=i;
             for(int i=0; i<5; i++) w[i]=i*100;
 
             SVectorRange r(v,3,10);
             r.Replace(w);
             TEST("range_replace_less", v->TextRepresentation().c_str(),
-                 "#<[0 1 2 0 100 200 300 400 13 14]>");
+                 "#~(0 1 2 0 100 200 300 400 13 14)");
             TEST("range_replace_less_size", v->Size(), 10);
             TEST("range_replace_less_range_len", r.Copy()->Size(), 5);
         }
         {
-            SVectorRef v, w;
+            SVector v, w;
             for(int i=0; i<10; i++) v[i]=i;
             for(int i=0; i<5; i++) w[i]=i*100;
 
             SVectorRange r(w,1,2);
             r.Replace(v);
             TEST("range_replace_more", w->TextRepresentation().c_str(),
-                 "#<[0 0 1 2 3 4 5 6 7 8 9 300 400]>");
+                 "#~(0 0 1 2 3 4 5 6 7 8 9 300 400)");
             TEST("range_replace_more_size", w->Size(), 13);
             TEST("range_replace_more_range_len", r.Copy()->Size(), 10);
         }
         TestScore();
+    }
+    catch(const IntelibX &ex) {
+        printf("Caught IntelibX: %s\n%s\n",
+            ex.Description(),
+            ex.Parameter().GetPtr() ?
+                ex.Parameter()->TextRepresentation().c_str() : "");
     }
     catch(...) {
         printf("Something strange caught\n");

@@ -102,14 +102,19 @@ int main()
                  "\" \"");
             TEST("string2c_newline", (L|STRING2C, "\n").Evaluate().GetString(),
                  "\"\\n\"");
-            TEST("string2c", (L|STRING2C, "\n\tABC \007.").Evaluate().GetString(),
+            TEST("string2c", (L|STRING2C, "\n\tABC \007.").
+                                              Evaluate().GetString(),
                  "\"\\n\\tABC \\007.\"");
         }
         TestSubsection("Characterp");
         {
-            TESTB("characterp_ok", (L|CHARACTERP, "a").Evaluate().IsTrue());
-            TESTB("characterp_2_false", !(L|CHARACTERP, "ab").Evaluate().IsTrue());
-            TESTB("characterp_0_false", !(L|CHARACTERP, "").Evaluate().IsTrue());
+            TESTB("characterp_ok", (L|CHARACTERP, 'a').Evaluate().IsTrue());
+            TESTB("characterp_1str_false",
+                                 !(L|CHARACTERP, "a").Evaluate().IsTrue());
+            TESTB("characterp_2_false",
+                                 !(L|CHARACTERP, "ab").Evaluate().IsTrue());
+            TESTB("characterp_0_false",
+                                 !(L|CHARACTERP, "").Evaluate().IsTrue());
         }
         TestScore();
     }

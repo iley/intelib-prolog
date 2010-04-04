@@ -121,11 +121,12 @@ SString DefsFilePath(const char *argv0)
             SString binpath = path + argv0;
             if(access(binpath.c_str(), X_OK) == 0) {
                 // our binary file found. good. 
-                free(pathvar);
                 path += defsfilename;
                 // if defsfile is also there, return it
-                if(access(path.c_str(), R_OK) == 0)
+                if(access(path.c_str(), R_OK) == 0) {
+                    free(pathvar);
                     return path;
+                }
             }
             cur = next;
         } while (*cur);

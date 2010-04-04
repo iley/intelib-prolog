@@ -1,9 +1,7 @@
 #   InteLib                                    http://www.intelib.org
 #   The file lib.mk
 #
-#   Based on the file originally named lisp/Makefile.
-#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
-# 
+#   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 #   Copyright (c) Vasiliy Kulikov, 2010
 #   Portions copyright (c) Denis Klychkov, 2010
 # 
@@ -54,19 +52,31 @@ DEPSMK = $(TARGETDIRFP)/$(GENERATED_PREFIX)_deps.mk
 
 GEN_DEPSMK = ../gen_deps_mk.sh
 
-
+ifneq ($(MODULES),)
+LIBDIRDEP = library/ALL
+else
+LIBDIRDEP = 
+endif
 
 none:
 	@echo No default rule
 
 all:	$(TARGETDIRFP)/$(TARGETLIBNAME)
 
-$(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES) library/ALL
+$(TARGETDIRFP)/$(TARGETLIBNAME):        $(OBJFILES) $(LIBDIRDEP)
+ifneq ($(MODULES),)
 	$(AR) crs $@ $(OBJFILES) $(TARGETDIRFP)/$(GENERATED_PREFIX)_*.o
+else
+	$(AR) crs $@ $(OBJFILES)
+endif
 
-all_add:        $(OBJFILES) library/ALL
+all_add:        $(OBJFILES) $(LIBDIRDEP)
+ifneq ($(MODULES),)
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME)\
 		$(OBJFILES) $(TARGETDIRFP)/$(GENERATED_PREFIX)_*.o
+else
+	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $(OBJFILES)
+endif
 
 
 $(TARGETDIRFP)/%.o:	%.cpp
@@ -80,15 +90,17 @@ $(DEPSMK): Makefile
 		--files "$(LIBSOURCES)" \
 		--deps-mk "$@"
 
+ifneq ($(MODULES),)
 library/ALL: FORCE
 	cd library && $(MAKE) all TARGETDIRFP=$(TARGETDIRFP) \
   			CXXFLAGS="$(CXXFLAGS)" \
   			MODULES="$(MODULES)"
+endif
+
 clean:	
 	cd $(TARGETDIRFP) && rm -f core *.o a.out *.a \
 		test buf gmon.out *deps.mk $(GENERATED_PREFIX)_*.hpp \
-		*.lsp \
-		*.scm
+		$(GENERATED_FILES)
 
 FORCE:
 

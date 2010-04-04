@@ -108,7 +108,9 @@ $(TARGETDIRFP)/libintelib.a $(TARGETDIRFP)/libintelib_nill.a $(LFUNHEADERS):
 ###############################
 # Build with nill 
 
-$(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx:	$(NILL)	ill.lsp \
+a: $(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx
+
+$(TARGETDIRFP)/ill_nill.cxx $(TARGETDIRFP)/ill_nill.hxx: $(NILL) ill.lsp \
 		nill_run.lsp $(TARGETDIRFP)/illdef._ls
 	cp nill_run.lsp ill.lsp $(TARGETDIRFP)
 	cd $(TARGETDIRFP) && $(NILL) $(TARGETDIRFP)/nill_run.lsp
@@ -122,7 +124,8 @@ ill_nill: $(TARGETDIRFP)/ill_nill
 	:
 
 
-$(TARGETDIRFP)/ill_nill: illmain.cpp $(TARGETDIRFP)/ill_nill.o $(LIBDEPEND)
+$(TARGETDIRFP)/ill_nill: illmain.cpp $(TARGETDIRFP)/ill_nill.hxx\
+			$(TARGETDIRFP)/ill_nill.o $(LIBDEPEND)
 	@echo "-------------------------------------------------------------"
 	@echo "    Building an ILL binary by self-applying ILL under NILL   "
 	@echo "-------------------------------------------------------------"
@@ -202,11 +205,11 @@ TARGETLIBNAME = libilldebug.a
 
 -include $(TARGETDIRFP)/defines.mk
 
-lib: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o \
+lib: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/nillrepl.o \
 		$(TARGETDIRFP)/illtrace.o
 	$(AR) crs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
-lib_add: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/ill_loop.o \
+lib_add: $(TARGETDIRFP)/sympkg.o $(TARGETDIRFP)/nillrepl.o \
 		$(TARGETDIRFP)/illtrace.o
 	$(AR) rs $(TARGETDIRFP)/$(TARGETLIBNAME) $^
 
@@ -224,10 +227,10 @@ $(TARGETDIRFP)/sympkg.o: $(TARGETDIRFP)/sympkg.cxx
 $(TARGETDIRFP)/illtrace.o: illtrace.cpp illtrace.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
-$(TARGETDIRFP)/ill_loop.o: ill_loop.cpp ill_loop.hpp
+$(TARGETDIRFP)/nillrepl.o: nillrepl.cpp nillrepl.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
-$(TARGETDIRFP)/nill.o: nill.cpp ill_loop.hpp ../version.h
+$(TARGETDIRFP)/nill.o: nill.cpp nillrepl.hpp ../version.h
 	$(CXX) $(CXXFLAGS) $(INCDL) -c nill.cpp -o $@
 
 
@@ -235,7 +238,7 @@ nill: $(TARGETDIRFP)/nill
 	:
 
 $(TARGETDIRFP)/nill: $(TARGETDIRFP)/nill.o $(TARGETDIRFP)/sympkg.o \
-		$(TARGETDIRFP)/ill_loop.o $(TARGETDIRFP)/illtrace.o
+		$(TARGETDIRFP)/nillrepl.o $(TARGETDIRFP)/illtrace.o
 	@echo "-------------------------------------------------------------"
 	@echo "    Building NILL interpreter                                "
 	@echo "-------------------------------------------------------------"
@@ -253,7 +256,7 @@ $(DEPSMK): Makefile
 	$(GEN_DEPSMK) --cxx "$(CXX)" \
 		--cxxflags "$(CXXFLAGS)" \
 		--prefix "$(TARGETDIRFP)/" \
-		--files "sympkg.cxx illtrace.cpp ill_loop.cpp" \
+		--files "sympkg.cxx illtrace.cpp nillrepl.cpp" \
 		--deps-mk "$@"
 
 ###############################
