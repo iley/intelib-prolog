@@ -54,7 +54,7 @@ public:
     void Resize(int newsize);
 
         //! Append another buffer, extending the length accordingly
-    int Append(void* buf, int buflen);
+    int Append(const void* buf, int buflen);
 };    
 
 #endif  // sentry
