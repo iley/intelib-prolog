@@ -64,11 +64,11 @@ void SExpressionRawBuffer::Resize(int newsize)
     len = newsize;
 }
 
-int SExpressionRawBuffer::Append(void* nbuf, int buflen)
+int SExpressionRawBuffer::Append(const void* nbuf, int buflen)
 {
     int oldlen = len;
     Resize(len+buflen);
     for(int i=0; i<buflen; i++)
-        buf[i+oldlen] = ((char*)nbuf)[i];
+        buf[i+oldlen] = ((const char*)nbuf)[i];
     return len;
 }

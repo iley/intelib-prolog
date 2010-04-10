@@ -34,3 +34,5 @@ all:	$(SUBTARGETS)
 
 
 FORCE:
+	:
+
