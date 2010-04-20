@@ -16,7 +16,7 @@
 
 4) Type:
 
-      make install OSTYPE=MinGW-windows
+      make install OSTYPE=MinGW-win
 
 This will install intelib into your virtual /usr/local/ dir of MSYS.
 

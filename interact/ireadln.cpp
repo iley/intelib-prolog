@@ -43,7 +43,7 @@ static SReference plain_read(const SStreamRef &in,
                              const SString &prompt)
 {
     char buf[512];
-    out->Puts("> ");
+    out->Puts(prompt.c_str());
     do {
 	buf[sizeof(buf)-2] = 0;
 	if(0 == in->Gets(buf, sizeof(buf))) {
