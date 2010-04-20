@@ -208,7 +208,7 @@ public:
     virtual int Getc() { return -1; }
     virtual int Ungetc(int c) { return -1; }
     virtual int Putc(int c) { return 0; }
-    virtual int Puts(const char *s) { return s; }
+    virtual int Puts(const char *s) { return 0; }
     virtual char* Gets(char *buf, int bufsize) { return 0; }
     virtual int Seek(long pos) { return -1; }
     virtual long Tell() const { return -1; }
