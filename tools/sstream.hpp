@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file tools/sstream.hpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -195,6 +195,26 @@ public:
     SStreamTextInput(FILE *f) : SStreamFile(f) {}
     SExpressionStreamTextInput* operator->() const
         { return static_cast<SExpressionStreamTextInput*>(GetPtr()); }
+};
+
+
+//! Pseudo-stream which blackholes all output and provides no input
+class SExpressionStreamNull : public SExpressionStream {
+public:
+    SExpressionStreamNull() {}
+protected:
+    ~SExpressionStreamNull() {}
+public:
+    virtual int Getc() { return -1; }
+    virtual int Ungetc(int c) { return -1; }
+    virtual int Putc(int c) { return 0; }
+    virtual int Puts(const char *s) { return s; }
+    virtual char* Gets(char *buf, int bufsize) { return 0; }
+    virtual int Seek(long pos) { return -1; }
+    virtual long Tell() const { return -1; }
+    virtual int Close() { return 0; }
+    virtual int Flush() { return 0; }
+    virtual int Fileno() const { return -1; }
 };
 
 
