@@ -390,7 +390,7 @@ static void existfile_function(RfReference &ref)
 
 static void time_function(RfReference &ref)
 {
-    long temp = time(0);
+    time_t temp = time(0);
     char *time_string = ctime(&temp);    
     ref = new RfExpression;
     if (!time_string)
