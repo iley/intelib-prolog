@@ -48,7 +48,7 @@ class IntelibSLexAnalyser {
 
     struct SpecChar {
         char ch;
-        enum {
+        enum TokenKind {
             non_term, term, non_delim, read_rest, read_rest_spec,
             read_string, ignore_until
         } status : 8;
@@ -146,14 +146,9 @@ public:
     void Drop();
 
 private:
-    enum SpecTokenTypes {
-        stt_fixedlength,       // just a keyword or delimiter
-        stt_extendable,        // token which starts with the given prefix
-        stt_quoting_extendable // the same, forcibly containing
-                               //    the first char, e.g., ``#\ '' for space
-    };
-    SpecChar *AddSpecial(const char *prefix, SpecTokenTypes tt);
-    SpecChar *DoAddSpecial(SpecChar **p, const char *str, SpecTokenTypes tt);
+    SpecChar *AddSpecial(const char *prefix, SpecChar::TokenKind tk);
+    SpecChar *DoAddSpecial(SpecChar **p, const char *str,
+                                             SpecChar::TokenKind tk);
 
     FeedResult Home(int c);
     FeedResult String(int c);
