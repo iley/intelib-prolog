@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file tools/sreader.hpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -70,7 +70,7 @@ extern IntelibDummyPackage TheDummyPackage;
     character escapes, the string literal, the comment and may be
     some quoters, like this:
 
-        AddTokenType("#\\", process_char_escape);
+        AddQuotingToken("#\\", process_char_escape);
         AddStringLiteral("\"", '\"');
         AddSequenceOpener("(", process_plain_list, ")", ".", false);
         AddComment(";");
@@ -126,6 +126,9 @@ public:
 
         //! lexem to be read until a delimiter, such as : or &
     void AddTokenType(const char *str, SReference (*fun)(const char*));
+
+        //! read until a delimiter, force the first char to be read
+    void AddQuotingToken(const char *str, SReference (*fun)(const char*));
 
         //! lexem to be read until a delimiter, such as : or &
     void AddStringLiteral(const char *str, int closing_char,

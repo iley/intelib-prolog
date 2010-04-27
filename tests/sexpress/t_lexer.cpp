@@ -116,7 +116,7 @@ int main()
         TestSubsection("usual char escapes");
         {
             IntelibSLexAnalyser lexer;
-            lexer.AddTokenStarter("#\\", char_esc_tran);
+            lexer.AddQuotingToken("#\\", char_esc_tran);
             SLabel OpenPar("#(#");
             lexer.AddDelimiter("(", OpenPar);
 
@@ -245,6 +245,25 @@ int main()
             TESTB("feed_dottoken3", lexer.FeedChar('y') == lexer.res_continue);
             TESTB("feed_dottoken4", lexer.FeedChar(' ') == lexer.res_ready);
             TESTTR("float_read", lexer.Get().Car(), "\"--xy--\"");
+            
+        }
+        {
+            IntelibSLexAnalyser lexer;
+
+            TESTB("add_star",
+                lexer.AddTokenStarter("*", string_dasher_fun));
+            TESTB("feed_star1", lexer.FeedChar('*') == lexer.res_continue);
+            TESTB("feed_star2", lexer.FeedChar(' ') == lexer.res_ready);
+#if 0
+            TESTB("feed_star3", lexer.FeedChar('3') == lexer.res_continue);
+            TESTB("feed_star4", lexer.FeedChar(' ') == lexer.res_ready);
+            TEST("float_read", lexer.Get().Car().GetFloat(), 2.3);
+            TESTB("feed_dottoken1", lexer.FeedChar('.') == lexer.res_continue);
+            TESTB("feed_dottoken2", lexer.FeedChar('x') == lexer.res_continue);
+            TESTB("feed_dottoken3", lexer.FeedChar('y') == lexer.res_continue);
+            TESTB("feed_dottoken4", lexer.FeedChar(' ') == lexer.res_ready);
+            TESTTR("float_read", lexer.Get().Car(), "\"--xy--\"");
+#endif
             
         }
         TestScore();

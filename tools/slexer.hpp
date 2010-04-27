@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file tools/slexer.hpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -49,7 +49,8 @@ class IntelibSLexAnalyser {
     struct SpecChar {
         char ch;
         enum {
-            non_term, term, non_delim, read_rest, read_string, ignore_until
+            non_term, term, non_delim, read_rest, read_rest_spec,
+            read_string, ignore_until
         } status : 8;
         SpecChar *sub;     //!< List of possible chars to be the next
         SpecChar *next;    //!< Next possible char on the same level
@@ -57,8 +58,9 @@ class IntelibSLexAnalyser {
                            //!< NB: read_string uses only one char
         SReference token;  //!< For term, what to return
         SReference (*makestring)(const char *str);
-                           //!< For read_string and read_rest, what to make
-                           //!< or leave it NULL if you want just a string
+                           //!< For read_string, read_rest and read_rest_spec 
+                           //!< what to make or leave it NULL if you want
+                           //!< just a string
 
         SpecChar() : ch(0), status(non_term), sub(0), next(0),
                      token(), makestring(0)
@@ -104,6 +106,13 @@ public:
         /*! Token is being read until whitespace or a delimiter */
     bool AddTokenStarter(const char *prefix,
                          SReference (*fun)(const char *str) = 0);
+        //! Add a sequence which starts a token of at least one char
+        /*! Token is being read until whitespace or a delimiter,
+            and the first char of it is NOT considered neither
+            whitespace nor delimiter (such as for #\ in Lisp)
+         */
+    bool AddQuotingToken(const char *prefix,
+                         SReference (*fun)(const char *str) = 0);
         //! Add a string literal
     bool AddStringStarter(const char *prefix, int closer_char,
                           SReference (*fun)(const char *str) = 0);
@@ -137,8 +146,14 @@ public:
     void Drop();
 
 private:
-    SpecChar *AddSpecial(const char *prefix, bool extendable);
-    SpecChar *DoAddSpecial(SpecChar **p, const char *str, bool ex);
+    enum SpecTokenTypes {
+        stt_fixedlength,       // just a keyword or delimiter
+        stt_extendable,        // token which starts with the given prefix
+        stt_quoting_extendable // the same, forcibly containing
+                               //    the first char, e.g., ``#\ '' for space
+    };
+    SpecChar *AddSpecial(const char *prefix, SpecTokenTypes tt);
+    SpecChar *DoAddSpecial(SpecChar **p, const char *str, SpecTokenTypes tt);
 
     FeedResult Home(int c);
     FeedResult String(int c);

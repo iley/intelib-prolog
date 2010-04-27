@@ -84,6 +84,13 @@ AddTokenType(const char *str, SReference (*fun)(const char*))
 }
 
 void IntelibGenericReader::
+AddQuotingToken(const char *str, SReference (*fun)(const char*))
+{
+    bool res = lexer->AddQuotingToken(str, fun);
+    INTELIB_ASSERT(res, IntelibX_reader_error(lexer->GetErrorMessage(), -1));
+}
+
+void IntelibGenericReader::
 AddStringLiteral(const char *str, int closing_char,
                  SReference (*fun)(const char*))
 {
@@ -447,7 +454,7 @@ static SReference process_plain_list(const SReference &a)
 
 IntelibReader::IntelibReader()
 {
-    AddTokenType("#\\", process_char_escape);
+    AddQuotingToken("#\\", process_char_escape);
     AddStringLiteral("\"", '\"');
     AddSequenceOpener("(", process_plain_list, ")", ".", false);
     AddComment(";");

@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file tools/slexer.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -41,7 +41,7 @@ IntelibSLexAnalyser::~IntelibSLexAnalyser()
 bool IntelibSLexAnalyser::AddDelimiter(const char *prefix,
                                        const SReference &token)
 {
-    SpecChar *spc = AddSpecial(prefix, false);
+    SpecChar *spc = AddSpecial(prefix, stt_fixedlength);
     if(!spc) return false;
     delimiter_chars += prefix[0];
     spc->token = token;
@@ -51,7 +51,7 @@ bool IntelibSLexAnalyser::AddDelimiter(const char *prefix,
 bool IntelibSLexAnalyser::AddNonDelimiter(const char *prefix,
                                           const SReference &token)
 {
-    SpecChar *spc = AddSpecial(prefix, false);
+    SpecChar *spc = AddSpecial(prefix, stt_fixedlength);
     if(!spc) return false;
     spc->token = token;
     spc->status = SpecChar::non_delim;
@@ -61,7 +61,17 @@ bool IntelibSLexAnalyser::AddNonDelimiter(const char *prefix,
 bool IntelibSLexAnalyser::AddTokenStarter(const char *prefix,
                                           SReference (*fun)(const char *))
 {
-    SpecChar *spc = AddSpecial(prefix, true);
+    SpecChar *spc = AddSpecial(prefix, stt_extendable);
+    if(!spc) return false;
+    // in this case, we don't put the first char into delimiter_chars
+    spc->makestring = fun;
+    return true;
+}
+
+bool IntelibSLexAnalyser::AddQuotingToken(const char *prefix,
+                                          SReference (*fun)(const char *))
+{
+    SpecChar *spc = AddSpecial(prefix, stt_quoting_extendable);
     if(!spc) return false;
     // in this case, we don't put the first char into delimiter_chars
     spc->makestring = fun;
@@ -72,7 +82,7 @@ bool IntelibSLexAnalyser::AddStringStarter(const char *prefix,
                                            int closer_char,
                                            SReference (*fun)(const char *))
 {
-    SpecChar *spc = AddSpecial(prefix, true);
+    SpecChar *spc = AddSpecial(prefix, stt_extendable);
     if(!spc) return false;
     delimiter_chars += prefix[0];
     spc->status = SpecChar::read_string;
@@ -85,7 +95,7 @@ bool IntelibSLexAnalyser::AddStringStarter(const char *prefix,
 bool IntelibSLexAnalyser::AddCommentStarter(const char *prefix,
                                             const char *closer)
 {
-    SpecChar *spc = AddSpecial(prefix, true);
+    SpecChar *spc = AddSpecial(prefix, stt_extendable);
     if(!spc) return false;
     delimiter_chars += prefix[0];
     spc->status = SpecChar::ignore_until;
@@ -101,7 +111,8 @@ bool IntelibSLexAnalyser::AddCommentStarter(const char *prefix,
 }
 
 IntelibSLexAnalyser::SpecChar*
-IntelibSLexAnalyser::DoAddSpecial(SpecChar **p, const char *str, bool ex)
+IntelibSLexAnalyser::DoAddSpecial(SpecChar **p, const char *str,
+                                  SpecTokenTypes tt)
 {
     // str can't be empty here! that is, str[0] is definitely a char
     // let's see if the char is at this level
@@ -113,9 +124,19 @@ IntelibSLexAnalyser::DoAddSpecial(SpecChar **p, const char *str, bool ex)
         (*p)->next = 0;
         if(str[1]) { // there must be a subtree
             (*p)->status = SpecChar::non_term;
-            return DoAddSpecial(&((*p)->sub), str+1, ex);
+            return DoAddSpecial(&((*p)->sub), str+1, tt);
         } else { // no subtree, terminate here
-            (*p)->status = ex ? SpecChar::read_rest : SpecChar::term;
+            switch(tt) {
+                case stt_fixedlength:
+                    (*p)->status = SpecChar::term;
+                    break;
+                case stt_extendable:
+                    (*p)->status = SpecChar::read_rest;
+                    break;
+                case stt_quoting_extendable:
+                    (*p)->status = SpecChar::read_rest_spec;
+                    break;
+            }
             return *p;
         }
     } else {
@@ -124,37 +145,49 @@ IntelibSLexAnalyser::DoAddSpecial(SpecChar **p, const char *str, bool ex)
         if((*p)->ch == str[0]) {
             // here is it!
             if(str[1]) { // there must be a subtree
-                if((*p)->status == SpecChar::read_rest) {
+                if((*p)->status == SpecChar::read_rest ||
+                   (*p)->status == SpecChar::read_rest_spec
+                ) {
                     error_message =
                         "Previously-added extendable special lexem is "
                         "a strict prefix of the new lexem";
                     return 0;
                 }
-                return DoAddSpecial(&((*p)->sub), str+1, ex);
+                return DoAddSpecial(&((*p)->sub), str+1, tt);
             } else { // no subtree, terminate here
                 if((*p)->status != SpecChar::non_term) {
                     // lexem already exists!
                     error_message = "duplicate or conflicting special lexems";
                     return 0;
                 }
-                (*p)->status = ex ? SpecChar::read_rest : SpecChar::term;
+                switch(tt) {
+                    case stt_fixedlength:
+                        (*p)->status = SpecChar::term;
+                        break;
+                    case stt_extendable:
+                        (*p)->status = SpecChar::read_rest;
+                        break;
+                    case stt_quoting_extendable:
+                        (*p)->status = SpecChar::read_rest_spec;
+                        break;
+                }
                 return *p;
             }
         } else {
             // just try the next position
-            return DoAddSpecial(&((*p)->next), str, ex);
+            return DoAddSpecial(&((*p)->next), str, tt);
         }
     }
 }
 
 IntelibSLexAnalyser::SpecChar*
-IntelibSLexAnalyser::AddSpecial(const char *str, bool extendable)
+IntelibSLexAnalyser::AddSpecial(const char *str, SpecTokenTypes tt)
 {
     if(!*str) {
         error_message = "can't add empty special lexem";
         return false;
     }
-    return DoAddSpecial(&specchars, str, extendable);
+    return DoAddSpecial(&specchars, str, tt);
 }
 
 SReference IntelibSLexAnalyser::Get() const
@@ -282,6 +315,12 @@ IntelibSLexAnalyser::FeedResult IntelibSLexAnalyser::Special(int c)
                 return res_continue;
             }
             if(p->status == SpecChar::read_rest) {
+                state = token;
+                buf = "";
+                string_finalizer = p->makestring;
+                return res_continue; 
+            }
+            if(p->status == SpecChar::read_rest_spec) {
                 state = token_force;
                 buf = "";
                 string_finalizer = p->makestring;
