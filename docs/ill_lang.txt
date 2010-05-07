@@ -42,9 +42,6 @@ alpha-list.
 supported, in particular.  The InteLib library supports a limited number of
 types of S-expressions, and you can also invent your own types (see
 ill_lib.txt for details).  But there's nothing like a COERCE function.
-BTW, let me mention right here, there's no special type for characters. 
-Strings that have a length of 1 serve as characters.  This might change one
-day, but presently this is still true.
 
   InteLib Lisp doesn't support structures or classes.  I believe these
 paradigms are not native for Lisp. You're able to create such complicated
