@@ -94,7 +94,7 @@ takes your rights away from you and gives them to that person/entity.  Such
 a thing usually happens when you work for some company as a programmer, in
 this case you still become the author, but not the copyright holder:
 rather, the company does.  However, this doesn't apply to the case of
-InteLib.  Well... make sure you don't work on you contributions to InteLib
+InteLib.  Well... make sure you don't work on your contributions to InteLib
 when you're at work, if you're a programmer -- you understand why, don't
 you?
 
@@ -103,7 +103,7 @@ exist before.  In this case, you're the only copyright owner of it.
 
 When you modify someone else's work, the situation complicates a bit.
 You've got the right on the changes you made, but the original author
-remains to be the owner of the things which didn't change.  So, who is the
+remains to be the owner of the things that didn't change.  So, who is the
 owner of the file?  The answer is: you both.  You place your copyright
 notice in the file, but you must keep the original copyright notice intact.
 BTW, both GPL and common sense require you make it clear what changes
@@ -252,8 +252,8 @@ Be sure to add some comments (_below_ the main attribution comment) to
 identify your contribution to the file, with dates.  Such comments must be
 sorted by date, latest first.
 
-If there are some other's copyright notices as well as our own, already,
-then check the years of YOUR notice (but not the others') and adjust, if
+If there are some other's copyright notices as well as your own, already,
+then check the years of YOUR notice (but not the others') and adjust if
 needed.  Be sure to update the comments that identify the changes of
 different contributors so that it remains clear what you did.
 
@@ -271,7 +271,7 @@ information about who is the author.  Once the author is identified, ask
 him/her to add the appropriate notice to the file; then, add your notice in
 the usual manner.
 
-If (and only if) you *really* have no time to investigate, than leave the
+If (and only if) you *really* have no time to investigate, then leave the
 file just as is.  Please note that in this case you can't place your
 copyright notice: really, you're not the only author, so the file
 displaying only one notice would misinform the public.  No information is
