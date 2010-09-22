@@ -182,7 +182,7 @@ bool IntelibContinuation::Step()
             if(todo_stack[i].stack_info.GetPtr())
                 ex.AddStack(todo_stack[i].stack_info);
 #endif
-        throw ex;
+        throw;
     }
     return true;
 }
