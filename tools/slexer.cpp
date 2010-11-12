@@ -2,6 +2,7 @@
 //   The file tools/slexer.cpp
 // 
 //   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
+//   Portions copyright (c) Ivan Beloborodov, 2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -334,6 +335,7 @@ IntelibSLexAnalyser::FeedResult IntelibSLexAnalyser::Special(int c)
         return res_ready; 
     } else if(state == special3) {
         // this means that, well, it looks like a regular token
+        buf += c;
         state = token;
         return res_continue;
     } else {
