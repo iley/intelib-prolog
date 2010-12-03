@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file scheme/schreadr.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -21,12 +21,12 @@
 //////////
 // transformer
 
-static SReference QuoteExpression(const SReference &ref)
+static SReference QuoteExpression(const SReference &ref, void*)
 {
     return ~(SchReference(ref));
 }
 
-static SReference InvalidLexem(const char *)
+static SReference InvalidLexem(const char *, void*)
 {
     static SLabel inv("#<UNREADABLE-TOKEN>");
     return inv;

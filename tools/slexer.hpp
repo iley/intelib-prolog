@@ -57,13 +57,14 @@ class IntelibSLexAnalyser {
         char closer[4];    //!< for read_string and ignore_until
                            //!< NB: read_string uses only one char
         SReference token;  //!< For term, what to return
-        SReference (*makestring)(const char *str);
+        SReference (*makestring)(const char *str, void *userdata);
                            //!< For read_string, read_rest and read_rest_spec 
                            //!< what to make or leave it NULL if you want
                            //!< just a string
+        void *userdata;    //!< Passed to makestring, if any
 
         SpecChar() : ch(0), status(non_term), sub(0), next(0),
-                     token(), makestring(0)
+                     token(), makestring(0), userdata(0)
             { closer[0] = 0; }
     } *specchars, **special_state;
 
@@ -83,8 +84,9 @@ class IntelibSLexAnalyser {
         comment      // ignore everything until the closer is found
     } state;
     const char *closer;    //!< for string and comment states
-    SReference (*string_finalizer)(const char *);
+    SReference (*string_finalizer)(const char*, void*);
                            //!< for string and (special) token state
+    void *string_finalizer_userdata;
     int comment_closer_index; //!< for comment state only
     int postponed_char;
     SString buf;
@@ -105,17 +107,20 @@ public:
         //! Add a sequence which starts a token
         /*! Token is being read until whitespace or a delimiter */
     bool AddTokenStarter(const char *prefix,
-                         SReference (*fun)(const char *str) = 0);
+                         SReference (*fun)(const char*, void*) = 0,
+                         void *userdata = 0);
         //! Add a sequence which starts a token of at least one char
         /*! Token is being read until whitespace or a delimiter,
             and the first char of it is NOT considered neither
             whitespace nor delimiter (such as for #\ in Lisp)
          */
     bool AddQuotingToken(const char *prefix,
-                         SReference (*fun)(const char *str) = 0);
+                         SReference (*fun)(const char *, void*) = 0,
+                         void *userdata = 0);
         //! Add a string literal
     bool AddStringStarter(const char *prefix, int closer_char,
-                          SReference (*fun)(const char *str) = 0);
+                          SReference (*fun)(const char *, void*) = 0,
+                          void *userdata = 0);
         //! Add a comment
     bool AddCommentStarter(const char *prefix, const char *closer = "\n");
 

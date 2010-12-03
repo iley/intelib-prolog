@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file tools/sreader.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -44,23 +44,18 @@ IntelibGenericReader::~IntelibGenericReader()
 IntelibGenericReader::SpecialLexic*
 IntelibGenericReader::AddSpecialLexic(const char *str,
                                       SpecialLexic::sl_type t,
-                                      process_function proc)
+                                      process_function proc,
+                                      void *userdata)
 {
     SpecialLexic *tmp = new SpecialLexic;
     tmp->id = new SExpressionString(str);
     tmp->t = t;
     tmp->process = proc;
+    tmp->userdata = userdata;
     tmp->next = first_sl;
     first_sl = tmp;
     return tmp;
 }
-
-#if 0
-void IntelibGenericReader::AddInvalidLexem(const char *str)
-{
-    AddSpecialLexic(str, SpecialLexic::invalid, 0, false);
-}
-#endif
 
 void IntelibGenericReader::
 AddDelimiter(const char *str, const SReference &tok)
@@ -77,36 +72,40 @@ AddToken(const char *str, const SReference &tok)
 }
 
 void IntelibGenericReader::
-AddTokenType(const char *str, SReference (*fun)(const char*))
+AddTokenType(const char *str, SReference (*fun)(const char*, void*), void *ud)
 {
-    bool res = lexer->AddTokenStarter(str, fun);
+    bool res = lexer->AddTokenStarter(str, fun, ud);
     INTELIB_ASSERT(res, IntelibX_reader_error(lexer->GetErrorMessage(), -1));
 }
 
 void IntelibGenericReader::
-AddQuotingToken(const char *str, SReference (*fun)(const char*))
+AddQuotingToken(const char *str,
+                SReference (*fun)(const char*, void*), void *ud)
 {
-    bool res = lexer->AddQuotingToken(str, fun);
+    bool res = lexer->AddQuotingToken(str, fun, ud);
     INTELIB_ASSERT(res, IntelibX_reader_error(lexer->GetErrorMessage(), -1));
 }
 
 void IntelibGenericReader::
 AddStringLiteral(const char *str, int closing_char,
-                 SReference (*fun)(const char*))
+                 SReference (*fun)(const char*, void*), void *ud)
 {
-    bool res = lexer->AddStringStarter(str, closing_char, fun);
+    bool res = lexer->AddStringStarter(str, closing_char, fun, ud);
     INTELIB_ASSERT(res, IntelibX_reader_error(lexer->GetErrorMessage(), -1));
 }
 
-void IntelibGenericReader::AddQuoter(const char *str, process_function proc)
+void IntelibGenericReader::AddQuoter(const char *str,
+                                     process_function proc,
+                                     void *ud)
 {
-    SpecialLexic *sl = AddSpecialLexic(str, SpecialLexic::quoter, proc);
+    SpecialLexic *sl = AddSpecialLexic(str, SpecialLexic::quoter, proc, ud);
     bool res = lexer->AddDelimiter(str, sl->id);
     INTELIB_ASSERT(res, IntelibX_reader_error(lexer->GetErrorMessage(), -1));
 }
 
 void IntelibGenericReader::AddSequenceOpener(const char *str,
                                              process_function proc,
+                                             void *ud,
                                              const char *closer,
                                              const char *cons_sign,
                                              bool cons_sign_delimiter)
@@ -121,7 +120,7 @@ void IntelibGenericReader::AddSequenceOpener(const char *str,
     }
     if(!closer_id.GetPtr()) {
         SpecialLexic *cls =
-            AddSpecialLexic(closer, SpecialLexic::seq_closer, 0);
+            AddSpecialLexic(closer, SpecialLexic::seq_closer, 0, 0);
         lexer->AddDelimiter(closer, cls->id);
         closer_id = cls->id;
     }
@@ -137,7 +136,7 @@ void IntelibGenericReader::AddSequenceOpener(const char *str,
         }
         if(!cons_sign_id.GetPtr()) {
             SpecialLexic *cls =
-                AddSpecialLexic(cons_sign, SpecialLexic::cons_sign, 0);
+                AddSpecialLexic(cons_sign, SpecialLexic::cons_sign, 0, 0);
             if(cons_sign_delimiter)
                 lexer->AddDelimiter(cons_sign, cls->id);
             else
@@ -147,7 +146,8 @@ void IntelibGenericReader::AddSequenceOpener(const char *str,
     }
 
     // now add the opener
-    SpecialLexic *sl = AddSpecialLexic(str, SpecialLexic::sequence, proc);
+    SpecialLexic *sl =
+        AddSpecialLexic(str, SpecialLexic::sequence, proc, ud);
     lexer->AddDelimiter(str, sl->id);
     sl->the_closer = closer_id;
     sl->the_cons_sign = cons_sign_id;
@@ -350,11 +350,12 @@ SReference IntelibGenericReader::DoFinishParts()
         if(p->id.GetPtr() == lex.GetPtr()) {
             switch(p->t) {
                 case SpecialLexic::quoter:
-                    return p->process(DoFinishParts());
+                    return p->process(DoFinishParts(), p->userdata);
                 case SpecialLexic::sequence:
                     return p->process(
-                        DoFinishPartsSeq(p->the_closer,
-                                         p->the_cons_sign, line));
+                        DoFinishPartsSeq(p->the_closer,p->the_cons_sign,line),
+                        p->userdata
+                    );
                 case SpecialLexic::seq_closer:
                     throw IntelibX_reader_error("unexpected sequence closer", 
                                     line, -1, file_name);
@@ -420,7 +421,7 @@ DoFinishPartsSeq(const SReference& closer,
 ////////////////////////////////////////////////////////
 // IntelibReader 
 
-static SReference process_char_escape(const char *name)
+static SReference process_char_escape(const char *name, void*)
 {
     static const struct {
         const char *name;
@@ -447,7 +448,7 @@ static SReference process_char_escape(const char *name)
     throw IntelibX_reader_error("unknown_char_name", -1, -1, "");
 }
 
-static SReference process_plain_list(const SReference &a)
+static SReference process_plain_list(const SReference &a, void*)
 {
     return a;
 }
@@ -456,7 +457,7 @@ IntelibReader::IntelibReader()
 {
     AddQuotingToken("#\\", process_char_escape);
     AddStringLiteral("\"", '\"');
-    AddSequenceOpener("(", process_plain_list, ")", ".", false);
+    AddSequenceOpener("(", process_plain_list, 0, ")", ".", false);
     AddComment(";");
 }
 

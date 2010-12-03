@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file lisp/lreader.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -26,23 +26,23 @@ IntelibTypeId SExpressionExtvarname::TypeId(&SExpressionString::TypeId);
 //////////
 // transformers
 
-static SReference QuoteExpression(const SReference &ref)
+static SReference QuoteExpression(const SReference &ref, void*)
 {
     return ~(LReference(ref));
 }
 
-static SReference FunquoteExpression(const SReference &ref)
+static SReference FunquoteExpression(const SReference &ref, void*)
 {
     LFunctionConstructor F;
     return F^(LReference(ref));
 }
 
-static SReference ExternVarProcess(const char *str)
+static SReference ExternVarProcess(const char *str, void*)
 {
     return SReference(new SExpressionExtvarname(str));
 }
 
-static SReference InvalidLexem(const char *)
+static SReference InvalidLexem(const char *, void*)
 {
     static SLabel inv("#<UNREADABLE-TOKEN>");
     return inv;

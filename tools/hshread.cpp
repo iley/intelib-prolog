@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file tools/hshread.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -18,7 +18,7 @@
 #include "sreader.hpp"
 
 
-static SReference process_hashtable_seq(const SReference &ls)
+static SReference process_hashtable_seq(const SReference &ls, void*)
 {
     SReference list(ls.Cdr()); // first atom is HASH-TABLE and it is ignored
     // now EQ, EQL or EQUAL follows
@@ -48,6 +48,6 @@ static SReference process_hashtable_seq(const SReference &ls)
 
 void add_hashtables_to_reader(class IntelibReader &reader)
 {
-    reader.AddSequenceOpener("#s(", process_hashtable_seq, ")");
-    reader.AddSequenceOpener("#S(", process_hashtable_seq, ")");
+    reader.AddSequenceOpener("#s(", process_hashtable_seq, 0, ")");
+    reader.AddSequenceOpener("#S(", process_hashtable_seq, 0, ")");
 }

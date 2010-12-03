@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file tools/vecread.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2010
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -27,14 +27,14 @@ static void do_process(int depth, SReference rest, SVectorRef &vec, bool rs)
     }
 }
 
-static SReference process_fixed_vectors(const SReference &list)
+static SReference process_fixed_vectors(const SReference &list, void*)
 {
     SVectorRef vr;
     do_process(0, list, vr, false);
     return vr;
 }
 
-static SReference process_resizeable_vectors(const SReference &list)
+static SReference process_resizeable_vectors(const SReference &list, void*)
 {
     SVectorRef vr;
     do_process(0, list, vr, true);
@@ -43,6 +43,6 @@ static SReference process_resizeable_vectors(const SReference &list)
 
 void add_vectors_to_reader(class IntelibReader &reader)
 {
-    reader.AddSequenceOpener("#(", process_fixed_vectors, ")");
-    reader.AddSequenceOpener("#~(", process_resizeable_vectors, ")");
+    reader.AddSequenceOpener("#(", process_fixed_vectors, 0, ")");
+    reader.AddSequenceOpener("#~(", process_resizeable_vectors, 0, ")");
 }

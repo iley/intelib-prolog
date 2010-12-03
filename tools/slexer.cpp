@@ -58,29 +58,33 @@ bool IntelibSLexAnalyser::AddNonDelimiter(const char *prefix,
     return true;
 }
 
-bool IntelibSLexAnalyser::AddTokenStarter(const char *prefix,
-                                          SReference (*fun)(const char *))
+bool IntelibSLexAnalyser::
+AddTokenStarter(const char *prefix,
+                SReference (*fun)(const char *, void *), void *ud)
 {
     SpecChar *spc = AddSpecial(prefix, SpecChar::read_rest);
     if(!spc) return false;
     // in this case, we don't put the first char into delimiter_chars
     spc->makestring = fun;
+    spc->userdata = ud;
     return true;
 }
 
-bool IntelibSLexAnalyser::AddQuotingToken(const char *prefix,
-                                          SReference (*fun)(const char *))
+bool IntelibSLexAnalyser::
+AddQuotingToken(const char *prefix,
+                SReference (*fun)(const char *, void *), void *ud)
 {
     SpecChar *spc = AddSpecial(prefix, SpecChar::read_rest_spec);
     if(!spc) return false;
     // in this case, we don't put the first char into delimiter_chars
     spc->makestring = fun;
+    spc->userdata = ud;
     return true;
 }
 
-bool IntelibSLexAnalyser::AddStringStarter(const char *prefix,
-                                           int closer_char,
-                                           SReference (*fun)(const char *))
+bool IntelibSLexAnalyser::
+AddStringStarter(const char *prefix, int closer_char,
+                 SReference (*fun)(const char *, void *), void *ud)
 {
     SpecChar *spc = AddSpecial(prefix, SpecChar::read_string);
     if(!spc) return false;
@@ -88,6 +92,7 @@ bool IntelibSLexAnalyser::AddStringStarter(const char *prefix,
     spc->closer[0] = closer_char;
     spc->closer[1] = 0;
     spc->makestring = fun;
+    spc->userdata = ud;
     return true;
 }
 
@@ -261,6 +266,7 @@ IntelibSLexAnalyser::FeedResult IntelibSLexAnalyser::Home(int c)
             buf += c;
             state = token;
             string_finalizer = 0;
+            string_finalizer_userdata = 0;
             return res_continue;
     }
 }
@@ -297,12 +303,14 @@ IntelibSLexAnalyser::FeedResult IntelibSLexAnalyser::Special(int c)
                 state = token;
                 buf = "";
                 string_finalizer = p->makestring;
+                string_finalizer_userdata = p->userdata;
                 return res_continue; 
             }
             if(p->status == SpecChar::read_rest_spec) {
                 state = token_force;
                 buf = "";
                 string_finalizer = p->makestring;
+                string_finalizer_userdata = p->userdata;
                 return res_continue; 
             }
             if(p->status == SpecChar::read_string) {
@@ -310,6 +318,7 @@ IntelibSLexAnalyser::FeedResult IntelibSLexAnalyser::Special(int c)
                 buf = "";
                 closer = p->closer;
                 string_finalizer = p->makestring;
+                string_finalizer_userdata = p->userdata;
                 return res_continue; 
             }
             if(p->status == SpecChar::ignore_until) {
@@ -371,7 +380,8 @@ IntelibSLexAnalyser::FeedResult IntelibSLexAnalyser::String(int c)
         default:
             if(c == closer[0]) {
                 lex = string_finalizer ?
-                    string_finalizer(buf.c_str()) : SReference(buf);
+                    string_finalizer(buf.c_str(), string_finalizer_userdata) :
+                    SReference(buf);
                 buf = "";
                 state = home;
                 return res_ready;
@@ -416,7 +426,8 @@ IntelibSLexAnalyser::FeedResult IntelibSLexAnalyser::Token(int c)
             postponed_char = c;
         }
         lex = string_finalizer ?
-            string_finalizer(buf.c_str()) : ProcessToken(buf.c_str());
+            string_finalizer(buf.c_str(), string_finalizer_userdata) :
+            ProcessToken(buf.c_str());
         buf = "";
         if(!lex.GetPtr()) {
             return res_error;

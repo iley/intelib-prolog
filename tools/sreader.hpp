@@ -82,7 +82,7 @@ extern IntelibDummyPackage TheDummyPackage;
 class IntelibGenericReader {
 public:
         //! A function used to process some syntax constructs
-    typedef SReference (*process_function)(const SReference&);
+    typedef SReference (*process_function)(const SReference&, void*);
 private:
     class IntelibSLexAnalyser *lexer;
     struct SpecialLexic {
@@ -95,6 +95,7 @@ private:
                for seq_closer and cons_sign, process is ignored (should be 0)
              */
         process_function process;
+        void *userdata;
         SReference the_closer; /*!< used for sequence only,
                                     stores the id of the closer */
         SReference the_cons_sign; /*!< used for sequence only,
@@ -103,7 +104,8 @@ private:
     } *first_sl;
     SpecialLexic* AddSpecialLexic(const char *str,
                                   SpecialLexic::sl_type t,
-                                  process_function proc);
+                                  process_function proc,
+                                  void *userdata);
 
     IntelibPackage *the_package;
     bool uppercase;
@@ -125,21 +127,27 @@ public:
     void AddToken(const char *str, const SReference &tok);
 
         //! lexem to be read until a delimiter, such as : or &
-    void AddTokenType(const char *str, SReference (*fun)(const char*));
+    void AddTokenType(const char *str,
+                      SReference (*fun)(const char*, void*),
+                      void *userdata = 0);
 
         //! read until a delimiter, force the first char to be read
-    void AddQuotingToken(const char *str, SReference (*fun)(const char*));
+    void AddQuotingToken(const char *str,
+                         SReference (*fun)(const char*, void*),
+                         void *userdata = 0);
 
         //! lexem to be read until a delimiter, such as : or &
     void AddStringLiteral(const char *str, int closing_char,
-                          SReference (*fun)(const char*) = 0);
+                          SReference (*fun)(const char*, void*) = 0,
+                          void *userdata = 0);
 
         //! lexem that modifies the following expression, such as ', #', `
-    void AddQuoter(const char *str, process_function proc);
+    void AddQuoter(const char *str, process_function proc, void *userdata = 0);
 
         //! lexem which opens a sequence, such as (, #(, #S(
     void AddSequenceOpener(const char *str,
                            process_function proc,
+                           void *userdata,
                            const char *closer,
                            const char *cons_sign = 0,
                            bool cons_sign_delimiter = false);
