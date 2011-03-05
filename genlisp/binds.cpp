@@ -27,10 +27,10 @@ IntelibBindingsSet::Find(const SExpressionLabel *var) const
     Binding *second = first->next;
     if(!second) return 0;
     if(second->var == var) return second;
-    Binding *third = first->next;
+    Binding *third = second->next;
     if(!third) return 0;
     if(third->var == var) return third;
-    // now, perform a cycle throug the rest of the list
+    // now, perform a cycle through the rest of the list
     // and if we find the binding there, move it into the
     // first position
     for(Binding **t = &(third->next); *t; t = &((*t)->next)) {
