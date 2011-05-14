@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file genlisp/conteval.cpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2011
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -244,7 +244,9 @@ bool IntelibContinuation::PopTodo(int &opcode, SReference& param)
 
 void IntelibContinuation::PushResult(const SReference& r)
 {
+#if 0   // sometimes it can be useful to have an unbound value there
     INTELIB_ASSERT(r.GetPtr(), IntelibX_unexpected_unbound_value());
+#endif
     if(result_stack_pointer >= result_stack_size) {
         // resize
         SReference *np = new SReference[result_stack_size*2];
