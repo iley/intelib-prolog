@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file lisp/library/ilisplib.hpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2011
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -14,7 +14,7 @@
 
 
 /*!
-  \file libinfo.hpp 
+  \file ilisplib.hpp 
   \brief Macros for library ('system') Lisp functions declaration.
   
   The file contains macros which allow to use a single 

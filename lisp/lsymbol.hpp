@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
 //   The file lisp/lsymbol.hpp
 // 
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2011
 // 
 // 
 //   This is free software, licensed under GNU LGPL v.2.1
@@ -115,7 +115,7 @@ private:
 //! Symbol naming a library function
 /*! This template class is intended to simplify handling 
     Lisp library functions such as CAR, CONS etc. 
-    \param F is the class descended from LExpressionForm which represents
+    \param F is the class descended from SExpressionForm which represents
      the particular function (the one to be associated with the
      symbol)
  */
