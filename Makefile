@@ -128,6 +128,10 @@ libintelib.a: win_port FORCE
 				OPTIMIZATION=$(OPTIMIZATION) \
 				USE_READLINE=$(USE_READLINE) \
 				TARGETLIBNAME=$@
+	cd prolog && $(MAKE) all_add TARGETDIR=$(TARGETDIRFP)/.. \
+				OPTIMIZATION=$(OPTIMIZATION) \
+				USE_READLINE=$(USE_READLINE) \
+				TARGETLIBNAME=$@
 
 libintelib_interp.a: win_port FORCE
 	cd interact && $(MAKE) all TARGETDIR=$(TARGETDIRFP)/.. \
