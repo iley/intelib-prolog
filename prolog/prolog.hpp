@@ -25,31 +25,34 @@ public:
 class PlgResultImpl;
 class PlgResult : public GenericPlgReference<PlgResultImpl> {
 public:
+    typedef GenericPlgReference<PlgResultImpl> Super;
+
+    PlgResult();
     void Next();
+};
+
+class PlgTerm;
+class PlgRuleImpl;
+class PlgRule : public GenericPlgReference<PlgRuleImpl> {
+public:
+    typedef GenericPlgReference<PlgRuleImpl> Super;
+
+    PlgRule(const PlgTerm &signature, const PlgTerm &body);
 };
 
 class PlgTermImpl;
 class PlgTerm : public GenericPlgReference<PlgTermImpl> {
 public:
+    typedef GenericPlgReference<PlgTermImpl> Super;
+
     PlgResult Solve() const;
+    PlgRule operator <<= (const PlgTerm &body);
 };
 
-class PlgPredicateImpl;
-class PlgPredicate : public GenericPlgReference<PlgPredicateImpl> {
+class PlgAtomImpl;
+class PlgAtom : public GenericPlgReference<PlgAtomImpl> {
 public:
-};
-
-class PlgSymbolImpl;
-class PlgSymbol : public GenericPlgReference<PlgSymbolImpl> {
-public:
-    PlgSymbol(const char *name);
-    PlgPredicate GetPredicate(int arity);
-};
-
-class PlgVariableNameImpl;
-class PlgVariableName : public GenericPlgReference<PlgVariableNameImpl> {
-public:
-    PlgVariableName(const char *name);
+    typedef GenericPlgReference<PlgAtomImpl> Super;
 };
 
 #endif //INTELIB_PROLOG_HPP_SENTRY
