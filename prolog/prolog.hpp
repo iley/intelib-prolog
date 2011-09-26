@@ -5,28 +5,51 @@
 #include "../sexpress/gensref.hpp"
 #include "../sexpress/custmem.hpp"
 
-class IntelibX_not_a_prolog_term : public IntelibX
+class IntelibX_not_a_prolog_object : public IntelibX
 {
 public:
-    IntelibX_not_a_prolog_term(SReference a_param);
+    IntelibX_not_a_prolog_object(SReference a_param);
 };
 
-class PlgTerm;
-typedef GenericSReference<PlgTerm, IntelibX_not_a_prolog_term> PlgTermRef;
-
-class PlgTermReference : public PlgTermRef {
+template <class T>
+class GenericPlgReference : public GenericSReference<T, IntelibX_not_a_prolog_object> {
 public:
-    PlgTermReference() {}
-    PlgTermReference(const PlgTermReference& ref) : PlgTermRef(ref) {}
-    PlgTermReference(const SReference& ref) : PlgTermRef(ref) {}
-    PlgTermReference(SExpression* p) : PlgTermRef(p) {}
+    typedef GenericSReference<T, IntelibX_not_a_prolog_object> Super;
 
-    ~PlgTermReference() {}
+    GenericPlgReference(T* ptr) : Super(ptr) {}
+
+    template <class Y>
+    GenericPlgReference(const GenericPlgReference<Y> &ref) : Super(ref) {}
 };
 
-class PlgTerm : public SExpression {
+class PlgResultImpl;
+class PlgResult : public GenericPlgReference<PlgResultImpl> {
 public:
-    static IntelibTypeId TypeId;
+    void Next();
+};
+
+class PlgTermImpl;
+class PlgTerm : public GenericPlgReference<PlgTermImpl> {
+public:
+    PlgResult Solve() const;
+};
+
+class PlgPredicateImpl;
+class PlgPredicate : public GenericPlgReference<PlgPredicateImpl> {
+public:
+};
+
+class PlgSymbolImpl;
+class PlgSymbol : public GenericPlgReference<PlgSymbolImpl> {
+public:
+    PlgSymbol(const char *name);
+    PlgPredicate GetPredicate(int arity);
+};
+
+class PlgVariableNameImpl;
+class PlgVariableName : public GenericPlgReference<PlgVariableNameImpl> {
+public:
+    PlgVariableName(const char *name);
 };
 
 #endif //INTELIB_PROLOG_HPP_SENTRY
