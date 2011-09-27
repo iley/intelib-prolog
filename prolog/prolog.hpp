@@ -53,6 +53,19 @@ class PlgAtomImpl;
 class PlgAtom : public GenericPlgReference<PlgAtomImpl> {
 public:
     typedef GenericPlgReference<PlgAtomImpl> Super;
+
+    PlgAtom(const char *value);
+    const char *GetName() const;
+};
+
+class PlgCompoundTermImpl;
+class PlgCompoundTerm : public GenericPlgReference<PlgCompoundTermImpl> {
+public:
+    typedef GenericPlgReference<PlgCompoundTermImpl> Super;
+
+    PlgCompoundTerm(const PlgAtom &functor, const SReference &args);
+    const PlgAtom &GetFunctor() const;
+    const SReference &GetArguments() const;
 };
 
 #endif //INTELIB_PROLOG_HPP_SENTRY
