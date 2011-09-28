@@ -12,7 +12,7 @@
 
 TESTS = t_data
 
-LIB_OBJECTS = bin_$(TARGETDIR)/intelib/libischeme.a \
+LIB_OBJECTS = bin_$(TARGETDIR)/intelib/libiprolog.a \
 	bin_$(TARGETDIR)/intelib/libsexpr.a
 
 include ../common_tests.mk
