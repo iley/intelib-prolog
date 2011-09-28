@@ -37,7 +37,10 @@ class PlgRule : public GenericPlgReference<PlgRuleImpl> {
 public:
     typedef GenericPlgReference<PlgRuleImpl> Super;
 
-    PlgRule(const PlgTerm &signature, const PlgTerm &body);
+    PlgRule(const PlgTerm &head, const PlgTerm &body);
+
+    const PlgTerm &GetHead() const;
+    const PlgTerm &GetBody() const;
 };
 
 class PlgTermImpl;

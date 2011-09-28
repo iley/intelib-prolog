@@ -35,7 +35,7 @@ class PlgRuleImpl : public SExpression
 public:
     static IntelibTypeId TypeId;
 
-    const PlgTerm &GetSignature() const { return signature_; }
+    const PlgTerm &GetHead() const { return head_; }
     const PlgTerm &GetBody() const { return body_; }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -43,15 +43,18 @@ public:
 #endif
 
 private:
-    PlgTerm signature_, body_;
+    PlgTerm head_, body_;
 
-    PlgRuleImpl(const PlgTerm &signature, const PlgTerm &body) :
-        SExpression(TypeId), signature_(signature), body_(body) {}
+    PlgRuleImpl(const PlgTerm &head, const PlgTerm &body) :
+        SExpression(TypeId), head_(head), body_(body) {}
 };
 
 IntelibTypeId PlgRuleImpl::TypeId(&SExpression::TypeId, true);
 
-PlgRule::PlgRule(const PlgTerm &signature, const PlgTerm &body) : Super(new PlgRuleImpl(signature, body)) {}
+PlgRule::PlgRule(const PlgTerm &head, const PlgTerm &body) : Super(new PlgRuleImpl(head, body)) {}
+
+const PlgTerm &PlgRule::GetHead() const { return (*this)->GetHead(); }
+const PlgTerm &PlgRule::GetBody() const { return (*this)->GetBody(); }
 
 // Abstract Prolog Term, mutable ?
 
