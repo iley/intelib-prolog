@@ -3,6 +3,13 @@
 
 IntelibX_not_a_prolog_object::IntelibX_not_a_prolog_object(SReference a_param) : IntelibX("Not a prolog object", a_param) {}
 
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+template <class T>
+SString GenericPlgReference<T>::TextRepresentation() const { 
+    return ((SExpression*)this->GetPtr())->TextRepresentation(); 
+}
+#endif
+
 // Prolog Solution Result : STUB
 
 class PlgResultImpl : public SExpression 
@@ -27,6 +34,62 @@ void PlgResult::Next()
     // TODO
 }
 
+// Abstract Prolog Expression
+
+class PlgExpressionImpl : public SExpression 
+{
+    friend class PlgExpression;
+public:
+    static IntelibTypeId TypeId;
+
+    virtual PlgResult Solve() { return PlgResult(); } //FIXME: STUB
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return "<PROLOG EXPRESSION>"; } //TODO
+#endif
+
+protected:
+    PlgExpressionImpl(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
+    virtual ~PlgExpressionImpl() = 0;
+};
+
+IntelibTypeId PlgExpressionImpl::TypeId(&SExpression::TypeId, false);
+
+PlgExpressionImpl::~PlgExpressionImpl() {}
+
+PlgResult PlgExpression::Solve() const 
+{ 
+    return (*this)->Solve(); 
+}
+
+// Prolog Disjunction
+
+class PlgDisjunctionImpl : public PlgExpressionImpl
+{
+    friend class PlgDisjunction;
+public:
+    static IntelibTypeId TypeId;
+
+protected:
+    PlgDisjunctionImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
+};
+
+IntelibTypeId PlgDisjunctionImpl::TypeId(&PlgExpressionImpl::TypeId, false);
+
+// Prolog Conjunction
+
+class PlgConjuncitonImpl : public PlgDisjunctionImpl
+{
+    friend class PlgConjunciton;
+public:
+    static IntelibTypeId TypeId;
+
+protected:
+    PlgConjuncitonImpl() : PlgDisjunctionImpl(TypeId) {}
+};
+
+IntelibTypeId PlgConjuncitonImpl::TypeId(&PlgDisjunctionImpl::TypeId, false);
+
 // Prolog Rule
 
 class PlgRuleImpl : public SExpression 
@@ -35,57 +98,43 @@ class PlgRuleImpl : public SExpression
 public:
     static IntelibTypeId TypeId;
 
-    const PlgTerm &GetHead() const { return head_; }
-    const PlgTerm &GetBody() const { return body_; }
+    const PlgCompoundTerm &GetHead() const { return head_; }
+    const PlgDisjunction &GetBody() const { return body_; }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const { return "<PROLOG RULE>"; } //TODO
 #endif
 
 private:
-    PlgTerm head_, body_;
+    PlgCompoundTerm head_;
+    PlgDisjunction body_;
 
-    PlgRuleImpl(const PlgTerm &head, const PlgTerm &body) :
-        SExpression(TypeId), head_(head), body_(body) {}
+    PlgRuleImpl(const PlgCompoundTerm &head, const PlgDisjunction &body) 
+        : SExpression(TypeId), head_(head), body_(body) {}
 };
 
 IntelibTypeId PlgRuleImpl::TypeId(&SExpression::TypeId, true);
 
-PlgRule::PlgRule(const PlgTerm &head, const PlgTerm &body) : Super(new PlgRuleImpl(head, body)) {}
+PlgRule::PlgRule(const PlgCompoundTerm &head, const PlgDisjunction &body) : Super(new PlgRuleImpl(head, body)) {}
 
-const PlgTerm &PlgRule::GetHead() const { return (*this)->GetHead(); }
-const PlgTerm &PlgRule::GetBody() const { return (*this)->GetBody(); }
+const PlgCompoundTerm &PlgRule::GetHead() const { return (*this)->GetHead(); }
+const PlgDisjunction &PlgRule::GetBody() const { return (*this)->GetBody(); }
 
-// Abstract Prolog Term, mutable ?
+// Prolog Term
 
-class PlgTermImpl : public SExpression 
+class PlgTermImpl : public PlgExpressionImpl
 {
+    friend class PlgTerm;
 public:
     static IntelibTypeId TypeId;
-
-    PlgTermImpl(const IntelibTypeId &typeId) : SExpression(typeId) {}
-    PlgTermImpl() : SExpression(TypeId) {}
-    virtual PlgResult Solve() { return PlgResult(); } //FIXME: STUB
+protected:
+    PlgTermImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
     virtual ~PlgTermImpl() = 0;
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const { return "<PROLOG TERM>"; } //TODO
-#endif
 };
 
-IntelibTypeId PlgTermImpl::TypeId(&SExpression::TypeId, true);
+IntelibTypeId PlgTermImpl::TypeId(&PlgExpressionImpl::TypeId, false);
 
 PlgTermImpl::~PlgTermImpl() {}
-
-PlgResult PlgTerm::Solve() const 
-{ 
-    return (*this)->Solve(); 
-}
-
-PlgRule PlgTerm::operator <<= (const PlgTerm &body)
-{
-    return PlgRule(*this, body);
-}
 
 // Prolog Atom, immutable
 
@@ -98,8 +147,8 @@ public:
 
 private:
     SLabel label_;
-
     PlgAtomImpl(const char *name) : PlgTermImpl(TypeId), label_(name) {}
+    ~PlgAtomImpl() {}
 };
 
 IntelibTypeId PlgAtomImpl::TypeId(&PlgTermImpl::TypeId, false);
@@ -110,15 +159,11 @@ const char *PlgAtom::GetName() const { return (*this)->GetName(); }
 
 // Prolog Compound Term, i.e. functor + arguments, immutable
 
-class PlgCompoundTermImpl : public PlgTermImpl {
+class PlgCompoundTermImpl : public PlgTermImpl 
+{
     friend class PlgCompoundTerm;
 public:
     static IntelibTypeId TypeId;
-
-    PlgCompoundTermImpl(const PlgAtom &functor, const SReference &args) 
-        : PlgTermImpl(TypeId), functor_(functor), args_(args) {}
-
-    ~PlgCompoundTermImpl() {}
 
     const PlgAtom& GetFunctor() const { return functor_; }
     const SReference& GetArguments() const { return args_; }
@@ -126,7 +171,14 @@ public:
 private:
     PlgAtom functor_;
     SReference args_;
+
+    PlgCompoundTermImpl(const PlgAtom &functor, const SReference &args) 
+        : PlgTermImpl(TypeId), functor_(functor), args_(args) {}
+
+    ~PlgCompoundTermImpl() {}
 };
+
+IntelibTypeId PlgCompoundTermImpl::TypeId(&PlgTermImpl::TypeId, false);
 
 PlgCompoundTerm::PlgCompoundTerm(const PlgAtom &functor, const SReference &args)
     : Super(new PlgCompoundTermImpl(functor, args)) {}
@@ -135,4 +187,3 @@ PlgCompoundTerm::PlgCompoundTerm(const PlgAtom &functor, const SReference &args)
 const PlgAtom &PlgCompoundTerm::GetFunctor() const { return (*this)->GetFunctor(); }
 const SReference &PlgCompoundTerm::GetArguments() const { return (*this)->GetArguments(); }
 
-IntelibTypeId PlgCompoundTermImpl::TypeId(&PlgTermImpl::TypeId, false);

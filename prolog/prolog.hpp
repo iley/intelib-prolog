@@ -12,7 +12,8 @@ public:
 };
 
 template <class T>
-class GenericPlgReference : public GenericSReference<T, IntelibX_not_a_prolog_object> {
+class GenericPlgReference : public GenericSReference<T, IntelibX_not_a_prolog_object>
+{
 public:
     typedef GenericSReference<T, IntelibX_not_a_prolog_object> Super;
 
@@ -20,10 +21,25 @@ public:
 
     template <class Y>
     GenericPlgReference(const GenericPlgReference<Y> &ref) : Super(ref) {}
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual class SString TextRepresentation() const;
+#endif
+};
+
+class PlgResult;
+class PlgExpressionImpl;
+class PlgExpression : public GenericPlgReference<PlgExpressionImpl> 
+{
+public:
+    typedef GenericPlgReference<PlgExpressionImpl> Super;
+
+    PlgResult Solve() const;
 };
 
 class PlgResultImpl;
-class PlgResult : public GenericPlgReference<PlgResultImpl> {
+class PlgResult : public GenericPlgReference<PlgResultImpl> 
+{
 public:
     typedef GenericPlgReference<PlgResultImpl> Super;
 
@@ -31,29 +47,48 @@ public:
     void Next();
 };
 
-class PlgTerm;
+class PlgConjuncitonImpl;
+class PlgConjunciton : public GenericPlgReference<PlgConjuncitonImpl>
+{
+public:
+    typedef GenericPlgReference<PlgConjuncitonImpl> Super;
+};
+
+class PlgDisjunctionImpl;
+class PlgDisjunction : public GenericPlgReference<PlgDisjunctionImpl>
+{
+public:
+    typedef GenericPlgReference<PlgDisjunctionImpl> Super;
+};
+
+class PlgCompoundTerm;
 class PlgRuleImpl;
-class PlgRule : public GenericPlgReference<PlgRuleImpl> {
+class PlgRule : public GenericPlgReference<PlgRuleImpl> 
+{
 public:
     typedef GenericPlgReference<PlgRuleImpl> Super;
 
-    PlgRule(const PlgTerm &head, const PlgTerm &body);
+    PlgRule(const PlgCompoundTerm &head, const PlgDisjunction &body);
 
-    const PlgTerm &GetHead() const;
-    const PlgTerm &GetBody() const;
+    const PlgCompoundTerm &GetHead() const;
+    const PlgDisjunction &GetBody() const;
 };
 
+inline PlgRule operator <<= (const PlgCompoundTerm &head, const PlgDisjunction &body) {
+    return PlgRule(head, body);
+}
+
+
 class PlgTermImpl;
-class PlgTerm : public GenericPlgReference<PlgTermImpl> {
+class PlgTerm : public GenericPlgReference<PlgTermImpl>
+{
 public:
     typedef GenericPlgReference<PlgTermImpl> Super;
-
-    PlgResult Solve() const;
-    PlgRule operator <<= (const PlgTerm &body);
 };
 
 class PlgAtomImpl;
-class PlgAtom : public GenericPlgReference<PlgAtomImpl> {
+class PlgAtom : public GenericPlgReference<PlgAtomImpl> 
+{
 public:
     typedef GenericPlgReference<PlgAtomImpl> Super;
 
@@ -62,7 +97,8 @@ public:
 };
 
 class PlgCompoundTermImpl;
-class PlgCompoundTerm : public GenericPlgReference<PlgCompoundTermImpl> {
+class PlgCompoundTerm : public GenericPlgReference<PlgCompoundTermImpl> 
+{
 public:
     typedef GenericPlgReference<PlgCompoundTermImpl> Super;
 
