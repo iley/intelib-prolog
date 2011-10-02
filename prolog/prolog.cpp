@@ -78,17 +78,17 @@ IntelibTypeId PlgDisjunctionImpl::TypeId(&PlgExpressionImpl::TypeId, false);
 
 // Prolog Conjunction
 
-class PlgConjuncitonImpl : public PlgDisjunctionImpl
+class PlgTermListImpl : public PlgDisjunctionImpl
 {
-    friend class PlgConjunciton;
+    friend class PlgTermList;
 public:
     static IntelibTypeId TypeId;
 
 protected:
-    PlgConjuncitonImpl() : PlgDisjunctionImpl(TypeId) {}
+    PlgTermListImpl() : PlgDisjunctionImpl(TypeId) {}
 };
 
-IntelibTypeId PlgConjuncitonImpl::TypeId(&PlgDisjunctionImpl::TypeId, false);
+IntelibTypeId PlgTermListImpl::TypeId(&PlgDisjunctionImpl::TypeId, false);
 
 // Prolog Rule
 

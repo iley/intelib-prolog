@@ -47,11 +47,11 @@ public:
     void Next();
 };
 
-class PlgConjuncitonImpl;
-class PlgConjunciton : public GenericPlgReference<PlgConjuncitonImpl>
+class PlgTermListImpl;
+class PlgTermList : public GenericPlgReference<PlgTermListImpl>
 {
 public:
-    typedef GenericPlgReference<PlgConjuncitonImpl> Super;
+    typedef GenericPlgReference<PlgTermListImpl> Super;
 };
 
 class PlgDisjunctionImpl;
