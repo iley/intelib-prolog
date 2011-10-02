@@ -90,11 +90,11 @@ protected:
 
 IntelibTypeId PlgTermListImpl::TypeId(&PlgDisjunctionImpl::TypeId, false);
 
-// Prolog Rule
+// Prolog Clause
 
-class PlgRuleImpl : public SExpression 
+class PlgClauseImpl : public SExpression 
 {
-    friend class PlgRule;
+    friend class PlgClause;
 public:
     static IntelibTypeId TypeId;
 
@@ -109,16 +109,16 @@ private:
     PlgCompoundTerm head_;
     PlgDisjunction body_;
 
-    PlgRuleImpl(const PlgCompoundTerm &head, const PlgDisjunction &body) 
+    PlgClauseImpl(const PlgCompoundTerm &head, const PlgDisjunction &body) 
         : SExpression(TypeId), head_(head), body_(body) {}
 };
 
-IntelibTypeId PlgRuleImpl::TypeId(&SExpression::TypeId, true);
+IntelibTypeId PlgClauseImpl::TypeId(&SExpression::TypeId, true);
 
-PlgRule::PlgRule(const PlgCompoundTerm &head, const PlgDisjunction &body) : Super(new PlgRuleImpl(head, body)) {}
+PlgClause::PlgClause(const PlgCompoundTerm &head, const PlgDisjunction &body) : Super(new PlgClauseImpl(head, body)) {}
 
-const PlgCompoundTerm &PlgRule::GetHead() const { return (*this)->GetHead(); }
-const PlgDisjunction &PlgRule::GetBody() const { return (*this)->GetBody(); }
+const PlgCompoundTerm &PlgClause::GetHead() const { return (*this)->GetHead(); }
+const PlgDisjunction &PlgClause::GetBody() const { return (*this)->GetBody(); }
 
 // Prolog Term
 

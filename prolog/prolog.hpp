@@ -62,20 +62,20 @@ public:
 };
 
 class PlgCompoundTerm;
-class PlgRuleImpl;
-class PlgRule : public GenericPlgReference<PlgRuleImpl> 
+class PlgClauseImpl;
+class PlgClause : public GenericPlgReference<PlgClauseImpl> 
 {
 public:
-    typedef GenericPlgReference<PlgRuleImpl> Super;
+    typedef GenericPlgReference<PlgClauseImpl> Super;
 
-    PlgRule(const PlgCompoundTerm &head, const PlgDisjunction &body);
+    PlgClause(const PlgCompoundTerm &head, const PlgDisjunction &body);
 
     const PlgCompoundTerm &GetHead() const;
     const PlgDisjunction &GetBody() const;
 };
 
-inline PlgRule operator <<= (const PlgCompoundTerm &head, const PlgDisjunction &body) {
-    return PlgRule(head, body);
+inline PlgClause operator <<= (const PlgCompoundTerm &head, const PlgDisjunction &body) {
+    return PlgClause(head, body);
 }
 
 
