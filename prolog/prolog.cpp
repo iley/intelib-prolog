@@ -5,13 +5,6 @@ static SListConstructor S;
 
 IntelibX_not_a_prolog_object::IntelibX_not_a_prolog_object(SReference a_param) : IntelibX("Not a prolog object", a_param) {}
 
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-template <class T>
-SString GenericPlgReference<T>::TextRepresentation() const { 
-    return ((SExpression*)this->GetPtr())->TextRepresentation(); 
-}
-#endif
-
 // Prolog Solution Result : STUB
 
 class PlgResultImpl : public SExpression 
@@ -145,7 +138,11 @@ class PlgAtomImpl : public PlgTermImpl {
 public:
     static IntelibTypeId TypeId;
 
-    const char *GetName() { return label_.GetPtr()->GetName(); }
+    const char *GetName() { return ((SExpressionLabel&)*label_).GetName(); }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return label_->TextRepresentation(); }
+#endif
 
 private:
     SLabel label_;
@@ -177,6 +174,10 @@ public:
 
     const PlgAtom& GetFunctor() const { return functor_; }
     const SReference& GetArguments() const { return args_; }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return functor_->TextRepresentation() + " :- " + args_->TextRepresentation(); }
+#endif
 
 private:
     PlgAtom functor_;

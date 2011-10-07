@@ -5,6 +5,10 @@
 #include "../sexpress/gensref.hpp"
 #include "../sexpress/custmem.hpp"
 
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+#include "../sexpress/sstring.hpp"
+#endif
+
 class IntelibX_not_a_prolog_object : public IntelibX
 {
 public:
@@ -20,11 +24,8 @@ public:
     GenericPlgReference(T* ptr) : Super(ptr) {}
 
     template <class Y>
-    GenericPlgReference(const GenericPlgReference<Y> &ref) : Super(ref) {}
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual class SString TextRepresentation() const;
-#endif
+    GenericPlgReference(const GenericPlgReference<Y> &ref) : Super((const GenericPlgReference<T>&)ref) {}
+    //TODO: check statically if Y is subtype of T
 };
 
 class PlgResult;
@@ -87,6 +88,9 @@ class PlgTerm : public GenericPlgReference<PlgTermImpl>
 {
 public:
     typedef GenericPlgReference<PlgTermImpl> Super;
+
+    template <class Y>
+    PlgTerm(const GenericPlgReference<Y> &ref) : Super(ref) {}
 };
 
 class PlgAtomImpl;
