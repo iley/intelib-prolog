@@ -1,6 +1,8 @@
 #include "prolog.hpp"
 #include "../sexpress/sstring.hpp"
 
+static SListConstructor S;
+
 IntelibX_not_a_prolog_object::IntelibX_not_a_prolog_object(SReference a_param) : IntelibX("Not a prolog object", a_param) {}
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -78,21 +80,21 @@ IntelibTypeId PlgDisjunctionImpl::TypeId(&PlgExpressionImpl::TypeId, false);
 
 // Prolog Conjunction
 
-class PlgTermListImpl : public PlgDisjunctionImpl
+class PlgConjunctionImpl : public PlgDisjunctionImpl
 {
-    friend class PlgTermList;
+    friend class PlgConjunction;
 public:
     static IntelibTypeId TypeId;
 
 protected:
-    PlgTermListImpl() : PlgDisjunctionImpl(TypeId) {}
+    PlgConjunctionImpl() : PlgDisjunctionImpl(TypeId) {}
 };
 
-IntelibTypeId PlgTermListImpl::TypeId(&PlgDisjunctionImpl::TypeId, false);
+IntelibTypeId PlgConjunctionImpl::TypeId(&PlgDisjunctionImpl::TypeId, false);
 
 // Prolog Clause
 
-class PlgClauseImpl : public SExpression 
+class PlgClauseImpl : public PlgExpressionImpl 
 {
     friend class PlgClause;
 public:
@@ -110,7 +112,7 @@ private:
     PlgDisjunction body_;
 
     PlgClauseImpl(const PlgCompoundTerm &head, const PlgDisjunction &body) 
-        : SExpression(TypeId), head_(head), body_(body) {}
+        : PlgExpressionImpl(TypeId), head_(head), body_(body) {}
 };
 
 IntelibTypeId PlgClauseImpl::TypeId(&SExpression::TypeId, true);
@@ -157,6 +159,14 @@ PlgAtom::PlgAtom(const char *name) : Super(new PlgAtomImpl(name)) {}
 
 const char *PlgAtom::GetName() const { return (*this)->GetName(); }
 
+PlgCompoundTerm PlgAtom::operator() (const PlgTerm &term1) {
+    return PlgCompoundTerm(*this, (S|term1));
+}
+
+
+PlgCompoundTerm PlgAtom::operator() (const PlgTerm &term1, const PlgTerm &term2) {
+    return PlgCompoundTerm(*this, (S| term1, term2));
+}
 // Prolog Compound Term, i.e. functor + arguments, immutable
 
 class PlgCompoundTermImpl : public PlgTermImpl 

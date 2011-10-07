@@ -47,11 +47,11 @@ public:
     void Next();
 };
 
-class PlgTermListImpl;
-class PlgTermList : public GenericPlgReference<PlgTermListImpl>
+class PlgConjunctionImpl;
+class PlgConjunction : public GenericPlgReference<PlgConjunctionImpl>
 {
 public:
-    typedef GenericPlgReference<PlgTermListImpl> Super;
+    typedef GenericPlgReference<PlgConjunctionImpl> Super;
 };
 
 class PlgDisjunctionImpl;
@@ -60,6 +60,9 @@ class PlgDisjunction : public GenericPlgReference<PlgDisjunctionImpl>
 public:
     typedef GenericPlgReference<PlgDisjunctionImpl> Super;
 };
+
+PlgDisjunction operator|| (const PlgDisjunction&, const PlgDisjunction&);
+PlgConjunction operator&& (const PlgConjunction&, const PlgConjunction&);
 
 class PlgCompoundTerm;
 class PlgClauseImpl;
@@ -94,6 +97,11 @@ public:
 
     PlgAtom(const char *value);
     const char *GetName() const;
+
+    PlgCompoundTerm operator() (const PlgTerm &term1);
+    PlgCompoundTerm operator() (const PlgTerm &term1, const PlgTerm &term2);
+    PlgCompoundTerm operator() (const PlgTerm &term1, const PlgTerm &term2, const PlgTerm &term3);
+    //TODO: continue
 };
 
 class PlgCompoundTermImpl;
