@@ -28,31 +28,15 @@ public:
     //TODO: check statically if Y is subtype of T
 };
 
-class PlgResult;
+// Reference types
+
 class PlgExpressionImpl;
 class PlgExpression : public GenericPlgReference<PlgExpressionImpl> 
 {
 public:
     typedef GenericPlgReference<PlgExpressionImpl> Super;
 
-    PlgResult Solve() const;
-};
-
-class PlgResultImpl;
-class PlgResult : public GenericPlgReference<PlgResultImpl> 
-{
-public:
-    typedef GenericPlgReference<PlgResultImpl> Super;
-
-    PlgResult();
-    void Next();
-};
-
-class PlgConjunctionImpl;
-class PlgConjunction : public GenericPlgReference<PlgConjunctionImpl>
-{
-public:
-    typedef GenericPlgReference<PlgConjunctionImpl> Super;
+    //PlgResult Solve() const;
 };
 
 class PlgDisjunctionImpl;
@@ -62,26 +46,12 @@ public:
     typedef GenericPlgReference<PlgDisjunctionImpl> Super;
 };
 
-PlgDisjunction operator|| (const PlgDisjunction&, const PlgDisjunction&);
-PlgConjunction operator&& (const PlgConjunction&, const PlgConjunction&);
-
-class PlgCompoundTerm;
-class PlgClauseImpl;
-class PlgClause : public GenericPlgReference<PlgClauseImpl> 
+class PlgConjunctionImpl;
+class PlgConjunction : public GenericPlgReference<PlgConjunctionImpl>
 {
 public:
-    typedef GenericPlgReference<PlgClauseImpl> Super;
-
-    PlgClause(const PlgCompoundTerm &head, const PlgDisjunction &body);
-
-    const PlgCompoundTerm &GetHead() const;
-    const PlgDisjunction &GetBody() const;
+    typedef GenericPlgReference<PlgConjunctionImpl> Super;
 };
-
-inline PlgClause operator <<= (const PlgCompoundTerm &head, const PlgDisjunction &body) {
-    return PlgClause(head, body);
-}
-
 
 class PlgTermImpl;
 class PlgTerm : public GenericPlgReference<PlgTermImpl>
@@ -91,6 +61,18 @@ public:
 
     template <class Y>
     PlgTerm(const GenericPlgReference<Y> &ref) : Super(ref) {}
+};
+
+class PlgAtom;
+class PlgCompoundTermImpl;
+class PlgCompoundTerm : public GenericPlgReference<PlgCompoundTermImpl> 
+{
+public:
+    typedef GenericPlgReference<PlgCompoundTermImpl> Super;
+
+    PlgCompoundTerm(const PlgAtom &functor, const SReference &args);
+    const PlgAtom &GetFunctor() const;
+    const SReference &GetArguments() const;
 };
 
 class PlgAtomImpl;
@@ -108,15 +90,138 @@ public:
     //TODO: continue
 };
 
-class PlgCompoundTermImpl;
-class PlgCompoundTerm : public GenericPlgReference<PlgCompoundTermImpl> 
+class PlgClauseImpl;
+class PlgClause : public GenericPlgReference<PlgClauseImpl> 
 {
 public:
-    typedef GenericPlgReference<PlgCompoundTermImpl> Super;
+    typedef GenericPlgReference<PlgClauseImpl> Super;
 
-    PlgCompoundTerm(const PlgAtom &functor, const SReference &args);
-    const PlgAtom &GetFunctor() const;
-    const SReference &GetArguments() const;
+    PlgClause(const PlgCompoundTerm &head, const PlgDisjunction &body);
+
+    const PlgCompoundTerm &GetHead() const;
+    const PlgDisjunction &GetBody() const;
+};
+
+inline PlgClause operator <<= (const PlgCompoundTerm &head, const PlgDisjunction &body) {
+    return PlgClause(head, body);
+}
+
+// Abstract Prolog Expression
+class PlgExpressionImpl : public SExpression 
+{
+    friend class PlgExpression;
+public:
+    static IntelibTypeId TypeId;
+
+    //virtual PlgResult Solve() { return PlgResult(); } //FIXME: STUB
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return "<PROLOG EXPRESSION>"; } //TODO
+#endif
+
+protected:
+    PlgExpressionImpl(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
+    virtual ~PlgExpressionImpl() = 0;
+};
+
+// Prolog Disjunction
+class PlgDisjunctionImpl : public PlgExpressionImpl
+{
+    friend class PlgDisjunction;
+public:
+    static IntelibTypeId TypeId;
+
+protected:
+    PlgDisjunctionImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
+};
+
+// Prolog Conjunction
+class PlgConjunctionImpl : public PlgDisjunctionImpl
+{
+    friend class PlgConjunction;
+public:
+    static IntelibTypeId TypeId;
+
+protected:
+    PlgConjunctionImpl() : PlgDisjunctionImpl(TypeId) {}
+};
+
+PlgDisjunction operator|| (const PlgDisjunction&, const PlgDisjunction&);
+PlgConjunction operator&& (const PlgConjunction&, const PlgConjunction&);
+
+// Prolog Clause
+class PlgClauseImpl : public PlgExpressionImpl 
+{
+    friend class PlgClause;
+public:
+    static IntelibTypeId TypeId;
+
+    const PlgCompoundTerm &GetHead() const { return head_; }
+    const PlgDisjunction &GetBody() const { return body_; }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return "<PROLOG RULE>"; } //TODO
+#endif
+
+private:
+    PlgCompoundTerm head_;
+    PlgDisjunction body_;
+
+    PlgClauseImpl(const PlgCompoundTerm &head, const PlgDisjunction &body) 
+        : PlgExpressionImpl(TypeId), head_(head), body_(body) {}
+};
+
+// Prolog Term
+class PlgTermImpl : public PlgExpressionImpl
+{
+    friend class PlgTerm;
+public:
+    static IntelibTypeId TypeId;
+protected:
+    PlgTermImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
+    virtual ~PlgTermImpl() = 0;
+};
+
+// Prolog Atom, immutable
+class PlgAtomImpl : public PlgTermImpl {
+    friend class PlgAtom;
+public:
+    static IntelibTypeId TypeId;
+
+    const char *GetName() { return ((SExpressionLabel&)*label_).GetName(); }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return label_->TextRepresentation(); }
+#endif
+
+private:
+    SLabel label_;
+    PlgAtomImpl(const char *name) : PlgTermImpl(TypeId), label_(name) {}
+    ~PlgAtomImpl() {}
+};
+
+// Prolog Compound Term, i.e. functor(arguments), immutable
+class PlgCompoundTermImpl : public PlgTermImpl 
+{
+    friend class PlgCompoundTerm;
+public:
+    static IntelibTypeId TypeId;
+
+    const PlgAtom& GetFunctor() const { return functor_; }
+    const SReference& GetArguments() const { return args_; }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return functor_->TextRepresentation() + " :- " + args_->TextRepresentation(); }
+#endif
+
+private:
+    PlgAtom functor_;
+    SReference args_;
+
+    PlgCompoundTermImpl(const PlgAtom &functor, const SReference &args) 
+        : PlgTermImpl(TypeId), functor_(functor), args_(args) {}
+
+    ~PlgCompoundTermImpl() {}
 };
 
 #endif //INTELIB_PROLOG_HPP_SENTRY

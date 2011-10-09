@@ -5,109 +5,24 @@ static SListConstructor S;
 
 IntelibX_not_a_prolog_object::IntelibX_not_a_prolog_object(SReference a_param) : IntelibX("Not a prolog object", a_param) {}
 
-// Prolog Solution Result : STUB
-
-class PlgResultImpl : public SExpression 
-{
-    friend class PlgResult;
-public:
-    static IntelibTypeId TypeId;
-
-    PlgResultImpl() : SExpression(TypeId) {}
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const { return "<PROLOG RESULT>"; } //TODO
-#endif
-};
-
-IntelibTypeId PlgResultImpl::TypeId(&SExpression::TypeId, true);
-
-PlgResult::PlgResult() : Super(new PlgResultImpl()) {}
-
-void PlgResult::Next() 
-{
-    // TODO
-}
-
-// Abstract Prolog Expression
-
-class PlgExpressionImpl : public SExpression 
-{
-    friend class PlgExpression;
-public:
-    static IntelibTypeId TypeId;
-
-    virtual PlgResult Solve() { return PlgResult(); } //FIXME: STUB
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const { return "<PROLOG EXPRESSION>"; } //TODO
-#endif
-
-protected:
-    PlgExpressionImpl(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
-    virtual ~PlgExpressionImpl() = 0;
-};
 
 IntelibTypeId PlgExpressionImpl::TypeId(&SExpression::TypeId, false);
 
+// Abstract Prolog Expression
 PlgExpressionImpl::~PlgExpressionImpl() {}
 
-PlgResult PlgExpression::Solve() const 
-{ 
-    return (*this)->Solve(); 
-}
+//PlgResult PlgExpression::Solve() const 
+//{ 
+    //return (*this)->Solve(); 
+//}
 
 // Prolog Disjunction
-
-class PlgDisjunctionImpl : public PlgExpressionImpl
-{
-    friend class PlgDisjunction;
-public:
-    static IntelibTypeId TypeId;
-
-protected:
-    PlgDisjunctionImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
-};
-
 IntelibTypeId PlgDisjunctionImpl::TypeId(&PlgExpressionImpl::TypeId, false);
 
 // Prolog Conjunction
-
-class PlgConjunctionImpl : public PlgDisjunctionImpl
-{
-    friend class PlgConjunction;
-public:
-    static IntelibTypeId TypeId;
-
-protected:
-    PlgConjunctionImpl() : PlgDisjunctionImpl(TypeId) {}
-};
-
 IntelibTypeId PlgConjunctionImpl::TypeId(&PlgDisjunctionImpl::TypeId, false);
 
 // Prolog Clause
-
-class PlgClauseImpl : public PlgExpressionImpl 
-{
-    friend class PlgClause;
-public:
-    static IntelibTypeId TypeId;
-
-    const PlgCompoundTerm &GetHead() const { return head_; }
-    const PlgDisjunction &GetBody() const { return body_; }
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const { return "<PROLOG RULE>"; } //TODO
-#endif
-
-private:
-    PlgCompoundTerm head_;
-    PlgDisjunction body_;
-
-    PlgClauseImpl(const PlgCompoundTerm &head, const PlgDisjunction &body) 
-        : PlgExpressionImpl(TypeId), head_(head), body_(body) {}
-};
-
 IntelibTypeId PlgClauseImpl::TypeId(&SExpression::TypeId, true);
 
 PlgClause::PlgClause(const PlgCompoundTerm &head, const PlgDisjunction &body) : Super(new PlgClauseImpl(head, body)) {}
@@ -116,39 +31,11 @@ const PlgCompoundTerm &PlgClause::GetHead() const { return (*this)->GetHead(); }
 const PlgDisjunction &PlgClause::GetBody() const { return (*this)->GetBody(); }
 
 // Prolog Term
-
-class PlgTermImpl : public PlgExpressionImpl
-{
-    friend class PlgTerm;
-public:
-    static IntelibTypeId TypeId;
-protected:
-    PlgTermImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
-    virtual ~PlgTermImpl() = 0;
-};
-
 IntelibTypeId PlgTermImpl::TypeId(&PlgExpressionImpl::TypeId, false);
 
 PlgTermImpl::~PlgTermImpl() {}
 
 // Prolog Atom, immutable
-
-class PlgAtomImpl : public PlgTermImpl {
-    friend class PlgAtom;
-public:
-    static IntelibTypeId TypeId;
-
-    const char *GetName() { return ((SExpressionLabel&)*label_).GetName(); }
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const { return label_->TextRepresentation(); }
-#endif
-
-private:
-    SLabel label_;
-    PlgAtomImpl(const char *name) : PlgTermImpl(TypeId), label_(name) {}
-    ~PlgAtomImpl() {}
-};
 
 IntelibTypeId PlgAtomImpl::TypeId(&PlgTermImpl::TypeId, false);
 
@@ -164,31 +51,8 @@ PlgCompoundTerm PlgAtom::operator() (const PlgTerm &term1) {
 PlgCompoundTerm PlgAtom::operator() (const PlgTerm &term1, const PlgTerm &term2) {
     return PlgCompoundTerm(*this, (S| term1, term2));
 }
-// Prolog Compound Term, i.e. functor + arguments, immutable
 
-class PlgCompoundTermImpl : public PlgTermImpl 
-{
-    friend class PlgCompoundTerm;
-public:
-    static IntelibTypeId TypeId;
-
-    const PlgAtom& GetFunctor() const { return functor_; }
-    const SReference& GetArguments() const { return args_; }
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const { return functor_->TextRepresentation() + " :- " + args_->TextRepresentation(); }
-#endif
-
-private:
-    PlgAtom functor_;
-    SReference args_;
-
-    PlgCompoundTermImpl(const PlgAtom &functor, const SReference &args) 
-        : PlgTermImpl(TypeId), functor_(functor), args_(args) {}
-
-    ~PlgCompoundTermImpl() {}
-};
-
+// Prolog Compound Term, i.e. functor(arguments), immutable
 IntelibTypeId PlgCompoundTermImpl::TypeId(&PlgTermImpl::TypeId, false);
 
 PlgCompoundTerm::PlgCompoundTerm(const PlgAtom &functor, const SReference &args)
