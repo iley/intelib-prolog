@@ -91,7 +91,8 @@ protected:
 };
 
 // Prolog Atom, immutable
-class PlgAtomImpl : public PlgTermImpl {
+class PlgAtomImpl : public PlgTermImpl
+{
     friend class PlgAtom;
 public:
     static IntelibTypeId TypeId;
@@ -109,7 +110,8 @@ private:
 };
 
 // Prolog variable
-class PlgVarImpl : public PlgTermImpl {
+class PlgVarImpl : public PlgTermImpl
+{
     friend class PlgVar;
 public:
     static IntelibTypeId TypeId;
