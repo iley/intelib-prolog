@@ -111,6 +111,24 @@ private:
     ~PlgAtomImpl() {}
 };
 
+// Prolog variable
+class PlgVarImpl : public PlgTermImpl {
+    friend class PlgVar;
+public:
+    static IntelibTypeId TypeId;
+
+    const char *GetName() { return ((SExpressionLabel&)*label_).GetName(); }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return label_->TextRepresentation(); }
+#endif
+
+private:
+    SLabel label_;
+    PlgVarImpl(const char *name) : PlgTermImpl(TypeId), label_(name) {}
+    ~PlgVarImpl() {}
+};
+
 // Prolog Compound Term, i.e. functor(arguments), immutable
 class PlgCompoundTermImpl : public PlgTermImpl 
 {

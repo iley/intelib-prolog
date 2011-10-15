@@ -67,13 +67,23 @@ class PlgAtom : public GenericPlgReference<PlgAtomImpl>
 public:
     typedef GenericPlgReference<PlgAtomImpl> Super;
 
-    PlgAtom(const char *value);
+    PlgAtom(const char *name);
     const char *GetName() const;
 
     PlgCompoundTerm operator() (const PlgTerm &term1);
     PlgCompoundTerm operator() (const PlgTerm &term1, const PlgTerm &term2);
     PlgCompoundTerm operator() (const PlgTerm &term1, const PlgTerm &term2, const PlgTerm &term3);
     //TODO: continue
+};
+
+class PlgVarImpl;
+class PlgVar : public GenericPlgReference<PlgVarImpl> 
+{
+public:
+    typedef GenericPlgReference<PlgVarImpl> Super;
+
+    PlgVar(const char *name);
+    const char *GetName() const;
 };
 
 class PlgClauseImpl;

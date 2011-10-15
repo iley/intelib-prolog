@@ -52,6 +52,11 @@ PlgCompoundTerm PlgAtom::operator() (const PlgTerm &term1, const PlgTerm &term2)
     return PlgCompoundTerm(*this, (S| term1, term2));
 }
 
+// Prolog Variable
+IntelibTypeId PlgVarImpl::TypeId(&PlgTermImpl::TypeId, false);
+
+PlgVar::PlgVar(const char *name) : Super(new PlgVarImpl(name)) {}
+
 // Prolog Compound Term, i.e. functor(arguments), immutable
 IntelibTypeId PlgCompoundTermImpl::TypeId(&PlgTermImpl::TypeId, false);
 
