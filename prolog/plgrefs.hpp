@@ -39,6 +39,9 @@ public:
     typedef GenericPlgReference<PlgConjunctionImpl> Super;
 };
 
+PlgDisjunction operator|| (const PlgDisjunction&, const PlgDisjunction&);
+PlgConjunction operator&& (const PlgConjunction&, const PlgConjunction&);
+
 class PlgTermImpl;
 class PlgTerm : public GenericPlgReference<PlgTermImpl>
 {

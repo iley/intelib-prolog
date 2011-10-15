@@ -57,9 +57,6 @@ protected:
     PlgConjunctionImpl() : PlgDisjunctionImpl(TypeId) {}
 };
 
-PlgDisjunction operator|| (const PlgDisjunction&, const PlgDisjunction&);
-PlgConjunction operator&& (const PlgConjunction&, const PlgConjunction&);
-
 // Prolog Clause
 class PlgClauseImpl : public PlgExpressionImpl 
 {
