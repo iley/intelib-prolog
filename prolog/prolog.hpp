@@ -140,7 +140,7 @@ public:
     const SReference& GetArguments() const { return args_; }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const { return functor_->TextRepresentation() + " :- " + args_->TextRepresentation(); }
+    virtual SString TextRepresentation() const { return functor_->TextRepresentation() + args_->TextRepresentation(); }
 #endif
 
 private:

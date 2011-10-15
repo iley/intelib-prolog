@@ -10,7 +10,7 @@ public:
     GenericPlgReference(T* ptr) : Super(ptr) {}
 
     template <class Y>
-    GenericPlgReference(const GenericPlgReference<Y> &ref) : Super((const GenericPlgReference<T>&)ref) {}
+    GenericPlgReference(const GenericPlgReference<Y> &ref) : Super(ref) {}
     //TODO: check statically if Y is subtype of T
 };
 
