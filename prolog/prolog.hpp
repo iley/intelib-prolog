@@ -42,19 +42,55 @@ class PlgDisjunctionImpl : public PlgExpressionImpl
 public:
     static IntelibTypeId TypeId;
 
+    PlgDisjunctionImpl(const PlgConjunction &head)
+        : head_(head), tail_() {}
+
+    PlgDisjunctionImpl(const PlgConjunction &head, const PlgDisjunction &tail)
+        : head_(head), tail_(tail) {}
+
+    const PlgConjunction &GetHead() const { return head_; }
+    const PlgDisjunction &GetTail() const { return tail_; }
+    PlgDisjunction Append(const PlgDisjunction &rest) const;
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+
 protected:
     PlgDisjunctionImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
+
+private:
+    PlgConjunction head_;
+    PlgDisjunction tail_;
 };
 
 // Prolog Conjunction
-class PlgConjunctionImpl : public PlgDisjunctionImpl
+class PlgConjunctionImpl : public PlgExpressionImpl
 {
     friend class PlgConjunction;
 public:
     static IntelibTypeId TypeId;
 
+    PlgConjunctionImpl(const PlgTerm &head)
+        : head_(head), tail_() {}
+
+    PlgConjunctionImpl(const PlgTerm &head, const PlgConjunction &tail)
+        : head_(head), tail_(tail) {}
+    
+    const PlgTerm &GetHead() const { return head_; }
+    const PlgConjunction &GetTail() const { return tail_; }
+    PlgConjunction Append(const PlgConjunction &rest) const;
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+
 protected:
-    PlgConjunctionImpl() : PlgDisjunctionImpl(TypeId) {}
+    PlgConjunctionImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
+
+private:
+    PlgTerm head_;
+    PlgConjunction tail_;
 };
 
 // Prolog Clause

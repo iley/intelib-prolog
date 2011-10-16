@@ -7,6 +7,7 @@ class GenericPlgReference : public GenericSReference<T, IntelibX_not_a_prolog_ob
 public:
     typedef GenericSReference<T, IntelibX_not_a_prolog_object> Super;
 
+    GenericPlgReference() : Super() {}
     GenericPlgReference(T* ptr) : Super(ptr) {}
 
     template <class Y>
@@ -25,28 +26,53 @@ public:
     //PlgResult Solve() const;
 };
 
+class PlgConjunction;
 class PlgDisjunctionImpl;
 class PlgDisjunction : public GenericPlgReference<PlgDisjunctionImpl>
 {
 public:
     typedef GenericPlgReference<PlgDisjunctionImpl> Super;
+
+    PlgDisjunction();
+    PlgDisjunction(const PlgConjunction &head);
+    PlgDisjunction(const PlgConjunction &head, const PlgDisjunction &tail);
+
+    const PlgConjunction &GetHead() const;
+    const PlgDisjunction &GetTail() const;
+    PlgDisjunction Append(const PlgDisjunction &rest) const;
 };
 
+class PlgTerm;
 class PlgConjunctionImpl;
 class PlgConjunction : public GenericPlgReference<PlgConjunctionImpl>
 {
 public:
     typedef GenericPlgReference<PlgConjunctionImpl> Super;
+
+    PlgConjunction();
+    PlgConjunction(const PlgTerm &head);
+    PlgConjunction(const PlgTerm &head, const PlgConjunction &tail);
+
+    const PlgTerm &GetHead() const;
+    const PlgConjunction &GetTail() const;
+    PlgConjunction Append(const PlgConjunction &rest) const;
 };
 
-PlgDisjunction operator|| (const PlgDisjunction&, const PlgDisjunction&);
-PlgConjunction operator&& (const PlgConjunction&, const PlgConjunction&);
+inline PlgDisjunction operator|| (const PlgDisjunction &left, const PlgDisjunction &right) {
+    return left.Append(right);
+}
+
+inline PlgConjunction operator&& (const PlgConjunction &left, const PlgConjunction &right) {
+    return left.Append(right);
+}
 
 class PlgTermImpl;
 class PlgTerm : public GenericPlgReference<PlgTermImpl>
 {
 public:
     typedef GenericPlgReference<PlgTermImpl> Super;
+
+    PlgTerm() : Super() {}
 
     template <class Y>
     PlgTerm(const GenericPlgReference<Y> &ref) : Super(ref) {}

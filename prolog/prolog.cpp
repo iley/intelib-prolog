@@ -11,16 +11,33 @@ IntelibTypeId PlgExpressionImpl::TypeId(&SExpression::TypeId, false);
 // Abstract Prolog Expression
 PlgExpressionImpl::~PlgExpressionImpl() {}
 
-//PlgResult PlgExpression::Solve() const 
-//{ 
-    //return (*this)->Solve(); 
-//}
-
 // Prolog Disjunction
 IntelibTypeId PlgDisjunctionImpl::TypeId(&PlgExpressionImpl::TypeId, false);
 
+PlgDisjunction PlgDisjunctionImpl::Append(const PlgDisjunction &rest) const {
+    return PlgDisjunction(head_, tail_.GetPtr() ? tail_.Append(rest) : rest);
+}
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgDisjunctionImpl::TextRepresentation() const { 
+    return tail_.GetPtr() ?  head_->TextRepresentation() + "; " + tail_->TextRepresentation() 
+        : head_->TextRepresentation();
+}
+#endif
+
 // Prolog Conjunction
 IntelibTypeId PlgConjunctionImpl::TypeId(&PlgDisjunctionImpl::TypeId, false);
+
+PlgConjunction PlgConjunctionImpl::Append(const PlgConjunction &rest) const {
+    return PlgConjunction(head_, tail_.GetPtr() ? tail_.Append(rest) : rest);
+}
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgConjunctionImpl::TextRepresentation() const { 
+    return tail_.GetPtr() ?  head_->TextRepresentation() + ", " + tail_->TextRepresentation() 
+        : head_->TextRepresentation();
+}
+#endif
 
 // Prolog Clause
 IntelibTypeId PlgClauseImpl::TypeId(&SExpression::TypeId, true);
