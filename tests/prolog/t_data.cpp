@@ -32,7 +32,12 @@ int main()
         poc();
         TestSection("PrologData");
         {
-			TESTB("fake", true);
+            PlgAtom a("a");
+            TESTTR("atom", a, "a");
+            PlgVar X("X");
+            TESTTR("var name", X, "X");
+            PlgTerm t = a(X,X);
+            TESTTR("compound term", t, "a(X X)");
         }
         TestScore();
         poc();
