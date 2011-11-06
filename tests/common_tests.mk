@@ -102,6 +102,11 @@ bin_$(TARGETDIR)/intelib/libischeme.a:	bin_$(TARGETDIR) FORCE
 		TARGETDIR=$(CURDIR)/bin_$(TARGETDIR) \
 		OPTIMIZATION=$(OPTIMIZATION)
 
+bin_$(TARGETDIR)/intelib/libiprolog.a:	bin_$(TARGETDIR) FORCE
+	cd ../../prolog && $(MAKE) all \
+		TARGETDIR=$(CURDIR)/bin_$(TARGETDIR) \
+		OPTIMIZATION=$(OPTIMIZATION)
+
 lib_rebuild:
 	#rm -rf $(LIB_OBJECTS)
 	$(MAKE) clean

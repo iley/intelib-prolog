@@ -188,7 +188,7 @@ doxydocs: FORCE
 install: FORCE
 		# as the interact/ directory presently doesn't hold files,
 		# it is not to be mentioned here
-	for D in sexpress tools genlisp lisp scheme ill ils refal ; do \
+	for D in sexpress tools genlisp lisp scheme ill ils refal prolog ; do \
 		$(INSTALL_DIR) $(DESTDIR)$(INCLUDEDIR)/$$D ; \
 		$(INSTALL_HEADERS) $$D/*.hpp  $(DESTDIR)$(INCLUDEDIR)/$$D ; \
 	done
