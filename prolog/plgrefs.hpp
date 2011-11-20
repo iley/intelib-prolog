@@ -58,28 +58,41 @@ public:
     PlgConjunction Append(const PlgConjunction &rest) const;
 };
 
-inline PlgDisjunction operator|| (const PlgDisjunction &left, const PlgDisjunction &right) {
+inline PlgDisjunction operator| (const PlgDisjunction &left, const PlgDisjunction &right) {
     return left.Append(right);
 }
 
-inline PlgDisjunction operator|| (const PlgConjunction &left, const PlgDisjunction &right) {
+inline PlgDisjunction operator| (const PlgConjunction &left, const PlgDisjunction &right) {
     return PlgDisjunction(left).Append(right);
 }
 
-inline PlgDisjunction operator|| (const PlgDisjunction &left, const PlgConjunction &right) {
+inline PlgDisjunction operator| (const PlgDisjunction &left, const PlgConjunction &right) {
     return left.Append(PlgDisjunction(right));
 }
 
-inline PlgConjunction operator&& (const PlgConjunction &left, const PlgConjunction &right) {
+inline PlgDisjunction operator| (const PlgConjunction &left, const PlgConjunction &right) {
+    return PlgDisjunction(left).Append(right);
+}
+
+/*template<class A, class B>
+inline PlgConjunction operator& (const A& left, const B& right) {
+    return PlgConjunction(left).Append(right);
+}*/
+
+inline PlgConjunction operator& (const PlgConjunction &left, const PlgConjunction &right) {
     return left.Append(right);
 }
 
-inline PlgConjunction operator&& (const PlgTerm &left, const PlgConjunction &right) {
+inline PlgConjunction operator& (const PlgTerm &left, const PlgConjunction &right) {
     return PlgConjunction(left).Append(right);
 }
 
-inline PlgConjunction operator&& (const PlgConjunction &left, const PlgTerm &right) {
-    return PlgConjunction(left).Append(PlgConjunction(right));
+inline PlgConjunction operator& (const PlgConjunction &left, const PlgTerm &right) {
+    return left.Append(PlgConjunction(right));
+}
+
+inline PlgConjunction operator& (const PlgTerm &left, const PlgTerm &right) {
+    return PlgConjunction(left).Append(right);
 }
 
 class PlgTermImpl;

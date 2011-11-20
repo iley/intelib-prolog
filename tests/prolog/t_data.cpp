@@ -34,10 +34,15 @@ int main()
         {
             PlgAtom a("a");
             TESTTR("atom", a, "a");
+
             PlgVar X("X");
             TESTTR("var name", X, "X");
+
             PlgTerm t = a(X,X);
             TESTTR("compound term", t, "a(X X)");
+
+            PlgTerm t2 = a(X) & a(X);
+            TESTTR("conjunciton", t2, "a(X), a(X)");
         }
         TestScore();
         poc();
