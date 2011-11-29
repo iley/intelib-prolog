@@ -35,18 +35,23 @@ protected:
     virtual ~PlgExpressionImpl() = 0;
 };
 
+// Prolog Term
+class PlgTermImpl : public PlgExpressionImpl
+{
+    friend class PlgTerm;
+public:
+    static IntelibTypeId TypeId;
+protected:
+    PlgTermImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
+    virtual ~PlgTermImpl() = 0;
+};
+
 // Prolog Disjunction
 class PlgDisjunctionImpl : public PlgExpressionImpl
 {
     friend class PlgDisjunction;
 public:
     static IntelibTypeId TypeId;
-
-    PlgDisjunctionImpl(const PlgConjunction &head)
-        : head_(head), tail_() {}
-
-    PlgDisjunctionImpl(const PlgConjunction &head, const PlgDisjunction &tail)
-        : head_(head), tail_(tail) {}
 
     const PlgConjunction &GetHead() const { return head_; }
     const PlgDisjunction &GetTail() const { return tail_; }
@@ -57,7 +62,11 @@ public:
 #endif
 
 protected:
-    PlgDisjunctionImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
+    PlgDisjunctionImpl(const PlgConjunction &head, const IntelibTypeId &typeId = TypeId)
+        : PlgExpressionImpl(typeId), head_(head), tail_() {}
+
+    PlgDisjunctionImpl(const PlgConjunction &head, const PlgDisjunction &tail, const IntelibTypeId &typeId = TypeId)
+        : PlgExpressionImpl(typeId), head_(head), tail_(tail)  {}
 
 private:
     PlgConjunction head_;
@@ -71,12 +80,6 @@ class PlgConjunctionImpl : public PlgExpressionImpl
 public:
     static IntelibTypeId TypeId;
 
-    PlgConjunctionImpl(const PlgTerm &head)
-        : head_(head), tail_() {}
-
-    PlgConjunctionImpl(const PlgTerm &head, const PlgConjunction &tail)
-        : head_(head), tail_(tail) {}
-    
     const PlgTerm &GetHead() const { return head_; }
     const PlgConjunction &GetTail() const { return tail_; }
     PlgConjunction Append(const PlgConjunction &rest) const;
@@ -86,7 +89,11 @@ public:
 #endif
 
 protected:
-    PlgConjunctionImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
+    PlgConjunctionImpl(const PlgTerm &head, const IntelibTypeId &typeId = TypeId)
+        : PlgExpressionImpl(typeId), head_(head), tail_() {}
+
+    PlgConjunctionImpl(const PlgTerm &head, const PlgConjunction &tail, const IntelibTypeId &typeId = TypeId)
+        : PlgExpressionImpl(typeId), head_(head), tail_(tail)  {}
 
 private:
     PlgTerm head_;
@@ -113,17 +120,6 @@ private:
 
     PlgClauseImpl(const PlgCompoundTerm &head, const PlgDisjunction &body) 
         : PlgExpressionImpl(TypeId), head_(head), body_(body) {}
-};
-
-// Prolog Term
-class PlgTermImpl : public PlgExpressionImpl
-{
-    friend class PlgTerm;
-public:
-    static IntelibTypeId TypeId;
-protected:
-    PlgTermImpl(const IntelibTypeId &typeId = TypeId) : PlgExpressionImpl(typeId) {}
-    virtual ~PlgTermImpl() = 0;
 };
 
 // Prolog Atom, immutable

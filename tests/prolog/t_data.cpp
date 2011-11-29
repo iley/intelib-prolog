@@ -43,6 +43,10 @@ int main()
 
             PlgTerm t2 = a(X) & a(X);
             TESTTR("conjunciton", t2, "a(X), a(X)");
+
+            //PlgTerm t3 = a(X) & a(X) | a(X) & a(X);
+
+            //PlgTerm t3 = a & a;
         }
         TestScore();
         poc();

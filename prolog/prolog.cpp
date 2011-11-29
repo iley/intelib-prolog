@@ -12,7 +12,7 @@ IntelibTypeId PlgExpressionImpl::TypeId(&SExpression::TypeId, false);
 PlgExpressionImpl::~PlgExpressionImpl() {}
 
 // Prolog Disjunction
-IntelibTypeId PlgDisjunctionImpl::TypeId(&PlgExpressionImpl::TypeId, false);
+IntelibTypeId PlgDisjunctionImpl::TypeId(&PlgTermImpl::TypeId, false);
 
 PlgDisjunction PlgDisjunctionImpl::Append(const PlgDisjunction &rest) const {
     return PlgDisjunction(head_, tail_.GetPtr() ? tail_.Append(rest) : rest);
