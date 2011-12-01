@@ -7,6 +7,10 @@ bool PlgExpression::Unify(const PlgReference &other, PlgContext &context) {
     return false;
 }
 
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"; }
+#endif
+
 IntelibX_not_a_prolog_expression::IntelibX_not_a_prolog_expression(SReference a_param) 
     : IntelibX("Not a prolog expression", a_param) {}
 
@@ -43,3 +47,7 @@ bool PlgClauseChoicePoint::Next(PlgContext &context, SQueue &executionQueue) {
 
     return false;
 }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgAtom::TextRepresentation() const { return label->TextRepresentation(); }
+#endif

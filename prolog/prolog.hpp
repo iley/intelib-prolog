@@ -5,6 +5,10 @@
 #include "../sexpress/squeue.hpp"
 #include "../sexpress/gensref.hpp"
 
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+#include "../sexpress/sstring.hpp"
+#endif
+
 class PlgReference;
 class PlgContext;
 class PlgExpression : public SExpression
@@ -97,8 +101,23 @@ public:
     PlgReference Body() const { return body; }
 
 private:
-    PlgReference head; //TODO this should be atom + arity
+    PlgReference head;
     PlgReference body;
+};
+
+class PlgAtom : public PlgExpression
+{
+public:
+    PlgAtom(const char *name) : label(new SExpressionLabel(name)) {}
+    const SReference Label() const { return label; }
+    const char *GetName() const { return label.DynamicCastGetPtr<SExpressionLabel>()->GetName(); }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+
+private:
+    SReference label;
 };
 
 #endif
