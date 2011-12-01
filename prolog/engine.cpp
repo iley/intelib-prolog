@@ -1,4 +1,6 @@
 #include "engine.hpp"
+#include <stdio.h>
+#include <stdlib.h>
 
 void PlgContext::Frame::Set(const PlgReference &name, const PlgReference &value) {
     table->AddItem(name, value);
@@ -18,8 +20,10 @@ void PlgContext::Frame::Apply(const Frame &droppedFrame) {
 
         SReference droppedValue = droppedFrame.Get(value);
         if (droppedValue != PlgUnbound) {
-            cons.ChangeListEnd(droppedValue);
+            cons.Cdr() = droppedValue;
         }
+
+        cons = it.GetNext();
     }
 }
 
@@ -53,12 +57,13 @@ void PlgContext::DropFrame(bool keepValues) {
     Frame *droppedFrame = top;
     top = top->Prev();
 
-    if (keepValues)
+    if (keepValues) {
         top->Apply(*droppedFrame);
+    }
 }
 
 void PlgDatabase::Add(const PlgReference &clause) {
-    clauses = clauses.MakeCons(clause);
+    clauses.Append(clause);
 }
 
 bool PlgContinuation::Next() {

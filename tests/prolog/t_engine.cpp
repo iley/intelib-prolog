@@ -57,7 +57,23 @@ int main()
             TESTB("unbound var", ctx.Get(X) == PlgUnbound);
 
             ctx.Set(Y, g);
+            TESTTR("assignment #3", ctx.Get(Y), "g");
+
             ctx.Set(X, h);
+            TESTTR("assignment #4", ctx.Get(X), "h");
+
+            ctx.CreateFrame();
+            ctx.Set(X, f);
+            TESTTR("assignment #5", ctx.Get(X), "f");
+
+            ctx.DropFrame();
+            TESTB("drop frame #1", ctx.CurrentFrame() == frame2);
+            TESTTR("drop frame #2", ctx.Get(X), "h");
+
+            ctx.DropFrame(true);
+            TESTB("drop frame #3", ctx.CurrentFrame() == frame1);
+            TESTTR("drop frame #4", ctx.Get(X), "g");
+            TESTTR("drop frame #5", ctx.Get(Y), "f");
         }
         TestScore();
         poc();

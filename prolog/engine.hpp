@@ -82,7 +82,7 @@ public:
     void Add(const PlgReference &clause);
     PlgContinuation Query(const PlgReference &request);
 private:
-    SReference clauses;
+    SQueue clauses;
     PlgDatabase(const PlgDatabase &other);
 };
 
