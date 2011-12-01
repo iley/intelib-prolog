@@ -5,6 +5,8 @@
 #include "../sexpress/squeue.hpp"
 #include "../sexpress/gensref.hpp"
 
+#include "exceptions.hpp"
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 #include "../sexpress/sstring.hpp"
 #endif
@@ -22,12 +24,6 @@ public:
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif
-};
-
-class IntelibX_not_a_prolog_expression : public IntelibX
-{
-public:
-    IntelibX_not_a_prolog_expression(SReference a_param);
 };
 
 typedef GenericSReference<PlgExpression, IntelibX_not_a_prolog_expression> PlgRef;
@@ -107,6 +103,7 @@ private:
 
 class PlgAtomExpression : public PlgExpression
 {
+    friend class PlgAtom;
 public:
     static IntelibTypeId TypeId;
 
@@ -125,22 +122,21 @@ private:
     SLabel label;
 };
 
-class IntelibX_not_a_prolog_atom : public IntelibX
+typedef GenericSReference<PlgAtomExpression, IntelibX_not_a_prolog_atom> PlgAtom_Super;
+
+class PlgAtom : public PlgAtom_Super
 {
 public:
-    IntelibX_not_a_prolog_atom(SReference a_param);
+    PlgAtom(const char *name) : PlgAtom_Super(new PlgAtomExpression(name)) {}
 };
 
+class PlgVariableNameExpression : public PlgAtomExpression
+{
+public:
+    static IntelibTypeId TypeId;
 
-typedef GenericSReference<PlgAtomExpression, IntelibX_not_a_prolog_atom> PlgAtom;
-
-//class PlgVariableNameExpression : public PlgAtomExpression
-//{
-//public:
-    //static IntelibTypeId TypeId;
-
-    //PlgVariableNameExpression(const char *name) : PlgAtomExpression(TypeId, name) {}
-//};
+    PlgVariableNameExpression(const char *name) : PlgAtomExpression(TypeId, name) {}
+};
 
 class PlgTermExpression : public PlgExpression
 {
@@ -161,6 +157,14 @@ private:
     PlgAtom functor;
     SReference args;
     int arity;
+};
+
+typedef GenericSReference<PlgTermExpression, IntelibX_not_a_prolog_atom> PlgTerm_Super;
+
+class PlgTerm : public PlgTerm_Super
+{
+public:
+    PlgTerm(const PlgAtom &functor, const SReference &args) : PlgTerm_Super(new PlgTermExpression(functor, args)) {}
 };
 
 #endif

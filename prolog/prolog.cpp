@@ -12,9 +12,6 @@ bool PlgExpression::Unify(const PlgReference &other, PlgContext &context) {
 SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"; }
 #endif
 
-IntelibX_not_a_prolog_expression::IntelibX_not_a_prolog_expression(SReference a_param) 
-    : IntelibX("Not a prolog expression", a_param) {}
-
 void PlgDatabase::Add(const PlgReference &clause) {
     clauses = clauses.MakeCons(clause);
 }
@@ -52,16 +49,13 @@ bool PlgClauseChoicePoint::Next(PlgContext &context, SQueue &executionQueue) {
     return false;
 }
 
-IntelibX_not_a_prolog_atom::IntelibX_not_a_prolog_atom(SReference a_param) 
-    : IntelibX("Not a prolog atom", a_param) {}
-
 IntelibTypeId PlgAtomExpression::TypeId(&PlgExpression::TypeId, false);
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgAtomExpression::TextRepresentation() const { return label->TextRepresentation(); }
 #endif
 
-//IntelibTypeId PlgVariableName::TypeId(&PlgExpression::TypeId, false);
+IntelibTypeId PlgVariableNameExpression::TypeId(&PlgAtomExpression::TypeId, false);
 
 IntelibTypeId PlgTermExpression::TypeId(&PlgExpression::TypeId, false);
 

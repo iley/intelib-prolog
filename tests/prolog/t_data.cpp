@@ -16,7 +16,7 @@
 #include "sexpress/iexcept.hpp"
 #include "sexpress/sstring.hpp"
 #include "prolog/prolog.hpp"
-
+#include "sexpress/sexpress.hpp"
 
 
 void poc()
@@ -32,7 +32,15 @@ int main()
         poc();
         TestSection("PrologData");
         {
-            PlgDatabase db;
+            SListConstructor S;
+
+            PlgDatabase db; //just to check is compiles without errors
+
+            PlgAtom a = "a";
+            TESTTR("atom", a, "a");
+
+            PlgReference t = PlgTerm(a, (S| a, a));
+            TESTTR("term", t, "a(a,a)");
         }
         TestScore();
         poc();

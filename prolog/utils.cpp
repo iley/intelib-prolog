@@ -11,7 +11,11 @@ int Length(const SReference &list) {
 SString Join(const SString &delim, const SReference list) {
     SString result;
     for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+        result = result + p.Car()->TextRepresentation();
+#else
         result = result + SString(p);
+#endif
         if (!p.Cdr().IsEmptyList())
             result = result + delim;
     }
