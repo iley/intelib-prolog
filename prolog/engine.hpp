@@ -2,21 +2,33 @@
 #define INTELIB_PROLOG_ENGINE_HPP_SENTRY
 
 #include "data.hpp"
+#include "../sexpress/shashtbl.hpp"
 
 class PlgContext
 {
 public:
     class Frame {
+    public:
+        void Set(const PlgVariableName &name, const PlgReference &value);
+        PlgReference Get(const PlgVariableName &name);
+
+    private:
+        SHashTable table;
     };
+
+    PlgContext() : top(0) {}
 
     void Set(const PlgVariableName &name, const PlgReference &value);
     PlgReference Get(const PlgVariableName &name);
+
     Frame *CreateFrame();
     Frame *CurrentFrame();
-    void ReturnTo(Frame *frame, bool keepValues);
+
+    void ReturnTo(Frame *frame, bool keepValues = false);
+    void DropFrame(bool keepValues = false);
 
 private:
-    SReference stack;
+    Frame *top;
 };
 
 class PlgDatabase;
