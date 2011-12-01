@@ -32,6 +32,7 @@ int main()
         poc();
         TestSection("PrologData");
         {
+            PlgDatabase db;
         }
         TestScore();
         poc();
