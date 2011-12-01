@@ -42,7 +42,7 @@ int main()
             TESTB("create frame #1",
                     frame0 == ctx.CreateFrame() && (frame1 = ctx.CurrentFrame()) && frame0 != frame1);
 
-            PlgVariableName X("X"), Y("Y");
+            PlgVariableName X("X"), Y("Y"), Z("Z");
             PlgAtom f("f"), g("g"), h("h");
 
             ctx.Set(X, Y);
@@ -50,6 +50,9 @@ int main()
 
             ctx.Set(Y, f);
             TESTTR("assignment #2", ctx.Get(Y), "f");
+
+            ctx.Set(Z, f(Y));
+            TESTTR("assignment #2.1", ctx.Get(Z), "f(Y)");
 
             PlgContext::Frame *frame2;
             TESTB("create frame #2", frame1 == ctx.CreateFrame() && (frame2 = ctx.CurrentFrame()) && frame1 != frame2);
@@ -74,6 +77,9 @@ int main()
             TESTB("drop frame #3", ctx.CurrentFrame() == frame1);
             TESTTR("drop frame #4", ctx.Get(X), "g");
             TESTTR("drop frame #5", ctx.Get(Y), "f");
+            TESTTR("drop frame #6", ctx.Get(Z), "f(g)");
+
+            ctx.Clean();
         }
         TestScore();
         poc();

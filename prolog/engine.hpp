@@ -16,6 +16,7 @@ public:
 
         Frame *Prev() const { return prev; }
         void Apply(const Frame &droppedFrame);
+        PlgReference Evaluate(const PlgReference& value) const;
 
     private:
         SHashTable table;
@@ -32,6 +33,8 @@ public:
 
     void ReturnTo(Frame *frame, bool keepValues = false);
     void DropFrame(bool keepValues = false);
+
+    void Clean() { ReturnTo(0, false); }
 
 private:
     Frame *top;

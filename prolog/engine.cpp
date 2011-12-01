@@ -1,4 +1,5 @@
 #include "engine.hpp"
+#include "utils.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -18,12 +19,30 @@ void PlgContext::Frame::Apply(const Frame &droppedFrame) {
         PlgReference name = cons.Car();
         PlgReference value = cons.Cdr();
 
-        SReference droppedValue = droppedFrame.Get(value);
-        if (droppedValue != PlgUnbound) {
-            cons.Cdr() = droppedValue;
-        }
+        cons.Cdr() = droppedFrame.Evaluate(value);
 
         cons = it.GetNext();
+    }
+}
+
+PlgReference PlgContext::Frame::Evaluate(const PlgReference &value) const {
+    if (value->TermType() == PlgVariableNameExpression::TypeId) {
+        PlgReference result = Get(value);
+        if (result == PlgUnbound)
+            return value;
+        else
+            return result;
+    } else if (value->TermType() == PlgTermExpression::TypeId) {
+        PlgTermExpression *term = value.SimpleCastGetPtr<PlgTermExpression>();
+        SReference resultArgs = *PTheEmptyList;
+
+        for (SReference p = term->Args(); !p.IsEmptyList(); p = p.Cdr()) {
+            resultArgs.AddAnotherItemToList(Evaluate(p.Car()));
+        }
+
+        return PlgTerm(term->Functor(), resultArgs);
+    } else {
+        return value;
     }
 }
 
@@ -60,6 +79,8 @@ void PlgContext::DropFrame(bool keepValues) {
     if (keepValues) {
         top->Apply(*droppedFrame);
     }
+
+    delete droppedFrame;
 }
 
 void PlgDatabase::Add(const PlgReference &clause) {

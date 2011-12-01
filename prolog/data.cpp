@@ -24,7 +24,7 @@ SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"
 
 IntelibTypeId PlgTermExpression::TypeId(&PlgExpression::TypeId, false);
 
-PlgTermExpression::PlgTermExpression(const PlgAtom &fn, const SReference &as) : functor(fn), args(as), arity(Length(as)) {}
+PlgTermExpression::PlgTermExpression(const PlgAtom &fn, const SReference &as) : PlgExpression(TypeId), functor(fn), args(as), arity(Length(as)) {}
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgTermExpression::TextRepresentation() const { 
