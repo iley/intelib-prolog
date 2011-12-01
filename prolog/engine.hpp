@@ -6,9 +6,17 @@
 class PlgContext
 {
 public:
-    class Frame;
+    class Frame {
+    };
 
-    //void Set(const VariableName
+    void Set(const PlgVariableName &name, const PlgReference &value);
+    PlgReference Get(const PlgVariableName &name);
+    Frame *CreateFrame();
+    Frame *CurrentFrame();
+    void ReturnTo(Frame *frame, bool keepValues);
+
+private:
+    SReference stack;
 };
 
 class PlgDatabase;
