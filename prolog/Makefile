@@ -14,7 +14,7 @@
 
 TARGETLIBNAME = libiprolog.a
 
-LIBSOURCES = prolog.cpp plgrefs.cpp
+LIBSOURCES = prolog.cpp
 
 
 GENERATED_PREFIX = plgfun

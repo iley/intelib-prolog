@@ -32,21 +32,6 @@ int main()
         poc();
         TestSection("PrologData");
         {
-            PlgAtom a("a");
-            TESTTR("atom", a, "a");
-
-            PlgVar X("X");
-            TESTTR("var name", X, "X");
-
-            PlgTerm t = a(X,X);
-            TESTTR("compound term", t, "a(X X)");
-
-            PlgTerm t2 = a(X) & a(X);
-            TESTTR("conjunciton", t2, "a(X), a(X)");
-
-            //PlgTerm t3 = a(X) & a(X) | a(X) & a(X);
-
-            //PlgTerm t3 = a & a;
         }
         TestScore();
         poc();
