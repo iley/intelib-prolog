@@ -105,19 +105,62 @@ private:
     PlgReference body;
 };
 
-class PlgAtom : public PlgExpression
+class PlgAtomExpression : public PlgExpression
 {
 public:
-    PlgAtom(const char *name) : label(new SExpressionLabel(name)) {}
+    static IntelibTypeId TypeId;
+
+    PlgAtomExpression(const char *name) : PlgExpression(TypeId), label(name) {}
     const SReference Label() const { return label; }
-    const char *GetName() const { return label.DynamicCastGetPtr<SExpressionLabel>()->GetName(); }
+    const char *GetName() const { return label.GetPtr()->GetName(); }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+
+protected:
+    PlgAtomExpression(const IntelibTypeId &typeId, const char *name) : PlgExpression(typeId), label(name) {}
+
+private:
+    SLabel label;
+};
+
+class IntelibX_not_a_prolog_atom : public IntelibX
+{
+public:
+    IntelibX_not_a_prolog_atom(SReference a_param);
+};
+
+
+typedef GenericSReference<PlgAtomExpression, IntelibX_not_a_prolog_atom> PlgAtom;
+
+//class PlgVariableNameExpression : public PlgAtomExpression
+//{
+//public:
+    //static IntelibTypeId TypeId;
+
+    //PlgVariableNameExpression(const char *name) : PlgAtomExpression(TypeId, name) {}
+//};
+
+class PlgTermExpression : public PlgExpression
+{
+public:
+    static IntelibTypeId TypeId;
+
+    PlgTermExpression(const PlgAtom &fn, const SReference &as);
+
+    const PlgAtom &Functor() const { return functor; }
+    const SReference &Args() const { return args; }
+    const int Arity() const { return arity; }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif
 
 private:
-    SReference label;
+    PlgAtom functor;
+    SReference args;
+    int arity;
 };
 
 #endif

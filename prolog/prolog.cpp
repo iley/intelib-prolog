@@ -1,4 +1,5 @@
 #include "prolog.hpp"
+#include "utils.hpp"
 
 IntelibTypeId PlgExpression::TypeId(&SExpression::TypeId, true);
 
@@ -30,9 +31,12 @@ bool PlgContinuation::Next() {
     SReference nextClauseRef = queue.Car();
     queue.RemoveFirst();
 
-    PlgExpression *nextClause = nextClauseRef.DynamicCastGetPtr<PlgExpression>();
+    //PlgExpression *nextClause = nextClauseRef.DynamicCastGetPtr<PlgExpression>();
 
     //switch by clause type
+
+    //TODO
+    return false;
 }
 
 bool PlgClauseChoicePoint::Next(PlgContext &context, SQueue &executionQueue) {
@@ -48,6 +52,21 @@ bool PlgClauseChoicePoint::Next(PlgContext &context, SQueue &executionQueue) {
     return false;
 }
 
+IntelibX_not_a_prolog_atom::IntelibX_not_a_prolog_atom(SReference a_param) 
+    : IntelibX("Not a prolog atom", a_param) {}
+
+IntelibTypeId PlgAtomExpression::TypeId(&PlgExpression::TypeId, false);
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgAtom::TextRepresentation() const { return label->TextRepresentation(); }
+SString PlgAtomExpression::TextRepresentation() const { return label->TextRepresentation(); }
+#endif
+
+//IntelibTypeId PlgVariableName::TypeId(&PlgExpression::TypeId, false);
+
+IntelibTypeId PlgTermExpression::TypeId(&PlgExpression::TypeId, false);
+
+PlgTermExpression::PlgTermExpression(const PlgAtom &fn, const SReference &as) : functor(fn), args(as), arity(Length(as)) {}
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgTermExpression::TextRepresentation() const { return functor->TextRepresentation() + "(" + Join(",", args) + ")"; }
 #endif
