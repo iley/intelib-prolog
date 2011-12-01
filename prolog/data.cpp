@@ -1,4 +1,5 @@
 #include "data.hpp"
+#include "engine.hpp"
 #include "utils.hpp"
 
 static SListConstructor S;
@@ -9,22 +10,53 @@ PlgReference PlgUnbound;
 
 IntelibTypeId PlgExpression::TypeId(&SExpression::TypeId, true);
 
-IntelibTypeId PlgExpressionClause::TypeId(&PlgExpression::TypeId, true);
-
-bool PlgExpression::Unify(const PlgReference &other, PlgContext &context) {
-    // TODO
-    return false;
+bool PlgExpression::Unify(const PlgReference &other, PlgContext &context) const {
+    return this == other.GetPtr();
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"; }
 #endif
 
+// Clause
+
+IntelibTypeId PlgExpressionClause::TypeId(&PlgExpression::TypeId, true);
+
 // Term
 
 IntelibTypeId PlgExpressionTerm::TypeId(&PlgExpression::TypeId, false);
 
 PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : PlgExpression(TypeId), functor(fn), args(as), arity(Length(as)) {}
+
+bool PlgExpressionTerm::Unify(const PlgReference &other, PlgContext &context) const {
+    if (other->TermType() != PlgExpressionTerm::TypeId)
+        return false;
+
+    PlgExpressionTerm *otherTerm = other.SimpleCastGetPtr<PlgExpressionTerm>();
+    if (functor != otherTerm->functor)
+        return false;
+
+    context.CreateFrame();
+
+    SReference ourArg = args, theirArg = otherTerm->args;
+    bool result = true;
+    while (!ourArg.IsEmptyList() && !theirArg.IsEmptyList()) {
+        if (!PlgReference(ourArg)->Unify(theirArg, context)) {
+            result = false;
+            break;
+        }
+
+        ourArg = ourArg.Cdr();
+        theirArg = theirArg.Cdr();
+    }
+
+    if (result)
+        context.MergeDown();
+    else
+        context.DropFrame();
+
+    return result;
+}
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionTerm::TextRepresentation() const { 
@@ -58,7 +90,13 @@ SString PlgExpressionAtom::TextRepresentation() const { return label->TextRepres
 
 IntelibTypeId PlgExpressionVariableName::TypeId(&PlgExpressionAtom::TypeId, false);
 
+bool PlgExpressionVariableName::Unify(const PlgReference &other, PlgContext &context) const {
+    //context.Set(label, other);
+    // FIXME
+    return false;
+}
 
+//
 
 IntelibTypeId PlgExpressionList::TypeId(&PlgExpression::TypeId, false);
 

@@ -83,6 +83,23 @@ void PlgContext::DropFrame(bool keepValues) {
     delete droppedFrame;
 }
 
+void PlgContext::MergeDown() {
+    Frame *upperFrame = top;
+    DropFrame();
+    SExpressionHashTable::Iterator it(*top->table);
+
+    SReference cons = it.GetNext();
+    while (cons.GetPtr()) {
+        PlgReference name = cons.Car();
+        PlgReference value = cons.Cdr();
+
+        Set(name, value);
+
+        cons = it.GetNext();
+    }
+}
+
+// Database
 void PlgDatabase::Add(const PlgReference &clause) {
     clauses.Append(clause);
 }

@@ -19,7 +19,7 @@ public:
     static IntelibTypeId TypeId;
 
     PlgExpression(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
-    bool Unify(const PlgReference &other, PlgContext &context);
+    virtual bool Unify(const PlgReference &other, PlgContext &context) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -74,7 +74,7 @@ public:
     static IntelibTypeId TypeId;
 
     PlgExpressionAtom(const char *name) : PlgExpression(TypeId), label(name) {}
-    const SReference Label() const { return label; }
+    const SLabel &Label() const { return label; }
     const char *GetName() const { return label.GetPtr()->GetName(); }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -83,8 +83,6 @@ public:
 
 protected:
     PlgExpressionAtom(const IntelibTypeId &typeId, const char *name) : PlgExpression(typeId), label(name) {}
-
-private:
     SLabel label;
 };
 
@@ -109,6 +107,7 @@ public:
     static IntelibTypeId TypeId;
 
     PlgExpressionVariableName(const char *name) : PlgExpressionAtom(TypeId, name) {}
+    virtual bool Unify(const PlgReference &other, PlgContext &context) const;
 };
 
 typedef GenericSReference<PlgExpressionVariableName, IntelibX_not_a_prolog_variable_name> PlgVariableName_Super;
@@ -131,6 +130,8 @@ public:
     const PlgAtom &Functor() const { return functor; }
     const SReference &Args() const { return args; }
     const int Arity() const { return arity; }
+
+    virtual bool Unify(const PlgReference &other, PlgContext &context) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;

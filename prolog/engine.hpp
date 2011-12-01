@@ -8,6 +8,7 @@ class PlgContext
 {
 public:
     class Frame {
+        friend class PlgContext;
     public:
         Frame(Frame *p) : prev(p) {}
 
@@ -33,6 +34,7 @@ public:
 
     void ReturnTo(Frame *frame, bool keepValues = false);
     void DropFrame(bool keepValues = false);
+    void MergeDown();
 
     void Clean() { ReturnTo(0, false); }
 
