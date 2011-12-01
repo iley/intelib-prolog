@@ -26,14 +26,14 @@ void PlgContext::Frame::Apply(const Frame &droppedFrame) {
 }
 
 PlgReference PlgContext::Frame::Evaluate(const PlgReference &value) const {
-    if (value->TermType() == PlgVariableNameExpression::TypeId) {
+    if (value->TermType() == PlgExpressionVariableName::TypeId) {
         PlgReference result = Get(value);
         if (result == PlgUnbound)
             return value;
         else
             return result;
-    } else if (value->TermType() == PlgTermExpression::TypeId) {
-        PlgTermExpression *term = value.SimpleCastGetPtr<PlgTermExpression>();
+    } else if (value->TermType() == PlgExpressionTerm::TypeId) {
+        PlgExpressionTerm *term = value.SimpleCastGetPtr<PlgExpressionTerm>();
         SReference resultArgs = *PTheEmptyList;
 
         for (SReference p = term->Args(); !p.IsEmptyList(); p = p.Cdr()) {
@@ -109,7 +109,7 @@ bool PlgContinuation::Next() {
 
 bool PlgClauseChoicePoint::Next(PlgContext &context, SQueue &executionQueue) {
     while (!candidates.IsEmptyList()) {
-        PlgClauseExpression *candidate = candidates.Car().DynamicCastGetPtr<PlgClauseExpression>();
+        PlgExpressionClause *candidate = candidates.Car().DynamicCastGetPtr<PlgExpressionClause>();
         candidates = candidates.Cdr();
         if (clause->Unify(candidate->Head(), context)) {
             executionQueue.Append(candidate->Body());

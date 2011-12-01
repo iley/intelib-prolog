@@ -43,12 +43,12 @@ extern PlgReference PlgUnbound;
 
 // Clause
 
-class PlgClauseExpression : public PlgExpression
+class PlgExpressionClause : public PlgExpression
 {
 public:
     static IntelibTypeId TypeId;
 
-    PlgClauseExpression(const PlgReference &hd, const PlgReference &bd) : PlgExpression(TypeId), head(hd), body(bd) {}
+    PlgExpressionClause(const PlgReference &hd, const PlgReference &bd) : PlgExpression(TypeId), head(hd), body(bd) {}
     PlgReference Head() const { return head; }
     PlgReference Body() const { return body; }
 
@@ -57,23 +57,23 @@ private:
     PlgReference body;
 };
 
-typedef GenericSReference<PlgClauseExpression, IntelibX_not_a_prolog_clause> PlgClause_Super;
+typedef GenericSReference<PlgExpressionClause, IntelibX_not_a_prolog_clause> PlgClause_Super;
 
 class PlgClause : public PlgClause_Super
 {
 public:
-    PlgClause(const PlgReference &hd, const PlgReference &bd) : PlgClause_Super(new PlgClauseExpression(hd, bd)) {}
+    PlgClause(const PlgReference &hd, const PlgReference &bd) : PlgClause_Super(new PlgExpressionClause(hd, bd)) {}
 };
 
 // Atom
 
-class PlgAtomExpression : public PlgExpression
+class PlgExpressionAtom : public PlgExpression
 {
     friend class PlgAtom;
 public:
     static IntelibTypeId TypeId;
 
-    PlgAtomExpression(const char *name) : PlgExpression(TypeId), label(name) {}
+    PlgExpressionAtom(const char *name) : PlgExpression(TypeId), label(name) {}
     const SReference Label() const { return label; }
     const char *GetName() const { return label.GetPtr()->GetName(); }
 
@@ -82,18 +82,18 @@ public:
 #endif
 
 protected:
-    PlgAtomExpression(const IntelibTypeId &typeId, const char *name) : PlgExpression(typeId), label(name) {}
+    PlgExpressionAtom(const IntelibTypeId &typeId, const char *name) : PlgExpression(typeId), label(name) {}
 
 private:
     SLabel label;
 };
 
-typedef GenericSReference<PlgAtomExpression, IntelibX_not_a_prolog_atom> PlgAtom_Super;
+typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom_Super;
 
 class PlgAtom : public PlgAtom_Super
 {
 public:
-    PlgAtom(const char *name) : PlgAtom_Super(new PlgAtomExpression(name)) {}
+    PlgAtom(const char *name) : PlgAtom_Super(new PlgExpressionAtom(name)) {}
 
     PlgReference operator () (const PlgReference &arg1);
     PlgReference operator () (const PlgReference &arg1, const PlgReference &arg2);
@@ -103,30 +103,30 @@ public:
 
 // Variable Name
 
-class PlgVariableNameExpression : public PlgAtomExpression
+class PlgExpressionVariableName : public PlgExpressionAtom
 {
 public:
     static IntelibTypeId TypeId;
 
-    PlgVariableNameExpression(const char *name) : PlgAtomExpression(TypeId, name) {}
+    PlgExpressionVariableName(const char *name) : PlgExpressionAtom(TypeId, name) {}
 };
 
-typedef GenericSReference<PlgVariableNameExpression, IntelibX_not_a_prolog_variable_name> PlgVariableName_Super;
+typedef GenericSReference<PlgExpressionVariableName, IntelibX_not_a_prolog_variable_name> PlgVariableName_Super;
 
 class PlgVariableName : public PlgVariableName_Super
 {
 public:
-    PlgVariableName(const char *name) : PlgVariableName_Super(new PlgVariableNameExpression(name)) {}
+    PlgVariableName(const char *name) : PlgVariableName_Super(new PlgExpressionVariableName(name)) {}
 };
 
 // Term
 
-class PlgTermExpression : public PlgExpression
+class PlgExpressionTerm : public PlgExpression
 {
 public:
     static IntelibTypeId TypeId;
 
-    PlgTermExpression(const PlgAtom &fn, const SReference &as);
+    PlgExpressionTerm(const PlgAtom &fn, const SReference &as);
 
     const PlgAtom &Functor() const { return functor; }
     const SReference &Args() const { return args; }
@@ -142,24 +142,24 @@ private:
     int arity;
 };
 
-typedef GenericSReference<PlgTermExpression, IntelibX_not_a_prolog_atom> PlgTerm_Super;
+typedef GenericSReference<PlgExpressionTerm, IntelibX_not_a_prolog_atom> PlgTerm_Super;
 
 class PlgTerm : public PlgTerm_Super
 {
 public:
-    PlgTerm(const PlgAtom &functor, const SReference &args) : PlgTerm_Super(new PlgTermExpression(functor, args)) {}
+    PlgTerm(const PlgAtom &functor, const SReference &args) : PlgTerm_Super(new PlgExpressionTerm(functor, args)) {}
 };
 
 
 
-class PlgListExpression : public PlgExpression
+class PlgExpressionList : public PlgExpression
 {
 public:
     static IntelibTypeId TypeId;
 
     const SReference& List() const { return list; }
 protected:
-    PlgListExpression(const IntelibTypeId &typeId = TypeId, const SReference &ls = *PTheEmptyList) 
+    PlgExpressionList(const IntelibTypeId &typeId = TypeId, const SReference &ls = *PTheEmptyList) 
         : PlgExpression(typeId), list(ls) {};
 
     SReference list;
@@ -167,48 +167,48 @@ protected:
 
 // Disjunction
 
-class PlgDisjunctionExpression : public PlgListExpression
+class PlgExpressionDisjunction : public PlgExpressionList
 {
 public:
     static IntelibTypeId TypeId;
 
-    PlgDisjunctionExpression(const SReference &ls) : PlgListExpression(TypeId, ls) {} 
+    PlgExpressionDisjunction(const SReference &ls) : PlgExpressionList(TypeId, ls) {} 
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif
 };
 
-typedef GenericSReference<PlgDisjunctionExpression, IntelibX_not_a_prolog_disjunction> PlgDisjunction_Super;
+typedef GenericSReference<PlgExpressionDisjunction, IntelibX_not_a_prolog_disjunction> PlgDisjunction_Super;
 
 class PlgDisjunction : public PlgDisjunction_Super
 {
 public:
-    PlgDisjunction(const SReference &ls) : PlgDisjunction_Super(new PlgDisjunctionExpression(ls)) {}
+    PlgDisjunction(const SReference &ls) : PlgDisjunction_Super(new PlgExpressionDisjunction(ls)) {}
 };
 
 PlgDisjunction operator | (const PlgReference &left, const PlgReference &right);
 
 // Conjunction
 
-class PlgConjunctionExpression : public PlgListExpression
+class PlgExpressionConjunction : public PlgExpressionList
 {
 public:
     static IntelibTypeId TypeId;
 
-    PlgConjunctionExpression(const SReference &ls) : PlgListExpression(TypeId, ls) {}
+    PlgExpressionConjunction(const SReference &ls) : PlgExpressionList(TypeId, ls) {}
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif
 };
 
-typedef GenericSReference<PlgConjunctionExpression, IntelibX_not_a_prolog_conjunction> PlgConjunction_Super;
+typedef GenericSReference<PlgExpressionConjunction, IntelibX_not_a_prolog_conjunction> PlgConjunction_Super;
 
 class PlgConjunction : public PlgConjunction_Super
 {
 public:
-    PlgConjunction(const SReference &ls) : PlgConjunction_Super(new PlgConjunctionExpression(ls)) {}
+    PlgConjunction(const SReference &ls) : PlgConjunction_Super(new PlgExpressionConjunction(ls)) {}
 };
 
 PlgConjunction operator & (const PlgReference &left, const PlgReference &right);
