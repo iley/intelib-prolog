@@ -9,6 +9,12 @@ public:
     IntelibX_not_a_prolog_expression(SReference a_param);
 };
 
+class IntelibX_not_a_prolog_clause : public IntelibX
+{
+public:
+    IntelibX_not_a_prolog_clause(SReference a_param);
+};
+
 class IntelibX_not_a_prolog_atom : public IntelibX
 {
 public:

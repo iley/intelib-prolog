@@ -89,10 +89,14 @@ private:
     PlgDatabase(const PlgDatabase &other);
 };
 
-class PlgClause : public PlgExpression
+// Clause
+
+class PlgClauseExpression : public PlgExpression
 {
 public:
-    PlgClause(const PlgReference &hd, const PlgReference &bd) : head(hd), body(bd) {}
+    static IntelibTypeId TypeId;
+
+    PlgClauseExpression(const PlgReference &hd, const PlgReference &bd) : PlgExpression(TypeId), head(hd), body(bd) {}
     PlgReference Head() const { return head; }
     PlgReference Body() const { return body; }
 
@@ -100,6 +104,16 @@ private:
     PlgReference head;
     PlgReference body;
 };
+
+typedef GenericSReference<PlgClauseExpression, IntelibX_not_a_prolog_clause> PlgClause_Super;
+
+class PlgClause : public PlgClause_Super
+{
+public:
+    PlgClause(const PlgReference &hd, const PlgReference &bd) : PlgClause_Super(new PlgClauseExpression(hd, bd)) {}
+};
+
+// Atom
 
 class PlgAtomExpression : public PlgExpression
 {
@@ -128,7 +142,14 @@ class PlgAtom : public PlgAtom_Super
 {
 public:
     PlgAtom(const char *name) : PlgAtom_Super(new PlgAtomExpression(name)) {}
+
+    PlgReference operator () (const PlgReference &arg1);
+    PlgReference operator () (const PlgReference &arg1, const PlgReference &arg2);
+    PlgReference operator () (const PlgReference &arg1, const PlgReference &arg2, const PlgReference &arg3);
+    // TODO more args
 };
+
+// Variable Name
 
 class PlgVariableNameExpression : public PlgAtomExpression
 {
@@ -145,6 +166,8 @@ class PlgVariableName : public PlgVariableName_Super
 public:
     PlgVariableName(const char *name) : PlgVariableName_Super(new PlgVariableNameExpression(name)) {}
 };
+
+// Term
 
 class PlgTermExpression : public PlgExpression
 {
@@ -175,6 +198,8 @@ public:
     PlgTerm(const PlgAtom &functor, const SReference &args) : PlgTerm_Super(new PlgTermExpression(functor, args)) {}
 };
 
+
+
 class PlgListExpression : public PlgExpression
 {
 public:
@@ -187,6 +212,8 @@ protected:
 
     SReference list;
 };
+
+// Disjunction
 
 class PlgDisjunctionExpression : public PlgListExpression
 {
@@ -208,6 +235,10 @@ public:
     PlgDisjunction(const SReference &ls) : PlgDisjunction_Super(new PlgDisjunctionExpression(ls)) {}
 };
 
+PlgDisjunction operator | (const PlgReference &left, const PlgReference &right);
+
+// Conjunction
+
 class PlgConjunctionExpression : public PlgListExpression
 {
 public:
@@ -228,5 +259,6 @@ public:
     PlgConjunction(const SReference &ls) : PlgConjunction_Super(new PlgConjunctionExpression(ls)) {}
 };
 
+PlgConjunction operator & (const PlgReference &left, const PlgReference &right);
 
 #endif

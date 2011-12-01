@@ -1,7 +1,11 @@
 #include "prolog.hpp"
 #include "utils.hpp"
 
+static SListConstructor S;
+
 IntelibTypeId PlgExpression::TypeId(&SExpression::TypeId, true);
+
+IntelibTypeId PlgClauseExpression::TypeId(&PlgExpression::TypeId, true);
 
 bool PlgExpression::Unify(const PlgReference &other, PlgContext &context) {
     // TODO
@@ -38,7 +42,7 @@ bool PlgContinuation::Next() {
 
 bool PlgClauseChoicePoint::Next(PlgContext &context, SQueue &executionQueue) {
     while (!candidates.IsEmptyList()) {
-        PlgClause *candidate = candidates.Car().DynamicCastGetPtr<PlgClause>();
+        PlgClauseExpression *candidate = candidates.Car().DynamicCastGetPtr<PlgClauseExpression>();
         candidates = candidates.Cdr();
         if (clause->Unify(candidate->Head(), context)) {
             executionQueue.Append(candidate->Body());
@@ -49,13 +53,7 @@ bool PlgClauseChoicePoint::Next(PlgContext &context, SQueue &executionQueue) {
     return false;
 }
 
-IntelibTypeId PlgAtomExpression::TypeId(&PlgExpression::TypeId, false);
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgAtomExpression::TextRepresentation() const { return label->TextRepresentation(); }
-#endif
-
-IntelibTypeId PlgVariableNameExpression::TypeId(&PlgAtomExpression::TypeId, false);
+// Term
 
 IntelibTypeId PlgTermExpression::TypeId(&PlgExpression::TypeId, false);
 
@@ -67,9 +65,39 @@ SString PlgTermExpression::TextRepresentation() const {
 }
 #endif
 
+// Atom
+
+IntelibTypeId PlgAtomExpression::TypeId(&PlgExpression::TypeId, false);
+
+PlgReference PlgAtom::operator() (const PlgReference &arg1) {
+    return PlgTerm(*this, (S| arg1 ));
+}
+
+PlgReference PlgAtom::operator() (const PlgReference &arg1, const PlgReference &arg2) {
+    return PlgTerm(*this, (S| arg1, arg2 ));
+}
+
+PlgReference PlgAtom::operator() (const PlgReference &arg1, const PlgReference &arg2, const PlgReference &arg3) {
+    return PlgTerm(*this, (S| arg1, arg2, arg3 ));
+}
+
+// TODO more args
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgAtomExpression::TextRepresentation() const { return label->TextRepresentation(); }
+#endif
+
+// Variable Name
+
+IntelibTypeId PlgVariableNameExpression::TypeId(&PlgAtomExpression::TypeId, false);
+
+
+
 IntelibTypeId PlgListExpression::TypeId(&PlgExpression::TypeId, false);
 
-IntelibTypeId PlgDisjunctionExpression::TypeId(&PlgExpression::TypeId, false);
+// Disjunction
+
+IntelibTypeId PlgDisjunctionExpression::TypeId(&PlgListExpression::TypeId, false);
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgDisjunctionExpression::TextRepresentation() const {
@@ -77,10 +105,20 @@ SString PlgDisjunctionExpression::TextRepresentation() const {
 }
 #endif
 
+PlgDisjunction operator | (const PlgReference &left, const PlgReference &right) {
+    return PlgDisjunction((S| left, right ));
+}
+
+// Conjunction
+
+IntelibTypeId PlgConjunctionExpression::TypeId(&PlgListExpression::TypeId, false);
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgConjunctionExpression::TextRepresentation() const {
     return Join(", ", list);
 }
 #endif
 
-IntelibTypeId PlgConjunctionExpression::TypeId(&PlgExpression::TypeId, false);
+PlgConjunction operator & (const PlgReference &left, const PlgReference &right) {
+    return PlgConjunction((S| left, right ));
+}

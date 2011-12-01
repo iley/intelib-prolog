@@ -42,11 +42,10 @@ int main()
             PlgVariableName X = "X";
             TESTTR("variable name", X, "X");
 
-            PlgTerm t = PlgTerm(a, (S| X, X));
-            TESTTR("term", t, "a(X, X)");
-
-            PlgConjunction c = PlgConjunction((S|t, a)); 
-            TESTTR("conjunction", c, "a(X, X), a");
+            TESTTR("term", a(X, X), "a(X, X)");
+            TESTTR("conjunction", a(X, X) & a, "a(X, X), a");
+            TESTTR("disjunction", a(X, X) | a, "a(X, X); a");
+            TESTTR("compund expression 1", (a(X, X) & a(X) | a(X) & a(X, X)), "a(X, X), a(X); a(X), a(X, X)");
         }
         TestScore();
         poc();
