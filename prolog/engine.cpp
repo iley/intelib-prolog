@@ -1,24 +1,61 @@
 #include "engine.hpp"
 
-void PlgContext::Frame::Set(const PlgVariableName &name, const PlgReference &value) {
+void PlgContext::Frame::Set(const PlgReference &name, const PlgReference &value) {
     table->AddItem(name, value);
 }
 
-PlgReference PlgContext::Frame::Get(const PlgVariableName &name) {
-    return table->FindItem(name, name);
+PlgReference PlgContext::Frame::Get(const PlgReference &name) const {
+    return table->FindItem(name);
 }
 
-void PlgContext::Set(const PlgVariableName &name, const PlgReference &value) {
+void PlgContext::Frame::Apply(const Frame &droppedFrame) {
+    SExpressionHashTable::Iterator it(*table);
+
+    SReference cons = it.GetNext();
+    while (cons.GetPtr()) {
+        PlgReference name = cons.Car();
+        PlgReference value = cons.Cdr();
+
+        SReference droppedValue = droppedFrame.Get(value);
+        if (droppedValue != SExpressionHashTable::EmptySlotMark) {
+            cons.ChangeListEnd(droppedValue);
+        }
+    }
+}
+
+void PlgContext::Set(const PlgReference &name, const PlgReference &value) {
     INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
     top->Set(name, value);
 }
 
-PlgReference PlgContext::Get(const PlgVariableName &name) {
+PlgReference PlgContext::Get(const PlgReference &name) const {
     INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
     return top->Get(name);
 }
 
+PlgContext::Frame *PlgContext::CreateFrame() {
+    Frame *oldFrame = top;
+    top = new Frame(oldFrame);
+    return oldFrame;
+}
 
+PlgContext::Frame *PlgContext::CurrentFrame() {
+    return top;
+}
+
+void PlgContext::ReturnTo(Frame *frame, bool keepValues) {
+    while (top != frame)
+        DropFrame(keepValues);
+}
+
+void PlgContext::DropFrame(bool keepValues) {
+    INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
+    Frame *droppedFrame = top;
+    top = top->Prev();
+
+    if (keepValues)
+        top->Apply(*droppedFrame);
+}
 
 void PlgDatabase::Add(const PlgReference &clause) {
     clauses = clauses.MakeCons(clause);

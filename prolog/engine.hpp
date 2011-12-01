@@ -9,17 +9,23 @@ class PlgContext
 public:
     class Frame {
     public:
-        void Set(const PlgVariableName &name, const PlgReference &value);
-        PlgReference Get(const PlgVariableName &name);
+        Frame(Frame *p) : prev(p) {}
+
+        void Set(const PlgReference &name, const PlgReference &value);
+        PlgReference Get(const PlgReference &name) const;
+
+        Frame *Prev() const { return prev; }
+        void Apply(const Frame &droppedFrame);
 
     private:
         SHashTable table;
+        Frame *prev;
     };
 
     PlgContext() : top(0) {}
 
-    void Set(const PlgVariableName &name, const PlgReference &value);
-    PlgReference Get(const PlgVariableName &name);
+    void Set(const PlgReference &name, const PlgReference &value);
+    PlgReference Get(const PlgReference &name) const;
 
     Frame *CreateFrame();
     Frame *CurrentFrame();

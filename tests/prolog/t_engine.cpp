@@ -11,12 +11,12 @@
 //   Please see the file WARRANTY for the detailed explanation.
 
 #include <stdio.h>
-#include "tests.hpp"
+#include "../tests.hpp"
 
-#include "sexpress/iexcept.hpp"
-#include "sexpress/sstring.hpp"
-#include "prolog/prolog.hpp"
-#include "sexpress/sexpress.hpp"
+#include "../../sexpress/iexcept.hpp"
+#include "../../sexpress/sstring.hpp"
+#include "../../prolog/prolog.hpp"
+#include "../../sexpress/sexpress.hpp"
 
 
 void poc()
@@ -32,7 +32,10 @@ int main()
         poc();
         TestSection("PrologEngine");
         {
-            PlgDatabase db;
+            //PlgDatabase db;
+            PlgContext ctx;
+            ctx.CreateFrame();
+            TESTB("create frame", ctx.CurrentFrame());
         }
         TestScore();
         poc();
