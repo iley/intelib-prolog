@@ -34,8 +34,6 @@ int main()
         {
             SListConstructor S;
 
-            PlgDatabase db; //just to check is compiles without errors
-
             PlgAtom a = "a";
             TESTTR("atom", a, "a");
 
