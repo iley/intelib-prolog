@@ -39,6 +39,8 @@ public:
     ~PlgReference() {}
 };
 
+extern PlgReference PlgUnbound;
+
 // Clause
 
 class PlgClauseExpression : public PlgExpression

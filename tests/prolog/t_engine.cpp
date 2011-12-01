@@ -34,8 +34,30 @@ int main()
         {
             //PlgDatabase db;
             PlgContext ctx;
-            ctx.CreateFrame();
-            TESTB("create frame", ctx.CurrentFrame());
+            PlgContext::Frame *frame0 = ctx.CurrentFrame();
+
+            TESTB("create frame #0", frame0 == 0);
+
+            PlgContext::Frame *frame1;
+            TESTB("create frame #1",
+                    frame0 == ctx.CreateFrame() && (frame1 = ctx.CurrentFrame()) && frame0 != frame1);
+
+            PlgVariableName X("X"), Y("Y");
+            PlgAtom f("f"), g("g"), h("h");
+
+            ctx.Set(X, Y);
+            TESTTR("assignment #1", ctx.Get(X), "Y");
+
+            ctx.Set(Y, f);
+            TESTTR("assignment #2", ctx.Get(Y), "f");
+
+            PlgContext::Frame *frame2;
+            TESTB("create frame #2", frame1 == ctx.CreateFrame() && (frame2 = ctx.CurrentFrame()) && frame1 != frame2);
+
+            TESTB("unbound var", ctx.Get(X) == PlgUnbound);
+
+            ctx.Set(Y, g);
+            ctx.Set(X, h);
         }
         TestScore();
         poc();

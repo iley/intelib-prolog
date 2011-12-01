@@ -5,6 +5,8 @@ static SListConstructor S;
 
 // Generic Prolog Expression
 
+PlgReference PlgUnbound;
+
 IntelibTypeId PlgExpression::TypeId(&SExpression::TypeId, true);
 
 IntelibTypeId PlgClauseExpression::TypeId(&PlgExpression::TypeId, true);

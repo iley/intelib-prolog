@@ -5,7 +5,7 @@ void PlgContext::Frame::Set(const PlgReference &name, const PlgReference &value)
 }
 
 PlgReference PlgContext::Frame::Get(const PlgReference &name) const {
-    return table->FindItem(name);
+    return table->FindItem(name, PlgUnbound);
 }
 
 void PlgContext::Frame::Apply(const Frame &droppedFrame) {
@@ -17,7 +17,7 @@ void PlgContext::Frame::Apply(const Frame &droppedFrame) {
         PlgReference value = cons.Cdr();
 
         SReference droppedValue = droppedFrame.Get(value);
-        if (droppedValue != SExpressionHashTable::EmptySlotMark) {
+        if (droppedValue != PlgUnbound) {
             cons.ChangeListEnd(droppedValue);
         }
     }
