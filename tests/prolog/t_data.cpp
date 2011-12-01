@@ -39,8 +39,14 @@ int main()
             PlgAtom a = "a";
             TESTTR("atom", a, "a");
 
-            PlgReference t = PlgTerm(a, (S| a, a));
-            TESTTR("term", t, "a(a,a)");
+            PlgVariableName X = "X";
+            TESTTR("variable name", X, "X");
+
+            PlgTerm t = PlgTerm(a, (S| X, X));
+            TESTTR("term", t, "a(X, X)");
+
+            PlgConjunction c = PlgConjunction((S|t, a)); 
+            TESTTR("conjunction", c, "a(X, X), a");
         }
         TestScore();
         poc();

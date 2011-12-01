@@ -138,6 +138,14 @@ public:
     PlgVariableNameExpression(const char *name) : PlgAtomExpression(TypeId, name) {}
 };
 
+typedef GenericSReference<PlgVariableNameExpression, IntelibX_not_a_prolog_variable_name> PlgVariableName_Super;
+
+class PlgVariableName : public PlgVariableName_Super
+{
+public:
+    PlgVariableName(const char *name) : PlgVariableName_Super(new PlgVariableNameExpression(name)) {}
+};
+
 class PlgTermExpression : public PlgExpression
 {
 public:
@@ -166,5 +174,59 @@ class PlgTerm : public PlgTerm_Super
 public:
     PlgTerm(const PlgAtom &functor, const SReference &args) : PlgTerm_Super(new PlgTermExpression(functor, args)) {}
 };
+
+class PlgListExpression : public PlgExpression
+{
+public:
+    static IntelibTypeId TypeId;
+
+    const SReference& List() const { return list; }
+protected:
+    PlgListExpression(const IntelibTypeId &typeId = TypeId, const SReference &ls = *PTheEmptyList) 
+        : PlgExpression(typeId), list(ls) {};
+
+    SReference list;
+};
+
+class PlgDisjunctionExpression : public PlgListExpression
+{
+public:
+    static IntelibTypeId TypeId;
+
+    PlgDisjunctionExpression(const SReference &ls) : PlgListExpression(TypeId, ls) {} 
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+};
+
+typedef GenericSReference<PlgDisjunctionExpression, IntelibX_not_a_prolog_disjunction> PlgDisjunction_Super;
+
+class PlgDisjunction : public PlgDisjunction_Super
+{
+public:
+    PlgDisjunction(const SReference &ls) : PlgDisjunction_Super(new PlgDisjunctionExpression(ls)) {}
+};
+
+class PlgConjunctionExpression : public PlgListExpression
+{
+public:
+    static IntelibTypeId TypeId;
+
+    PlgConjunctionExpression(const SReference &ls) : PlgListExpression(TypeId, ls) {}
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+};
+
+typedef GenericSReference<PlgConjunctionExpression, IntelibX_not_a_prolog_conjunction> PlgConjunction_Super;
+
+class PlgConjunction : public PlgConjunction_Super
+{
+public:
+    PlgConjunction(const SReference &ls) : PlgConjunction_Super(new PlgConjunctionExpression(ls)) {}
+};
+
 
 #endif

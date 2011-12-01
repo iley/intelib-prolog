@@ -62,5 +62,25 @@ IntelibTypeId PlgTermExpression::TypeId(&PlgExpression::TypeId, false);
 PlgTermExpression::PlgTermExpression(const PlgAtom &fn, const SReference &as) : functor(fn), args(as), arity(Length(as)) {}
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgTermExpression::TextRepresentation() const { return functor->TextRepresentation() + "(" + Join(",", args) + ")"; }
+SString PlgTermExpression::TextRepresentation() const { 
+    return functor->TextRepresentation() + "(" + Join(", ", args) + ")";
+}
 #endif
+
+IntelibTypeId PlgListExpression::TypeId(&PlgExpression::TypeId, false);
+
+IntelibTypeId PlgDisjunctionExpression::TypeId(&PlgExpression::TypeId, false);
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgDisjunctionExpression::TextRepresentation() const {
+    return Join("; ", list);
+}
+#endif
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgConjunctionExpression::TextRepresentation() const {
+    return Join(", ", list);
+}
+#endif
+
+IntelibTypeId PlgConjunctionExpression::TypeId(&PlgExpression::TypeId, false);
