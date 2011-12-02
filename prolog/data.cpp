@@ -19,7 +19,8 @@ SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"
 #endif
 
 bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
-    PlgReference evaluated = context.Evaluate(*this);
+    //PlgReference evaluated = context.Evaluate(*this); //FIXME
+    PlgReference evaluated = *this;
     context.CreateFrame();
 
     bool result = evaluated->Unify(evaluated, other, context);
@@ -42,7 +43,6 @@ IntelibTypeId PlgExpressionTerm::TypeId(&PlgExpression::TypeId, false);
 PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : PlgExpression(TypeId), functor(fn), args(as), arity(Length(as)) {}
 
 bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
-    //TODO variable values
     if (other->TermType() != PlgExpressionTerm::TypeId)
         return false;
 
@@ -50,13 +50,16 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
     if (functor != otherTerm->functor)
         return false;
 
-    SReference ourArg = args, theirArg = otherTerm->args;
-    while (!ourArg.IsEmptyList() && !theirArg.IsEmptyList()) {
-        if (!PlgReference(ourArg).Unify(theirArg, context))
+    SReference ourArgs = args, theirArgs = otherTerm->args;
+    while (!ourArgs.IsEmptyList() && !theirArgs.IsEmptyList()) {
+        PlgReference ourArg = ourArgs.Car();
+        PlgReference theirArg = theirArgs.Car();
+
+        if (!ourArg.Unify(theirArg, context))
             return false;
 
-        ourArg = ourArg.Cdr();
-        theirArg = theirArg.Cdr();
+        ourArgs = ourArgs.Cdr();
+        theirArgs = theirArgs.Cdr();
     }
 
     return true;
@@ -95,14 +98,8 @@ SString PlgExpressionAtom::TextRepresentation() const { return label->TextRepres
 IntelibTypeId PlgExpressionVariableName::TypeId(&PlgExpressionAtom::TypeId, false);
 
 bool PlgExpressionVariableName::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
-    //TODO
-    PlgReference left = context.Evaluate(left);
-    if (left->TermType() != PlgExpressionVariableName::TypeId) {
-        context.Set(left, context.Evaluate(other));
-        return true;
-    } else {
-        return left.Unify(other, context);
-    }
+    context.Set(self, other);
+    return true;
 }
 
 //

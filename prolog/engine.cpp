@@ -76,7 +76,8 @@ void PlgContext::DropFrame(bool keepValues) {
 
 void PlgContext::MergeDownFrame() {
     Frame *upperFrame = top;
-    DropFrame();
+    top = top->prev;
+    INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
     SExpressionHashTable::Iterator it(*upperFrame->table);
 
     SReference cons = it.GetNext();

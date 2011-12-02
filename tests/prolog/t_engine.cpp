@@ -99,6 +99,22 @@ int main()
             TESTTR("multiple vars", ctx.Evaluate(f(X,Y,Z)), "f(h, Z, Z)");
         }
 
+        TestSection("Unification");
+        {
+            PlgContext ctx;
+            PlgReference X = PlgVariableName("X");
+            PlgReference Y = PlgVariableName("Y");
+            PlgAtom f("f");
+
+            ctx.CreateFrame();
+            TESTB("X <-> Y (status)", X.Unify(Y, ctx));
+            TESTTR("X <-> Y (value)", ctx.Get(X), "Y");
+
+            ctx.DropFrame();
+            f(X).Unify(f(Y), ctx);
+            TESTTR("f(X) <-> f(Y)", ctx.Get(X), "Y");
+        }
+
         TestScore();
         poc();
     }
