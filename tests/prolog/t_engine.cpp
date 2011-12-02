@@ -90,11 +90,13 @@ int main()
             ctx.Set(X, h);
             ctx.Set(Y, Z);
 
-            TESTTR("eval #1", ctx.Evaluate(X), "h");
-            TESTTR("eval #2", ctx.Evaluate(f(X)), "f(h)");
-            TESTTR("eval #3", ctx.Evaluate(f(g(X))), "f(g(h))");
-            TESTTR("eval #4", ctx.Evaluate(f(Y)), "f(Z)");
-            TESTTR("eval #5", ctx.Evaluate(f(Z)), "f(Z)");
+            TESTTR("simple var", ctx.Evaluate(X), "h");
+            TESTTR("simple term", ctx.Evaluate(f), "f");
+            TESTTR("term with var", ctx.Evaluate(f(X)), "f(h)");
+            TESTTR("nested term", ctx.Evaluate(f(g(X))), "f(g(h))");
+            TESTTR("renamed var", ctx.Evaluate(f(Y)), "f(Z)");
+            TESTTR("unbound var", ctx.Evaluate(f(Z)), "f(Z)");
+            TESTTR("multiple vars", ctx.Evaluate(f(X,Y,Z)), "f(h, Z, Z)");
         }
 
         TestScore();
