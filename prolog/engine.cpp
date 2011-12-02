@@ -88,7 +88,7 @@ bool PlgContext::MergeDownFrame() {
 
         if (Get(name) == PlgUnbound) {
             Set(name, value);
-        } else if(!Get(name).Unify(value, *this) || !MergeDownFrame()) {
+        } else if (!Get(name).Unify(value, *this)) {
             result = false;
             break;
         }

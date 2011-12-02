@@ -3,6 +3,7 @@
 
 #include "../sexpress/sexpress.hpp"
 #include "../sexpress/sstring.hpp"
+#include "../sexpress/shashtbl.hpp"
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -12,7 +13,6 @@ int Length(const SReference &list);
 //! Perl-like string join
 SString Join(const SString &delim, const SReference list);
 
-/*
 class Log
 {
 public:
@@ -40,6 +40,7 @@ private:
 
 template <class T>
 const char *SStr(T &s) { return s->TextRepresentation().c_str(); }
-*/
+
+SString DumpHashTable(const SHashTable &table);
 
 #endif

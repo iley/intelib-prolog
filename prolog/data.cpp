@@ -19,12 +19,23 @@ SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"
 #endif
 
 bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
-    //PlgReference evaluated = context.Evaluate(*this); //FIXME
-    PlgReference evaluated = *this;
+    PlgReference self = *this;
     context.CreateFrame();
 
-    bool result = evaluated->Unify(evaluated, other, context);
-    if (!result)
+    bool result;
+
+    if (
+        self->TermType() != PlgExpressionVariableName::TypeId
+        && other->TermType() == PlgExpressionVariableName::TypeId
+    ) {
+        result = other->Unify(other, self, context);
+    } else {
+        result = self->Unify(self, other, context);
+    }
+
+    if (result)
+        context.MergeDownFrame();
+    else
         context.DropFrame();
 
     return result;
@@ -53,10 +64,7 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
         PlgReference ourArg = ourArgs.Car();
         PlgReference theirArg = theirArgs.Car();
 
-        if (ourArg.Unify(theirArg, context)) {
-            if (!context.MergeDownFrame())
-                return false;
-        } else {
+        if (!ourArg.Unify(theirArg, context)) {
             return false;
         }
 
@@ -100,8 +108,9 @@ SString PlgExpressionAtom::TextRepresentation() const { return label->TextRepres
 IntelibTypeId PlgExpressionVariableName::TypeId(&PlgExpressionAtom::TypeId, false);
 
 bool PlgExpressionVariableName::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
+    context.CreateFrame();
     context.Set(self, other);
-    return true;
+    return context.MergeDownFrame();
 }
 
 //

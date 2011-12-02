@@ -18,6 +18,10 @@
 #include "../../prolog/prolog.hpp"
 #include "../../sexpress/sexpress.hpp"
 
+#include "../../prolog/utils.hpp"
+
+Log log("/tmp/prolog.log");
+
 
 void poc()
 {
@@ -108,17 +112,26 @@ int main()
             PlgAtom f("f");
 
             ctx.CreateFrame();
-            TESTB("X <-> Y (status)", X.Unify(Y, ctx));
-            TESTTR("X <-> Y (value)", ctx.Get(X), "Y");
-
+            log.Write("1) %s", DumpHashTable(ctx.CurrentFrame()->Table()).c_str());
+            TESTB("X <-> f (status)", X.Unify(f, ctx));
+            log.Write("2) %s", DumpHashTable(ctx.CurrentFrame()->Table()).c_str());
+            TESTTR("X <-> f (value)", ctx.Get(X), "f");
+            log.Write("fuck this shit");
+            TESTB("X <-> Y where X = f (status)", X.Unify(Y, ctx));
+            log.Write("3) %s", DumpHashTable(ctx.CurrentFrame()->Table()).c_str());
+            TESTTR("X <-> Y where X = f (value)", ctx.Get(Y), "f");
             ctx.DropFrame();
+
+            ctx.CreateFrame();
             TESTB("f(X) <-> f(Y) (status)", f(X).Unify(f(Y), ctx));
             TESTTR("f(X) <-> f(Y) (value)", ctx.Get(X), "Y");
-
             ctx.DropFrame();
+
+            ctx.CreateFrame();
             TESTB("f(X, X) <-> f(Y, Z) (status)", f(X, X).Unify(f(Y, Z), ctx));
             TESTTR("f(X, X) <-> f(Y, Z) (value 1)", ctx.Get(X), "Y");
             TESTTR("f(X, X) <-> f(Y, Z) (value 2)", ctx.Get(Y), "Z");
+            ctx.DropFrame();
         }
 
         TestScore();

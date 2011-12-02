@@ -21,3 +21,17 @@ SString Join(const SString &delim, const SReference list) {
     }
     return result;
 }
+
+SString DumpHashTable(const SHashTable &table) {
+    SExpressionHashTable &tbl = *table.GetPtr();
+    SExpressionHashTable::Iterator it(tbl);
+    SString result = "{ ";
+
+    SReference cons = it.GetNext();
+    while (cons.GetPtr()) {
+        result += cons.Car()->TextRepresentation() + " => " + cons.Cdr()->TextRepresentation() + ", ";
+
+        cons = it.GetNext();
+    }
+    return result + "}";
+}

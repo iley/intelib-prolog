@@ -18,6 +18,7 @@ public:
         Frame *Prev() const { return prev; }
         void Apply(const Frame &droppedFrame);
         PlgReference Evaluate(const PlgReference& value) const;
+        const SHashTable& Table() const { return table; }
 
     private:
         SHashTable table;
