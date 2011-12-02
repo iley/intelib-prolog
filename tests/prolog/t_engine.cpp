@@ -82,6 +82,19 @@ int main()
 
         TestSection("PlgContext: evaluation");
         {
+            PlgContext ctx;
+            PlgVariableName X("X"), Y("Y"), Z("Z");
+            PlgAtom f("f"), g("g"), h("h");
+
+            ctx.CreateFrame();
+            ctx.Set(X, h);
+            ctx.Set(Y, Z);
+
+            TESTTR("eval #1", ctx.Evaluate(X), "h");
+            TESTTR("eval #2", ctx.Evaluate(f(X)), "f(h)");
+            TESTTR("eval #3", ctx.Evaluate(f(g(X))), "f(g(h))");
+            TESTTR("eval #4", ctx.Evaluate(f(Y)), "f(Z)");
+            TESTTR("eval #5", ctx.Evaluate(f(Z)), "f(Z)");
         }
 
         TestScore();
