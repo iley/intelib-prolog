@@ -24,9 +24,7 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     context.CreateFrame();
 
     bool result = evaluated->Unify(evaluated, other, context);
-    if (result)
-        context.MergeDownFrame();
-    else
+    if (!result)
         context.DropFrame();
 
     return result;
@@ -55,8 +53,12 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
         PlgReference ourArg = ourArgs.Car();
         PlgReference theirArg = theirArgs.Car();
 
-        if (!ourArg.Unify(theirArg, context))
+        if (ourArg.Unify(theirArg, context)) {
+            context.MergeDownFrame();
+            //TODO: check for conflicts!!!
+        } else {
             return false;
+        }
 
         ourArgs = ourArgs.Cdr();
         theirArgs = theirArgs.Cdr();
