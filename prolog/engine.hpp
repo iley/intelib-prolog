@@ -47,7 +47,7 @@ public:
 
     void ReturnTo(Frame *frame, bool keepValues = false);
     void DropFrame(bool keepValues = false);
-    void MergeDownFrame();
+    bool MergeDownFrame();
 
     void Clean() { ReturnTo(0, false); }
 

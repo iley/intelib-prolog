@@ -54,8 +54,8 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
         PlgReference theirArg = theirArgs.Car();
 
         if (ourArg.Unify(theirArg, context)) {
-            context.MergeDownFrame();
-            //TODO: check for conflicts!!!
+            if (!context.MergeDownFrame())
+                return false;
         } else {
             return false;
         }

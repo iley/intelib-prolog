@@ -74,23 +74,30 @@ void PlgContext::DropFrame(bool keepValues) {
     delete droppedFrame;
 }
 
-void PlgContext::MergeDownFrame() {
+bool PlgContext::MergeDownFrame() {
     Frame *upperFrame = top;
     top = top->prev;
     INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
     SExpressionHashTable::Iterator it(*upperFrame->table);
 
+    bool result = true;
     SReference cons = it.GetNext();
     while (cons.GetPtr()) {
         PlgReference name = cons.Car();
         PlgReference value = cons.Cdr();
 
-        Set(name, value);
+        if (Get(name) == PlgUnbound) {
+            Set(name, value);
+        } else if(!Get(name).Unify(value, *this) || !MergeDownFrame()) {
+            result = false;
+            break;
+        }
 
         cons = it.GetNext();
     }
 
     delete upperFrame;
+    return result;
 }
 
 // Database

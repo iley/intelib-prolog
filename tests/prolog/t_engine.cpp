@@ -104,6 +104,7 @@ int main()
             PlgContext ctx;
             PlgReference X = PlgVariableName("X");
             PlgReference Y = PlgVariableName("Y");
+            PlgReference Z = PlgVariableName("Z");
             PlgAtom f("f");
 
             ctx.CreateFrame();
@@ -111,8 +112,13 @@ int main()
             TESTTR("X <-> Y (value)", ctx.Get(X), "Y");
 
             ctx.DropFrame();
-            f(X).Unify(f(Y), ctx);
-            TESTTR("f(X) <-> f(Y)", ctx.Get(X), "Y");
+            TESTB("f(X) <-> f(Y) (status)", f(X).Unify(f(Y), ctx));
+            TESTTR("f(X) <-> f(Y) (value)", ctx.Get(X), "Y");
+
+            ctx.DropFrame();
+            TESTB("f(X, X) <-> f(Y, Z) (status)", f(X, X).Unify(f(Y, Z), ctx));
+            TESTTR("f(X, X) <-> f(Y, Z) (value 1)", ctx.Get(X), "Y");
+            TESTTR("f(X, X) <-> f(Y, Z) (value 2)", ctx.Get(Y), "Z");
         }
 
         TestScore();
