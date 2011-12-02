@@ -10,13 +10,26 @@ PlgReference PlgUnbound;
 
 IntelibTypeId PlgExpression::TypeId(&SExpression::TypeId, true);
 
-bool PlgExpression::Unify(const PlgReference &other, PlgContext &context) const {
+bool PlgExpression::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
     return this == other.GetPtr();
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"; }
 #endif
+
+bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
+    PlgReference evaluated = context.Evaluate(*this);
+    context.CreateFrame();
+
+    bool result = evaluated->Unify(evaluated, other, context);
+    if (result)
+        context.MergeDownFrame();
+    else
+        context.DropFrame();
+
+    return result;
+}
 
 // Clause
 
@@ -28,7 +41,8 @@ IntelibTypeId PlgExpressionTerm::TypeId(&PlgExpression::TypeId, false);
 
 PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : PlgExpression(TypeId), functor(fn), args(as), arity(Length(as)) {}
 
-bool PlgExpressionTerm::Unify(const PlgReference &other, PlgContext &context) const {
+bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
+    //TODO variable values
     if (other->TermType() != PlgExpressionTerm::TypeId)
         return false;
 
@@ -36,26 +50,16 @@ bool PlgExpressionTerm::Unify(const PlgReference &other, PlgContext &context) co
     if (functor != otherTerm->functor)
         return false;
 
-    context.CreateFrame();
-
     SReference ourArg = args, theirArg = otherTerm->args;
-    bool result = true;
     while (!ourArg.IsEmptyList() && !theirArg.IsEmptyList()) {
-        if (!PlgReference(ourArg)->Unify(theirArg, context)) {
-            result = false;
-            break;
-        }
+        if (!PlgReference(ourArg).Unify(theirArg, context))
+            return false;
 
         ourArg = ourArg.Cdr();
         theirArg = theirArg.Cdr();
     }
 
-    if (result)
-        context.MergeDown();
-    else
-        context.DropFrame();
-
-    return result;
+    return true;
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -90,10 +94,15 @@ SString PlgExpressionAtom::TextRepresentation() const { return label->TextRepres
 
 IntelibTypeId PlgExpressionVariableName::TypeId(&PlgExpressionAtom::TypeId, false);
 
-bool PlgExpressionVariableName::Unify(const PlgReference &other, PlgContext &context) const {
-    //context.Set(label, other);
-    // FIXME
-    return false;
+bool PlgExpressionVariableName::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
+    //TODO
+    PlgReference left = context.Evaluate(left);
+    if (left->TermType() != PlgExpressionVariableName::TypeId) {
+        context.Set(left, context.Evaluate(other));
+        return true;
+    } else {
+        return left.Unify(other, context);
+    }
 }
 
 //

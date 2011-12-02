@@ -25,16 +25,29 @@ public:
     };
 
     PlgContext() : top(0) {}
+    ~PlgContext() { Clean(); }
 
-    void Set(const PlgReference &name, const PlgReference &value);
-    PlgReference Get(const PlgReference &name) const;
+    void Set(const PlgReference &name, const PlgReference &value) {
+        INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
+        top->Set(name, value);
+    }
+
+    PlgReference Get(const PlgReference &name) const {
+        INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
+        return top->Get(name);
+    }
+
+    PlgReference Evaluate(const PlgReference &value) const {
+        INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
+        return top->Evaluate(value);
+    }
 
     Frame *CreateFrame();
     Frame *CurrentFrame();
 
     void ReturnTo(Frame *frame, bool keepValues = false);
     void DropFrame(bool keepValues = false);
-    void MergeDown();
+    void MergeDownFrame();
 
     void Clean() { ReturnTo(0, false); }
 

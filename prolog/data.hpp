@@ -15,15 +15,18 @@ class PlgReference;
 class PlgContext;
 class PlgExpression : public SExpression
 {
+    friend class PlgReference;
 public:
     static IntelibTypeId TypeId;
 
     PlgExpression(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
-    virtual bool Unify(const PlgReference &other, PlgContext &context) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif
+
+protected:
+    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
 };
 
 typedef GenericSReference<PlgExpression, IntelibX_not_a_prolog_expression> PlgRef;
@@ -35,6 +38,8 @@ public:
     PlgReference(const PlgReference &ref) : PlgRef(ref) {}
     PlgReference(const SReference &ref) : PlgRef(ref) {}
     PlgReference(SExpression *p) : PlgRef(p) {}
+
+    bool Unify(const PlgReference &other, PlgContext &context) const;
 
     ~PlgReference() {}
 };
@@ -107,7 +112,7 @@ public:
     static IntelibTypeId TypeId;
 
     PlgExpressionVariableName(const char *name) : PlgExpressionAtom(TypeId, name) {}
-    virtual bool Unify(const PlgReference &other, PlgContext &context) const;
+    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
 };
 
 typedef GenericSReference<PlgExpressionVariableName, IntelibX_not_a_prolog_variable_name> PlgVariableName_Super;
@@ -131,7 +136,7 @@ public:
     const SReference &Args() const { return args; }
     const int Arity() const { return arity; }
 
-    virtual bool Unify(const PlgReference &other, PlgContext &context) const;
+    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;

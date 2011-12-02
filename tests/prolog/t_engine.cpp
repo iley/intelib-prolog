@@ -30,7 +30,7 @@ int main()
 {
     try {
         poc();
-        TestSection("PrologEngine");
+        TestSection("PlgContext: frames");
         {
             //PlgDatabase db;
             PlgContext ctx;
@@ -78,9 +78,12 @@ int main()
             TESTTR("drop frame #4", ctx.Get(X), "g");
             TESTTR("drop frame #5", ctx.Get(Y), "f");
             TESTTR("drop frame #6", ctx.Get(Z), "f(g)");
-
-            ctx.Clean();
         }
+
+        TestSection("PlgContext: evaluation");
+        {
+        }
+
         TestScore();
         poc();
     }

@@ -26,6 +26,7 @@ void PlgContext::Frame::Apply(const Frame &droppedFrame) {
 }
 
 PlgReference PlgContext::Frame::Evaluate(const PlgReference &value) const {
+    //TODO bool assignVars
     if (value->TermType() == PlgExpressionVariableName::TypeId) {
         PlgReference result = Get(value);
         if (result == PlgUnbound)
@@ -44,16 +45,6 @@ PlgReference PlgContext::Frame::Evaluate(const PlgReference &value) const {
     } else {
         return value;
     }
-}
-
-void PlgContext::Set(const PlgReference &name, const PlgReference &value) {
-    INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
-    top->Set(name, value);
-}
-
-PlgReference PlgContext::Get(const PlgReference &name) const {
-    INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
-    return top->Get(name);
 }
 
 PlgContext::Frame *PlgContext::CreateFrame() {
@@ -83,10 +74,10 @@ void PlgContext::DropFrame(bool keepValues) {
     delete droppedFrame;
 }
 
-void PlgContext::MergeDown() {
+void PlgContext::MergeDownFrame() {
     Frame *upperFrame = top;
     DropFrame();
-    SExpressionHashTable::Iterator it(*top->table);
+    SExpressionHashTable::Iterator it(*upperFrame->table);
 
     SReference cons = it.GetNext();
     while (cons.GetPtr()) {
@@ -97,6 +88,8 @@ void PlgContext::MergeDown() {
 
         cons = it.GetNext();
     }
+
+    delete upperFrame;
 }
 
 // Database
@@ -128,7 +121,7 @@ bool PlgClauseChoicePoint::Next(PlgContext &context, SQueue &executionQueue) {
     while (!candidates.IsEmptyList()) {
         PlgExpressionClause *candidate = candidates.Car().DynamicCastGetPtr<PlgExpressionClause>();
         candidates = candidates.Cdr();
-        if (clause->Unify(candidate->Head(), context)) {
+        if (clause.Unify(candidate->Head(), context)) {
             executionQueue.Append(candidate->Body());
             return true;
         }
