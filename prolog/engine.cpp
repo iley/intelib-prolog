@@ -1,7 +1,16 @@
+#include "../sexpress/sstring.hpp"
 #include "engine.hpp"
 #include "utils.hpp"
 #include <stdio.h>
-#include <stdlib.h>
+
+const char *NameGenerator() {
+    static int count = 0;
+    static char buffer[32];
+
+    ++count;
+    sprintf(buffer, "_%d", count);
+    return buffer;
+}
 
 // Context frame
 
@@ -128,14 +137,13 @@ bool PlgExpressionContinuation::Next() {
 }
 
 void PlgExpressionContinuation::PushChoicePoint(const PlgReference &point) {
-    //FIXME
     INTELIB_ASSERT(point->TermType().IsSubtypeOf(PlgExpressionChoicePoint::TypeId), IntelibX_not_a_prolog_choice_point(point));
     choicePoints = point.MakeCons(choicePoints);
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionContinuation::TextRepresentation() const {
-    return "<PROLOG CONTINUATION>";
+    return "<PROLOG CONTINUATION>"; //FIXME
 }
 #endif
 
@@ -173,7 +181,8 @@ IntelibTypeId PlgExpressionClauseChoicePoint::TypeId(&PlgExpressionChoicePoint::
 
 // Database
 void PlgDatabase::Add(const PlgReference &clause) {
-    clauses.AddAnotherItemToList(clause);
+    SHashTable varTable;
+    clauses.AddAnotherItemToList(clause.RenameVars(NameGenerator, varTable));
 }
 
 PlgContinuation PlgDatabase::Query(const PlgReference &request) {

@@ -15,14 +15,19 @@ bool PlgExpression::Unify(const PlgReference &self, const PlgReference &other, P
     return this == other.GetPtr();
 }
 
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"; }
-#endif
-
 // STUB
 bool PlgExpression::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
     throw IntelibX_not_implemented();
 }
+
+PlgReference PlgExpression::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+    return self;
+}
+
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"; }
+#endif
 
 // Reference to a generic prolog expression
 
@@ -49,10 +54,6 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     return result;
 }
 
-bool PlgReference::Solve(PlgExpressionContinuation &continuation) const {
-    return (*this)->Solve(*this, continuation);
-}
-
 // Truth value
 
 IntelibTypeId PlgExpressionTruthValue::TypeId(&PlgExpression::TypeId, false);
@@ -69,16 +70,20 @@ bool PlgExpressionTruthValue::Solve(const PlgReference &self, PlgExpressionConti
 
 IntelibTypeId PlgExpressionClause::TypeId(&PlgExpression::TypeId, true);
 
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpressionClause::TextRepresentation() const {
-    return head->TextRepresentation() + " :- " + body->TextRepresentation() + ".";
+PlgReference PlgExpressionClause::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+    return PlgClause(head.RenameVars(nameGenerator, existingVars), body.RenameVars(nameGenerator, existingVars));
 }
-#endif
 
 PlgClause operator <<= (const PlgReference &head, const PlgReference &body) {
     INTELIB_ASSERT(head->TermType() == PlgExpressionTerm::TypeId, IntelibX_not_a_prolog_term(head));
     return PlgClause(head, body);
 }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpressionClause::TextRepresentation() const {
+    return head->TextRepresentation() + " :- " + body->TextRepresentation() + ".";
+}
+#endif
 
 // Term
 
@@ -114,6 +119,15 @@ bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuatio
     PlgClauseChoicePoint cp(self, continuation.Database().Head(), continuation.Context().CurrentFrame());
     continuation.PushChoicePoint(cp);
     return cp->Next(continuation);
+}
+
+PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+    SReference newArgs = *PTheEmptyList;
+    for (SReference p = args; !p.IsEmptyList(); p = p.Cdr()) {
+        PlgReference pref = p.Car();
+        newArgs.AddAnotherItemToList(pref.RenameVars(nameGenerator, existingVars));
+    }
+    return PlgTerm(functor, newArgs);
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -154,11 +168,29 @@ bool PlgExpressionVariableName::Unify(const PlgReference &self, const PlgReferen
     return context.MergeDownFrame();
 }
 
+PlgReference PlgExpressionVariableName::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+    PlgReference newName = existingVars->FindItem(self, PlgUnbound);
+    if (newName == PlgUnbound) {
+        newName = PlgVariableName(nameGenerator());
+        existingVars->AddItem(self, newName);
+    }
+    return newName;
+}
+
 //
 
 IntelibTypeId PlgExpressionList::TypeId(&PlgExpression::TypeId, false);
 
 // Disjunction
+
+PlgReference PlgExpressionDisjunction::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+    SReference newList = *PTheEmptyList;
+    for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
+        PlgReference pref = p.Car();
+        newList.AddAnotherItemToList(pref.RenameVars(nameGenerator, existingVars));
+    }
+    return PlgDisjunction(newList);
+}
 
 IntelibTypeId PlgExpressionDisjunction::TypeId(&PlgExpressionList::TypeId, false);
 
@@ -184,6 +216,15 @@ IntelibTypeId PlgExpressionConjunction::TypeId(&PlgExpressionList::TypeId, false
 bool PlgExpressionConjunction::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
     //TODO
     throw IntelibX_not_implemented();
+}
+
+PlgReference PlgExpressionConjunction::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+    SReference newList = *PTheEmptyList;
+    for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
+        PlgReference pref = p.Car();
+        newList.AddAnotherItemToList(pref.RenameVars(nameGenerator, existingVars));
+    }
+    return PlgConjunction(newList);
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1

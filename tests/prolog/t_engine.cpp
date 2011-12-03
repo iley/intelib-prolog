@@ -142,20 +142,24 @@ int main()
         TestSection("Solving");
         {
             PlgDatabase db;
-            PlgReference (X) = PlgVariableName("X");
-            PlgAtom socrates("socrates"), plato("plato"), zeus("zeus"), mortal("mortal"), human("human");
-
-            db.Add( human(plato) <<= PlgTrue );
             //TODO: facts
-            db.Add( human(socrates) <<= PlgTrue );
+
+            PlgReference (X) = PlgVariableName("X");
+            PlgReference (Y) = PlgVariableName("Y");
+            PlgAtom socrates("socrates"), plato("plato"), zeus("zeus"), mortal("mortal"), human("human"), man("man");
+
+            db.Add( man(plato) <<= PlgTrue );
+            db.Add( man(socrates) <<= PlgTrue );
+            db.Add( human(Y) <<= man(Y) );
+            db.Add( mortal(X) <<= human(X) );
 
             PlgContinuation cont = db.Query( human(socrates) );
             TESTB("human(socrates)", cont->Next());
+            printContext(cont->Context());
 
             cont = db.Query( human(zeus) );
             TESTB("human(zeus)", !cont->Next());
-
-            db.Add( mortal(X) <<= human(X) );
+            printContext(cont->Context());
 
             cont = db.Query( mortal(socrates) );
             TESTB("mortal(socrates)", cont->Next());

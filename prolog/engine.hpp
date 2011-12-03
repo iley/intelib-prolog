@@ -71,14 +71,16 @@ public:
     bool Next();
     PlgReference GetValue(const PlgReference &var);
 
+    void PushChoicePoint(const PlgReference &point);
+
     PlgDatabase &Database() { return database; }
     SReference ChoicePoints() { return choicePoints; }
-    void PushChoicePoint(const PlgReference &point);
     PlgContext &Context() { return context; }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif
+
 
 private:
     PlgDatabase &database;

@@ -34,10 +34,10 @@ int main()
         {
             SListConstructor S;
 
-            PlgAtom a = "a";
+            PlgAtom a("a");
             TESTTR("atom", a, "a");
 
-            PlgVariableName X = "X";
+            PlgVariableName X("X");
             TESTTR("variable name", X, "X");
 
             TESTTR("term", a(X, X), "a(X, X)");
