@@ -134,6 +134,11 @@ int main()
             ctx.DropFrame();
         }
 
+        TestSection("Solving");
+        {
+            PlgDatabase db;
+        }
+
         TestScore();
         poc();
     }

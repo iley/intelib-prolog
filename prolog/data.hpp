@@ -60,6 +60,10 @@ public:
     PlgReference Head() const { return head; }
     PlgReference Body() const { return body; }
 
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+
 private:
     PlgReference head;
     PlgReference body;
@@ -72,6 +76,8 @@ class PlgClause : public PlgClause_Super
 public:
     PlgClause(const PlgReference &hd, const PlgReference &bd) : PlgClause_Super(new PlgExpressionClause(hd, bd)) {}
 };
+
+PlgClause operator <<= (const PlgReference &head, const PlgReference &body);
 
 // Atom
 

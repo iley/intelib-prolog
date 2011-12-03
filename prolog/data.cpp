@@ -56,6 +56,17 @@ bool PlgReference::Solve(PlgExpressionContinuation &continuation) const {
 
 IntelibTypeId PlgExpressionClause::TypeId(&PlgExpression::TypeId, true);
 
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpressionClause::TextRepresentation() const {
+    return head->TextRepresentation() + " :- " + body->TextRepresentation() + ".";
+}
+#endif
+
+PlgClause operator <<= (const PlgReference &head, const PlgReference &body) {
+    INTELIB_ASSERT(head->TermType() == PlgExpressionTerm::TypeId, IntelibX_not_a_prolog_term(head));
+    return PlgClause(head, body);
+}
+
 // Term
 
 IntelibTypeId PlgExpressionTerm::TypeId(&PlgExpression::TypeId, false);
