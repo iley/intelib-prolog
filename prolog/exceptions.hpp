@@ -45,4 +45,10 @@ public:
     IntelibX_not_a_prolog_conjunction(SReference a_param);
 };
 
+class IntelibX_not_a_prolog_continuation : public IntelibX
+{
+public:
+    IntelibX_not_a_prolog_continuation(SReference a_param);
+};
+
 #endif

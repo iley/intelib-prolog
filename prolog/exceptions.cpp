@@ -20,3 +20,6 @@ IntelibX_not_a_prolog_disjunction::IntelibX_not_a_prolog_disjunction(SReference 
 
 IntelibX_not_a_prolog_conjunction::IntelibX_not_a_prolog_conjunction(SReference a_param)
     : IntelibX("Not a prolog conjunction", a_param) {}
+
+IntelibX_not_a_prolog_continuation::IntelibX_not_a_prolog_continuation(SReference a_param)
+    : IntelibX("Not a prolog continuation", a_param) {}

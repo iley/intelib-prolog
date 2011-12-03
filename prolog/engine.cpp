@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Context frame
+
 void PlgContext::Frame::Set(const PlgReference &name, const PlgReference &value) {
     table->AddItem(name, value);
 }
@@ -57,6 +59,8 @@ PlgContext::Frame *PlgContext::CurrentFrame() {
     return top;
 }
 
+// Context
+
 void PlgContext::ReturnTo(Frame *frame, bool keepValues) {
     while (top != frame)
         DropFrame(keepValues);
@@ -100,41 +104,35 @@ bool PlgContext::MergeDownFrame() {
     return result;
 }
 
-// Database
-void PlgDatabase::Add(const PlgReference &clause) {
-    clauses.Append(clause);
-}
+// Continuation
 
-bool PlgContinuation::Next() {
-    while (queue.IsEmpty()) {
-        if (choicePoints.IsEmptyList()) return false;
+IntelibTypeId PlgExpressionContinuation::TypeId;
 
-        PlgChoicePoint *cp = choicePoints.Car().DynamicCastGetPtr<PlgChoicePoint>();
-        if (!cp->Next(context, queue))
-            choicePoints = choicePoints.Cdr();
-    }
+bool PlgExpressionContinuation::Next() {
+    if (choicePoints.IsEmptyList()) return false;
 
-    SReference nextClauseRef = queue.Car();
-    queue.RemoveFirst();
-
-    //PlgExpression *nextClause = nextClauseRef.DynamicCastGetPtr<PlgExpression>();
-
-    //switch by clause type
+    PlgChoicePoint *cp = choicePoints.Car().DynamicCastGetPtr<PlgChoicePoint>();
+    if (!cp->Next(*this))
+        choicePoints = choicePoints.Cdr();
 
     //TODO
     return false;
 }
 
-bool PlgClauseChoicePoint::Next(PlgContext &context, SQueue &executionQueue) {
-    while (!candidates.IsEmptyList()) {
-        PlgExpressionClause *candidate = candidates.Car().DynamicCastGetPtr<PlgExpressionClause>();
-        candidates = candidates.Cdr();
-        if (clause.Unify(candidate->Head(), context)) {
-            executionQueue.Append(candidate->Body());
-            return true;
-        }
-    }
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpressionContinuation::TextRepresentation() const {
+    return "<INTELIB CONTINUATION>";
+}
+#endif
 
+// Choice point
+
+bool PlgClauseChoicePoint::Next(PlgContinuation &continuation) {
+    //TODO
     return false;
 }
 
+// Database
+void PlgDatabase::Add(const PlgReference &clause) {
+    clauses.Append(clause);
+}
