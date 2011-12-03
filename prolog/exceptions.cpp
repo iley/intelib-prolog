@@ -23,3 +23,9 @@ IntelibX_not_a_prolog_conjunction::IntelibX_not_a_prolog_conjunction(SReference 
 
 IntelibX_not_a_prolog_continuation::IntelibX_not_a_prolog_continuation(SReference a_param)
     : IntelibX("Not a prolog continuation", a_param) {}
+
+IntelibX_not_a_prolog_choice_point::IntelibX_not_a_prolog_choice_point(SReference a_param)
+    : IntelibX("Not a prolog choice point", a_param) {}
+
+IntelibX_not_a_prolog_clause_choice_point::IntelibX_not_a_prolog_clause_choice_point(SReference a_param)
+    : IntelibX("Not a prolog clause choice point", a_param) {}

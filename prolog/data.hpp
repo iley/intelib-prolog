@@ -13,6 +13,8 @@
 
 class PlgReference;
 class PlgContext;
+class PlgExpressionContinuation;
+
 class PlgExpression : public SExpression
 {
     friend class PlgReference;
@@ -25,8 +27,8 @@ public:
     virtual SString TextRepresentation() const;
 #endif
 
-protected:
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
+    virtual bool Solve(PlgExpressionContinuation &continuation) const;
 };
 
 typedef GenericSReference<PlgExpression, IntelibX_not_a_prolog_expression> PlgRef;
@@ -40,6 +42,7 @@ public:
     PlgReference(SExpression *p) : PlgRef(p) {}
 
     bool Unify(const PlgReference &other, PlgContext &context) const;
+    bool Solve(PlgExpressionContinuation &continuation) const;
 
     ~PlgReference() {}
 };

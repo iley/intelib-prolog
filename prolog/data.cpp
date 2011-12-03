@@ -18,6 +18,13 @@ bool PlgExpression::Unify(const PlgReference &self, const PlgReference &other, P
 SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"; }
 #endif
 
+// STUB
+bool PlgExpression::Solve(PlgExpressionContinuation &continuation) const {
+    return true;
+}
+
+// Reference to a generic prolog expression
+
 bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     PlgReference self = *this;
     context.CreateFrame();
@@ -39,6 +46,10 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
         context.DropFrame();
 
     return result;
+}
+
+bool PlgReference::Solve(PlgExpressionContinuation &continuation) const {
+    return (*this)->Solve(continuation);
 }
 
 // Clause
