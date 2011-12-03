@@ -178,6 +178,39 @@ int main()
             ////TODO
             TESTB("mortal(X) end", !cont->Next());
             printContext(cont->Context());
+
+
+            PlgAtom a("a"), b("b"), c("c"), d("d"), f("f");
+            db.Add( a(b(X)) <<= d(X) );
+            db.Add( a(c(X)) <<= f(X) );
+            db.Add( d(a) <<= PlgTrue );
+            db.Add( f(b) <<= PlgTrue );
+
+            cont = db.Query(a(b(a)));
+            TESTB("a(b(a))", cont->Next());
+            printContext(cont->Context());
+
+            cont = db.Query(a(b(b)));
+            TESTB("a(b(b))", !cont->Next());
+            printContext(cont->Context());
+
+            cont = db.Query(a(c(b)));
+            TESTB("a(c(b))", cont->Next());
+            printContext(cont->Context());
+
+            cont = db.Query(a(c(a)));
+            TESTB("a(c(a))", !cont->Next());
+            printContext(cont->Context());
+
+            cont = db.Query(a(X));
+            TESTB("a(X) #1", cont->Next());
+            printContext(cont->Context());
+
+            TESTB("a(X) #2", cont->Next());
+            printContext(cont->Context());
+
+            TESTB("a(X) #3", !cont->Next());
+            printContext(cont->Context());
         }
 
         TestScore();
