@@ -164,6 +164,7 @@ bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &continuatio
             continuation.Context().DropFrame();
         }
     }
+    continuation.Context().ReturnTo(frame);
 
     return false;
 }
