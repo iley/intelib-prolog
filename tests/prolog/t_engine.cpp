@@ -31,6 +31,7 @@ void poc()
 }
 
 void printContext(const PlgContext &context) {
+    //return;
     printf("--- context dump start ---\n");
 
     printf("%s", DumpContext(context).c_str());
@@ -171,7 +172,8 @@ int main()
             TESTB("mortal(X) #2", cont->Next());
             printContext(cont->Context());
             ////TODO
-            //TESTB("mortal(X) end", !cont->Next());
+            TESTB("mortal(X) end", !cont->Next());
+            printContext(cont->Context());
         }
 
         TestScore();

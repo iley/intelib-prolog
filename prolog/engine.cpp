@@ -113,18 +113,14 @@ bool PlgExpressionContinuation::Next() {
         request = PlgUnbound;
         return req.Solve(*this);
 
-    } else if (choicePoints.IsEmptyList()) {
-        return false;
-
     } else {
 
         while (!choicePoints.IsEmptyList()) {
             PlgChoicePoint cp = choicePoints.Car();
+            choicePoints = choicePoints.Cdr();
 
             if(cp->Next(*this))
                 return true;
-
-            choicePoints = choicePoints.Cdr();
         }
 
         return false;
@@ -156,6 +152,7 @@ bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &continuatio
 
     while (!pointer.IsEmptyList()) {
         PlgClause candidate = pointer.Car();
+        pointer = pointer.Cdr();
 
         continuation.Context().ReturnTo(frame);
         continuation.Context().CreateFrame();
@@ -166,8 +163,6 @@ bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &continuatio
         } else {
             continuation.Context().DropFrame();
         }
-
-        pointer = pointer.Cdr();
     }
 
     return false;

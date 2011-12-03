@@ -113,7 +113,7 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
 bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
     PlgClauseChoicePoint cp(self, continuation.Database().Head(), continuation.Context().CurrentFrame());
     continuation.PushChoicePoint(cp);
-    return continuation.Next();
+    return cp->Next(continuation);
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
