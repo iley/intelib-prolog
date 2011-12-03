@@ -137,6 +137,25 @@ int main()
         TestSection("Solving");
         {
             PlgDatabase db;
+            PlgReference (X) = PlgVariableName("X");
+            PlgAtom socrates("socrates"), plato("plato"), zeus("zeus"), mortal("mortal"), human("human");
+
+            db.Add( mortal(X) <<= human(X) );
+            db.Add( human(plato) );
+            db.Add( human(socrates) );
+
+            PlgContinuation cont = db.Query( mortal(socrates) );
+            TESTB("mortal(socrates)", cont->Next());
+
+            cont = db.Query( mortal(zeus) );
+            TESTB("mortal(zeus)", !cont->Next());
+
+            cont = db.Query( mortal(X) );
+            TESTB("mortal(X) #1", cont->Next());
+            //TODO
+            TESTB("mortal(X) #2", cont->Next());
+            //TODO
+            TESTB("mortal(X) end", !cont->Next());
         }
 
         TestScore();

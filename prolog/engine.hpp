@@ -139,7 +139,7 @@ public:
 class PlgDatabase
 {
 public:
-    PlgDatabase() : clauses(*PTheEmptyList) {}
+    PlgDatabase() : clauses() {}
 
     void Add(const PlgReference &clause);
     PlgContinuation Query(const PlgReference &request);
