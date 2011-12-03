@@ -86,6 +86,11 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
     return true;
 }
 
+bool PlgExpressionTerm::Solve(PlgExpressionContinuation &continuation) const {
+    //TODO
+    throw IntelibX_not_implemented();
+}
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionTerm::TextRepresentation() const { 
     return functor->TextRepresentation() + "(" + Join(", ", args) + ")";
@@ -132,6 +137,11 @@ IntelibTypeId PlgExpressionList::TypeId(&PlgExpression::TypeId, false);
 
 IntelibTypeId PlgExpressionDisjunction::TypeId(&PlgExpressionList::TypeId, false);
 
+bool PlgExpressionDisjunction::Solve(PlgExpressionContinuation &continuation) const {
+    //TODO
+    throw IntelibX_not_implemented();
+}
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionDisjunction::TextRepresentation() const {
     return Join("; ", list);
@@ -145,6 +155,11 @@ PlgDisjunction operator | (const PlgReference &left, const PlgReference &right) 
 // Conjunction
 
 IntelibTypeId PlgExpressionConjunction::TypeId(&PlgExpressionList::TypeId, false);
+
+bool PlgExpressionConjunction::Solve(PlgExpressionContinuation &continuation) const {
+    //TODO
+    throw IntelibX_not_implemented();
+}
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionConjunction::TextRepresentation() const {

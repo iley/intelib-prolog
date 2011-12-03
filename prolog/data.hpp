@@ -140,6 +140,7 @@ public:
     const int Arity() const { return arity; }
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
+    virtual bool Solve(PlgExpressionContinuation &continuation) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -183,6 +184,8 @@ public:
 
     PlgExpressionDisjunction(const SReference &ls) : PlgExpressionList(TypeId, ls) {} 
 
+    virtual bool Solve(PlgExpressionContinuation &continuation) const;
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif
@@ -206,6 +209,8 @@ public:
     static IntelibTypeId TypeId;
 
     PlgExpressionConjunction(const SReference &ls) : PlgExpressionList(TypeId, ls) {}
+
+    virtual bool Solve(PlgExpressionContinuation &continuation) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
