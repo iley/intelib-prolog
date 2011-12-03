@@ -55,10 +55,6 @@ PlgContext::Frame *PlgContext::CreateFrame() {
     return oldFrame;
 }
 
-PlgContext::Frame *PlgContext::CurrentFrame() {
-    return top;
-}
-
 // Context
 
 void PlgContext::ReturnTo(Frame *frame, bool keepValues) {
@@ -106,10 +102,10 @@ bool PlgContext::MergeDownFrame() {
 
 // Continuation
 
-IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);
+IntelibTypeId PlgExpressionContinuation::TypeId(&PlgExpression::TypeId, true);
 
 PlgExpressionContinuation::PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req)
-    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), request(req) {}
+    : PlgExpression(TypeId), database(db), choicePoints(*PTheEmptyList), request(req) {}
 
 bool PlgExpressionContinuation::Next() {
     if (request != PlgUnbound) {
@@ -121,15 +117,24 @@ bool PlgExpressionContinuation::Next() {
         return false;
 
     } else {
-        PlgChoicePoint cp = choicePoints.Car();
 
-        bool result = !cp->Next(*this);
+        while (!choicePoints.IsEmptyList()) {
+            PlgChoicePoint cp = choicePoints.Car();
 
-        if (!result)
+            if(cp->Next(*this))
+                return true;
+
             choicePoints = choicePoints.Cdr();
+        }
 
-        return result;
+        return false;
     }
+}
+
+void PlgExpressionContinuation::PushChoicePoint(const PlgReference &point) {
+    //FIXME
+    INTELIB_ASSERT(point->TermType().IsSubtypeOf(PlgExpressionChoicePoint::TypeId), IntelibX_not_a_prolog_choice_point(point));
+    choicePoints = point.MakeCons(choicePoints);
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -139,7 +144,7 @@ SString PlgExpressionContinuation::TextRepresentation() const {
 #endif
 
 // Choice point
-IntelibTypeId PlgExpressionChoicePoint::TypeId(&SExpression::TypeId, true);
+IntelibTypeId PlgExpressionChoicePoint::TypeId(&PlgExpression::TypeId, true);
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionChoicePoint::TextRepresentation() const {
@@ -148,13 +153,15 @@ SString PlgExpressionChoicePoint::TextRepresentation() const {
 #endif
 
 bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &continuation) {
-    //TODO
 
     while (!pointer.IsEmptyList()) {
-        PlgExpressionClause *candidate = pointer.Car().DynamicCastGetPtr<PlgExpressionClause>();
+        PlgClause candidate = pointer.Car();
 
+        continuation.Context().ReturnTo(frame);
         continuation.Context().CreateFrame();
-        if (clause.Unify(candidate->Head(), continuation.Context()) && candidate->Body()->Solve(continuation)) {
+
+        if ( frame->Evaluate(clause).Unify(frame->Evaluate(candidate->Head()), continuation.Context())
+                && candidate->Body().Solve(continuation)) {
             return true;
         } else {
             continuation.Context().DropFrame();
@@ -166,11 +173,11 @@ bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &continuatio
     return false;
 }
 
-IntelibTypeId PlgExpressionClauseChoicePoint::TypeId(&SExpression::TypeId, true);
+IntelibTypeId PlgExpressionClauseChoicePoint::TypeId(&PlgExpressionChoicePoint::TypeId, true);
 
 // Database
 void PlgDatabase::Add(const PlgReference &clause) {
-    clauses.Append(clause);
+    clauses.AddAnotherItemToList(clause);
 }
 
 PlgContinuation PlgDatabase::Query(const PlgReference &request) {

@@ -20,7 +20,7 @@
 
 #include "../../prolog/utils.hpp"
 
-Log log("/tmp/prolog.log");
+//Log log("/tmp/prolog.log");
 
 
 void poc()
@@ -28,6 +28,14 @@ void poc()
 #if INTELIB_DEBUG_COUNTERS == 1
     printf("       Object counter: %ld\n", SExpression::object_counter);
 #endif
+}
+
+void printContext(const PlgContext &context) {
+    printf("--- context dump start ---\n");
+
+    printf("%s", DumpContext(context).c_str());
+
+    printf("---  context dump end  ---\n");
 }
 
 int main()
@@ -112,13 +120,9 @@ int main()
             PlgAtom f("f");
 
             ctx.CreateFrame();
-            log.Write("1) %s", DumpHashTable(ctx.CurrentFrame()->Table()).c_str());
             TESTB("X <-> f (status)", X.Unify(f, ctx));
-            log.Write("2) %s", DumpHashTable(ctx.CurrentFrame()->Table()).c_str());
             TESTTR("X <-> f (value)", ctx.Get(X), "f");
-            log.Write("fuck this shit");
             TESTB("X <-> Y where X = f (status)", X.Unify(Y, ctx));
-            log.Write("3) %s", DumpHashTable(ctx.CurrentFrame()->Table()).c_str());
             TESTTR("X <-> Y where X = f (value)", ctx.Get(Y), "f");
             ctx.DropFrame();
 
@@ -140,22 +144,34 @@ int main()
             PlgReference (X) = PlgVariableName("X");
             PlgAtom socrates("socrates"), plato("plato"), zeus("zeus"), mortal("mortal"), human("human");
 
-            db.Add( mortal(X) <<= human(X) );
-            db.Add( human(plato) );
-            db.Add( human(socrates) );
+            db.Add( human(plato) <<= PlgTrue );
+            //TODO: facts
+            db.Add( human(socrates) <<= PlgTrue );
 
-            PlgContinuation cont = db.Query( mortal(socrates) );
+            PlgContinuation cont = db.Query( human(socrates) );
+            TESTB("human(socrates)", cont->Next());
+
+            cont = db.Query( human(zeus) );
+            TESTB("human(zeus)", !cont->Next());
+
+            db.Add( mortal(X) <<= human(X) );
+
+            cont = db.Query( mortal(socrates) );
             TESTB("mortal(socrates)", cont->Next());
+            printContext(cont->Context());
 
             cont = db.Query( mortal(zeus) );
             TESTB("mortal(zeus)", !cont->Next());
+            printContext(cont->Context());
 
             cont = db.Query( mortal(X) );
             TESTB("mortal(X) #1", cont->Next());
-            //TODO
+            printContext(cont->Context());
+            ////TODO
             TESTB("mortal(X) #2", cont->Next());
-            //TODO
-            TESTB("mortal(X) end", !cont->Next());
+            printContext(cont->Context());
+            ////TODO
+            //TESTB("mortal(X) end", !cont->Next());
         }
 
         TestScore();

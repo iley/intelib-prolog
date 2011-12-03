@@ -63,4 +63,10 @@ public:
     IntelibX_not_a_prolog_clause_choice_point(SReference a_param);
 };
 
+class IntelibX_not_a_prolog_truth : public IntelibX
+{
+public:
+    IntelibX_not_a_prolog_truth(SReference a_param);
+};
+
 #endif

@@ -7,6 +7,7 @@ static SListConstructor S;
 // Generic Prolog Expression
 
 PlgReference PlgUnbound;
+PlgTruthValue PlgTrue;
 
 IntelibTypeId PlgExpression::TypeId(&SExpression::TypeId, true);
 
@@ -19,8 +20,8 @@ SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"
 #endif
 
 // STUB
-bool PlgExpression::Solve(PlgExpressionContinuation &continuation) const {
-    return true;
+bool PlgExpression::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
+    throw IntelibX_not_implemented();
 }
 
 // Reference to a generic prolog expression
@@ -49,7 +50,19 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
 }
 
 bool PlgReference::Solve(PlgExpressionContinuation &continuation) const {
-    return (*this)->Solve(continuation);
+    return (*this)->Solve(*this, continuation);
+}
+
+// Truth value
+
+IntelibTypeId PlgExpressionTruthValue::TypeId(&PlgExpression::TypeId, false);
+
+bool PlgExpressionTruthValue::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
+    return other->TermType() == PlgExpressionTruthValue::TypeId;
+}
+
+bool PlgExpressionTruthValue::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
+    return true;
 }
 
 // Clause
@@ -97,9 +110,10 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
     return true;
 }
 
-bool PlgExpressionTerm::Solve(PlgExpressionContinuation &continuation) const {
-    //TODO
-    throw IntelibX_not_implemented();
+bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
+    PlgClauseChoicePoint cp(self, continuation.Database().Head(), continuation.Context().CurrentFrame());
+    continuation.PushChoicePoint(cp);
+    return continuation.Next();
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -148,7 +162,7 @@ IntelibTypeId PlgExpressionList::TypeId(&PlgExpression::TypeId, false);
 
 IntelibTypeId PlgExpressionDisjunction::TypeId(&PlgExpressionList::TypeId, false);
 
-bool PlgExpressionDisjunction::Solve(PlgExpressionContinuation &continuation) const {
+bool PlgExpressionDisjunction::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
     //TODO
     throw IntelibX_not_implemented();
 }
@@ -167,7 +181,7 @@ PlgDisjunction operator | (const PlgReference &left, const PlgReference &right) 
 
 IntelibTypeId PlgExpressionConjunction::TypeId(&PlgExpressionList::TypeId, false);
 
-bool PlgExpressionConjunction::Solve(PlgExpressionContinuation &continuation) const {
+bool PlgExpressionConjunction::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
     //TODO
     throw IntelibX_not_implemented();
 }

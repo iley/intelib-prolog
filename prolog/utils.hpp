@@ -3,7 +3,8 @@
 
 #include "../sexpress/sexpress.hpp"
 #include "../sexpress/sstring.hpp"
-#include "../sexpress/shashtbl.hpp"
+#include "engine.hpp"
+
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -38,9 +39,11 @@ private:
     FILE *file;
 };
 
-template <class T>
-const char *SStr(T &s) { return s->TextRepresentation().c_str(); }
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+const char *Dump(SReference &s);
 
-SString DumpHashTable(const SHashTable &table);
+SString DumpHashTable(const SReference &table);
+SString DumpContext(const PlgContext &context);
+#endif
 
 #endif

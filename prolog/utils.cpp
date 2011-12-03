@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "../sexpress/shashtbl.hpp"
 
 int Length(const SReference &list) {
     int len = 0;
@@ -22,9 +23,18 @@ SString Join(const SString &delim, const SReference list) {
     return result;
 }
 
-SString DumpHashTable(const SHashTable &table) {
-    SExpressionHashTable &tbl = *table.GetPtr();
-    SExpressionHashTable::Iterator it(tbl);
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+
+const char *Dump(const SReference &s) {
+    if (s->TermType() == SExpressionHashTable::TypeId)
+        return DumpHashTable(s).c_str();
+    return s->TextRepresentation().c_str();
+}
+
+SString DumpHashTable(const SReference &table) {
+    SExpressionHashTable *tbl = table.DynamicCastGetPtr<SExpressionHashTable>();
+    INTELIB_ASSERT(tbl, IntelibX_bug());
+    SExpressionHashTable::Iterator it(*tbl);
     SString result = "{ ";
 
     SReference cons = it.GetNext();
@@ -35,3 +45,15 @@ SString DumpHashTable(const SHashTable &table) {
     }
     return result + "}";
 }
+
+SString DumpContext(const PlgContext &context) {
+    int count = 0;
+    SString result = "";
+    for (PlgContext::Frame *frame = context.CurrentFrame(); frame; frame = frame->Prev()) {
+        ++count;
+        result += DumpHashTable(frame->Table()) + "\n";
+    }
+    return result;
+}
+
+#endif

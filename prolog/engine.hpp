@@ -47,7 +47,7 @@ public:
     }
 
     Frame *CreateFrame();
-    Frame *CurrentFrame();
+    Frame *CurrentFrame() const { return top; }
 
     void ReturnTo(Frame *frame, bool keepValues = false);
     void DropFrame(bool keepValues = false);
@@ -60,7 +60,7 @@ private:
 };
 
 class PlgDatabase;
-class PlgExpressionContinuation : public SExpression
+class PlgExpressionContinuation : public PlgExpression
 {
     friend class PlgDatabase;
 public:
@@ -73,6 +73,7 @@ public:
 
     PlgDatabase &Database() { return database; }
     SReference ChoicePoints() { return choicePoints; }
+    void PushChoicePoint(const PlgReference &point);
     PlgContext &Context() { return context; }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -94,7 +95,7 @@ public:
     PlgContinuation(PlgDatabase &db, const PlgReference &request) : PlgContinuation_Super(new PlgExpressionContinuation(db, request)) {}
 };
 
-class PlgExpressionChoicePoint : public SExpression
+class PlgExpressionChoicePoint : public PlgExpression
 {
 public:
     static IntelibTypeId TypeId;
@@ -108,7 +109,7 @@ public:
 protected:
     PlgContext::Frame *frame;
 
-    PlgExpressionChoicePoint(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
+    PlgExpressionChoicePoint(const IntelibTypeId &typeId = TypeId) : PlgExpression(typeId) {}
 };
 
 typedef GenericSReference<PlgExpressionChoicePoint, IntelibX_not_a_prolog_choice_point> PlgChoicePoint;
@@ -139,13 +140,13 @@ public:
 class PlgDatabase
 {
 public:
-    PlgDatabase() : clauses() {}
+    PlgDatabase() : clauses(*PTheEmptyList) {}
 
     void Add(const PlgReference &clause);
     PlgContinuation Query(const PlgReference &request);
-    SReference Head() const { return clauses.Car(); }
+    SReference Head() const { return clauses; }
 private:
-    SQueue clauses;
+    SReference clauses;
     PlgDatabase(const PlgDatabase &other);
 };
 

@@ -23,12 +23,12 @@ public:
 
     PlgExpression(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
 
+    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
+    virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif
-
-    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
-    virtual bool Solve(PlgExpressionContinuation &continuation) const;
 };
 
 typedef GenericSReference<PlgExpression, IntelibX_not_a_prolog_expression> PlgRef;
@@ -48,6 +48,31 @@ public:
 };
 
 extern PlgReference PlgUnbound;
+
+class PlgExpressionTruthValue : public PlgExpression
+{
+public:
+    static IntelibTypeId TypeId;
+
+    PlgExpressionTruthValue() : PlgExpression(TypeId) {}
+
+    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
+    virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return "true"; }
+#endif
+};
+
+typedef GenericSReference<PlgExpressionTruthValue, IntelibX_not_a_prolog_truth> PlgTruthValue_Super;
+
+class PlgTruthValue : public PlgTruthValue_Super
+{
+public:
+    PlgTruthValue() : PlgTruthValue_Super(new PlgExpressionTruthValue()) {}
+};
+
+extern PlgTruthValue PlgTrue;
 
 // Clause
 
@@ -75,6 +100,7 @@ class PlgClause : public PlgClause_Super
 {
 public:
     PlgClause(const PlgReference &hd, const PlgReference &bd) : PlgClause_Super(new PlgExpressionClause(hd, bd)) {}
+    PlgClause(const SReference &sex) : PlgClause_Super(sex) {}
 };
 
 PlgClause operator <<= (const PlgReference &head, const PlgReference &body);
@@ -146,7 +172,7 @@ public:
     const int Arity() const { return arity; }
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
-    virtual bool Solve(PlgExpressionContinuation &continuation) const;
+    virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -190,7 +216,7 @@ public:
 
     PlgExpressionDisjunction(const SReference &ls) : PlgExpressionList(TypeId, ls) {} 
 
-    virtual bool Solve(PlgExpressionContinuation &continuation) const;
+    virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -216,7 +242,7 @@ public:
 
     PlgExpressionConjunction(const SReference &ls) : PlgExpressionList(TypeId, ls) {}
 
-    virtual bool Solve(PlgExpressionContinuation &continuation) const;
+    virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;

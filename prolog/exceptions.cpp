@@ -29,3 +29,6 @@ IntelibX_not_a_prolog_choice_point::IntelibX_not_a_prolog_choice_point(SReferenc
 
 IntelibX_not_a_prolog_clause_choice_point::IntelibX_not_a_prolog_clause_choice_point(SReference a_param)
     : IntelibX("Not a prolog clause choice point", a_param) {}
+
+IntelibX_not_a_prolog_truth::IntelibX_not_a_prolog_truth(SReference a_param)
+    : IntelibX("Not a prolog truth value", a_param) {}
