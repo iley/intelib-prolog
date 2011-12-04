@@ -20,9 +20,6 @@
 
 #include "../../prolog/utils.hpp"
 
-//Log log("/tmp/prolog.log");
-
-
 void poc()
 {
 #if INTELIB_DEBUG_COUNTERS == 1
@@ -31,7 +28,7 @@ void poc()
 }
 
 void printContext(const PlgContext &context) {
-    //return;
+    return;
     printf("--- context dump start ---\n");
 
     printf("%s", DumpContext(context).c_str());
@@ -172,10 +169,12 @@ int main()
             cont = db.Query( mortal(X) );
             TESTB("mortal(X) #1", cont->Next());
             printContext(cont->Context());
-            ////TODO
+            TESTTR("mortal(X) where X = plato", cont->GetValue(X), "plato");
+
             TESTB("mortal(X) #2", cont->Next());
             printContext(cont->Context());
-            ////TODO
+            TESTTR("mortal(X) where X = socrates", cont->GetValue(X), "socrates");
+
             TESTB("mortal(X) end", !cont->Next());
             printContext(cont->Context());
 
@@ -204,9 +203,11 @@ int main()
 
             cont = db.Query(a(X));
             TESTB("a(X) #1", cont->Next());
+            TESTTR("a(X) where X = b(a)", cont->GetValue(X), "b(a)");
             printContext(cont->Context());
 
             TESTB("a(X) #2", cont->Next());
+            TESTTR("a(X) where X = c(b)", cont->GetValue(X), "c(b)");
             printContext(cont->Context());
 
             TESTB("a(X) #3", !cont->Next());

@@ -154,6 +154,22 @@ bool PlgExpressionContinuation::Next() {
     }
 }
 
+PlgReference PlgExpressionContinuation::GetValue(const PlgReference &var) const {
+    INTELIB_ASSERT(var->TermType() == PlgExpressionVariableName::TypeId, IntelibX_not_a_prolog_variable_name(var));
+    PlgReference value = var;
+    for (PlgContext::Frame *frame = context.Bottom()->Next(); frame; frame = frame->Next()) {
+        PlgReference binding = frame->Evaluate(value);
+        if (binding != PlgUnbound)
+            value = binding;
+    }
+
+    // return original variable name if the variable is unbound
+    if (value->TermType() == PlgExpressionVariableName::TypeId)
+        return var;
+    else
+        return value;
+}
+
 void PlgExpressionContinuation::PushChoicePoint(const PlgReference &point) {
     INTELIB_ASSERT(point->TermType().IsSubtypeOf(PlgExpressionChoicePoint::TypeId), IntelibX_not_a_prolog_choice_point(point));
     choicePoints = point.MakeCons(choicePoints);

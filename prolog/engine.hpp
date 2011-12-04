@@ -19,6 +19,7 @@ public:
         PlgReference Get(const PlgReference &name) const;
 
         Frame *Prev() const { return prev; }
+        Frame *Next() const { return next; }
 
         void Apply(const Frame &droppedFrame);
         PlgReference Evaluate(const PlgReference& value) const;
@@ -69,7 +70,7 @@ public:
     PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req);
 
     bool Next();
-    PlgReference GetValue(const PlgReference &var);
+    PlgReference GetValue(const PlgReference &var) const;
 
     void PushChoicePoint(const PlgReference &point);
 
