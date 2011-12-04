@@ -49,7 +49,7 @@ SString DumpHashTable(const SReference &table) {
 SString DumpContext(const PlgContext &context) {
     int count = 0;
     SString result = "";
-    for (PlgContext::Frame *frame = context.Top(); frame; frame = frame->Prev()) {
+    for (PlgContext::Frame *frame = context.Top(); frame != context.Bottom(); frame = frame->Prev()) {
         ++count;
         result += DumpHashTable(frame->Table()) + "\n";
     }
