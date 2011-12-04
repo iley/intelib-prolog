@@ -47,13 +47,13 @@ int main()
         {
             //PlgDatabase db;
             PlgContext ctx;
-            PlgContext::Frame *frame0 = ctx.CurrentFrame();
+            PlgContext::Frame *frame0 = ctx.Top();
 
             TESTB("create frame #0", frame0 == 0);
 
             PlgContext::Frame *frame1;
             TESTB("create frame #1",
-                    frame0 == ctx.CreateFrame() && (frame1 = ctx.CurrentFrame()) && frame0 != frame1);
+                    frame0 == ctx.CreateFrame() && (frame1 = ctx.Top()) && frame0 != frame1);
 
             PlgVariableName X("X"), Y("Y"), Z("Z");
             PlgAtom f("f"), g("g"), h("h");
@@ -68,7 +68,7 @@ int main()
             TESTTR("assignment #2.1", ctx.Get(Z), "f(Y)");
 
             PlgContext::Frame *frame2;
-            TESTB("create frame #2", frame1 == ctx.CreateFrame() && (frame2 = ctx.CurrentFrame()) && frame1 != frame2);
+            TESTB("create frame #2", frame1 == ctx.CreateFrame() && (frame2 = ctx.Top()) && frame1 != frame2);
 
             TESTB("unbound var", ctx.Get(X) == PlgUnbound);
 
@@ -83,11 +83,11 @@ int main()
             TESTTR("assignment #5", ctx.Get(X), "f");
 
             ctx.DropFrame();
-            TESTB("drop frame #1", ctx.CurrentFrame() == frame2);
+            TESTB("drop frame #1", ctx.Top() == frame2);
             TESTTR("drop frame #2", ctx.Get(X), "h");
 
             ctx.DropFrame(true);
-            TESTB("drop frame #3", ctx.CurrentFrame() == frame1);
+            TESTB("drop frame #3", ctx.Top() == frame1);
             TESTTR("drop frame #4", ctx.Get(X), "g");
             TESTTR("drop frame #5", ctx.Get(Y), "f");
             TESTTR("drop frame #6", ctx.Get(Z), "f(g)");

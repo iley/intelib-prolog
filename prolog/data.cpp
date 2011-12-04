@@ -116,7 +116,7 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
 }
 
 bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
-    PlgClauseChoicePoint cp(self, continuation.Database().Head(), continuation.Context().CurrentFrame());
+    PlgClauseChoicePoint cp(self, continuation.Database().Head(), continuation.Context().Top());
     continuation.PushChoicePoint(cp);
     return cp->Next(continuation);
 }

@@ -48,7 +48,7 @@ public:
     }
 
     Frame *CreateFrame();
-    Frame *CurrentFrame() const { return top; }
+    Frame *Top() const { return top; }
 
     void ReturnTo(Frame *frame, bool keepValues = false);
     void DropFrame(bool keepValues = false);
