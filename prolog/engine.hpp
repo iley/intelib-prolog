@@ -13,23 +13,24 @@ public:
     class Frame {
         friend class PlgContext;
     public:
-        Frame(Frame *p) : prev(p) {}
+        Frame(Frame *p, Frame *n=0) : prev(p), next(n) {}
 
         void Set(const PlgReference &name, const PlgReference &value);
         PlgReference Get(const PlgReference &name) const;
 
         Frame *Prev() const { return prev; }
+
         void Apply(const Frame &droppedFrame);
         PlgReference Evaluate(const PlgReference& value) const;
         const SHashTable& Table() const { return table; }
 
     private:
         SHashTable table;
-        Frame *prev;
+        Frame *prev, *next;
     };
 
-    PlgContext() : top(0) {}
-    ~PlgContext() { Clean(); }
+    PlgContext() : top(0), bottom(0) { CreateFrame(); bottom = top; }
+    ~PlgContext();
 
     void Set(const PlgReference &name, const PlgReference &value) {
         INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
@@ -53,10 +54,8 @@ public:
     void DropFrame(bool keepValues = false);
     bool MergeDownFrame();
 
-    void Clean() { ReturnTo(0, false); }
-
 private:
-    Frame *top;
+    Frame *top, *bottom;
 };
 
 class PlgDatabase;

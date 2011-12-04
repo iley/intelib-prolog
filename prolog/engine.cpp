@@ -37,7 +37,6 @@ void PlgContext::Frame::Apply(const Frame &droppedFrame) {
 }
 
 PlgReference PlgContext::Frame::Evaluate(const PlgReference &value) const {
-    //TODO bool assignVars
     if (value->TermType() == PlgExpressionVariableName::TypeId) {
         PlgReference result = Get(value);
         if (result == PlgUnbound)
@@ -59,12 +58,27 @@ PlgReference PlgContext::Frame::Evaluate(const PlgReference &value) const {
 }
 
 PlgContext::Frame *PlgContext::CreateFrame() {
-    Frame *oldFrame = top;
-    top = new Frame(oldFrame);
-    return oldFrame;
+    Frame *oldTop = top;
+    top = new Frame(oldTop);
+
+    if (oldTop)
+        oldTop->next = top;
+    else
+        bottom = top;
+
+    return oldTop;
 }
 
 // Context
+
+PlgContext::~PlgContext() {
+    Frame *nextFrame;
+    for(Frame *frame = top; frame; frame = nextFrame) {
+        nextFrame = frame->prev;
+        delete frame;
+    }
+    top = bottom = 0;
+}
 
 void PlgContext::ReturnTo(Frame *frame, bool keepValues) {
     while (top != frame)
@@ -72,13 +86,15 @@ void PlgContext::ReturnTo(Frame *frame, bool keepValues) {
 }
 
 void PlgContext::DropFrame(bool keepValues) {
-    INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
+    INTELIB_ASSERT(top && top != bottom, IntelibX_unexpected_unbound_value());
     Frame *droppedFrame = top;
-    top = top->Prev();
+    top = top->prev;
 
     if (keepValues) {
         top->Apply(*droppedFrame);
     }
+
+    top->next = 0;
 
     delete droppedFrame;
 }
@@ -86,7 +102,7 @@ void PlgContext::DropFrame(bool keepValues) {
 bool PlgContext::MergeDownFrame() {
     Frame *upperFrame = top;
     top = top->prev;
-    INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
+    INTELIB_ASSERT(top && top != bottom, IntelibX_unexpected_unbound_value());
     SExpressionHashTable::Iterator it(*upperFrame->table);
 
     bool result = true;
@@ -104,6 +120,8 @@ bool PlgContext::MergeDownFrame() {
 
         cons = it.GetNext();
     }
+
+    top->next = 0;
 
     delete upperFrame;
     return result;
@@ -187,6 +205,5 @@ void PlgDatabase::Add(const PlgReference &clause) {
 
 PlgContinuation PlgDatabase::Query(const PlgReference &request) {
     PlgContinuation cont(*this, request);
-    cont->context.CreateFrame(); //???
     return cont;
 }
