@@ -46,7 +46,7 @@ int main()
             PlgContext ctx;
             PlgContext::Frame *frame0 = ctx.Top();
 
-            TESTB("create frame #0", frame0 == 0);
+            TESTB("create frame #0", frame0);
 
             PlgContext::Frame *frame1;
             TESTB("create frame #1",
