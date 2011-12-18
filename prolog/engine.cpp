@@ -129,10 +129,10 @@ bool PlgContext::MergeDownFrame() {
 
 // Continuation
 
-IntelibTypeId PlgExpressionContinuation::TypeId(&PlgExpression::TypeId, true);
+IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);
 
 PlgExpressionContinuation::PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req)
-    : PlgExpression(TypeId), database(db), choicePoints(*PTheEmptyList), request(req) {}
+    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), request(req) {}
 
 bool PlgExpressionContinuation::Next() {
     if (request != PlgUnbound) {
@@ -182,7 +182,7 @@ SString PlgExpressionContinuation::TextRepresentation() const {
 #endif
 
 // Choice point
-IntelibTypeId PlgExpressionChoicePoint::TypeId(&PlgExpression::TypeId, true);
+IntelibTypeId PlgExpressionChoicePoint::TypeId(&SExpression::TypeId, true);
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionChoicePoint::TextRepresentation() const {

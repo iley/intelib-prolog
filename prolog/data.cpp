@@ -9,25 +9,18 @@ static SListConstructor S;
 PlgReference PlgUnbound;
 PlgTruthValue PlgTrue;
 
-IntelibTypeId PlgExpression::TypeId(&SExpression::TypeId, true);
-
-bool PlgExpression::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
-    return this == other.GetPtr();
+bool PlgObject::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
+    return reinterpret_cast<const SExpression*>(this) == other.GetPtr();
 }
 
 // STUB
-bool PlgExpression::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
+bool PlgObject::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
     throw IntelibX_not_implemented();
 }
 
-PlgReference PlgExpression::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+PlgReference PlgObject::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
     return self;
 }
-
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpression::TextRepresentation() const { return "<PROLOG EXPRESSION>"; }
-#endif
 
 // Reference to a generic prolog expression
 
@@ -41,9 +34,11 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
         self->TermType() != PlgExpressionVariableName::TypeId
         && other->TermType() == PlgExpressionVariableName::TypeId
     ) {
-        result = other->Unify(other, self, context);
+        const PlgObject *otherObj = reinterpret_cast<const PlgObject*>(other.GetPtr()); //FIXME
+        result = otherObj->Unify(other, self, context);
     } else {
-        result = self->Unify(self, other, context);
+        const PlgObject *selfObj = reinterpret_cast<const PlgObject*>(this); //FIXME
+        result = selfObj->Unify(self, other, context);
     }
 
     if (result)
@@ -56,7 +51,7 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
 
 // Truth value
 
-IntelibTypeId PlgExpressionTruthValue::TypeId(&PlgExpression::TypeId, false);
+IntelibTypeId PlgExpressionTruthValue::TypeId(&SExpression::TypeId, false);
 
 bool PlgExpressionTruthValue::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
     return other->TermType() == PlgExpressionTruthValue::TypeId;
@@ -68,7 +63,7 @@ bool PlgExpressionTruthValue::Solve(const PlgReference &self, PlgExpressionConti
 
 // Clause
 
-IntelibTypeId PlgExpressionClause::TypeId(&PlgExpression::TypeId, true);
+IntelibTypeId PlgExpressionClause::TypeId(&SExpression::TypeId, true);
 
 PlgReference PlgExpressionClause::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
     return PlgClause(head.RenameVars(nameGenerator, existingVars), body.RenameVars(nameGenerator, existingVars));
@@ -87,9 +82,9 @@ SString PlgExpressionClause::TextRepresentation() const {
 
 // Term
 
-IntelibTypeId PlgExpressionTerm::TypeId(&PlgExpression::TypeId, false);
+IntelibTypeId PlgExpressionTerm::TypeId(&SExpression::TypeId, false);
 
-PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : PlgExpression(TypeId), functor(fn), args(as), arity(Length(as)) {}
+PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : SExpression(TypeId), functor(fn), args(as), arity(Length(as)) {}
 
 bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
     if (other->TermType() != PlgExpressionTerm::TypeId)
@@ -138,7 +133,7 @@ SString PlgExpressionTerm::TextRepresentation() const {
 
 // Atom
 
-IntelibTypeId PlgExpressionAtom::TypeId(&PlgExpression::TypeId, false);
+IntelibTypeId PlgExpressionAtom::TypeId(&SExpression::TypeId, false);
 
 PlgReference PlgAtom::operator() (const PlgReference &arg1) {
     return PlgTerm(*this, (S| arg1 ));
@@ -153,10 +148,6 @@ PlgReference PlgAtom::operator() (const PlgReference &arg1, const PlgReference &
 }
 
 // TODO more args
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpressionAtom::TextRepresentation() const { return label->TextRepresentation(); }
-#endif
 
 // Variable Name
 
@@ -179,7 +170,7 @@ PlgReference PlgExpressionVariableName::RenameVars(const PlgReference &self, Nam
 
 //
 
-IntelibTypeId PlgExpressionList::TypeId(&PlgExpression::TypeId, false);
+IntelibTypeId PlgExpressionList::TypeId(&SExpression::TypeId, false);
 
 // Disjunction
 

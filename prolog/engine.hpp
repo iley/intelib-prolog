@@ -61,7 +61,7 @@ private:
 };
 
 class PlgDatabase;
-class PlgExpressionContinuation : public PlgExpression
+class PlgExpressionContinuation : public SExpression
 {
     friend class PlgDatabase;
 public:
@@ -98,7 +98,7 @@ public:
     PlgContinuation(PlgDatabase &db, const PlgReference &request) : PlgContinuation_Super(new PlgExpressionContinuation(db, request)) {}
 };
 
-class PlgExpressionChoicePoint : public PlgExpression
+class PlgExpressionChoicePoint : public SExpression
 {
 public:
     static IntelibTypeId TypeId;
@@ -112,7 +112,7 @@ public:
 protected:
     PlgContext::Frame *frame;
 
-    PlgExpressionChoicePoint(const IntelibTypeId &typeId = TypeId) : PlgExpression(typeId) {}
+    PlgExpressionChoicePoint(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
 };
 
 typedef GenericSReference<PlgExpressionChoicePoint, IntelibX_not_a_prolog_choice_point> PlgChoicePoint;

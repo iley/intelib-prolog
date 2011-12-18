@@ -18,24 +18,15 @@ class PlgReference;
 class PlgContext;
 class PlgExpressionContinuation;
 
-class PlgExpression : public SExpression
+class PlgObject
 {
-    friend class PlgReference;
 public:
-    static IntelibTypeId TypeId;
-
-    PlgExpression(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
-
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
     virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const;
-#endif
 };
 
-typedef GenericSReference<PlgExpression, IntelibX_not_a_prolog_expression> PlgRef;
+typedef GenericSReference<SExpression, IntelibX_not_a_prolog_expression> PlgRef;
 
 class PlgReference : public PlgRef
 {
@@ -48,11 +39,15 @@ public:
     bool Unify(const PlgReference &other, PlgContext &context) const;
 
     bool Solve(PlgExpressionContinuation &continuation) const {
-        return (*this)->Solve(*this, continuation);
+        PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
+        INTELIB_ASSERT(obj, IntelibX_bug()); //FIXME: use proper exception type
+        return obj->Solve(*this, continuation);
     }
 
     virtual PlgReference RenameVars(NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
-        return (*this)->RenameVars(*this, nameGenerator, existingVars);
+        PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
+        INTELIB_ASSERT(obj, IntelibX_bug()); //FIXME: use proper exception type
+        return obj->RenameVars(*this, nameGenerator, existingVars);
     }
 
     ~PlgReference() {}
@@ -60,12 +55,12 @@ public:
 
 extern PlgReference PlgUnbound;
 
-class PlgExpressionTruthValue : public PlgExpression
+class PlgExpressionTruthValue : public SExpression, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionTruthValue() : PlgExpression(TypeId) {}
+    PlgExpressionTruthValue() : SExpression(TypeId) {}
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
@@ -87,12 +82,12 @@ extern PlgTruthValue PlgTrue;
 
 // Clause
 
-class PlgExpressionClause : public PlgExpression
+class PlgExpressionClause : public SExpression, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionClause(const PlgReference &hd, const PlgReference &bd) : PlgExpression(TypeId), head(hd), body(bd) {}
+    PlgExpressionClause(const PlgReference &hd, const PlgReference &bd) : SExpression(TypeId), head(hd), body(bd) {}
     PlgReference Head() const { return head; }
     PlgReference Body() const { return body; }
     virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
@@ -119,23 +114,16 @@ PlgClause operator <<= (const PlgReference &head, const PlgReference &body);
 
 // Atom
 
-class PlgExpressionAtom : public PlgExpression
+class PlgExpressionAtom : public SExpressionLabel, public PlgObject
 {
     friend class PlgAtom;
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionAtom(const char *name) : PlgExpression(TypeId), label(name) {}
-    const SLabel &Label() const { return label; }
-    const char *GetName() const { return label.GetPtr()->GetName(); }
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const;
-#endif
+    PlgExpressionAtom(const char *name) : SExpressionLabel(TypeId, name) {}
 
 protected:
-    PlgExpressionAtom(const IntelibTypeId &typeId, const char *name) : PlgExpression(typeId), label(name) {}
-    SLabel label;
+    PlgExpressionAtom(const IntelibTypeId &typeId, const char *name) : SExpressionLabel(typeId, name) {}
 };
 
 typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom_Super;
@@ -173,7 +161,7 @@ public:
 
 // Term
 
-class PlgExpressionTerm : public PlgExpression
+class PlgExpressionTerm : public SExpression, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
@@ -208,7 +196,7 @@ public:
 
 
 
-class PlgExpressionList : public PlgExpression
+class PlgExpressionList : public SExpression, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
@@ -216,7 +204,7 @@ public:
     const SReference& List() const { return list; }
 protected:
     PlgExpressionList(const IntelibTypeId &typeId = TypeId, const SReference &ls = *PTheEmptyList) 
-        : PlgExpression(typeId), list(ls) {};
+        : SExpression(typeId), list(ls) {};
 
     SReference list;
 };
