@@ -150,7 +150,11 @@ int main()
             db.Add( human(Y) <<= man(Y) );
             db.Add( mortal(X) <<= human(X) );
 
-            PlgContinuation cont = db.Query( human(socrates) );
+            PlgContinuation cont = db.Query( man(socrates) );
+            TESTB("man(socrates)", cont->Next());
+            printContext(cont->Context());
+
+            cont = db.Query( human(socrates) );
             TESTB("human(socrates)", cont->Next());
             printContext(cont->Context());
 
