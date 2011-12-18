@@ -10,7 +10,7 @@ PlgReference PlgUnbound;
 PlgTruthValue PlgTrue;
 
 bool PlgObject::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
-    return reinterpret_cast<const SExpression*>(this) == other.GetPtr();
+    return self.GetPtr() == other.GetPtr();
 }
 
 // STUB
