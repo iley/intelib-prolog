@@ -38,7 +38,7 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
         INTELIB_ASSERT(otherObj, IntelibX_bug());
         result = otherObj->Unify(other, self, context);
     } else {
-        const PlgObject *selfObj = dynamic_cast<const PlgObject*>(this); //FIXME
+        const PlgObject *selfObj = dynamic_cast<const PlgObject*>(GetPtr()); //FIXME
         INTELIB_ASSERT(selfObj, IntelibX_bug());
         result = selfObj->Unify(self, other, context);
     }
