@@ -58,6 +58,8 @@ public:
 
 private:
     Frame *top, *bottom;
+
+    PlgContext(const PlgContext&);
 };
 
 class PlgDatabase;
