@@ -30,7 +30,7 @@ int main()
 {
     try {
         poc();
-        TestSection("PrologData");
+        TestSection("Data");
         {
             SListConstructor S;
 

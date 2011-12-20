@@ -47,7 +47,7 @@ int main()
 {
     try {
         poc();
-        TestSection("PlgContext: frames");
+        TestSection("Context frames");
         {
             //PlgDatabase db;
             PlgContext ctx;
@@ -97,7 +97,7 @@ int main()
             TESTTR("drop frame #6", ctx.Get(Z), "f(g)");
         }
 
-        TestSection("PlgContext: evaluation");
+        TestSection("Context evaluation");
         {
             PlgContext ctx;
             PlgVariableName X("X"), Y("Y"), Z("Z");
