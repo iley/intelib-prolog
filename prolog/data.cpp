@@ -89,7 +89,7 @@ IntelibTypeId PlgExpressionTerm::TypeId(&SExpression::TypeId, false);
 PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : SExpression(TypeId), functor(fn), args(as) {}
 PlgExpressionTerm::PlgExpressionTerm(const IntelibTypeId &typeId, const PlgAtom &fn, const SReference &as) : SExpression(typeId), functor(fn), args(as) {}
 
-int PlgExpressionTerm::Arity() const { return Length(args); }
+int PlgExpressionTerm::Arity() const { return Length(args); } //TODO: cache arity value
 
 bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
     if (other->TermType() != PlgExpressionTerm::TypeId)
@@ -116,9 +116,15 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
 }
 
 bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
-    PlgClauseChoicePoint cp(self, continuation.Database().Head(), continuation.Context().Top());
-    continuation.PushChoicePoint(cp);
-    return cp->Next(continuation);
+    PlgPredicate predicate = functor->GetPredicate(Arity());
+
+    if (predicate.GetPtr()) {
+        return predicate->Apply(args, continuation);
+    } else {
+        PlgClauseChoicePoint cp(self, continuation.Database().Head(), continuation.Context().Top());
+        continuation.PushChoicePoint(cp);
+        return cp->Next(continuation);
+    }
 }
 
 PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
@@ -140,7 +146,7 @@ SString PlgExpressionTerm::TextRepresentation() const {
 
 IntelibTypeId PlgExpressionPredicate::TypeId(&SExpression::TypeId, false);
 
-bool PlgExpressionUserPredicate::Apply(const SReference &args, PlgContinuation &cont) {
+bool PlgExpressionUserPredicate::Apply(const SReference &args, PlgExpressionContinuation &cont) {
     return function(args, cont);
 }
 
@@ -158,7 +164,7 @@ PlgPredicate PlgExpressionAtom::GetPredicate(int arity) const {
     if (!result.GetPtr())
         result = varArgPredicate;
 
-    INTELIB_ASSERT(result.GetPtr(), IntelibX_unexpected_unbound_value());
+    // can return undefined value, caller should check
     return result;
 }
 

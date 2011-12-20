@@ -121,7 +121,7 @@ class PlgExpressionPredicate : public SExpression, public PlgObject
 public:
     static IntelibTypeId TypeId;
 
-    virtual bool Apply(const SReference &args, PlgContinuation &cont) = 0;
+    virtual bool Apply(const SReference &args, PlgExpressionContinuation &cont) = 0;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const { return "<PREDICATE>"; }
@@ -131,26 +131,27 @@ protected:
     explicit PlgExpressionPredicate(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
 };
 
-typedef GenericSReference<PlgExpressionPredicate, IntelibX_not_a_prolog_predicate> PlgPredicate_Super;
-
-class PlgPredicate : public PlgPredicate_Super
-{
-public:
-    PlgPredicate() {}
-    PlgPredicate(const SReference &sex) : PlgPredicate_Super(sex) {}
-};
-
-typedef bool (*UserPredicate)(const SReference &args, const PlgContinuation &cont);
+typedef bool (*UserPredicate)(const SReference &args, const PlgExpressionContinuation &cont);
 
 class PlgExpressionUserPredicate : public PlgExpressionPredicate
 {
 public:
     explicit PlgExpressionUserPredicate(const UserPredicate &func) : function(func) {}
 
-    virtual bool Apply(const SReference &args, PlgContinuation &cont);
+    virtual bool Apply(const SReference &args, PlgExpressionContinuation &cont);
 
 private:
     UserPredicate function;
+};
+
+typedef GenericSReference<PlgExpressionPredicate, IntelibX_not_a_prolog_predicate> PlgPredicate_Super;
+
+class PlgPredicate : public PlgPredicate_Super
+{
+public:
+    PlgPredicate() {}
+    PlgPredicate(const UserPredicate &func) : PlgPredicate_Super(new PlgExpressionUserPredicate(func)) {}
+    PlgPredicate(const SReference &sex) : PlgPredicate_Super(sex) {}
 };
 
 // Atom
@@ -163,6 +164,8 @@ public:
     explicit PlgExpressionAtom(const char *name) : SExpressionLabel(TypeId, name) {}
 
     PlgPredicate GetPredicate(int arity) const;
+    void SetPredicate(int arity, const PlgPredicate &pred) { predicates[arity] = pred; }
+    void SetPredicate(const PlgPredicate &pred) { varArgPredicate = pred; }
 
 protected:
     PlgExpressionAtom(const IntelibTypeId &typeId, const char *name) : SExpressionLabel(typeId, name) {}
