@@ -1,7 +1,7 @@
 #include "exceptions.hpp"
 
-IntelibX_not_a_prolog_expression::IntelibX_not_a_prolog_expression(SReference a_param)
-    : IntelibX("Not a prolog expression", a_param) {}
+IntelibX_not_a_prolog_object::IntelibX_not_a_prolog_object(SReference a_param)
+    : IntelibX("Not a prolog object", a_param) {}
 
 IntelibX_not_a_prolog_clause::IntelibX_not_a_prolog_clause(SReference a_param)
     : IntelibX("Not a prolog clause", a_param) {}

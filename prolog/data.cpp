@@ -34,12 +34,12 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
         self->TermType() != PlgExpressionVariableName::TypeId
         && other->TermType() == PlgExpressionVariableName::TypeId
     ) {
-        const PlgObject *otherObj = dynamic_cast<const PlgObject*>(other.GetPtr()); //FIXME
-        INTELIB_ASSERT(otherObj, IntelibX_bug());
+        const PlgObject *otherObj = dynamic_cast<const PlgObject*>(other.GetPtr());
+        INTELIB_ASSERT(otherObj, IntelibX_not_a_prolog_object(*this));
         result = otherObj->Unify(other, self, context);
     } else {
-        const PlgObject *selfObj = dynamic_cast<const PlgObject*>(GetPtr()); //FIXME
-        INTELIB_ASSERT(selfObj, IntelibX_bug());
+        const PlgObject *selfObj = dynamic_cast<const PlgObject*>(GetPtr());
+        INTELIB_ASSERT(selfObj, IntelibX_not_a_prolog_object(*this));
         result = selfObj->Unify(self, other, context);
     }
 

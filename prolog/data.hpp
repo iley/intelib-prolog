@@ -26,7 +26,7 @@ public:
     virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
 };
 
-typedef GenericSReference<SExpression, IntelibX_not_a_prolog_expression> PlgRef;
+typedef GenericSReference<SExpression, IntelibX_not_a_prolog_object> PlgRef;
 
 class PlgReference : public PlgRef
 {
@@ -40,13 +40,13 @@ public:
 
     bool Solve(PlgExpressionContinuation &continuation) const {
         PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
-        INTELIB_ASSERT(obj, IntelibX_bug()); //FIXME: use proper exception type
+        INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
         return obj->Solve(*this, continuation);
     }
 
     virtual PlgReference RenameVars(NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
         PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
-        INTELIB_ASSERT(obj, IntelibX_bug()); //FIXME: use proper exception type
+        INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
         return obj->RenameVars(*this, nameGenerator, existingVars);
     }
 

@@ -192,7 +192,7 @@ int main()
             printContext(cont->Context());
         }
 
-        TestSection("Solving 1");
+        TestSection("Solving 2");
         {
             PlgAtom a("a"), b("b"), c("c"), d("d"), f("f");
             PlgVariableName X("X");

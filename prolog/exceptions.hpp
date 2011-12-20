@@ -3,10 +3,10 @@
 
 #include "../sexpress/iexcept.hpp"
 
-class IntelibX_not_a_prolog_expression : public IntelibX
+class IntelibX_not_a_prolog_object : public IntelibX
 {
 public:
-    IntelibX_not_a_prolog_expression(SReference a_param);
+    IntelibX_not_a_prolog_object(SReference a_param);
 };
 
 class IntelibX_not_a_prolog_clause : public IntelibX
