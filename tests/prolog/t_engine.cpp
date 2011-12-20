@@ -241,7 +241,7 @@ int main()
 
         TestSection("User predicates");
         {
-            PlgAtom f("f");
+            PlgAtom f("f"), g("g");
             PlgVariableName X("X");
             PlgDatabase db;
 
@@ -256,6 +256,11 @@ int main()
             TESTB("evaluate X = f", cont->Next());
             TESTTR("get X value in X = f", cont->GetValue(X), "f");
             TESTB("evaluate X = f for a second time", !cont->Next());
+
+            db.Add( f(X) <<= (X ^= g) );
+            cont = db.Query(f(X));
+            TESTB("evaluate f(X)", cont->Next());
+            TESTTR("get X in f(X)", cont->GetValue(X), "g");
         }
 
 

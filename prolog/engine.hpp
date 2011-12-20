@@ -52,6 +52,8 @@ public:
     Frame *Top() const { return top; }
     Frame *Bottom() const { return bottom; }
 
+    bool IsEmpty() const { return top == bottom; }
+
     void ReturnTo(Frame *frame, bool keepValues = false);
     void DropFrame(bool keepValues = false);
     bool MergeDownFrame();
