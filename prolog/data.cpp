@@ -121,8 +121,16 @@ bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuatio
     PlgPredicate predicate = functor->GetPredicate(Arity());
 
     if (predicate.GetPtr()) {
+
+        //evaluate args in current context
+        SReference evaluatedArgs = *PTheEmptyList;
+        for (SReference p = args; !p.IsEmptyList(); p = p.Cdr()) {
+            evaluatedArgs.AddAnotherItemToList(cont.Context().Evaluate(p.Car()));
+        }
+
         cont.Context().CreateFrame();
-        bool result = predicate->Apply(args, cont);
+
+        bool result = predicate->Apply(evaluatedArgs, cont);
         if (!result)
             cont.Context().DropFrame();
     } else {

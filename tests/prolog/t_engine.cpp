@@ -241,8 +241,8 @@ int main()
 
         TestSection("User predicates");
         {
-            PlgAtom f("f"), g("g");
-            PlgVariableName X("X");
+            PlgAtom f("f"), g("g"), h("h");
+            PlgVariableName X("X"), Y("Y");
             PlgDatabase db;
 
             f->SetPredicate(1, someUserPredicate);
@@ -263,6 +263,16 @@ int main()
             TESTB("evaluate g(X)", cont->Next());
             printContext(cont->Context());
             TESTTR("get X in g(X)", cont->GetValue(X), "f");
+            TESTB("evaluate g(X) for a second time", !cont->Next());
+
+            db.Add( h(X) <<= h(X, g) );
+            db.Add( h(X, Y) <<= (X ^= Y) );
+            cont = db.Query(h(X));
+            printContext(cont->Context());
+            TESTB("evaluate h(X)", cont->Next());
+            printContext(cont->Context());
+            TESTTR("get X in h(X)", cont->GetValue(X), "g");
+            TESTB("evaluate h(X) for a second time", !cont->Next());
         }
 
 
