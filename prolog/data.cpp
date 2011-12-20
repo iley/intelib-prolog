@@ -86,7 +86,10 @@ SString PlgExpressionClause::TextRepresentation() const {
 
 IntelibTypeId PlgExpressionTerm::TypeId(&SExpression::TypeId, false);
 
-PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : SExpression(TypeId), functor(fn), args(as), arity(Length(as)) {}
+PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : SExpression(TypeId), functor(fn), args(as) {}
+PlgExpressionTerm::PlgExpressionTerm(const IntelibTypeId &typeId, const PlgAtom &fn, const SReference &as) : SExpression(typeId), functor(fn), args(as) {}
+
+int PlgExpressionTerm::Arity() const { return Length(args); }
 
 bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
     if (other->TermType() != PlgExpressionTerm::TypeId)
@@ -170,22 +173,20 @@ PlgReference PlgExpressionVariableName::RenameVars(const PlgReference &self, Nam
     return newName;
 }
 
-//
-
-IntelibTypeId PlgExpressionList::TypeId(&SExpression::TypeId, false);
-
 // Disjunction
+
+IntelibTypeId PlgExpressionDisjunction::TypeId(&PlgExpressionTerm::TypeId, false);
+
+PlgAtom PlgExpressionDisjunction::Atom("<OR>");
 
 PlgReference PlgExpressionDisjunction::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
     SReference newList = *PTheEmptyList;
-    for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
+    for (SReference p = args; !p.IsEmptyList(); p = p.Cdr()) {
         PlgReference pref = p.Car();
         newList.AddAnotherItemToList(pref.RenameVars(nameGenerator, existingVars));
     }
     return PlgDisjunction(newList);
 }
-
-IntelibTypeId PlgExpressionDisjunction::TypeId(&PlgExpressionList::TypeId, false);
 
 bool PlgExpressionDisjunction::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
     //TODO
@@ -194,7 +195,7 @@ bool PlgExpressionDisjunction::Solve(const PlgReference &self, PlgExpressionCont
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionDisjunction::TextRepresentation() const {
-    return Join("; ", list);
+    return Join("; ", args);
 }
 #endif
 
@@ -204,7 +205,9 @@ PlgDisjunction operator | (const PlgReference &left, const PlgReference &right) 
 
 // Conjunction
 
-IntelibTypeId PlgExpressionConjunction::TypeId(&PlgExpressionList::TypeId, false);
+IntelibTypeId PlgExpressionConjunction::TypeId(&PlgExpressionTerm::TypeId, false);
+
+PlgAtom PlgExpressionConjunction::Atom("<OR>");
 
 bool PlgExpressionConjunction::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
     //TODO
@@ -213,7 +216,7 @@ bool PlgExpressionConjunction::Solve(const PlgReference &self, PlgExpressionCont
 
 PlgReference PlgExpressionConjunction::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
     SReference newList = *PTheEmptyList;
-    for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
+    for (SReference p = args; !p.IsEmptyList(); p = p.Cdr()) {
         PlgReference pref = p.Car();
         newList.AddAnotherItemToList(pref.RenameVars(nameGenerator, existingVars));
     }
@@ -222,7 +225,7 @@ PlgReference PlgExpressionConjunction::RenameVars(const PlgReference &self, Name
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionConjunction::TextRepresentation() const {
-    return Join(", ", list);
+    return Join(", ", args);
 }
 #endif
 

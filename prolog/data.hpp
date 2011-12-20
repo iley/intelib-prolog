@@ -170,7 +170,7 @@ public:
 
     const PlgAtom &Functor() const { return functor; }
     const SReference &Args() const { return args; }
-    const int Arity() const { return arity; }
+    int Arity() const;
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
@@ -180,10 +180,11 @@ public:
     virtual SString TextRepresentation() const;
 #endif
 
-private:
+protected:
+    PlgExpressionTerm(const IntelibTypeId &typeId, const PlgAtom &fn, const SReference &as);
+
     PlgAtom functor;
     SReference args;
-    int arity;
 };
 
 typedef GenericSReference<PlgExpressionTerm, IntelibX_not_a_prolog_atom> PlgTerm_Super;
@@ -195,28 +196,14 @@ public:
 };
 
 
-
-class PlgExpressionList : public SExpression, public PlgObject
-{
-public:
-    static IntelibTypeId TypeId;
-
-    const SReference& List() const { return list; }
-protected:
-    PlgExpressionList(const IntelibTypeId &typeId = TypeId, const SReference &ls = *PTheEmptyList) 
-        : SExpression(typeId), list(ls) {};
-
-    SReference list;
-};
-
 // Disjunction
-
-class PlgExpressionDisjunction : public PlgExpressionList
+class PlgExpressionDisjunction : public PlgExpressionTerm
 {
 public:
     static IntelibTypeId TypeId;
+    static PlgAtom Atom;
 
-    PlgExpressionDisjunction(const SReference &ls) : PlgExpressionList(TypeId, ls) {} 
+    PlgExpressionDisjunction(const SReference &ls) : PlgExpressionTerm(TypeId, Atom, ls) {}
 
     virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
     virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
@@ -238,12 +225,13 @@ PlgDisjunction operator | (const PlgReference &left, const PlgReference &right);
 
 // Conjunction
 
-class PlgExpressionConjunction : public PlgExpressionList
+class PlgExpressionConjunction : public PlgExpressionTerm
 {
 public:
     static IntelibTypeId TypeId;
+    static PlgAtom Atom;
 
-    PlgExpressionConjunction(const SReference &ls) : PlgExpressionList(TypeId, ls) {}
+    PlgExpressionConjunction(const SReference &ls) : PlgExpressionTerm(TypeId, Atom, ls) {}
 
     virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
     virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
