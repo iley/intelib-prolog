@@ -63,15 +63,13 @@ PlgConjunction operator & (const PlgReference &left, const PlgReference &right) 
     return PlgConjunction((S| left, right ));
 }
 
-// Unification term
+// "==" predicate
 
-IntelibTypeId PlgExpressionEquals::TypeId(&PlgExpressionTerm::TypeId, false);
-
-PlgAtom PlgExpressionEquals::Atom("==", 2, Predicate);
-
-bool PlgExpressionEquals::Predicate(const SReference &args, PlgExpressionContinuation &cont) {
+bool PredicateEquals(const SReference &args, PlgExpressionContinuation &cont) {
     PlgReference left = args.Car();
     PlgReference right = args.Cdr().Car();
 
     return left.Unify(right, cont.Context());
 }
+
+PlgAtom PlgAtomEquals("=", 2, PredicateEquals);

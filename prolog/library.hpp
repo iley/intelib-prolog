@@ -59,14 +59,10 @@ PlgConjunction operator & (const PlgReference &left, const PlgReference &right);
 
 // Unification term
 
-class PlgExpressionEquals : public PlgExpressionTerm
-{
-    static IntelibTypeId TypeId;
-    static PlgAtom Atom;
+extern PlgAtom PlgAtomEquals;
 
-    static bool Predicate(const SReference &args, PlgExpressionContinuation &cont);
-
-    PlgExpressionEquals(const SReference &ls) : PlgExpressionTerm(TypeId, Atom, ls) {}
-};
+inline PlgReference operator ^= (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomEquals(left, right);
+}
 
 #endif

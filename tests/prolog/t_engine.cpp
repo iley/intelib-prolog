@@ -250,8 +250,14 @@ int main()
             TESTB("before calling f", !userPredicateCalled);
             TESTB("calling f", cont->Next());
             TESTB("after calling f", userPredicateCalled);
-            TESTB("calling f second time", !cont->Next());
+            TESTB("calling f for a second time", !cont->Next());
+
+            cont = db.Query(X ^= f);
+            TESTB("evaluate X = f", cont->Next());
+            TESTTR("get X value in X = f", cont->GetValue(X), "f");
+            TESTB("evaluate X = f for a second time", cont->Next());
         }
+
 
         TestScore();
         poc();
