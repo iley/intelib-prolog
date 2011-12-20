@@ -109,7 +109,7 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
         theirArgs = theirArgs.Cdr();
     }
 
-    return true;
+    return ourArgs.IsEmptyList() && theirArgs.IsEmptyList();
 }
 
 bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {

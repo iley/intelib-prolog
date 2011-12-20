@@ -143,14 +143,23 @@ int main()
 
             PlgReference (X) = PlgVariableName("X");
             PlgReference (Y) = PlgVariableName("Y");
-            PlgAtom socrates("socrates"), plato("plato"), zeus("zeus"), mortal("mortal"), human("human"), man("man");
+            PlgAtom socrates("socrates"), plato("plato"), zeus("zeus"), mortal("mortal"), human("human"), man("man"), f("f");
 
             db.Add( man(plato) <<= PlgTrue );
             db.Add( man(socrates) <<= PlgTrue );
             db.Add( human(Y) <<= man(Y) );
             db.Add( mortal(X) <<= human(X) );
+            db.Add( f(X) <<= PlgTrue );
 
-            PlgContinuation cont = db.Query( man(socrates) );
+            PlgContinuation cont = db.Query( f(X) );
+            TESTB("f(X)", cont->Next());
+            printContext(cont->Context());
+
+            cont = db.Query( f(X, X) );
+            TESTB("f(X,X)", !cont->Next());
+            printContext(cont->Context());
+
+            cont = db.Query( man(socrates) );
             TESTB("man(socrates)", cont->Next());
             printContext(cont->Context());
 
@@ -183,7 +192,7 @@ int main()
             printContext(cont->Context());
 
 
-            PlgAtom a("a"), b("b"), c("c"), d("d"), f("f");
+            PlgAtom a("a"), b("b"), c("c"), d("d");
             db.Add( a(b(X)) <<= d(X) );
             db.Add( a(c(X)) <<= f(X) );
             db.Add( d(a) <<= PlgTrue );
