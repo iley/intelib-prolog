@@ -115,15 +115,18 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
     return ourArgs.IsEmptyList() && theirArgs.IsEmptyList();
 }
 
-bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
+bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuation &cont) const {
     PlgPredicate predicate = functor->GetPredicate(Arity());
 
     if (predicate.GetPtr()) {
-        return predicate->Apply(args, continuation);
+        cont.Context().CreateFrame();
+        bool result = predicate->Apply(args, cont);
+        if (!result)
+            cont.Context().DropFrame();
     } else {
-        PlgClauseChoicePoint cp(self, continuation.Database().Head(), continuation.Context().Top());
-        continuation.PushChoicePoint(cp);
-        return cp->Next(continuation);
+        PlgClauseChoicePoint cp(self, cont.Database().Head(), cont.Context().Top());
+        cont.PushChoicePoint(cp);
+        return cp->Next(cont);
     }
 }
 

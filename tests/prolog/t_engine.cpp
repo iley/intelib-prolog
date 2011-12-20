@@ -255,7 +255,7 @@ int main()
             cont = db.Query(X ^= f);
             TESTB("evaluate X = f", cont->Next());
             TESTTR("get X value in X = f", cont->GetValue(X), "f");
-            TESTB("evaluate X = f for a second time", cont->Next());
+            TESTB("evaluate X = f for a second time", !cont->Next());
         }
 
 
