@@ -27,8 +27,6 @@ PlgReference PlgObject::RenameVars(const PlgReference &self, NameGeneratorFuncti
 bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     PlgReference self = *this;
 
-    bool emptyContext = context.IsEmpty();
-
     context.CreateFrame();
 
     bool result;
@@ -47,8 +45,7 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     }
 
     if (result) {
-        if (!emptyContext)
-            context.MergeDownFrame();
+        context.MergeDownFrame();
     } else {
         context.DropFrame();
     }
@@ -124,7 +121,10 @@ bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuatio
     PlgPredicate predicate = functor->GetPredicate(Arity());
 
     if (predicate.GetPtr()) {
-        return predicate->Apply(args, cont);
+        cont.Context().CreateFrame();
+        bool result = predicate->Apply(args, cont);
+        if (!result)
+            cont.Context().DropFrame();
     } else {
         PlgClauseChoicePoint cp(self, cont.Database().Head(), cont.Context().Top());
         cont.PushChoicePoint(cp);

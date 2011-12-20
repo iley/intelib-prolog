@@ -257,10 +257,12 @@ int main()
             TESTTR("get X value in X = f", cont->GetValue(X), "f");
             TESTB("evaluate X = f for a second time", !cont->Next());
 
-            db.Add( f(X) <<= (X ^= g) );
-            cont = db.Query(f(X));
-            TESTB("evaluate f(X)", cont->Next());
-            TESTTR("get X in f(X)", cont->GetValue(X), "g");
+            db.Add( g(X) <<= (X ^= f) );
+            cont = db.Query(g(X));
+            printContext(cont->Context());
+            TESTB("evaluate g(X)", cont->Next());
+            printContext(cont->Context());
+            TESTTR("get X in g(X)", cont->GetValue(X), "f");
         }
 
 
