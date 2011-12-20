@@ -36,6 +36,13 @@ void printContext(const PlgContext &context) {
     printf("---  context dump end  ---\n");
 }
 
+bool userPredicateCalled = false;
+
+bool someUserPredicate(const SReference &args, const PlgExpressionContinuation &cont) {
+    userPredicateCalled = true;
+    return true;
+}
+
 int main()
 {
     try {
@@ -230,6 +237,19 @@ int main()
 
             TESTB("a(X) #3", !cont->Next());
             printContext(cont->Context());
+        }
+
+        TestSection("User predicates");
+        {
+            PlgAtom f("f");
+            PlgDatabase db;
+
+            f->SetPredicate(0, someUserPredicate);
+            PlgContinuation cont = db.Query(f);
+            TESTB("before calling f", !userPredicateCalled);
+            TESTB("calling f", cont->Next());
+            TESTB("after calling f", userPredicateCalled);
+            TESTB("calling f second time", !cont->Next());
         }
 
         TestScore();
