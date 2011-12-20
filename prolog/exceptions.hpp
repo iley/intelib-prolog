@@ -69,4 +69,16 @@ public:
     IntelibX_not_a_prolog_truth(SReference a_param);
 };
 
+class IntelibX_not_a_prolog_predicate : public IntelibX
+{
+public:
+    IntelibX_not_a_prolog_predicate(SReference a_param);
+};
+
+class IntelibX_invalid_arity : public IntelibX
+{
+public:
+    IntelibX_invalid_arity(int value);
+};
+
 #endif

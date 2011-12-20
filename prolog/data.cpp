@@ -131,14 +131,36 @@ PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, NameGenerat
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpressionTerm::TextRepresentation() const { 
+SString PlgExpressionTerm::TextRepresentation() const {
     return functor->TextRepresentation() + "(" + Join(", ", args) + ")";
 }
 #endif
 
+// Predicate
+
+IntelibTypeId PlgExpressionPredicate::TypeId(&SExpression::TypeId, false);
+
+bool PlgExpressionUserPredicate::Apply(const SReference &args, PlgContinuation &cont) {
+    return function(args, cont);
+}
+
 // Atom
 
-IntelibTypeId PlgExpressionAtom::TypeId(&SExpression::TypeId, false);
+IntelibTypeId PlgExpressionAtom::TypeId(&SExpression::TypeId, true);
+
+PlgPredicate PlgExpressionAtom::GetPredicate(int arity) const {
+    INTELIB_ASSERT(arity >= 0, IntelibX_invalid_arity(arity));
+    PlgPredicate result;
+
+    if (arity < predicates->Size())
+        result = predicates[arity];
+
+    if (!result.GetPtr())
+        result = varArgPredicate;
+
+    INTELIB_ASSERT(result.GetPtr(), IntelibX_unexpected_unbound_value());
+    return result;
+}
 
 PlgReference PlgAtom::operator() (const PlgReference &arg1) {
     return PlgTerm(*this, (S| arg1 ));

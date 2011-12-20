@@ -3,6 +3,7 @@
 
 #include "../sexpress/sexpress.hpp"
 #include "../sexpress/squeue.hpp"
+#include "../sexpress/svector.hpp"
 #include "../sexpress/shashtbl.hpp"
 #include "../sexpress/gensref.hpp"
 
@@ -16,6 +17,7 @@ typedef const char *(*NameGeneratorFunction)();
 
 class PlgReference;
 class PlgContext;
+class PlgContinuation;
 class PlgExpressionContinuation;
 
 class PlgObject
@@ -112,18 +114,61 @@ public:
 
 PlgClause operator <<= (const PlgReference &head, const PlgReference &body);
 
+// Predicate
+
+class PlgExpressionPredicate : public SExpression, public PlgObject
+{
+public:
+    static IntelibTypeId TypeId;
+
+    virtual bool Apply(const SReference &args, PlgContinuation &cont) = 0;
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const { return "<PREDICATE>"; }
+#endif
+
+protected:
+    explicit PlgExpressionPredicate(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
+};
+
+typedef GenericSReference<PlgExpressionPredicate, IntelibX_not_a_prolog_predicate> PlgPredicate_Super;
+
+class PlgPredicate : public PlgPredicate_Super
+{
+public:
+    PlgPredicate() {}
+    PlgPredicate(const SReference &sex) : PlgPredicate_Super(sex) {}
+};
+
+typedef bool (*UserPredicate)(const SReference &args, const PlgContinuation &cont);
+
+class PlgExpressionUserPredicate : public PlgExpressionPredicate
+{
+public:
+    explicit PlgExpressionUserPredicate(const UserPredicate &func) : function(func) {}
+
+    virtual bool Apply(const SReference &args, PlgContinuation &cont);
+
+private:
+    UserPredicate function;
+};
+
 // Atom
 
 class PlgExpressionAtom : public SExpressionLabel, public PlgObject
 {
-    friend class PlgAtom;
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionAtom(const char *name) : SExpressionLabel(TypeId, name) {}
+    explicit PlgExpressionAtom(const char *name) : SExpressionLabel(TypeId, name) {}
+
+    PlgPredicate GetPredicate(int arity) const;
 
 protected:
     PlgExpressionAtom(const IntelibTypeId &typeId, const char *name) : SExpressionLabel(typeId, name) {}
+
+    SVector predicates;
+    PlgPredicate varArgPredicate;
 };
 
 typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom_Super;
@@ -131,7 +176,7 @@ typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom
 class PlgAtom : public PlgAtom_Super
 {
 public:
-    PlgAtom(const char *name) : PlgAtom_Super(new PlgExpressionAtom(name)) {}
+    explicit PlgAtom(const char *name) : PlgAtom_Super(new PlgExpressionAtom(name)) {}
 
     PlgReference operator () (const PlgReference &arg1);
     PlgReference operator () (const PlgReference &arg1, const PlgReference &arg2);
@@ -146,7 +191,7 @@ class PlgExpressionVariableName : public PlgExpressionAtom
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionVariableName(const char *name) : PlgExpressionAtom(TypeId, name) {}
+    explicit PlgExpressionVariableName(const char *name) : PlgExpressionAtom(TypeId, name) {}
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
 };
@@ -203,7 +248,7 @@ public:
     static IntelibTypeId TypeId;
     static PlgAtom Atom;
 
-    PlgExpressionDisjunction(const SReference &ls) : PlgExpressionTerm(TypeId, Atom, ls) {}
+    explicit PlgExpressionDisjunction(const SReference &ls) : PlgExpressionTerm(TypeId, Atom, ls) {}
 
     virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
     virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
@@ -218,7 +263,7 @@ typedef GenericSReference<PlgExpressionDisjunction, IntelibX_not_a_prolog_disjun
 class PlgDisjunction : public PlgDisjunction_Super
 {
 public:
-    PlgDisjunction(const SReference &ls) : PlgDisjunction_Super(new PlgExpressionDisjunction(ls)) {}
+    explicit PlgDisjunction(const SReference &ls) : PlgDisjunction_Super(new PlgExpressionDisjunction(ls)) {}
 };
 
 PlgDisjunction operator | (const PlgReference &left, const PlgReference &right);
@@ -231,7 +276,7 @@ public:
     static IntelibTypeId TypeId;
     static PlgAtom Atom;
 
-    PlgExpressionConjunction(const SReference &ls) : PlgExpressionTerm(TypeId, Atom, ls) {}
+    explicit PlgExpressionConjunction(const SReference &ls) : PlgExpressionTerm(TypeId, Atom, ls) {}
 
     virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
     virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
@@ -246,7 +291,7 @@ typedef GenericSReference<PlgExpressionConjunction, IntelibX_not_a_prolog_conjun
 class PlgConjunction : public PlgConjunction_Super
 {
 public:
-    PlgConjunction(const SReference &ls) : PlgConjunction_Super(new PlgExpressionConjunction(ls)) {}
+    explicit PlgConjunction(const SReference &ls) : PlgConjunction_Super(new PlgExpressionConjunction(ls)) {}
 };
 
 PlgConjunction operator & (const PlgReference &left, const PlgReference &right);
