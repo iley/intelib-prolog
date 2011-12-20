@@ -164,7 +164,11 @@ public:
     explicit PlgExpressionAtom(const char *name) : SExpressionLabel(TypeId, name) {}
 
     PlgPredicate GetPredicate(int arity) const;
+
+    // fixed-arity predicate
     void SetPredicate(int arity, const PlgPredicate &pred) { predicates[arity] = pred; }
+
+    // variable-arity predicate
     void SetPredicate(const PlgPredicate &pred) { varArgPredicate = pred; }
 
 protected:
