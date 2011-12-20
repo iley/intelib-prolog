@@ -38,7 +38,7 @@ void printContext(const PlgContext &context) {
 
 bool userPredicateCalled = false;
 
-bool someUserPredicate(const SReference &args, const PlgExpressionContinuation &cont) {
+bool someUserPredicate(const SReference &args, PlgExpressionContinuation &cont) {
     userPredicateCalled = true;
     return true;
 }

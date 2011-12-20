@@ -131,7 +131,7 @@ protected:
     explicit PlgExpressionPredicate(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
 };
 
-typedef bool (*UserPredicate)(const SReference &args, const PlgExpressionContinuation &cont);
+typedef bool (*UserPredicate)(const SReference &args, PlgExpressionContinuation &cont);
 
 class PlgExpressionUserPredicate : public PlgExpressionPredicate
 {
@@ -163,6 +163,12 @@ public:
 
     explicit PlgExpressionAtom(const char *name) : SExpressionLabel(TypeId, name) {}
 
+    PlgExpressionAtom(const char *name, int arity, const PlgPredicate &pred)
+        : SExpressionLabel(TypeId, name) { SetPredicate(arity, pred); }
+
+    PlgExpressionAtom(const char *name, const PlgPredicate &pred)
+        : SExpressionLabel(TypeId, name) { SetPredicate(pred); }
+
     PlgPredicate GetPredicate(int arity) const;
 
     // fixed-arity predicate
@@ -184,6 +190,8 @@ class PlgAtom : public PlgAtom_Super
 {
 public:
     explicit PlgAtom(const char *name) : PlgAtom_Super(new PlgExpressionAtom(name)) {}
+    explicit PlgAtom(const char *name, int arity, const PlgPredicate &pred) : PlgAtom_Super(new PlgExpressionAtom(name, arity, pred)) {}
+    explicit PlgAtom(const char *name, const PlgPredicate &pred) : PlgAtom_Super(new PlgExpressionAtom(name, pred)) {}
 
     PlgReference operator () (const PlgReference &arg1);
     PlgReference operator () (const PlgReference &arg1, const PlgReference &arg2);
