@@ -136,7 +136,7 @@ int main()
             ctx.DropFrame();
         }
 
-        TestSection("Solving");
+        TestSection("Solving 1");
         {
             PlgDatabase db;
             //TODO: facts
@@ -190,15 +190,20 @@ int main()
 
             TESTB("mortal(X) end", !cont->Next());
             printContext(cont->Context());
+        }
 
+        TestSection("Solving 1");
+        {
+            PlgAtom a("a"), b("b"), c("c"), d("d"), f("f");
+            PlgVariableName X("X");
+            PlgDatabase db;
 
-            PlgAtom a("a"), b("b"), c("c"), d("d");
             db.Add( a(b(X)) <<= d(X) );
             db.Add( a(c(X)) <<= f(X) );
             db.Add( d(a) <<= PlgTrue );
             db.Add( f(b) <<= PlgTrue );
 
-            cont = db.Query(a(b(a)));
+            PlgContinuation cont = db.Query(a(b(a)));
             TESTB("a(b(a))", cont->Next());
             printContext(cont->Context());
 
