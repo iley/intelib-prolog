@@ -242,10 +242,11 @@ int main()
         TestSection("User predicates");
         {
             PlgAtom f("f");
+            PlgVariableName X("X");
             PlgDatabase db;
 
-            f->SetPredicate(0, someUserPredicate);
-            PlgContinuation cont = db.Query(f);
+            f->SetPredicate(1, someUserPredicate);
+            PlgContinuation cont = db.Query(f(X)); //FIXME: cast atom to 0-arity term
             TESTB("before calling f", !userPredicateCalled);
             TESTB("calling f", cont->Next());
             TESTB("after calling f", userPredicateCalled);
