@@ -191,9 +191,10 @@ SString PlgExpressionChoicePoint::TextRepresentation() const {
 #endif
 
 bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &continuation) {
+    SHashTable renameTable;
 
     while (!pointer.IsEmptyList()) {
-        PlgClause candidate = pointer.Car();
+        PlgClause candidate = PlgReference(pointer.Car()).RenameVars(NameGenerator, renameTable);
         pointer = pointer.Cdr();
 
         continuation.Context().ReturnTo(frame);
@@ -215,8 +216,7 @@ IntelibTypeId PlgExpressionClauseChoicePoint::TypeId(&PlgExpressionChoicePoint::
 
 // Database
 void PlgDatabase::Add(const PlgReference &clause) {
-    SHashTable varTable;
-    clauses.AddAnotherItemToList(clause.RenameVars(NameGenerator, varTable));
+    clauses.AddAnotherItemToList(clause);
 }
 
 PlgContinuation PlgDatabase::Query(const PlgReference &request) {
