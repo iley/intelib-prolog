@@ -151,7 +151,11 @@ PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, NameGenerat
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionTerm::TextRepresentation() const {
-    return functor->TextRepresentation() + "(" + Join(", ", args) + ")";
+    if (functor->IsInfix()) {
+        return Join(functor->TextRepresentation(), args);
+    } else {
+        return functor->TextRepresentation() + "(" + Join(", ", args) + ")";
+    }
 }
 #endif
 
@@ -197,7 +201,7 @@ PlgReference PlgAtom::operator() (const PlgReference &arg1, const PlgReference &
 
 // Variable Name
 
-IntelibTypeId PlgExpressionVariableName::TypeId(&PlgExpressionAtom::TypeId, false);
+IntelibTypeId PlgExpressionVariableName::TypeId(&SExpressionLabel::TypeId, false);
 
 bool PlgExpressionVariableName::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
     context.CreateFrame();

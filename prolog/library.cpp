@@ -9,7 +9,7 @@ bool PredicateConj(const SReference &args, PlgExpressionContinuation &cont) {
     throw IntelibX_not_implemented();
 }
 
-PlgAtom PlgAtomConj(";", 2, PredicateConj);
+PlgAtom PlgAtomConj(", ", 2, PredicateConj, true);
 
 // Disjunction
 
@@ -17,7 +17,7 @@ bool PredicateDisj(const SReference &args, PlgExpressionContinuation &cont) {
     throw IntelibX_not_implemented();
 }
 
-PlgAtom PlgAtomDisj(";", 2, PredicateDisj);
+PlgAtom PlgAtomDisj("; ", 2, PredicateDisj, true);
 
 // "=" predicate
 
@@ -28,4 +28,4 @@ bool PredicateEquals(const SReference &args, PlgExpressionContinuation &cont) {
     return left.Unify(right, cont.Context());
 }
 
-PlgAtom PlgAtomEquals("=", 2, PredicateEquals);
+PlgAtom PlgAtomEquals("=", 2, PredicateEquals, true);

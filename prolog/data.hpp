@@ -161,13 +161,13 @@ class PlgExpressionAtom : public SExpressionLabel, public PlgObject
 public:
     static IntelibTypeId TypeId;
 
-    explicit PlgExpressionAtom(const char *name) : SExpressionLabel(TypeId, name) {}
+    explicit PlgExpressionAtom(const char *name, bool infix) : SExpressionLabel(TypeId, name), isInfix(infix) {}
 
-    PlgExpressionAtom(const char *name, int arity, const PlgPredicate &pred)
-        : SExpressionLabel(TypeId, name) { SetPredicate(arity, pred); }
+    PlgExpressionAtom(const char *name, int arity, const PlgPredicate &pred, bool infix)
+        : SExpressionLabel(TypeId, name), isInfix(infix) { SetPredicate(arity, pred); }
 
-    PlgExpressionAtom(const char *name, const PlgPredicate &pred)
-        : SExpressionLabel(TypeId, name) { SetPredicate(pred); }
+    PlgExpressionAtom(const char *name, const PlgPredicate &pred, bool infix)
+        : SExpressionLabel(TypeId, name), isInfix(infix) { SetPredicate(pred); }
 
     PlgPredicate GetPredicate(int arity) const;
 
@@ -177,11 +177,14 @@ public:
     // variable-arity predicate
     void SetPredicate(const PlgPredicate &pred) { varArgPredicate = pred; }
 
+    bool IsInfix() const { return isInfix; }
+
 protected:
-    PlgExpressionAtom(const IntelibTypeId &typeId, const char *name) : SExpressionLabel(typeId, name) {}
+    PlgExpressionAtom(const IntelibTypeId &typeId, const char *name, bool infix) : SExpressionLabel(typeId, name), isInfix(infix) {}
 
     SVector predicates;
     PlgPredicate varArgPredicate;
+    bool isInfix;
 };
 
 typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom_Super;
@@ -189,9 +192,9 @@ typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom
 class PlgAtom : public PlgAtom_Super
 {
 public:
-    explicit PlgAtom(const char *name) : PlgAtom_Super(new PlgExpressionAtom(name)) {}
-    explicit PlgAtom(const char *name, int arity, const PlgPredicate &pred) : PlgAtom_Super(new PlgExpressionAtom(name, arity, pred)) {}
-    explicit PlgAtom(const char *name, const PlgPredicate &pred) : PlgAtom_Super(new PlgExpressionAtom(name, pred)) {}
+    explicit PlgAtom(const char *name, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, infix)) {}
+    explicit PlgAtom(const char *name, int arity, const PlgPredicate &pred, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, arity, pred, infix)) {}
+    explicit PlgAtom(const char *name, const PlgPredicate &pred, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, pred, infix)) {}
 
     PlgReference operator () (const PlgReference &arg1);
     PlgReference operator () (const PlgReference &arg1, const PlgReference &arg2);
@@ -201,12 +204,12 @@ public:
 
 // Variable Name
 
-class PlgExpressionVariableName : public PlgExpressionAtom
+class PlgExpressionVariableName : public SExpressionLabel, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
 
-    explicit PlgExpressionVariableName(const char *name) : PlgExpressionAtom(TypeId, name) {}
+    explicit PlgExpressionVariableName(const char *name) : SExpressionLabel(TypeId, name) {}
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
 };
