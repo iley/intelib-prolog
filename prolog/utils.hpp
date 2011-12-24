@@ -12,7 +12,7 @@
 int Length(const SReference &list);
 
 //! Perl-like string join
-SString Join(const SString &delim, const SReference list);
+SString Join(const SString &delim, const SReference &list);
 
 class Log
 {
