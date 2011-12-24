@@ -11,7 +11,7 @@
 //   Please see the file WARRANTY for the detailed explanation.
 
 #include <stdio.h>
-#include "tests.hpp"
+#include "../tests.hpp"
 
 #include "sexpress/iexcept.hpp"
 #include "sexpress/sstring.hpp"

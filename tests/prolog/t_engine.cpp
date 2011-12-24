@@ -53,7 +53,7 @@ int main()
             PlgContext ctx;
             PlgContext::Frame *frame0 = ctx.Top();
 
-            TESTB("create frame #0", frame0);
+            TESTB("create frame #0", !!frame0);
 
             PlgContext::Frame *frame1;
             TESTB("create frame #1",
@@ -278,6 +278,8 @@ int main()
 
         TestScore();
         poc();
+
+        fgetc(stdin);
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );
@@ -291,5 +293,3 @@ int main()
     poc();
     return 0;
 }
-
-

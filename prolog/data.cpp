@@ -133,6 +133,7 @@ bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuatio
         bool result = predicate->Apply(evaluatedArgs, cont);
         if (!result)
             cont.Context().DropFrame();
+        return result;
     } else {
         PlgClauseChoicePoint cp(self, cont.Database().Head(), cont.Context().Top());
         cont.PushChoicePoint(cp);

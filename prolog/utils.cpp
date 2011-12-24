@@ -9,7 +9,7 @@ int Length(const SReference &list) {
     return len;
 }
 
-SString Join(const SString &delim, const SReference list) {
+SString Join(const SString &delim, const SReference &list) {
     SString result;
     for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
 #if INTELIB_TEXT_REPRESENTATIONS == 1

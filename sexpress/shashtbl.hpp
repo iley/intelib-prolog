@@ -150,7 +150,7 @@ public:
         SReference& GetNext();        
     };
 
-    friend class Iterator::Iterator;
+    friend class Iterator;
   
 private:
     void DoRemoveItem(long pos);
