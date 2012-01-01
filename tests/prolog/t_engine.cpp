@@ -278,8 +278,6 @@ int main()
 
         TestScore();
         poc();
-
-        fgetc(stdin);
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );
