@@ -49,6 +49,14 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     return result;
 }
 
+
+bool PlgReference::Solve(PlgExpressionContinuation &cont) const {
+    PlgReference evaluated = cont.Context().Evaluate(*this);
+    PlgObject *obj = dynamic_cast<PlgObject*>(evaluated.GetPtr());
+    INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
+    return obj->Solve(evaluated, cont);
+}
+
 // Truth value
 
 IntelibTypeId PlgExpressionTruthValue::TypeId(&SExpression::TypeId, false);
@@ -117,19 +125,14 @@ bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuatio
     PlgPredicate predicate = functor->GetPredicate(Arity());
 
     if (predicate.GetPtr()) {
-
-        //evaluate args in current context
-        SReference evaluatedArgs = *PTheEmptyList;
-        for (SReference p = args; !p.IsEmptyList(); p = p.Cdr()) {
-            evaluatedArgs.AddAnotherItemToList(cont.Context().Evaluate(p.Car()));
-        }
-
         int pos = cont.Context().Top();
 
-        bool result = predicate->Apply(evaluatedArgs, cont);
-        if (!result)
+        if(predicate->Apply(args, cont)) {
+            return true;
+        } else {
             cont.Context().ReturnTo(pos);
-        return result;
+            return false;
+        }
     } else {
         PlgClauseChoicePoint cp(self, cont.Database().Head(), cont.Context().Top());
         cont.PushChoicePoint(cp);

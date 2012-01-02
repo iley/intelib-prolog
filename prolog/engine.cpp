@@ -126,8 +126,7 @@ bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &cont) {
         PlgClause candidate = PlgReference(pointer.Car()).RenameVars(cont.Context(), renameTable);
         pointer = pointer.Cdr();
 
-        if (cont.Context().Evaluate(clause).Unify(candidate->Head(), cont.Context())
-                && candidate->Body().Solve(cont)) {
+        if (clause.Unify(candidate->Head(), cont.Context()) && candidate->Body().Solve(cont)) {
             return true;
         }
     }

@@ -40,11 +40,7 @@ public:
 
     bool Unify(const PlgReference &other, PlgContext &context) const;
 
-    bool Solve(PlgExpressionContinuation &continuation) const {
-        PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
-        INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
-        return obj->Solve(*this, continuation);
-    }
+    bool Solve(PlgExpressionContinuation &continuation) const;
 
     virtual PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const {
         PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
