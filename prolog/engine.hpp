@@ -4,64 +4,39 @@
 #include "data.hpp"
 #include "../sexpress/sexpress.hpp"
 #include "../sexpress/squeue.hpp"
+#include "../sexpress/svector.hpp"
 #include "../sexpress/gensref.hpp"
 #include "../sexpress/shashtbl.hpp"
 
 class PlgContext
 {
 public:
-    class Frame {
-        friend class PlgContext;
-    public:
-        Frame(Frame *p, Frame *n=0) : prev(p), next(n) {}
+    PlgContext() : values(), marks(*PTheEmptyList), top(0) {}
 
-        void Set(const PlgReference &name, const PlgReference &value);
-        PlgReference Get(const PlgReference &name) const;
-
-        Frame *Prev() const { return prev; }
-        Frame *Next() const { return next; }
-
-        void Apply(const Frame &droppedFrame);
-        PlgReference Evaluate(const PlgReference& value) const;
-        const SHashTable& Table() const { return table; }
-
-    private:
-        SHashTable table;
-        Frame *prev, *next;
-    };
-
-    PlgContext() : top(0), bottom(0) { CreateFrame(); bottom = top; }
-    ~PlgContext();
-
-    void Set(const PlgReference &name, const PlgReference &value) {
-        INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
-        top->Set(name, value);
+    void Set(const PlgReference &index, const PlgReference &value) {
+        values[indexValue(index)] = value;
     }
 
-    PlgReference Get(const PlgReference &name) const {
-        INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
-        return top->Get(name);
+    PlgReference Get(const PlgReference &index) const {
+        return values[indexValue(index)];
     }
 
-    PlgReference Evaluate(const PlgReference &value) const {
-        INTELIB_ASSERT(top, IntelibX_unexpected_unbound_value());
-        return top->Evaluate(value);
-    }
+    PlgReference Evaluate(const PlgReference &value) const;
 
-    Frame *CreateFrame();
-    Frame *Top() const { return top; }
-    Frame *Bottom() const { return bottom; }
+    bool IsEmpty() const { return top == 0; }
+    void ReturnTo(int pos, bool merge = false);
 
-    bool IsEmpty() const { return top == bottom; }
-
-    void ReturnTo(Frame *frame, bool keepValues = false);
-    void DropFrame(bool keepValues = false);
-    bool MergeDownFrame();
+    int Top() const { return top; }
+    int NextIndex() { return top++; }
 
 private:
-    Frame *top, *bottom;
-
+    SVector values;
+    SReference marks; //mark stack
+    int top;
+    
     PlgContext(const PlgContext&);
+
+    int indexValue(const PlgReference &plgIndex) const;
 };
 
 class PlgDatabase;
@@ -74,9 +49,10 @@ public:
     PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req);
 
     bool Next();
-    PlgReference GetValue(const PlgReference &var) const;
+    PlgReference GetValue(const PlgReference &var);
 
     void PushChoicePoint(const PlgReference &point);
+    void PopChoicePoint();
 
     PlgDatabase &Database() { return database; }
     SReference ChoicePoints() { return choicePoints; }
@@ -91,6 +67,7 @@ private:
     PlgDatabase &database;
     SReference choicePoints;
     PlgContext context;
+    SHashTable queryVars;
     PlgReference request;
 };
 
@@ -114,9 +91,9 @@ public:
 #endif
 
 protected:
-    PlgContext::Frame *frame;
+    int contextPos;
 
-    PlgExpressionChoicePoint(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
+    PlgExpressionChoicePoint(const IntelibTypeId &typeId = TypeId, int pos = 0) : SExpression(typeId), contextPos(pos) {}
 };
 
 typedef GenericSReference<PlgExpressionChoicePoint, IntelibX_not_a_prolog_choice_point> PlgChoicePoint;
@@ -126,8 +103,8 @@ class PlgExpressionClauseChoicePoint : public PlgExpressionChoicePoint
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionClauseChoicePoint(const PlgReference &cl, const SReference &ptr, PlgContext::Frame *frm)
-        : PlgExpressionChoicePoint(TypeId), clause(cl), pointer(ptr) { frame = frm; }
+    PlgExpressionClauseChoicePoint(const PlgReference &cl, const SReference &ptr, int pos)
+        : PlgExpressionChoicePoint(TypeId, pos), clause(cl), pointer(ptr) {}
 
     virtual bool Next(PlgExpressionContinuation &continuation);
 private:
@@ -140,8 +117,8 @@ typedef GenericSReference<PlgExpressionClauseChoicePoint, IntelibX_not_a_prolog_
 class PlgClauseChoicePoint : public PlgClauseChoicePoint_Super
 {
 public:
-    PlgClauseChoicePoint(const PlgReference &request, const SReference &ptr, PlgContext::Frame *frm)
-        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(request, ptr, frm)) {}
+    PlgClauseChoicePoint(const PlgReference &request, const SReference &ptr, int pos)
+        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(request, ptr, pos)) {}
 };
 
 class PlgDatabase

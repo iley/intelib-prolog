@@ -18,7 +18,7 @@ bool PlgObject::Solve(const PlgReference &self, PlgExpressionContinuation &conti
     throw IntelibX_not_implemented();
 }
 
-PlgReference PlgObject::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+PlgReference PlgObject::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const {
     return self;
 }
 
@@ -27,13 +27,13 @@ PlgReference PlgObject::RenameVars(const PlgReference &self, NameGeneratorFuncti
 bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     PlgReference self = *this;
 
-    context.CreateFrame();
-
     bool result;
 
+    int pos = context.Top();
+
     if (
-        self->TermType() != PlgExpressionVariableName::TypeId
-        && other->TermType() == PlgExpressionVariableName::TypeId
+        self->TermType() != PlgExpressionVariableIndex::TypeId
+        && other->TermType() == PlgExpressionVariableIndex::TypeId
     ) {
         const PlgObject *otherObj = dynamic_cast<const PlgObject*>(other.GetPtr());
         INTELIB_ASSERT(otherObj, IntelibX_not_a_prolog_object(*this));
@@ -44,12 +44,8 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
         result = selfObj->Unify(self, other, context);
     }
 
-    if (result) {
-        context.MergeDownFrame();
-    } else {
-        context.DropFrame();
-    }
-
+    if (!result)
+        context.ReturnTo(pos, false);
     return result;
 }
 
@@ -69,8 +65,8 @@ bool PlgExpressionTruthValue::Solve(const PlgReference &self, PlgExpressionConti
 
 IntelibTypeId PlgExpressionClause::TypeId(&SExpression::TypeId, true);
 
-PlgReference PlgExpressionClause::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
-    return PlgClause(head.RenameVars(nameGenerator, existingVars), body.RenameVars(nameGenerator, existingVars));
+PlgReference PlgExpressionClause::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const {
+    return PlgClause(head.RenameVars(context, existingVars), body.RenameVars(context, existingVars));
 }
 
 PlgClause operator <<= (const PlgReference &head, const PlgReference &body) {
@@ -128,11 +124,11 @@ bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuatio
             evaluatedArgs.AddAnotherItemToList(cont.Context().Evaluate(p.Car()));
         }
 
-        cont.Context().CreateFrame();
+        int pos = cont.Context().Top();
 
         bool result = predicate->Apply(evaluatedArgs, cont);
         if (!result)
-            cont.Context().DropFrame();
+            cont.Context().ReturnTo(pos);
         return result;
     } else {
         PlgClauseChoicePoint cp(self, cont.Database().Head(), cont.Context().Top());
@@ -141,11 +137,11 @@ bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuatio
     }
 }
 
-PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const {
     SReference newArgs = *PTheEmptyList;
     for (SReference p = args; !p.IsEmptyList(); p = p.Cdr()) {
         PlgReference pref = p.Car();
-        newArgs.AddAnotherItemToList(pref.RenameVars(nameGenerator, existingVars));
+        newArgs.AddAnotherItemToList(pref.RenameVars(context, existingVars));
     }
     return PlgTerm(functor, newArgs);
 }
@@ -204,17 +200,34 @@ PlgReference PlgAtom::operator() (const PlgReference &arg1, const PlgReference &
 
 IntelibTypeId PlgExpressionVariableName::TypeId(&SExpressionLabel::TypeId, false);
 
-bool PlgExpressionVariableName::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
-    context.CreateFrame();
-    context.Set(self, other);
-    return context.MergeDownFrame();
+PlgReference PlgExpressionVariableName::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const {
+    PlgReference binding = existingVars->FindItem(self, PlgUnbound);
+    if (binding == PlgUnbound) {
+        PlgVariableIndex idx(context.NextIndex());
+        existingVars->AddItem(self, idx);
+        return idx;
+    } else {
+        return binding;
+    }
 }
 
-PlgReference PlgExpressionVariableName::RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
-    PlgReference newName = existingVars->FindItem(self, PlgUnbound);
-    if (newName == PlgUnbound) {
-        newName = PlgVariableName(nameGenerator());
-        existingVars->AddItem(self, newName);
-    }
-    return newName;
+// Variable index
+
+IntelibTypeId PlgExpressionVariableIndex::TypeId(&SExpression::TypeId, false);
+
+PlgExpressionVariableIndex::PlgExpressionVariableIndex(PlgContext &ctx)
+    : SExpression(TypeId), value(ctx.NextIndex()) {
+}
+
+bool PlgExpressionVariableIndex::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
+    PlgVariableIndex newVar(context);
+    context.Set(newVar, other);
+    context.Set(self, newVar);
+    return true;
+}
+
+SString PlgExpressionVariableIndex::TextRepresentation() const {
+    static char buffer[32]; //FIXME
+    sprintf(buffer, "<VAR #%d>", value);
+    return buffer;
 }

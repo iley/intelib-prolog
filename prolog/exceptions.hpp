@@ -27,22 +27,16 @@ public:
     IntelibX_not_a_prolog_variable_name(SReference a_param);
 };
 
+class IntelibX_not_a_prolog_variable_index : public IntelibX
+{
+public:
+    IntelibX_not_a_prolog_variable_index(SReference a_param);
+};
+
 class IntelibX_not_a_prolog_term : public IntelibX
 {
 public:
     IntelibX_not_a_prolog_term(SReference a_param);
-};
-
-class IntelibX_not_a_prolog_disjunction : public IntelibX
-{
-public:
-    IntelibX_not_a_prolog_disjunction(SReference a_param);
-};
-
-class IntelibX_not_a_prolog_conjunction : public IntelibX
-{
-public:
-    IntelibX_not_a_prolog_conjunction(SReference a_param);
 };
 
 class IntelibX_not_a_prolog_continuation : public IntelibX

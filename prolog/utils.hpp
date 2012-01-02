@@ -40,7 +40,8 @@ private:
 };
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
-const char *Dump(SReference &s);
+const char *Dump(const SReference &s);
+const char *Dmp(SReference *s); // for debug purposes
 
 SString DumpHashTable(const SReference &table);
 SString DumpContext(const PlgContext &context);

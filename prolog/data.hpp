@@ -25,7 +25,7 @@ class PlgObject
 public:
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
-    virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
+    virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
 };
 
 typedef GenericSReference<SExpression, IntelibX_not_a_prolog_object> PlgRef;
@@ -46,10 +46,10 @@ public:
         return obj->Solve(*this, continuation);
     }
 
-    virtual PlgReference RenameVars(NameGeneratorFunction nameGenerator, SHashTable &existingVars) const {
+    virtual PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const {
         PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
         INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
-        return obj->RenameVars(*this, nameGenerator, existingVars);
+        return obj->RenameVars(*this, context, existingVars);
     }
 
     ~PlgReference() {}
@@ -92,7 +92,7 @@ public:
     PlgExpressionClause(const PlgReference &hd, const PlgReference &bd) : SExpression(TypeId), head(hd), body(bd) {}
     PlgReference Head() const { return head; }
     PlgReference Body() const { return body; }
-    virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
+    virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -210,8 +210,8 @@ public:
     static IntelibTypeId TypeId;
 
     explicit PlgExpressionVariableName(const char *name) : SExpressionLabel(TypeId, name) {}
-    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
-    virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
+
+    virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
 };
 
 typedef GenericSReference<PlgExpressionVariableName, IntelibX_not_a_prolog_variable_name> PlgVariableName_Super;
@@ -220,6 +220,36 @@ class PlgVariableName : public PlgVariableName_Super
 {
 public:
     explicit PlgVariableName(const char *name) : PlgVariableName_Super(new PlgExpressionVariableName(name)) {}
+};
+
+// Variable index
+
+class PlgExpressionVariableIndex : public SExpression, public PlgObject
+{
+public:
+    static IntelibTypeId TypeId;
+    explicit PlgExpressionVariableIndex(int val) : SExpression(TypeId), value(val) {}
+    explicit PlgExpressionVariableIndex(PlgContext &ctx);
+
+    int GetValue() const { return value; }
+    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+
+private:
+    int value;
+};
+
+typedef GenericSReference<PlgExpressionVariableIndex, IntelibX_not_a_prolog_variable_index> PlgVariableIndex_Super;
+
+class PlgVariableIndex : public PlgVariableIndex_Super
+{
+public:
+    explicit PlgVariableIndex(PlgContext &ctx) : PlgVariableIndex_Super(new PlgExpressionVariableIndex(ctx)) {}
+    explicit PlgVariableIndex(int value) : PlgVariableIndex_Super(new PlgExpressionVariableIndex(value)) {}
+    PlgVariableIndex(const SReference &s) : PlgVariableIndex_Super(s) {}
 };
 
 // Term
@@ -237,7 +267,7 @@ public:
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
-    virtual PlgReference RenameVars(const PlgReference &self, NameGeneratorFunction nameGenerator, SHashTable &existingVars) const;
+    virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -256,6 +286,7 @@ class PlgTerm : public PlgTerm_Super
 {
 public:
     PlgTerm(const PlgAtom &functor, const SReference &args) : PlgTerm_Super(new PlgExpressionTerm(functor, args)) {}
+    PlgTerm(const SReference &other) : PlgTerm_Super(other) {}
 };
 
 

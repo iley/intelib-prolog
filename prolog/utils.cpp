@@ -26,9 +26,21 @@ SString Join(const SString &delim, const SReference &list) {
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 
 const char *Dump(const SReference &s) {
-    if (s->TermType() == SExpressionHashTable::TypeId)
-        return DumpHashTable(s).c_str();
-    return s->TextRepresentation().c_str();
+    static SString str;
+    
+    if (!s.GetPtr())
+        return "undef";
+    else if (s->TermType() == SExpressionHashTable::TypeId)
+        str = DumpHashTable(s);
+    else 
+        str = s->TextRepresentation();
+
+    return str.c_str();
+}
+
+// overload for debug purposes
+const char *Dmp(SReference *s) {
+    return Dump(*s);
 }
 
 SString DumpHashTable(const SReference &table) {
@@ -47,11 +59,12 @@ SString DumpHashTable(const SReference &table) {
 }
 
 SString DumpContext(const PlgContext &context) {
-    int count = 0;
     SString result = "";
-    for (PlgContext::Frame *frame = context.Top(); frame != context.Bottom(); frame = frame->Prev()) {
-        ++count;
-        result += DumpHashTable(frame->Table()) + "\n";
+    for (int i = 0; i < context.Top(); ++i) {
+        PlgReference var = PlgVariableIndex(i);
+        PlgReference value = context.Get(var);
+        result += var->TextRepresentation() + " => " + SString(value.GetPtr() ? value->TextRepresentation() : "undef");
+        result += "\n";
     }
     return result;
 }

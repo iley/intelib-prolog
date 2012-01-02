@@ -3,128 +3,62 @@
 #include "utils.hpp"
 #include <stdio.h>
 
-const char *NameGenerator() {
-    static int count = 0;
-    static char buffer[32];
+// Context
 
-    ++count;
-    sprintf(buffer, "_%d", count);
-    return buffer;
-}
+PlgReference PlgContext::Evaluate(const PlgReference &value) const {
+    if (!value.GetPtr()) return value;
 
-// Context frame
+    PlgReference ref = value;
 
-void PlgContext::Frame::Set(const PlgReference &name, const PlgReference &value) {
-    table->AddItem(name, value);
-}
-
-PlgReference PlgContext::Frame::Get(const PlgReference &name) const {
-    return table->FindItem(name, PlgUnbound);
-}
-
-void PlgContext::Frame::Apply(const Frame &droppedFrame) {
-    SExpressionHashTable::Iterator it(*table);
-
-    SReference cons = it.GetNext();
-    while (cons.GetPtr()) {
-        PlgReference name = cons.Car();
-        PlgReference value = cons.Cdr();
-
-        cons.Cdr() = droppedFrame.Evaluate(value);
-
-        cons = it.GetNext();
+    while (ref.GetPtr() && ref->TermType() == PlgExpressionVariableIndex::TypeId) {
+        ref = Get(ref);
     }
-}
-
-PlgReference PlgContext::Frame::Evaluate(const PlgReference &value) const {
-    if (value->TermType() == PlgExpressionVariableName::TypeId) {
-        PlgReference result = Get(value);
-        if (result == PlgUnbound)
-            return value;
-        else
-            return result;
-    } else if (value->TermType() == PlgExpressionTerm::TypeId) {
-        PlgExpressionTerm *term = value.SimpleCastGetPtr<PlgExpressionTerm>();
+    
+    if (ref.GetPtr() && ref->TermType() == PlgExpressionTerm::TypeId) {
         SReference resultArgs = *PTheEmptyList;
+        PlgTerm term = ref;
 
         for (SReference p = term->Args(); !p.IsEmptyList(); p = p.Cdr()) {
             resultArgs.AddAnotherItemToList(Evaluate(p.Car()));
         }
 
         return PlgTerm(term->Functor(), resultArgs);
+    } else if (ref.GetPtr()) {
+        return ref;
     } else {
         return value;
     }
 }
 
-PlgContext::Frame *PlgContext::CreateFrame() {
-    Frame *oldTop = top;
-    top = new Frame(oldTop);
-
-    if (oldTop)
-        oldTop->next = top;
-    else
-        bottom = top;
-
-    return oldTop;
-}
-
-// Context
-
-PlgContext::~PlgContext() {
-    Frame *nextFrame;
-    for(Frame *frame = top; frame; frame = nextFrame) {
-        nextFrame = frame->prev;
-        delete frame;
-    }
-    top = bottom = 0;
-}
-
-void PlgContext::ReturnTo(Frame *frame, bool keepValues) {
-    while (top != frame)
-        DropFrame(keepValues);
-}
-
-void PlgContext::DropFrame(bool keepValues) {
-    INTELIB_ASSERT(top && top != bottom, IntelibX_unexpected_unbound_value());
-    Frame *droppedFrame = top;
-    top = top->prev;
-
-    if (keepValues) {
-        top->Apply(*droppedFrame);
-    }
-
-    top->next = 0;
-
-    delete droppedFrame;
-}
-
-bool PlgContext::MergeDownFrame() {
-    Frame *upperFrame = top;
-    top = top->prev;
-    INTELIB_ASSERT(top && top != bottom, IntelibX_unexpected_unbound_value());
-    SExpressionHashTable::Iterator it(*upperFrame->table);
-
-    bool result = true;
-    SReference cons = it.GetNext();
-    while (cons.GetPtr()) {
-        PlgReference name = cons.Car();
-        PlgReference value = cons.Cdr();
-
-        if (Get(name) == PlgUnbound) {
-            Set(name, value);
-        } else if (!Get(name).Unify(value, *this)) {
-            result = false;
-            break;
+void PlgContext::ReturnTo(int pos, bool merge) {
+    INTELIB_ASSERT(pos >= 0, IntelibX_bug());
+    if (merge) {
+        // merge down values of variables which will be dropped
+        for (int i = 0; i < pos; ++i) {
+            while (values[i]->TermType() == PlgExpressionVariableIndex::TypeId && indexValue(values[i]) >= pos) {
+                values[i] = values[indexValue(values[i])];
+            }
         }
-
-        cons = it.GetNext();
+    } else {
+        // destroy bindings which will be invalid after return
+        for (int i = 0; i < pos; ++i) {
+            if (
+                values[i].GetPtr()
+                && values[i]->TermType() == PlgExpressionVariableIndex::TypeId
+                && indexValue(values[i]) >= pos
+            ) {
+                values[i] = PlgUnbound;
+            }
+        }
     }
 
-    top->next = 0;
+    top = pos;
+}
 
-    delete upperFrame;
-    return result;
+int PlgContext::indexValue(const PlgReference &plgIndex) const {
+    PlgExpressionVariableIndex *index = plgIndex.DynamicCastGetPtr<PlgExpressionVariableIndex>();
+    INTELIB_ASSERT(index, IntelibX_bug()); //TODO: proper exception type
+    return index->GetValue();
 }
 
 // Continuation
@@ -132,19 +66,20 @@ bool PlgContext::MergeDownFrame() {
 IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);
 
 PlgExpressionContinuation::PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req)
-    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), request(req) {}
+    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), queryVars(), request(req.RenameVars(context, queryVars)) {}
 
 bool PlgExpressionContinuation::Next() {
     if (request != PlgUnbound) {
-        PlgReference req = request;
+        bool result = request.Solve(*this);
         request = PlgUnbound;
-        return req.Solve(*this);
-
+        return result;
     } else {
 
         while (!choicePoints.IsEmptyList()) {
             PlgChoicePoint cp = choicePoints.Car();
-            choicePoints = choicePoints.Cdr();
+
+            // now chice point calls cont.PopChoicePoint() by itself
+            //choicePoints = choicePoints.Cdr();
 
             if(cp->Next(*this))
                 return true;
@@ -154,20 +89,8 @@ bool PlgExpressionContinuation::Next() {
     }
 }
 
-PlgReference PlgExpressionContinuation::GetValue(const PlgReference &var) const {
-    INTELIB_ASSERT(var->TermType() == PlgExpressionVariableName::TypeId, IntelibX_not_a_prolog_variable_name(var));
-    PlgReference value = var;
-    for (PlgContext::Frame *frame = context.Bottom()->Next(); frame; frame = frame->Next()) {
-        PlgReference binding = frame->Evaluate(value);
-        if (binding != PlgUnbound)
-            value = binding;
-    }
-
-    // return original variable name if the variable is unbound
-    if (value->TermType() == PlgExpressionVariableName::TypeId)
-        return var;
-    else
-        return value;
+PlgReference PlgExpressionContinuation::GetValue(const PlgReference &var) {
+    return context.Evaluate(var.RenameVars(context, queryVars));
 }
 
 void PlgExpressionContinuation::PushChoicePoint(const PlgReference &point) {
@@ -175,9 +98,14 @@ void PlgExpressionContinuation::PushChoicePoint(const PlgReference &point) {
     choicePoints = point.MakeCons(choicePoints);
 }
 
+void PlgExpressionContinuation::PopChoicePoint() {
+    INTELIB_ASSERT(!choicePoints.IsEmptyList(), IntelibX_bug());
+    choicePoints = choicePoints.Cdr();
+}
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionContinuation::TextRepresentation() const {
-    return "<PROLOG CONTINUATION>"; //FIXME
+    return "<PROLOG CONTINUATION>";
 }
 #endif
 
@@ -190,25 +118,23 @@ SString PlgExpressionChoicePoint::TextRepresentation() const {
 }
 #endif
 
-bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &continuation) {
-    SHashTable renameTable;
-
+bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &cont) {
     while (!pointer.IsEmptyList()) {
-        PlgClause candidate = PlgReference(pointer.Car()).RenameVars(NameGenerator, renameTable);
+        cont.Context().ReturnTo(contextPos);
+        
+        SHashTable renameTable;
+        PlgClause candidate = PlgReference(pointer.Car()).RenameVars(cont.Context(), renameTable);
         pointer = pointer.Cdr();
 
-        continuation.Context().ReturnTo(frame);
-        continuation.Context().CreateFrame();
-
-        if ( frame->Evaluate(clause).Unify(frame->Evaluate(candidate->Head()), continuation.Context())
-                && candidate->Body().Solve(continuation)) {
+        if (cont.Context().Evaluate(clause).Unify(candidate->Head(), cont.Context())
+                && candidate->Body().Solve(cont)) {
             return true;
-        } else {
-            continuation.Context().DropFrame();
         }
     }
-    continuation.Context().ReturnTo(frame);
 
+    // if failed then cleanup and return false
+    cont.Context().ReturnTo(contextPos);
+    cont.PopChoicePoint();
     return false;
 }
 

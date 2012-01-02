@@ -47,6 +47,8 @@ int main()
 {
     try {
         poc();
+        //TODO: replace old tests
+        /*
         TestSection("Context frames");
         {
             //PlgDatabase db;
@@ -96,14 +98,17 @@ int main()
             TESTTR("drop frame #5", ctx.Get(Y), "f");
             TESTTR("drop frame #6", ctx.Get(Z), "f(g)");
         }
+        */
 
+        //TODO: replace old tests
+        /*
         TestSection("Context evaluation");
         {
             PlgContext ctx;
             PlgVariableName X("X"), Y("Y"), Z("Z");
             PlgAtom f("f"), g("g"), h("h");
 
-            ctx.CreateFrame();
+            //ctx.CreateFrame();
             ctx.Set(X, h);
             ctx.Set(Y, Z);
 
@@ -115,33 +120,37 @@ int main()
             TESTTR("unbound var", ctx.Evaluate(f(Z)), "f(Z)");
             TESTTR("multiple vars", ctx.Evaluate(f(X,Y,Z)), "f(h, Z, Z)");
         }
+        */
 
         TestSection("Unification");
         {
             PlgContext ctx;
-            PlgReference X = PlgVariableName("X");
-            PlgReference Y = PlgVariableName("Y");
-            PlgReference Z = PlgVariableName("Z");
+            
+            PlgReference var0 = PlgVariableIndex(ctx.NextIndex());
+            PlgReference var1 = PlgVariableIndex(ctx.NextIndex());
+            PlgReference var2 = PlgVariableIndex(ctx.NextIndex());
+            int pos = ctx.Top();
+
             PlgAtom f("f");
 
-            ctx.CreateFrame();
-            TESTB("X <-> f (status)", X.Unify(f, ctx));
-            TESTTR("X <-> f (value)", ctx.Get(X), "f");
-            TESTB("X <-> Y where X = f (status)", X.Unify(Y, ctx));
-            TESTTR("X <-> Y where X = f (value)", ctx.Get(Y), "f");
-            ctx.DropFrame();
+            TESTB("var0 <-> f (status)", var0.Unify(f, ctx));
+            TESTTR("var0 <-> f (value)", ctx.Evaluate(var0), "f");
+            TESTB("var0 <-> var0 where var0 = f (status)", ctx.Evaluate(var0).Unify(var1, ctx));
+            TESTTR("var0 <-> var0 where var0 = f (value)", ctx.Evaluate(var1), "f");
+            ctx.ReturnTo(pos);
 
-            ctx.CreateFrame();
-            TESTB("f(X) <-> f(Y) (status)", f(X).Unify(f(Y), ctx));
-            TESTTR("f(X) <-> f(Y) (value)", ctx.Get(X), "Y");
-            ctx.DropFrame();
+            ctx.Set(var1, f);
+            TESTB("f(var0) <-> f(var1) (status)", f(var0).Unify(f(var1), ctx));
+            TESTB("f(var0) <-> f(var) (value)", ctx.Evaluate(var0) == f);
+            ctx.ReturnTo(pos);
 
-            ctx.CreateFrame();
-            TESTB("f(X, X) <-> f(Y, Z) (status)", f(X, X).Unify(f(Y, Z), ctx));
-            TESTTR("f(X, X) <-> f(Y, Z) (value 1)", ctx.Get(X), "Y");
-            TESTTR("f(X, X) <-> f(Y, Z) (value 2)", ctx.Get(Y), "Z");
-            ctx.DropFrame();
+            ctx.Set(var1, f);
+            TESTB("f(var0, var0) <-> f(var1, var2) (status)", ctx.Evaluate(f(var1, var2)).Unify(f(var0, var0), ctx));
+            TESTB("f(var0, var0) <-> f(var1, var2) (value 1)", ctx.Evaluate(var0) == f);
+            TESTB("f(var0, var0) <-> f(var1, var2) (value 2)", ctx.Evaluate(var2) == f);
+            ctx.ReturnTo(pos);
         }
+        TestScore();
 
         TestSection("Solving 1");
         {
@@ -198,6 +207,7 @@ int main()
             TESTB("mortal(X) end", !cont->Next());
             printContext(cont->Context());
         }
+        TestScore();
 
         TestSection("Solving 2");
         {
@@ -238,6 +248,7 @@ int main()
             TESTB("a(X) #3", !cont->Next());
             printContext(cont->Context());
         }
+        TestScore();
 
         TestSection("User predicates");
         {
@@ -275,11 +286,8 @@ int main()
             TESTB("evaluate h(X) for a second time", !cont->Next());
         }
 
-
         TestScore();
         poc();
-
-        fgetc(stdin);
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );
