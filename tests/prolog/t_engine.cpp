@@ -20,13 +20,6 @@
 
 #include "../../prolog/utils.hpp"
 
-void poc()
-{
-#if INTELIB_DEBUG_COUNTERS == 1
-    printf("       Object counter: %ld\n", SExpression::object_counter);
-#endif
-}
-
 void printContext(const PlgContext &context) {
     //return;
     printf("--- context dump start ---\n");
@@ -46,82 +39,6 @@ bool someUserPredicate(const SReference &args, PlgExpressionContinuation &cont) 
 int main()
 {
     try {
-        poc();
-        //TODO: replace old tests
-        /*
-        TestSection("Context frames");
-        {
-            //PlgDatabase db;
-            PlgContext ctx;
-            PlgContext::Frame *frame0 = ctx.Top();
-
-            TESTB("create frame #0", !!frame0);
-
-            PlgContext::Frame *frame1;
-            TESTB("create frame #1",
-                    frame0 == ctx.CreateFrame() && (frame1 = ctx.Top()) && frame0 != frame1);
-
-            PlgVariableName X("X"), Y("Y"), Z("Z");
-            PlgAtom f("f"), g("g"), h("h");
-
-            ctx.Set(X, Y);
-            TESTTR("assignment #1", ctx.Get(X), "Y");
-
-            ctx.Set(Y, f);
-            TESTTR("assignment #2", ctx.Get(Y), "f");
-
-            ctx.Set(Z, f(Y));
-            TESTTR("assignment #2.1", ctx.Get(Z), "f(Y)");
-
-            PlgContext::Frame *frame2;
-            TESTB("create frame #2", frame1 == ctx.CreateFrame() && (frame2 = ctx.Top()) && frame1 != frame2);
-
-            TESTB("unbound var", ctx.Get(X) == PlgUnbound);
-
-            ctx.Set(Y, g);
-            TESTTR("assignment #3", ctx.Get(Y), "g");
-
-            ctx.Set(X, h);
-            TESTTR("assignment #4", ctx.Get(X), "h");
-
-            ctx.CreateFrame();
-            ctx.Set(X, f);
-            TESTTR("assignment #5", ctx.Get(X), "f");
-
-            ctx.DropFrame();
-            TESTB("drop frame #1", ctx.Top() == frame2);
-            TESTTR("drop frame #2", ctx.Get(X), "h");
-
-            ctx.DropFrame(true);
-            TESTB("drop frame #3", ctx.Top() == frame1);
-            TESTTR("drop frame #4", ctx.Get(X), "g");
-            TESTTR("drop frame #5", ctx.Get(Y), "f");
-            TESTTR("drop frame #6", ctx.Get(Z), "f(g)");
-        }
-        */
-
-        //TODO: replace old tests
-        /*
-        TestSection("Context evaluation");
-        {
-            PlgContext ctx;
-            PlgVariableName X("X"), Y("Y"), Z("Z");
-            PlgAtom f("f"), g("g"), h("h");
-
-            //ctx.CreateFrame();
-            ctx.Set(X, h);
-            ctx.Set(Y, Z);
-
-            TESTTR("simple var", ctx.Evaluate(X), "h");
-            TESTTR("simple term", ctx.Evaluate(f), "f");
-            TESTTR("term with var", ctx.Evaluate(f(X)), "f(h)");
-            TESTTR("nested term", ctx.Evaluate(f(g(X))), "f(g(h))");
-            TESTTR("renamed var", ctx.Evaluate(f(Y)), "f(Z)");
-            TESTTR("unbound var", ctx.Evaluate(f(Z)), "f(Z)");
-            TESTTR("multiple vars", ctx.Evaluate(f(X,Y,Z)), "f(h, Z, Z)");
-        }
-        */
-
         TestSection("Unification");
         {
             PlgContext ctx;
@@ -287,6 +204,7 @@ int main()
         }
         TestScore();
 
+        /*
         TestSection("Conjunction");
         {
             PlgAtom f("f"), g("g"), h("h");
@@ -312,9 +230,9 @@ int main()
             TESTTR("get X in f(X)", cont->GetValue(X), "beta");
             TESTB("evaluate f(X) for a second time", !cont->Next());
         }
-
         TestScore();
-        poc();
+        */
+        
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );
@@ -325,6 +243,6 @@ int main()
     catch(...) {
         printf("Something strange caught\n");
     }
-    poc();
+
     return 0;
 }
