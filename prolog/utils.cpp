@@ -43,6 +43,12 @@ const char *Dmp(SReference *s) {
     return Dump(*s);
 }
 
+const char *DmpCtx(PlgContext *c) {
+    static SString str;
+    str = DumpContext(*c);
+    return str.c_str();
+}
+
 SString DumpHashTable(const SReference &table) {
     SExpressionHashTable *tbl = table.DynamicCastGetPtr<SExpressionHashTable>();
     INTELIB_ASSERT(tbl, IntelibX_bug());

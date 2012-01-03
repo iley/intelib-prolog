@@ -45,6 +45,7 @@ const char *Dmp(SReference *s); // for debug purposes
 
 SString DumpHashTable(const SReference &table);
 SString DumpContext(const PlgContext &context);
+const char *DmpCtx(PlgContext *c);
 #endif
 
 #endif
