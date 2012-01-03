@@ -28,7 +28,7 @@ void poc()
 }
 
 void printContext(const PlgContext &context) {
-    return;
+    //return;
     printf("--- context dump start ---\n");
 
     printf("%s", DumpContext(context).c_str());
@@ -284,6 +284,33 @@ int main()
             printContext(cont->Context());
             TESTTR("get X in h(X)", cont->GetValue(X), "g");
             TESTB("evaluate h(X) for a second time", !cont->Next());
+        }
+        TestScore();
+
+        TestSection("Conjunction");
+        {
+            PlgAtom f("f"), g("g"), h("h");
+            PlgAtom alpha("alpha"), beta("beta");
+            PlgVariableName X("X");
+            PlgDatabase db;
+
+            db.Add( f(X) <<= g(X) & h(X) );
+            db.Add( g(alpha) <<= PlgTrue );
+            db.Add( g(beta) <<= PlgTrue );
+            db.Add( h(beta) <<= PlgTrue );
+
+            PlgContinuation cont = db.Query(f(alpha));
+            TESTB("f(alpha)", !cont->Next());
+
+            cont = db.Query(f(beta));
+            TESTB("f(beta)", cont->Next());
+            TESTB("f(beta) (2)", !cont->Next());
+
+            cont = db.Query(f(X));
+            TESTB("evaluate f(X)", cont->Next());
+            printContext(cont->Context());
+            TESTTR("get X in f(X)", cont->GetValue(X), "beta");
+            TESTB("evaluate f(X) for a second time", !cont->Next());
         }
 
         TestScore();
