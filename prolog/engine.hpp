@@ -11,7 +11,7 @@
 class PlgContext
 {
 public:
-    PlgContext() : values(), marks(*PTheEmptyList), top(0) {}
+    PlgContext() : values(), top(0) {}
 
     void Set(const PlgReference &index, const PlgReference &value) {
         values[indexValue(index)] = value;
@@ -31,7 +31,6 @@ public:
 
 private:
     SVector values;
-    SReference marks; //mark stack
     int top;
     
     PlgContext(const PlgContext&);

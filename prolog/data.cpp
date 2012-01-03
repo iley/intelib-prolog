@@ -25,24 +25,24 @@ PlgReference PlgObject::RenameVars(const PlgReference &self, PlgContext &context
 // Reference to a generic prolog expression
 
 bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
-    PlgReference self = *this;
-
-    bool result;
-
     int pos = context.Top();
 
+    //FIXME: unnecessary evaluation
+    PlgReference left = context.Evaluate(*this),
+        right = context.Evaluate(other);
+
     if (
-        self->TermType() != PlgExpressionVariableIndex::TypeId
-        && other->TermType() == PlgExpressionVariableIndex::TypeId
+        left->TermType() != PlgExpressionVariableIndex::TypeId
+        && right->TermType() == PlgExpressionVariableIndex::TypeId
     ) {
-        const PlgObject *otherObj = dynamic_cast<const PlgObject*>(other.GetPtr());
-        INTELIB_ASSERT(otherObj, IntelibX_not_a_prolog_object(*this));
-        result = otherObj->Unify(other, self, context);
-    } else {
-        const PlgObject *selfObj = dynamic_cast<const PlgObject*>(GetPtr());
-        INTELIB_ASSERT(selfObj, IntelibX_not_a_prolog_object(*this));
-        result = selfObj->Unify(self, other, context);
+        PlgReference tmp = left;
+        left = right;
+        right = tmp;
     }
+
+    const PlgObject *obj = dynamic_cast<const PlgObject*>(left.GetPtr());
+    INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
+    bool result = obj->Unify(left, right, context);
 
     if (!result)
         context.ReturnTo(pos, false);
