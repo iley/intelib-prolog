@@ -25,4 +25,6 @@ inline PlgReference operator ^= (const PlgReference &left, const PlgReference &r
     return PlgAtomEquals(left, right);
 }
 
+extern PlgAtom PlgTrue;
+
 #endif

@@ -29,3 +29,9 @@ bool PredicateEquals(const SReference &args, PlgExpressionContinuation &cont) {
 }
 
 PlgAtom PlgAtomEquals("=", 2, PredicateEquals, true);
+
+bool PredicateTrue(const SReference &args, PlgExpressionContinuation &cont) {
+    return true;
+}
+
+PlgAtom PlgTrue("true", 0, PredicateTrue, false);

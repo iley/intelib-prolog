@@ -7,7 +7,6 @@ static SListConstructor S;
 // Generic Prolog Expression
 
 PlgReference PlgUnbound;
-PlgTruthValue PlgTrue;
 
 bool PlgObject::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
     return self.GetPtr() == other.GetPtr();
@@ -50,14 +49,6 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     if (!result)
         context.ReturnTo(pos, false);
     return result;
-}
-
-// Truth value
-
-IntelibTypeId PlgExpressionTruthValue::TypeId(&SExpression::TypeId, false);
-
-bool PlgExpressionTruthValue::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
-    return other->TermType() == PlgExpressionTruthValue::TypeId;
 }
 
 // Clause

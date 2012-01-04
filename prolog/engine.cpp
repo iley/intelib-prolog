@@ -83,10 +83,6 @@ bool PlgExpressionContinuation::Next() {
 
         query = context.Evaluate(query.RenameVars(context, vars));
 
-        // TODO: make true a term
-        if (query->TermType() == PlgExpressionTruthValue::TypeId)
-            continue;
-
         // workaround for 0-arity predicates
         if (query->TermType() == PlgExpressionAtom::TypeId)
             query = PlgTerm(PlgAtom(query), *PTheEmptyList);

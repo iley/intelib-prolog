@@ -50,30 +50,6 @@ public:
 
 extern PlgReference PlgUnbound;
 
-class PlgExpressionTruthValue : public SExpression, public PlgObject
-{
-public:
-    static IntelibTypeId TypeId;
-
-    PlgExpressionTruthValue() : SExpression(TypeId) {}
-
-    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const { return "true"; }
-#endif
-};
-
-typedef GenericSReference<PlgExpressionTruthValue, IntelibX_not_a_prolog_truth> PlgTruthValue_Super;
-
-class PlgTruthValue : public PlgTruthValue_Super
-{
-public:
-    PlgTruthValue() : PlgTruthValue_Super(new PlgExpressionTruthValue()) {}
-};
-
-extern PlgTruthValue PlgTrue;
-
 // Clause
 
 class PlgExpressionClause : public SExpression, public PlgObject
