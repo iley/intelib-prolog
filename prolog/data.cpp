@@ -13,8 +13,11 @@ bool PlgObject::Unify(const PlgReference &self, const PlgReference &other, PlgCo
     return self.GetPtr() == other.GetPtr();
 }
 
-// STUB
 PlgReference PlgObject::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const {
+    return self;
+}
+
+PlgReference PlgObject::Evaluate(const PlgReference &self, PlgContext &context) const {
     return self;
 }
 
@@ -24,8 +27,8 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     int pos = context.Top();
 
     //FIXME: unnecessary evaluation
-    PlgReference left = context.Evaluate(*this),
-        right = context.Evaluate(other);
+    PlgReference left = Evaluate(context),
+        right = other.Evaluate(context);
 
     if (
         left->TermType() != PlgExpressionVariableIndex::TypeId
@@ -58,6 +61,10 @@ IntelibTypeId PlgExpressionClause::TypeId(&SExpression::TypeId, true);
 
 PlgReference PlgExpressionClause::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const {
     return PlgClause(head.RenameVars(context, existingVars), body.RenameVars(context, existingVars));
+}
+
+PlgReference PlgExpressionClause::Evaluate(const PlgReference &self, PlgContext &context) const {
+    return PlgClause(head.Evaluate(context), body.Evaluate(context));
 }
 
 PlgClause operator <<= (const PlgReference &head, const PlgReference &body) {
@@ -118,6 +125,19 @@ PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, PlgContext 
     }
     return PlgTerm(functor, newArgs);
 }
+
+
+PlgReference PlgExpressionTerm::Evaluate(const PlgReference &self, PlgContext &context) const {
+    SReference resultArgs = *PTheEmptyList;
+    PlgTerm term = self;
+
+    for (SReference p = term->Args(); !p.IsEmptyList(); p = p.Cdr()) {
+        resultArgs.AddAnotherItemToList(PlgReference(p.Car()).Evaluate(context));
+    }
+
+    return PlgTerm(term->Functor(), resultArgs);
+}
+
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionTerm::TextRepresentation() const {
@@ -194,6 +214,19 @@ bool PlgExpressionVariableIndex::Unify(const PlgReference &self, const PlgRefere
     context.Set(newVar, other);
     context.Set(self, newVar);
     return true;
+}
+
+PlgReference PlgExpressionVariableIndex::Evaluate(const PlgReference &self, PlgContext &context) const {
+    PlgReference val = self;
+
+    while (val.GetPtr() && val->TermType() == PlgExpressionVariableIndex::TypeId) {
+        val = context.Get(val);
+    }
+
+    if (val.GetPtr())
+        return val.Evaluate(context);
+    else
+        return self;
 }
 
 SString PlgExpressionVariableIndex::TextRepresentation() const {

@@ -21,8 +21,6 @@ public:
         return values[indexValue(index)];
     }
 
-    PlgReference Evaluate(const PlgReference &value) const;
-
     bool IsEmpty() const { return top == 0; }
     void ReturnTo(int pos, bool merge = false);
 

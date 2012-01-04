@@ -51,20 +51,20 @@ int main()
             PlgAtom f("f");
 
             TESTB("var0 <-> f (status)", var0.Unify(f, ctx));
-            TESTTR("var0 <-> f (value)", ctx.Evaluate(var0), "f");
-            TESTB("var0 <-> var0 where var0 = f (status)", ctx.Evaluate(var0).Unify(var1, ctx));
-            TESTTR("var0 <-> var0 where var0 = f (value)", ctx.Evaluate(var1), "f");
+            TESTTR("var0 <-> f (value)", var0.Evaluate(ctx), "f");
+            TESTB("var0 <-> var0 where var0 = f (status)", var0.Evaluate(ctx).Unify(var1, ctx));
+            TESTTR("var0 <-> var0 where var0 = f (value)", var1.Evaluate(ctx), "f");
             ctx.ReturnTo(pos);
 
             ctx.Set(var1, f);
             TESTB("f(var0) <-> f(var1) (status)", f(var0).Unify(f(var1), ctx));
-            TESTB("f(var0) <-> f(var) (value)", ctx.Evaluate(var0) == f);
+            TESTB("f(var0) <-> f(var) (value)", var0.Evaluate(ctx) == f);
             ctx.ReturnTo(pos);
 
             ctx.Set(var1, f);
-            TESTB("f(var0, var0) <-> f(var1, var2) (status)", ctx.Evaluate(f(var1, var2)).Unify(f(var0, var0), ctx));
-            TESTB("f(var0, var0) <-> f(var1, var2) (value 1)", ctx.Evaluate(var0) == f);
-            TESTB("f(var0, var0) <-> f(var1, var2) (value 2)", ctx.Evaluate(var2) == f);
+            TESTB("f(var0, var0) <-> f(var1, var2) (status)", f(var1, var2).Evaluate(ctx).Unify(f(var0, var0), ctx));
+            TESTB("f(var0, var0) <-> f(var1, var2) (value 1)", var0.Evaluate(ctx) == f);
+            TESTB("f(var0, var0) <-> f(var1, var2) (value 2)", var2.Evaluate(ctx) == f);
             ctx.ReturnTo(pos);
         }
         TestScore();
@@ -185,26 +185,26 @@ int main()
             TESTB("calling f for a second time", !cont->Next());
 
             cont = db.Query(X ^= f);
-            TESTB("evaluate X = f", cont->Next());
+            TESTB("solve X = f", cont->Next());
             TESTTR("get X value in X = f", cont->GetValue(X), "f");
-            TESTB("evaluate X = f for a second time", !cont->Next());
+            TESTB("solve X = f for a second time", !cont->Next());
 
             db.Add( g(X) <<= (X ^= f) );
             cont = db.Query(g(X));
             printContext(cont->Context());
-            TESTB("evaluate g(X)", cont->Next());
+            TESTB("solve g(X)", cont->Next());
             printContext(cont->Context());
             TESTTR("get X in g(X)", cont->GetValue(X), "f");
-            TESTB("evaluate g(X) for a second time", !cont->Next());
+            TESTB("solve g(X) for a second time", !cont->Next());
 
             db.Add( h(X) <<= h(X, g) );
             db.Add( h(X, Y) <<= (X ^= Y) );
             cont = db.Query(h(X));
             printContext(cont->Context());
-            TESTB("evaluate h(X)", cont->Next());
+            TESTB("solve h(X)", cont->Next());
             printContext(cont->Context());
             TESTTR("get X in h(X)", cont->GetValue(X), "g");
-            TESTB("evaluate h(X) for a second time", !cont->Next());
+            TESTB("solve h(X) for a second time", !cont->Next());
         }
         TestScore();
 
@@ -228,10 +228,10 @@ int main()
             TESTB("f(beta) (2)", !cont->Next());
 
             cont = db.Query(f(X));
-            TESTB("evaluate f(X)", cont->Next());
+            TESTB("solve f(X)", cont->Next());
             printContext(cont->Context());
             TESTTR("get X in f(X)", cont->GetValue(X), "beta");
-            TESTB("evaluate f(X) for a second time", !cont->Next());
+            TESTB("solve f(X) for a second time", !cont->Next());
         }
         TestScore();
 
@@ -258,11 +258,11 @@ int main()
             TESTB("human(zoidberg)", !cont->Next());
 
             cont = db.Query( human(X) );
-            TESTB("evaluate human(X)", cont->Next());
+            TESTB("solve human(X)", cont->Next());
             TESTTR("get X in human(X)", cont->GetValue(X), "fry");
-            TESTB("evaluate human(X) for a second time", cont->Next());
+            TESTB("solve human(X) for a second time", cont->Next());
             TESTTR("get X in human(X)", cont->GetValue(X), "leela");
-            TESTB("evaluate human(X) for a third time", !cont->Next());
+            TESTB("solve human(X) for a third time", !cont->Next());
         }
         TestScore();
     }

@@ -5,31 +5,6 @@
 
 // Context
 
-PlgReference PlgContext::Evaluate(const PlgReference &value) const {
-    if (!value.GetPtr()) return value;
-
-    PlgReference ref = value;
-
-    while (ref.GetPtr() && ref->TermType() == PlgExpressionVariableIndex::TypeId) {
-        ref = Get(ref);
-    }
-    
-    if (ref.GetPtr() && ref->TermType() == PlgExpressionTerm::TypeId) {
-        SReference resultArgs = *PTheEmptyList;
-        PlgTerm term = ref;
-
-        for (SReference p = term->Args(); !p.IsEmptyList(); p = p.Cdr()) {
-            resultArgs.AddAnotherItemToList(Evaluate(p.Car()));
-        }
-
-        return PlgTerm(term->Functor(), resultArgs);
-    } else if (ref.GetPtr()) {
-        return ref;
-    } else {
-        return value;
-    }
-}
-
 void PlgContext::ReturnTo(int pos, bool merge) {
     INTELIB_ASSERT(pos >= 0, IntelibX_bug());
     if (merge) {
@@ -81,7 +56,7 @@ bool PlgExpressionContinuation::Next() {
         PlgReference query = queries.Car();
         queries = queries.Cdr();
 
-        query = context.Evaluate(query.RenameVars(context, vars));
+        query = query.RenameVars(context, vars).Evaluate(context);
 
         // workaround for 0-arity predicates
         if (query->TermType() == PlgExpressionAtom::TypeId)
@@ -101,7 +76,7 @@ bool PlgExpressionContinuation::Next() {
 }
 
 PlgReference PlgExpressionContinuation::GetValue(const PlgReference &var) {
-    return context.Evaluate(var.RenameVars(context, queryVars));
+    return var.RenameVars(context, queryVars).Evaluate(context);
 }
 
 void PlgExpressionContinuation::PushChoicePoint(const PlgReference &point) {

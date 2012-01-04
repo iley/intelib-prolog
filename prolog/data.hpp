@@ -25,6 +25,7 @@ class PlgObject
 public:
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
+    virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
 };
 
 typedef GenericSReference<SExpression, IntelibX_not_a_prolog_object> PlgRef;
@@ -39,10 +40,16 @@ public:
 
     bool Unify(const PlgReference &other, PlgContext &context) const;
 
-    virtual PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const {
+    PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const {
         PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
         INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
         return obj->RenameVars(*this, context, existingVars);
+    }
+
+    PlgReference Evaluate(PlgContext &context) const {
+        PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
+        INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
+        return obj->Evaluate(*this, context);
     }
 
     ~PlgReference() {}
@@ -60,7 +67,9 @@ public:
     PlgExpressionClause(const PlgReference &hd, const PlgReference &bd) : SExpression(TypeId), head(hd), body(bd) {}
     PlgReference Head() const { return head; }
     PlgReference Body() const { return body; }
+
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
+    virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -203,6 +212,7 @@ public:
 
     int GetValue() const { return value; }
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
+    virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -237,6 +247,7 @@ public:
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
+    virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
