@@ -66,27 +66,49 @@ int PlgContext::indexValue(const PlgReference &plgIndex) const {
 IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);
 
 PlgExpressionContinuation::PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req)
-    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), queryVars(), request(req.RenameVars(context, queryVars)) {}
+    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), queryVars()  
+{
+    queries = req.RenameVars(context, queryVars).MakeCons(*PTheEmptyList);
+}
 
 bool PlgExpressionContinuation::Next() {
-    if (request != PlgUnbound) {
-        bool result = request.Solve(*this);
-        request = PlgUnbound;
-        return result;
-    } else {
-
-        while (!choicePoints.IsEmptyList()) {
-            PlgChoicePoint cp = choicePoints.Car();
-
-            // now chice point calls cont.PopChoicePoint() by itself
-            //choicePoints = choicePoints.Cdr();
-
-            if(cp->Next(*this))
-                return true;
-        }
-
+    if (queries.IsEmptyList() && !Backtrack())
         return false;
+
+    while (!queries.IsEmptyList()) {
+        SHashTable vars;
+
+        PlgReference query = queries.Car();
+        queries = queries.Cdr();
+
+        query = context.Evaluate(query.RenameVars(context, vars));
+
+        // TODO: make true a term
+        if (query->TermType() == PlgExpressionTruthValue::TypeId)
+            continue;
+
+        // workaround for 0-arity predicates
+        if (query->TermType() == PlgExpressionAtom::TypeId)
+            query = PlgTerm(PlgAtom(query), *PTheEmptyList);
+
+        if (query->TermType() == PlgExpressionTerm::TypeId) {
+            PlgTerm term = query;
+            PlgPredicate pred = term->Functor()->GetPredicate(term->Arity());
+            if (pred.GetPtr()) {
+                // user predicate
+                if (!pred->Apply(term->Args(), *this) && !Backtrack())
+                    return false;
+            } else {
+                PlgClauseChoicePoint cp(query, *this); //???
+                PushChoicePoint(cp);
+
+                if (!Backtrack())
+                    return false;
+            }
+        }
     }
+
+    return true;
 }
 
 PlgReference PlgExpressionContinuation::GetValue(const PlgReference &var) {
@@ -109,35 +131,16 @@ SString PlgExpressionContinuation::TextRepresentation() const {
 }
 #endif
 
-// Choice point
-IntelibTypeId PlgExpressionChoicePoint::TypeId(&SExpression::TypeId, true);
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpressionChoicePoint::TextRepresentation() const {
-    return "<PROLOG CHOICE POINT>";
-}
-#endif
-
-bool PlgExpressionClauseChoicePoint::Next(PlgExpressionContinuation &cont) {
-    while (!pointer.IsEmptyList()) {
-        cont.Context().ReturnTo(contextPos);
-        
-        SHashTable renameTable;
-        PlgClause candidate = PlgReference(pointer.Car()).RenameVars(cont.Context(), renameTable);
-        pointer = pointer.Cdr();
-
-        if (clause.Unify(candidate->Head(), cont.Context()) && candidate->Body().Solve(cont)) {
+bool PlgExpressionContinuation::Backtrack() {
+    while (!choicePoints.IsEmptyList()) {
+        PlgChoicePoint cp = choicePoints.Car();
+        if (cp->TryNext())
             return true;
-        }
+        else
+            choicePoints = choicePoints.Cdr();
     }
-
-    // if failed then cleanup and return false
-    cont.Context().ReturnTo(contextPos);
-    cont.PopChoicePoint();
     return false;
 }
-
-IntelibTypeId PlgExpressionClauseChoicePoint::TypeId(&PlgExpressionChoicePoint::TypeId, true);
 
 // Database
 void PlgDatabase::Add(const PlgReference &clause) {
@@ -148,3 +151,37 @@ PlgContinuation PlgDatabase::Query(const PlgReference &request) {
     PlgContinuation cont(*this, request);
     return cont;
 }
+
+// Choice point
+IntelibTypeId PlgExpressionChoicePoint::TypeId(&SExpression::TypeId, true);
+
+void PlgExpressionChoicePoint::Restore() {
+    cont.context.ReturnTo(contextPos);
+    cont.queries = queries;
+}
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpressionChoicePoint::TextRepresentation() const {
+    return "<PROLOG CHOICE POINT>";
+}
+#endif
+
+bool PlgExpressionClauseChoicePoint::TryNext() {
+    while (!pointer.IsEmptyList()) {
+        SHashTable vars;
+        Restore();
+
+        PlgClause candidate = pointer.Car();
+        pointer = pointer.Cdr();
+
+        if (clause.Unify(candidate->Head().RenameVars(cont.context, vars), cont.context)) {
+            //TODO: method PushQuery
+            cont.queries = candidate->Body().RenameVars(cont.context, vars).MakeCons(cont.queries);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+IntelibTypeId PlgExpressionClauseChoicePoint::TypeId(&PlgExpressionChoicePoint::TypeId, true);

@@ -24,7 +24,6 @@ class PlgObject
 {
 public:
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
-    virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
 };
 
@@ -39,8 +38,6 @@ public:
     PlgReference(SExpression *p) : PlgRef(p) {}
 
     bool Unify(const PlgReference &other, PlgContext &context) const;
-
-    bool Solve(PlgExpressionContinuation &continuation) const;
 
     virtual PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const {
         PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
@@ -61,7 +58,6 @@ public:
     PlgExpressionTruthValue() : SExpression(TypeId) {}
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
-    virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const { return "true"; }
@@ -191,6 +187,7 @@ public:
     explicit PlgAtom(const char *name, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, infix)) {}
     explicit PlgAtom(const char *name, int arity, const PlgPredicate &pred, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, arity, pred, infix)) {}
     explicit PlgAtom(const char *name, const PlgPredicate &pred, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, pred, infix)) {}
+    PlgAtom(const SReference &s) : PlgAtom_Super(s) {}
 
     PlgReference operator () (const PlgReference &arg1);
     PlgReference operator () (const PlgReference &arg1, const PlgReference &arg2);
@@ -262,7 +259,6 @@ public:
     int Arity() const;
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
-    virtual bool Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const;
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1

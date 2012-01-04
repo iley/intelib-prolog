@@ -14,10 +14,6 @@ bool PlgObject::Unify(const PlgReference &self, const PlgReference &other, PlgCo
 }
 
 // STUB
-bool PlgObject::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
-    throw IntelibX_not_implemented();
-}
-
 PlgReference PlgObject::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const {
     return self;
 }
@@ -49,24 +45,12 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     return result;
 }
 
-
-bool PlgReference::Solve(PlgExpressionContinuation &cont) const {
-    PlgReference evaluated = cont.Context().Evaluate(*this);
-    PlgObject *obj = dynamic_cast<PlgObject*>(evaluated.GetPtr());
-    INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
-    return obj->Solve(evaluated, cont);
-}
-
 // Truth value
 
 IntelibTypeId PlgExpressionTruthValue::TypeId(&SExpression::TypeId, false);
 
 bool PlgExpressionTruthValue::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
     return other->TermType() == PlgExpressionTruthValue::TypeId;
-}
-
-bool PlgExpressionTruthValue::Solve(const PlgReference &self, PlgExpressionContinuation &continuation) const {
-    return true;
 }
 
 // Clause
@@ -119,25 +103,6 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
     }
 
     return ourArgs.IsEmptyList() && theirArgs.IsEmptyList();
-}
-
-bool PlgExpressionTerm::Solve(const PlgReference &self, PlgExpressionContinuation &cont) const {
-    PlgPredicate predicate = functor->GetPredicate(Arity());
-
-    if (predicate.GetPtr()) {
-        int pos = cont.Context().Top();
-
-        if(predicate->Apply(args, cont)) {
-            return true;
-        } else {
-            cont.Context().ReturnTo(pos);
-            return false;
-        }
-    } else {
-        PlgClauseChoicePoint cp(self, cont.Database().Head(), cont.Context().Top());
-        cont.PushChoicePoint(cp);
-        return cp->Next(cont);
-    }
 }
 
 PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const {

@@ -42,6 +42,8 @@ class PlgDatabase;
 class PlgExpressionContinuation : public SExpression
 {
     friend class PlgDatabase;
+    friend class PlgExpressionChoicePoint;
+    friend class PlgExpressionClauseChoicePoint;
 public:
     static IntelibTypeId TypeId;
 
@@ -67,7 +69,9 @@ private:
     SReference choicePoints;
     PlgContext context;
     SHashTable queryVars;
-    PlgReference request;
+    SReference queries;
+
+    bool Backtrack();
 };
 
 typedef GenericSReference<PlgExpressionContinuation, IntelibX_not_a_prolog_continuation> PlgContinuation_Super;
@@ -78,47 +82,7 @@ public:
     PlgContinuation(PlgDatabase &db, const PlgReference &request) : PlgContinuation_Super(new PlgExpressionContinuation(db, request)) {}
 };
 
-class PlgExpressionChoicePoint : public SExpression
-{
-public:
-    static IntelibTypeId TypeId;
-
-    virtual bool Next(PlgExpressionContinuation &continuation) = 0;
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const;
-#endif
-
-protected:
-    int contextPos;
-
-    PlgExpressionChoicePoint(const IntelibTypeId &typeId = TypeId, int pos = 0) : SExpression(typeId), contextPos(pos) {}
-};
-
-typedef GenericSReference<PlgExpressionChoicePoint, IntelibX_not_a_prolog_choice_point> PlgChoicePoint;
-
-class PlgExpressionClauseChoicePoint : public PlgExpressionChoicePoint
-{
-public:
-    static IntelibTypeId TypeId;
-
-    PlgExpressionClauseChoicePoint(const PlgReference &cl, const SReference &ptr, int pos)
-        : PlgExpressionChoicePoint(TypeId, pos), clause(cl), pointer(ptr) {}
-
-    virtual bool Next(PlgExpressionContinuation &continuation);
-private:
-    PlgReference clause;
-    SReference pointer;
-};
-
-typedef GenericSReference<PlgExpressionClauseChoicePoint, IntelibX_not_a_prolog_clause_choice_point> PlgClauseChoicePoint_Super;
-
-class PlgClauseChoicePoint : public PlgClauseChoicePoint_Super
-{
-public:
-    PlgClauseChoicePoint(const PlgReference &request, const SReference &ptr, int pos)
-        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(request, ptr, pos)) {}
-};
+// database
 
 class PlgDatabase
 {
@@ -131,6 +95,54 @@ public:
 private:
     SReference clauses;
     PlgDatabase(const PlgDatabase &other);
+};
+
+// choice points
+
+class PlgExpressionChoicePoint : public SExpression
+{
+public:
+    static IntelibTypeId TypeId;
+
+    virtual bool TryNext() = 0;
+    void Restore();
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+
+protected:
+    PlgExpressionContinuation &cont;
+    int contextPos;
+    SReference queries;
+
+    PlgExpressionChoicePoint(const IntelibTypeId &typeId, PlgExpressionContinuation &c) 
+        : SExpression(typeId), cont(c), contextPos(c.context.Top()), queries(c.queries) {}
+};
+
+typedef GenericSReference<PlgExpressionChoicePoint, IntelibX_not_a_prolog_choice_point> PlgChoicePoint;
+
+class PlgExpressionClauseChoicePoint : public PlgExpressionChoicePoint
+{
+public:
+    static IntelibTypeId TypeId;
+
+    PlgExpressionClauseChoicePoint(const PlgReference &cls, PlgExpressionContinuation &c)
+        : PlgExpressionChoicePoint(TypeId, c), clause(cls) , pointer(c.Database().Head()) {}
+
+    virtual bool TryNext();
+private:
+    PlgReference clause;
+    SReference pointer;
+};
+
+typedef GenericSReference<PlgExpressionClauseChoicePoint, IntelibX_not_a_prolog_clause_choice_point> PlgClauseChoicePoint_Super;
+
+class PlgClauseChoicePoint : public PlgClauseChoicePoint_Super
+{
+public:
+    PlgClauseChoicePoint(const PlgReference &clause, PlgExpressionContinuation &cont)
+        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(clause, cont)) {}
 };
 
 #endif
