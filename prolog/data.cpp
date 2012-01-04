@@ -132,8 +132,8 @@ SString PlgExpressionTerm::TextRepresentation() const {
 
 IntelibTypeId PlgExpressionPredicate::TypeId(&SExpression::TypeId, false);
 
-bool PlgExpressionUserPredicate::Apply(const SReference &args, PlgExpressionContinuation &cont) {
-    return function(args, cont);
+bool PlgExpressionUserPredicate::Apply(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    return function(functor, args, cont);
 }
 
 // Atom

@@ -5,7 +5,7 @@ static SListConstructor S;
 
 // Conjunction
 
-bool PredicateConj(const SReference &args, PlgExpressionContinuation &cont) {
+bool PredicateConj(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     PlgReference left = args.Car();
     PlgReference right = args.Cdr().Car();
     cont.PushQuery(right);
@@ -17,7 +17,7 @@ PlgAtom PlgAtomConj(", ", 2, PredicateConj, true);
 
 // Disjunction
 
-bool PredicateDisj(const SReference &args, PlgExpressionContinuation &cont) {
+bool PredicateDisj(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     throw IntelibX_not_implemented();
 }
 
@@ -25,7 +25,7 @@ PlgAtom PlgAtomDisj("; ", 2, PredicateDisj, true);
 
 // "=" predicate
 
-bool PredicateEquals(const SReference &args, PlgExpressionContinuation &cont) {
+bool PredicateEquals(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     PlgReference left = args.Car();
     PlgReference right = args.Cdr().Car();
 
@@ -34,7 +34,7 @@ bool PredicateEquals(const SReference &args, PlgExpressionContinuation &cont) {
 
 PlgAtom PlgAtomEquals("=", 2, PredicateEquals, true);
 
-bool PredicateTrue(const SReference &args, PlgExpressionContinuation &cont) {
+bool PredicateTrue(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     return true;
 }
 

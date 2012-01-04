@@ -92,7 +92,7 @@ bool PlgExpressionContinuation::Next() {
             PlgPredicate pred = term->Functor()->GetPredicate(term->Arity());
             if (pred.GetPtr()) {
                 // user predicate
-                if (!pred->Apply(term->Args(), *this) && !Backtrack())
+                if (!pred->Apply(term->Functor(), term->Args(), *this) && !Backtrack())
                     return false;
             } else {
                 PlgClauseChoicePoint cp(query, *this); //???

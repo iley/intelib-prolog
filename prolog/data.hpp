@@ -84,12 +84,13 @@ PlgClause operator <<= (const PlgReference &head, const PlgReference &body);
 
 // Predicate
 
+class PlgAtom;
 class PlgExpressionPredicate : public SExpression, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
 
-    virtual bool Apply(const SReference &args, PlgExpressionContinuation &cont) = 0;
+    virtual bool Apply(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) = 0;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const { return "<PREDICATE>"; }
@@ -99,14 +100,14 @@ protected:
     explicit PlgExpressionPredicate(const IntelibTypeId &typeId = TypeId) : SExpression(typeId) {}
 };
 
-typedef bool (*UserPredicate)(const SReference &args, PlgExpressionContinuation &cont);
+typedef bool (*UserPredicate)(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 
 class PlgExpressionUserPredicate : public PlgExpressionPredicate
 {
 public:
     explicit PlgExpressionUserPredicate(const UserPredicate &func) : function(func) {}
 
-    virtual bool Apply(const SReference &args, PlgExpressionContinuation &cont);
+    virtual bool Apply(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 
 private:
     UserPredicate function;
