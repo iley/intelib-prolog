@@ -59,6 +59,8 @@ public:
     SReference ChoicePoints() { return choicePoints; }
     PlgContext &Context() { return context; }
 
+    void PushQuery(const PlgReference &query);
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif

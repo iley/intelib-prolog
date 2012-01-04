@@ -6,7 +6,11 @@ static SListConstructor S;
 // Conjunction
 
 bool PredicateConj(const SReference &args, PlgExpressionContinuation &cont) {
-    throw IntelibX_not_implemented();
+    PlgReference left = args.Car();
+    PlgReference right = args.Cdr().Car();
+    cont.PushQuery(right);
+    cont.PushQuery(left);
+    return true;
 }
 
 PlgAtom PlgAtomConj(", ", 2, PredicateConj, true);

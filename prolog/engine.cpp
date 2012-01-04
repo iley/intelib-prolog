@@ -121,6 +121,10 @@ void PlgExpressionContinuation::PopChoicePoint() {
     choicePoints = choicePoints.Cdr();
 }
 
+void PlgExpressionContinuation::PushQuery(const PlgReference &query) {
+    queries = query.MakeCons(queries);
+}
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionContinuation::TextRepresentation() const {
     return "<PROLOG CONTINUATION>";
@@ -172,7 +176,7 @@ bool PlgExpressionClauseChoicePoint::TryNext() {
 
         if (clause.Unify(candidate->Head().RenameVars(cont.context, vars), cont.context)) {
             //TODO: method PushQuery
-            cont.queries = candidate->Body().RenameVars(cont.context, vars).MakeCons(cont.queries);
+            cont.PushQuery(candidate->Body().RenameVars(cont.context, vars));
             return true;
         }
     }

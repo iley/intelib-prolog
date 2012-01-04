@@ -208,7 +208,6 @@ int main()
         }
         TestScore();
 
-        /*
         TestSection("Conjunction");
         {
             PlgAtom f("f"), g("g"), h("h");
@@ -235,7 +234,6 @@ int main()
             TESTB("evaluate f(X) for a second time", !cont->Next());
         }
         TestScore();
-        */
         
     }
     catch(IntelibX &x) {
