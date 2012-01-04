@@ -178,3 +178,9 @@ bool PlgExpressionClauseChoicePoint::TryNext() {
 }
 
 IntelibTypeId PlgExpressionClauseChoicePoint::TypeId(&PlgExpressionChoicePoint::TypeId, true);
+
+IntelibTypeId PlgExpressionDisjChoicePoint::TypeId(&PlgExpressionChoicePoint::TypeId, true);
+
+bool PlgExpressionDisjChoicePoint::TryNext() {
+    throw IntelibX_not_implemented();
+}

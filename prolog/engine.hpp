@@ -147,4 +147,25 @@ public:
         : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(clause, cont)) {}
 };
 
+class PlgExpressionDisjChoicePoint : public PlgExpressionChoicePoint
+{
+public:
+    static IntelibTypeId TypeId;
+
+    PlgExpressionDisjChoicePoint(const PlgReference &dj, PlgExpressionContinuation &cont)
+        : PlgExpressionChoicePoint(TypeId, cont), disj(dj) {}
+
+    virtual bool TryNext();
+private:
+    PlgReference disj;
+};
+
+typedef GenericSReference<PlgExpressionDisjChoicePoint, IntelibX_not_a_prolog_clause_choice_point> PlgDisjChoicePoint_Super;
+
+class PlgDisjChoicePoint : public PlgDisjChoicePoint_Super
+{
+    PlgDisjChoicePoint(const PlgReference &disj, PlgExpressionContinuation &cont)
+        : PlgDisjChoicePoint_Super(new PlgExpressionDisjChoicePoint(disj, cont)) {}
+};
+
 #endif
