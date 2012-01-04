@@ -1,7 +1,7 @@
 #include "../sexpress/sstring.hpp"
 #include "engine.hpp"
 #include "utils.hpp"
-#include <stdio.h>
+#include "library.hpp"
 
 // Context
 
@@ -111,8 +111,13 @@ bool PlgExpressionContinuation::Backtrack() {
 }
 
 // Database
-void PlgDatabase::Add(const PlgReference &clause) {
-    clauses.AddAnotherItemToList(clause);
+void PlgDatabase::Add(const PlgReference &ref) {
+    if (ref->TermType() == PlgExpressionClause::TypeId)
+        clauses.AddAnotherItemToList(ref);
+    else if (ref->TermType() == PlgExpressionTerm::TypeId)
+        clauses.AddAnotherItemToList(PlgClause(ref, PlgTrue));
+    else if (ref->TermType() == PlgExpressionAtom::TypeId)
+        clauses.AddAnotherItemToList(PlgClause(PlgTerm(ref, *PTheEmptyList), PlgTrue));
 }
 
 PlgContinuation PlgDatabase::Query(const PlgReference &request) {

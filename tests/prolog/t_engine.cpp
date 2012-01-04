@@ -85,11 +85,11 @@ int main()
             PlgReference (Y) = PlgVariableName("Y");
             PlgAtom socrates("socrates"), plato("plato"), zeus("zeus"), mortal("mortal"), human("human"), man("man"), f("f");
 
-            db.Add( man(plato) <<= PlgTrue );
-            db.Add( man(socrates) <<= PlgTrue );
+            db.Add( man(plato)  );
+            db.Add( man(socrates)  );
             db.Add( human(Y) <<= man(Y) );
             db.Add( mortal(X) <<= human(X) );
-            db.Add( f(X) <<= PlgTrue );
+            db.Add( f(X) );
 
             PlgContinuation cont = db.Query( f(X) );
             TESTB("f(X)", cont->Next());
@@ -141,9 +141,9 @@ int main()
 
             db.Add( a(b(X)) <<= d(X) );
             db.Add( a(c(X)) <<= f(X) );
-            db.Add( d(a) <<= PlgTrue );
-            db.Add( f(b) <<= PlgTrue );
-            db.Add( always_true <<= PlgTrue );
+            db.Add( d(a) );
+            db.Add( f(b) );
+            db.Add( always_true );
 
             PlgContinuation cont = db.Query(a(b(a)));
             TESTB("a(b(a))", cont->Next());
@@ -223,9 +223,9 @@ int main()
             PlgDatabase db;
 
             db.Add( f(X) <<= g(X) & h(X) );
-            db.Add( g(alpha) <<= PlgTrue );
-            db.Add( g(beta) <<= PlgTrue );
-            db.Add( h(beta) <<= PlgTrue );
+            db.Add( g(alpha) );
+            db.Add( g(beta) );
+            db.Add( h(beta) );
 
             PlgContinuation cont = db.Query(f(alpha));
             TESTB("f(alpha)", !cont->Next());
@@ -249,10 +249,10 @@ int main()
             PlgVariableName X("X");
             PlgDatabase db;
 
-            db.Add( man(fry) <<= PlgTrue );
-            db.Add( woman(leela) <<= PlgTrue );
-            db.Add( robot(bender) <<= PlgTrue );
-            db.Add( alien(zoidberg) <<= PlgTrue );
+            db.Add( man(fry) );
+            db.Add( woman(leela) );
+            db.Add( robot(bender) );
+            db.Add( alien(zoidberg) );
             db.Add( human(X) <<= man(X) | woman(X) );
 
             PlgContinuation cont = db.Query( human(fry) );
@@ -280,7 +280,7 @@ int main()
             PlgDatabase db;
             SListConstructor S;
 
-            db.Add( append(*PTheEmptyList, X, X) <<= PlgTrue );
+            db.Add( append(*PTheEmptyList, X, X) );
             db.Add( append(SReference(H, T), L, SReference(H, R)) <<= append(T, L, R) );
 
             PlgContinuation cont = db.Query( append((S|1,2,3), (S|4,5), X) );
