@@ -234,7 +234,37 @@ int main()
             TESTB("evaluate f(X) for a second time", !cont->Next());
         }
         TestScore();
-        
+
+        TestSection("Disjunction");
+        {
+            PlgAtom human("human"), man("man"), woman("woman"), robot("robot"), alien("alien");
+            PlgAtom fry("fry"), leela("leela"), bender("bender"), zoidberg("zoidberg");
+            PlgVariableName X("X");
+            PlgDatabase db;
+
+            db.Add( man(fry) <<= PlgTrue );
+            db.Add( woman(leela) <<= PlgTrue );
+            db.Add( robot(bender) <<= PlgTrue );
+            db.Add( alien(zoidberg) <<= PlgTrue );
+            db.Add( human(X) <<= man(X) | woman(X) );
+
+            PlgContinuation cont = db.Query( human(fry) );
+            TESTB("human(fry)", cont->Next());
+
+            cont = db.Query( human(leela) );
+            TESTB("human(leela)", cont->Next());
+
+            cont = db.Query( human(zoidberg) );
+            TESTB("human(zoidberg)", !cont->Next());
+
+            cont = db.Query( human(X) );
+            TESTB("evaluate human(X)", cont->Next());
+            TESTTR("get X in human(X)", cont->GetValue(X), "fry");
+            TESTB("evaluate human(X) for a second time", cont->Next());
+            TESTTR("get X in human(X)", cont->GetValue(X), "leela");
+            TESTB("evaluate human(X) for a third time", !cont->Next());
+        }
+        TestScore();
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );

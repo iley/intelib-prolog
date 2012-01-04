@@ -6,7 +6,7 @@ static SListConstructor S;
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     PlgClauseChoicePoint cp(PlgTerm(functor, args), cont);
     cont.PushChoicePoint(cp);
-    return false;
+    return false; //to force backtracking
 }
 
 // Conjunction
@@ -24,7 +24,9 @@ PlgAtom PlgAtomConj(", ", 2, PredicateConj, true);
 // Disjunction
 
 bool PredicateDisj(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    throw IntelibX_not_implemented();
+    PlgDisjChoicePoint cp(args, cont);
+    cont.PushChoicePoint(cp);
+    return false; //to force backtracking
 }
 
 PlgAtom PlgAtomDisj("; ", 2, PredicateDisj, true);

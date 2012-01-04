@@ -44,6 +44,7 @@ class PlgExpressionContinuation : public SExpression
     friend class PlgDatabase;
     friend class PlgExpressionChoicePoint;
     friend class PlgExpressionClauseChoicePoint;
+    friend class PlgExpressionDisjChoicePoint;
 public:
     static IntelibTypeId TypeId;
 
@@ -152,20 +153,22 @@ class PlgExpressionDisjChoicePoint : public PlgExpressionChoicePoint
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionDisjChoicePoint(const PlgReference &dj, PlgExpressionContinuation &cont)
-        : PlgExpressionChoicePoint(TypeId, cont), disj(dj) {}
+    PlgExpressionDisjChoicePoint(const SReference &vs, PlgExpressionContinuation &cont)
+        : PlgExpressionChoicePoint(TypeId, cont), variants(vs) {}
 
     virtual bool TryNext();
+
 private:
-    PlgReference disj;
+    PlgReference variants;
 };
 
 typedef GenericSReference<PlgExpressionDisjChoicePoint, IntelibX_not_a_prolog_clause_choice_point> PlgDisjChoicePoint_Super;
 
 class PlgDisjChoicePoint : public PlgDisjChoicePoint_Super
 {
-    PlgDisjChoicePoint(const PlgReference &disj, PlgExpressionContinuation &cont)
-        : PlgDisjChoicePoint_Super(new PlgExpressionDisjChoicePoint(disj, cont)) {}
+public:
+    PlgDisjChoicePoint(const SReference &variants, PlgExpressionContinuation &cont)
+        : PlgDisjChoicePoint_Super(new PlgExpressionDisjChoicePoint(variants, cont)) {}
 };
 
 #endif

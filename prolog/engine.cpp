@@ -182,5 +182,11 @@ IntelibTypeId PlgExpressionClauseChoicePoint::TypeId(&PlgExpressionChoicePoint::
 IntelibTypeId PlgExpressionDisjChoicePoint::TypeId(&PlgExpressionChoicePoint::TypeId, true);
 
 bool PlgExpressionDisjChoicePoint::TryNext() {
-    throw IntelibX_not_implemented();
+    if (variants.IsEmptyList())
+        return false;
+
+    PlgReference variant = variants.Car();
+    variants = variants.Cdr();
+    cont.PushQuery(variant);
+    return true;
 }
