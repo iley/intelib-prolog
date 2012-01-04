@@ -40,17 +40,8 @@ public:
 
     bool Unify(const PlgReference &other, PlgContext &context) const;
 
-    PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const {
-        PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
-        INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
-        return obj->RenameVars(*this, context, existingVars);
-    }
-
-    PlgReference Evaluate(PlgContext &context) const {
-        PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
-        INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
-        return obj->Evaluate(*this, context);
-    }
+    PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const;
+    PlgReference Evaluate(PlgContext &context) const;
 
     ~PlgReference() {}
 };

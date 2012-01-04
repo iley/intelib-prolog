@@ -25,8 +25,9 @@ PlgReference PlgObject::Evaluate(const PlgReference &self, PlgContext &context) 
 
 bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     int pos = context.Top();
+    bool result;
 
-    //FIXME: unnecessary evaluation
+    //FIXME: unnecessary evaluation?
     PlgReference left = Evaluate(context),
         right = other.Evaluate(context);
 
@@ -47,12 +48,43 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
         right = PlgTerm(right)->Functor();
 
     const PlgObject *obj = dynamic_cast<const PlgObject*>(left.GetPtr());
-    INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
-    bool result = obj->Unify(left, right, context);
+    if (obj)
+        result = obj->Unify(left, right, context);
+    else if (left->TermType() == SExpressionCons::TypeId)
+        result = right->TermType() == SExpressionCons::TypeId
+            && PlgReference(left.Car()).Unify(right.Car(), context)
+            && PlgReference(left.Cdr()).Unify(right.Cdr(), context);
+    else
+        result = left.IsEqual(right);
+    
 
     if (!result)
         context.ReturnTo(pos, false);
     return result;
+}
+
+PlgReference PlgReference::RenameVars(PlgContext &context, SHashTable &existingVars) const {
+    PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
+    if (obj)
+        return obj->RenameVars(*this, context, existingVars);
+    else if ((*this)->TermType() == SExpressionCons::TypeId)
+        return SReference(
+            PlgReference(Car()).RenameVars(context, existingVars),
+            PlgReference(Cdr()).RenameVars(context, existingVars));
+    else
+        return *this;
+}
+
+PlgReference PlgReference::Evaluate(PlgContext &context) const {
+    PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
+    if (obj)
+        return obj->Evaluate(*this, context);
+    else if ((*this)->TermType() == SExpressionCons::TypeId)
+         return SReference(
+            PlgReference(Car()).Evaluate(context),
+            PlgReference(Cdr()).Evaluate(context));
+    else
+        return *this;
 }
 
 // Clause
@@ -231,6 +263,6 @@ PlgReference PlgExpressionVariableIndex::Evaluate(const PlgReference &self, PlgC
 
 SString PlgExpressionVariableIndex::TextRepresentation() const {
     static char buffer[32]; //FIXME
-    sprintf(buffer, "<VAR #%d>", value);
+    sprintf(buffer, "_%d", value);
     return buffer;
 }

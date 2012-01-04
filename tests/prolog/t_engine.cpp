@@ -52,7 +52,7 @@ int main()
 
             TESTB("var0 <-> f (status)", var0.Unify(f, ctx));
             TESTTR("var0 <-> f (value)", var0.Evaluate(ctx), "f");
-            TESTB("var0 <-> var0 where var0 = f (status)", var0.Evaluate(ctx).Unify(var1, ctx));
+            TESTB("var0 <-> var0 where var0 = f", var0.Evaluate(ctx).Unify(var1, ctx));
             TESTTR("var0 <-> var0 where var0 = f (value)", var1.Evaluate(ctx), "f");
             ctx.ReturnTo(pos);
 
@@ -62,9 +62,16 @@ int main()
             ctx.ReturnTo(pos);
 
             ctx.Set(var1, f);
-            TESTB("f(var0, var0) <-> f(var1, var2) (status)", f(var1, var2).Evaluate(ctx).Unify(f(var0, var0), ctx));
+            TESTB("f(var0, var0) <-> f(var1, var2)", f(var1, var2).Evaluate(ctx).Unify(f(var0, var0), ctx));
             TESTB("f(var0, var0) <-> f(var1, var2) (value 1)", var0.Evaluate(ctx) == f);
             TESTB("f(var0, var0) <-> f(var1, var2) (value 2)", var2.Evaluate(ctx) == f);
+            ctx.ReturnTo(pos);
+
+            SListConstructor S;
+            PlgReference list1 = (S|1, 2), list2 = (S|1, 2), list3 = (S|var0, 2);
+            TESTB("(1 2) <-> (1 2)", list1.Unify(list2, ctx));
+            TESTB("(1 2) <-> (X 2)", list1.Unify(list3, ctx));
+            TESTTR("(1 2) <-> (X 2) (value)", var0.Evaluate(ctx), "1");
             ctx.ReturnTo(pos);
         }
         TestScore();
@@ -263,6 +270,23 @@ int main()
             TESTB("solve human(X) for a second time", cont->Next());
             TESTTR("get X in human(X)", cont->GetValue(X), "leela");
             TESTB("solve human(X) for a third time", !cont->Next());
+        }
+        TestScore();
+
+        TestSection("Lists");
+        {
+            PlgAtom append("append");
+            PlgVariableName X("X"), H("H"), T("T"), R("R"), L("L");
+            PlgDatabase db;
+            SListConstructor S;
+
+            db.Add( append(*PTheEmptyList, X, X) <<= PlgTrue );
+            db.Add( append(SReference(H, T), L, SReference(H, R)) <<= append(T, L, R) );
+
+            PlgContinuation cont = db.Query( append((S|1,2,3), (S|4,5), X) );
+            TESTB("solve append([1,2,3],[4,5],X)", cont->Next());
+            TESTTR("get X in append([1,2,3],[4,5],X)", cont->GetValue(X), "(1 2 3 4 5)");
+            TESTB("solve append([1,2,3],[4,5],X) for a second time", !cont->Next());
         }
         TestScore();
     }
