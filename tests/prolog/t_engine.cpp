@@ -128,7 +128,7 @@ int main()
 
         TestSection("Solving 2");
         {
-            PlgAtom a("a"), b("b"), c("c"), d("d"), f("f");
+            PlgAtom a("a"), b("b"), c("c"), d("d"), f("f"), always_true("always_true");
             PlgVariableName X("X");
             PlgDatabase db;
 
@@ -136,6 +136,7 @@ int main()
             db.Add( a(c(X)) <<= f(X) );
             db.Add( d(a) <<= PlgTrue );
             db.Add( f(b) <<= PlgTrue );
+            db.Add( always_true <<= PlgTrue );
 
             PlgContinuation cont = db.Query(a(b(a)));
             TESTB("a(b(a))", cont->Next());
@@ -164,6 +165,9 @@ int main()
 
             TESTB("a(X) #3", !cont->Next());
             printContext(cont->Context());
+
+            cont = db.Query(always_true);
+            TESTB("0-arity predicate", cont->Next());
         }
         TestScore();
 

@@ -36,6 +36,13 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
         right = tmp;
     }
 
+    // 0-arity terms are atoms actually
+    if (left->TermType() == PlgExpressionTerm::TypeId && PlgTerm(left)->Arity() == 0)
+        left = PlgTerm(left)->Functor();
+
+    if (right->TermType() == PlgExpressionTerm::TypeId && PlgTerm(right)->Arity() == 0)
+        right = PlgTerm(right)->Functor();
+
     const PlgObject *obj = dynamic_cast<const PlgObject*>(left.GetPtr());
     INTELIB_ASSERT(obj, IntelibX_not_a_prolog_object(*this));
     bool result = obj->Unify(left, right, context);
@@ -62,7 +69,13 @@ PlgReference PlgExpressionClause::RenameVars(const PlgReference &self, PlgContex
 }
 
 PlgClause operator <<= (const PlgReference &head, const PlgReference &body) {
-    INTELIB_ASSERT(head->TermType() == PlgExpressionTerm::TypeId, IntelibX_not_a_prolog_term(head));
+    PlgReference term;
+    if (head->TermType() == PlgExpressionTerm::TypeId)
+        term = head;
+    else if (head->TermType() == PlgExpressionAtom::TypeId)
+        term = PlgTerm(head, *PTheEmptyList);
+    else
+        throw IntelibX_bug();
     return PlgClause(head, body);
 }
 
