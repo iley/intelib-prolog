@@ -3,6 +3,12 @@
 
 static SListConstructor S;
 
+bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    PlgClauseChoicePoint cp(PlgTerm(functor, args), cont);
+    cont.PushChoicePoint(cp);
+    return false;
+}
+
 // Conjunction
 
 bool PredicateConj(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {

@@ -90,17 +90,10 @@ bool PlgExpressionContinuation::Next() {
         if (query->TermType() == PlgExpressionTerm::TypeId) {
             PlgTerm term = query;
             PlgPredicate pred = term->Functor()->GetPredicate(term->Arity());
-            if (pred.GetPtr()) {
-                // user predicate
-                if (!pred->Apply(term->Functor(), term->Args(), *this) && !Backtrack())
-                    return false;
-            } else {
-                PlgClauseChoicePoint cp(query, *this); //???
-                PushChoicePoint(cp);
+            INTELIB_ASSERT(pred.GetPtr(), IntelibX_unexpected_unbound_value());
 
-                if (!Backtrack())
-                    return false;
-            }
+            if (!pred->Apply(term->Functor(), term->Args(), *this) && !Backtrack())
+                return false;
         }
     }
 

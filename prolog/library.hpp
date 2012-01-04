@@ -2,6 +2,8 @@
 #define INTELIB_PROLOG_LIBRARY_HPP_SENTRY
 #include "data.hpp"
 
+bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
+
 // Disjunction
 extern PlgAtom PlgAtomDisj;
 

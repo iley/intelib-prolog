@@ -1,6 +1,7 @@
 #include "data.hpp"
 #include "engine.hpp"
 #include "utils.hpp"
+#include "library.hpp"
 
 static SListConstructor S;
 
@@ -142,16 +143,13 @@ IntelibTypeId PlgExpressionAtom::TypeId(&SExpression::TypeId, true);
 
 PlgPredicate PlgExpressionAtom::GetPredicate(int arity) const {
     INTELIB_ASSERT(arity >= 0, IntelibX_invalid_arity(arity));
-    PlgPredicate result;
 
-    if (arity < predicates->Size())
-        result = predicates[arity];
-
-    if (!result.GetPtr())
-        result = varArgPredicate;
-
-    // can return undefined value, caller should check
-    return result;
+    if (arity < predicates->Size() && predicates[arity].GetPtr())
+        return predicates[arity];
+    else if (varArgPredicate.GetPtr())
+        return varArgPredicate;
+    else
+        return PlgDefaultPredicate;
 }
 
 PlgReference PlgAtom::operator() (const PlgReference &arg1) {
