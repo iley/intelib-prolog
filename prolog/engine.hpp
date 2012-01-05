@@ -25,7 +25,10 @@ public:
     void ReturnTo(int pos, bool merge = false);
 
     int Top() const { return top; }
-    int NextIndex() { return top++; }
+    int NextIndex() {
+        values[top] = PlgUnbound;
+        return top++;
+    }
 
 private:
     SVector values;
