@@ -226,9 +226,6 @@ int main()
     catch(...) {
         printf("Something strange caught\n");
     }
-    
-    printf("Press any key to continue...\n");
-    fgetc(stdin);
 
     return 0;
 }

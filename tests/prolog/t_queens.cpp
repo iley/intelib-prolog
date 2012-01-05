@@ -65,31 +65,20 @@ int main()
             PlgAtom ne = PlgAtomNumericNe;
             db.Add( member(X, H^T) <<= (X ^= H) | member(X, T) );
             db.Add( solution(Nil) );
-            db.Add( solution(pos(X,Y) ^ T) <<= solution(T) & member(Y, (S|1,2,3,4,5,6,7,8)) & noattack(pos(X,Y), T) );
+            db.Add( solution(pos(X,Y) ^ T) <<= solution(T) & member(Y, (S|1,2,3,4)) & noattack(pos(X,Y), T) );
             db.Add( noattack(X, Nil) );
             db.Add( noattack(pos(X,Y), pos(X1,Y1) ^ T) <<=
                 ne(Y, Y1) &
                 ne(Y1 - Y, X1 - X) &
                 ne(Y1 - Y, X - X1) &
                 noattack(pos(X,Y), T) );
-            db.Add( pattern((S|pos(1, Y1), pos(2, Y2), pos(3, Y3), pos(4, Y4), pos(5, Y5), pos(6, Y6), pos(7, Y7), pos(8, Y8))) );
+            //db.Add( pattern((S|pos(1, Y1), pos(2, Y2), pos(3, Y3), pos(4, Y4), pos(5, Y5), pos(6, Y6), pos(7, Y7), pos(8, Y8))) );
+            db.Add( pattern((S|pos(1, Y1), pos(2, Y2), pos(3, Y3), pos(4, Y4))) );
             db.Add( queens(X) <<= pattern(X) & solution(X) );
 
-            /*
             ok(db, queens(X), X,
                 (S| (S|pos(1,3), pos(2,1), pos(3,4), pos(4,2)),
                     (S|pos(1,2), pos(2,4), pos(3,1), pos(4,3))));
-            */
-
-            PlgContinuation cont = db.Query(queens(X));
-            time_t startTime = time(NULL);
-            int i = 0;
-            while (cont->Next()) {
-                ++i;
-                printf("Solution #%d: %s\n", i, cont->GetValue(X)->TextRepresentation().c_str());
-            }
-            time_t endTime = time(NULL);
-            printf("Time: %d\n", endTime - startTime);
 
             TestScore();
         }
@@ -103,9 +92,6 @@ int main()
     catch(...) {
         printf("Something strange caught\n");
     }
-
-    printf("Press any key to continue...\n");
-    fgetc(stdin);
 
     return 0;
 }
