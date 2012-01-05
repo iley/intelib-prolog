@@ -221,16 +221,16 @@ int main()
         }
         TestScore();
 
-        TestSection("Lists");
         {
+            TestSection("Lists");
             PlgAtom append("append"), member("member");
             PlgVariableName X("X"), H("H"), T("T"), R("R"), L("L");
             PlgDatabase db;
             SListConstructor S;
 
             db.Add( append(*PTheEmptyList, X, X) );
-            db.Add( append(SReference(H, T), L, SReference(H, R)) <<= append(T, L, R) );
-            db.Add( member(X, SReference(H, T)) <<= (X ^= H) | member(X, T) );
+            db.Add( append(H^T, L, H^R) <<= append(T, L, R) );
+            db.Add( member(X, H^T) <<= (X ^= H) | member(X, T) );
 
             ok(db, append((S|1,2,3), (S|4,5), (S|1,2,3,4,5)));
             ok(db, append((S|1,2,3), (S|4,5), X), X, (S| (S|1,2,3,4,5) ));
@@ -244,8 +244,32 @@ int main()
             fail(db, member(1, (S|2,3,4)));
             fail(db, member(1, Nil));
             ok(db, member(X, (S|1,2,3)), X, (S|1,2,3));
+            ok(db, member(2, (S|1,X,3)), X, (S|2));
+        
+            TestScore();
+
+            TestSection("Queens");
+            PlgAtom solution("solution"), noattack("noattack"), pos("pos"), pattern("pattern"), queens("queens");
+            PlgVariableName Y("Y"), X1("X1"), Y1("Y1"), Y2("Y2"), Y3("Y3"), Y4("Y4");
+
+            PlgAtom ne = PlgAtomNumericNe;
+            db.Add( solution(Nil) );
+            db.Add( solution(pos(X,Y) ^ T) <<= solution(T) & member(Y, (S|1,2,3,4)) & noattack(pos(X,Y), T) );
+            db.Add( noattack(X, Nil) );
+            db.Add( noattack(pos(X,Y), pos(X1,Y1) ^ T) <<=
+                ne(Y, Y1) &
+                ne(Y1 - Y, X1 - X) &
+                ne(Y1 - Y, X - X1) &
+                noattack(pos(X,Y), T) );
+            db.Add( pattern((S|pos(1, Y1), pos(2, Y2), pos(3, Y3), pos(4, Y4))) );
+            db.Add( queens(X) <<= pattern(X) & solution(X) );
+
+            ok(db, queens(X), X,
+                (S| (S|pos(1,3), pos(2,1), pos(3,4), pos(4,2)),
+                    (S|pos(1,2), pos(2,4), pos(3,1), pos(4,3))));
+
+            TestScore();
         }
-        TestScore();
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );
