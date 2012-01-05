@@ -28,14 +28,17 @@ int main()
     try {
         TestSection("Quick Sort");
         {
+            //PlgGlobalHooks.Call = callTraceHook;
+            //PlgGlobalHooks.Unify = unifyTraceHook;
+
             SListConstructor S;
             PlgAtom qsort("qsort"), append("append"), split("split");
-            PlgVariableName H("H"), T("T"), X("X"), L("L"), R("R"), LS("LS"), RS("RS");
+            PlgVariableName H("H"), T("T"), X("X"), L("L"), R("R"), LS("LS"), RS("RS"), Res("Res");
 
             PlgDatabase db;
 
             db.Add( qsort(Nil, Nil) );
-            db.Add( qsort(H^T, R) <<= split(H, T, L, R) & qsort(L, LS) & qsort(R, RS) & append(LS, H ^ RS, R) );
+            db.Add( qsort(H^T, Res) <<= split(H, T, L, R) & qsort(L, LS) & qsort(R, RS) & append(LS, H ^ RS, Res) );
 
             db.Add( split(X, Nil, Nil, Nil) );
             db.Add( split(X, H^T, H^LS, RS) <<= (H <= X) & split(X, T, LS, RS) );
@@ -45,6 +48,11 @@ int main()
             db.Add( append(H^T, L, H^R) <<= append(T, L, R) );
 
             ok(db, qsort((S|3,1,2), X), X, (S| (S|1,2,3) ));
+            ok(db, qsort((S|3,2,1), X), X, (S| (S|1,2,3) ));
+            ok(db, qsort((S|5,1,2,4), X), X, (S| (S|1,2,4,5) ));
+            ok(db, qsort((S|1), X), X, (S| (S|1) ));
+            ok(db, qsort(Nil, X), X, (S| Nil ));
+            ok(db, qsort((S|1,2,3), X), X, (S| (S|1,2,3) ));
 
             TestScore();
         }
