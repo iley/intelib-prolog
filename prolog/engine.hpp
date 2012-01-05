@@ -14,6 +14,8 @@ public:
     PlgContext() : values(), top(0) {}
 
     void Set(const PlgReference &index, const PlgReference &value) {
+        if (value->TermType() == PlgExpressionVariableIndex::TypeId)
+            backlinks[indexValue(value)] = index;
         values[indexValue(index)] = value;
     }
 
@@ -32,6 +34,7 @@ public:
 
 private:
     SVector values;
+    SVector backlinks;
     int top;
     
     PlgContext(const PlgContext&);

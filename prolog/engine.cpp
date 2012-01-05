@@ -16,13 +16,12 @@ void PlgContext::ReturnTo(int pos, bool merge) {
         }
     } else {
         // destroy bindings which will be invalid after return
-        for (int i = 0; i < pos; ++i) {
-            if (
-                values[i].GetPtr()
-                && values[i]->TermType() == PlgExpressionVariableIndex::TypeId
-                && indexValue(values[i]) >= pos
-            ) {
-                values[i] = PlgUnbound;
+        
+        for (int i = top-1; i >= pos; --i) {
+            PlgReference backlink = backlinks[i];
+            if (backlink.GetPtr()) {
+                values[indexValue(backlink)] = PlgUnbound;
+                backlinks[i] = PlgUnbound;
             }
         }
     }
