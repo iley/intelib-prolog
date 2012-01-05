@@ -207,6 +207,24 @@ int main()
         }
         TestScore();
 
+        TestSection("Cut");
+        {
+            PlgAtom a("a"), b("b"), c("c");
+            PlgVariableName X("X"), Y("Y");
+            PlgDatabase db;
+            PlgAtom cut = PlgAtomCut;
+
+            db.Add( a(X, Y) <<= b(X) & cut & c(Y) );
+            db.Add( b(1) );
+            db.Add( b(2) );
+            db.Add( b(3) );
+            db.Add( c(10) );
+            db.Add( c(20) );
+
+            ok(db, a(X,Y), (S|X, Y), (S| (S|1, 10), (S|1, 20) ));
+        }
+        TestScore();
+
         TestSection("Numbers");
         {
             //TODO: more tests
