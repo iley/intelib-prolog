@@ -22,11 +22,42 @@ inline PlgReference operator & (const PlgReference &left, const PlgReference &ri
 // Unification term
 
 extern PlgAtom PlgAtomEquals;
-
 inline PlgReference operator ^= (const PlgReference &left, const PlgReference &right) {
     return PlgAtomEquals(left, right);
 }
 
 extern PlgAtom PlgTrue;
+extern PlgAtom PlgNotUnifies;
+
+// Integer arithmetic
+
+extern PlgAtom PlgAtomMinus;
+
+inline PlgReference operator - (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomMinus(left, right);
+}
+
+extern PlgAtom PlgAtomPlus;
+
+inline PlgReference operator + (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomPlus(left, right);
+}
+
+extern PlgAtom PlgAtomMultiply;
+
+inline PlgReference operator * (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomMultiply(left, right);
+}
+
+extern PlgAtom PlgAtomDivide;
+
+inline PlgReference operator / (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomDivide(left, right);
+}
+
+extern PlgAtom PlgAtomIs;
+
+extern PlgAtom PlgAtomNumericEq;
+extern PlgAtom PlgAtomNumericNe;
 
 #endif
