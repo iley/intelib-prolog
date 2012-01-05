@@ -23,28 +23,9 @@
 SListConstructor S;
 SReference &Nil = *PTheEmptyList;
 
-bool userPredicateCalled = false;
-
-bool someUserPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    userPredicateCalled = true;
-    return true;
-}
-
-void callHook(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    printf("* Call %s\n", PlgTerm(functor, args)->TextRepresentation().c_str());
-    printContext(cont.Context());
-}
-
-void unifyHook(const PlgReference &left, const PlgReference &right, PlgContext &ctx) {
-    printf("* Unify %s with %s\n", left->TextRepresentation().c_str(), right->TextRepresentation().c_str());
-    printContext(ctx);
-}
-
 int main()
 {
     try {
-
-
         TestSection("Queens");
         {
             SListConstructor S;
