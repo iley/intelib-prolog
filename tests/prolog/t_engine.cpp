@@ -216,9 +216,6 @@ int main()
             ok(db, member(2, (S|1,X,3)), X, (S|2));
         }
         TestScore();
-
-        printf("Press any key to continue...\n");
-        fgetc(stdin);
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );
@@ -229,6 +226,9 @@ int main()
     catch(...) {
         printf("Something strange caught\n");
     }
+    
+    printf("Press any key to continue...\n");
+    fgetc(stdin);
 
     return 0;
 }

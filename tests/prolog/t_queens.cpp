@@ -80,9 +80,6 @@ int main()
 
             TestScore();
         }
-
-        printf("Press any key to continue...\n");
-        fgetc(stdin);
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );
@@ -94,5 +91,7 @@ int main()
         printf("Something strange caught\n");
     }
 
+    printf("Press any key to continue...\n");
+    fgetc(stdin);
     return 0;
 }
