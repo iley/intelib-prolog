@@ -24,7 +24,7 @@ SListConstructor S;
 SReference &Nil = *PTheEmptyList;
 
 void printContext(const PlgContext &context) {
-    //return;
+    return;
     printf("--- context dump start ---\n");
     printf("%s", DumpContext(context).c_str());
     printf("---  context dump end  ---\n");
