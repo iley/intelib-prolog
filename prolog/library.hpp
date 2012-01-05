@@ -29,6 +29,9 @@ inline PlgReference operator ^= (const PlgReference &left, const PlgReference &r
 extern PlgAtom PlgTrue;
 extern PlgAtom PlgNotUnifies;
 
+// Cut
+extern PlgAtom PlgAtomCut;
+
 // Integer arithmetic
 
 extern PlgAtom PlgAtomMinus;
@@ -53,6 +56,12 @@ extern PlgAtom PlgAtomDivide;
 
 inline PlgReference operator / (const PlgReference &left, const PlgReference &right) {
     return PlgAtomDivide(left, right);
+}
+
+extern PlgAtom PlgAtomReminder;
+
+inline PlgReference operator % (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomReminder(left, right);
 }
 
 extern PlgAtom PlgAtomIs;

@@ -42,11 +42,14 @@ bool PredicateEquals(const PlgAtom &functor, const SReference &args, PlgExpressi
 
 PlgAtom PlgAtomEquals(" = ", 2, PredicateEquals, true);
 
+// Truth value
 bool PredicateTrue(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     return true;
 }
 
 PlgAtom PlgTrue("true", 0, PredicateTrue, false);
+
+// "/=" predicate
 
 bool PredicateNotUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     int pos = cont.Context().Top();
@@ -59,10 +62,22 @@ bool PredicateNotUnifies(const PlgAtom &functor, const SReference &args, PlgExpr
 
 PlgAtom NotUnifies(" /= ", 2, PredicateNotUnifies, true);
 
+// Cut
+
+bool PredicateCut(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    cont.ResetChoicePoints();
+    return true;
+}
+
+PlgAtom PlgAtomCut("!", 0, PredicateCut, false);
+
+// Integer arithmetic
+
 PlgAtom PlgAtomMinus(" - ", 2);
 PlgAtom PlgAtomPlus(" + ", 2);
 PlgAtom PlgAtomMultiply(" * ", 2);
 PlgAtom PlgAtomDivide(" / ", 2);
+PlgAtom PlgAtomReminder(" % ", 2);
 
 static int NumericEval(const PlgReference &expr) {
     INTELIB_ASSERT(expr.GetPtr(), IntelibX_unexpected_unbound_value());
@@ -84,6 +99,8 @@ static int NumericEval(const PlgReference &expr) {
             result = left * right;
         else if (oper == PlgAtomDivide)
             result = left / right;
+        else if (oper == PlgAtomReminder)
+            result = left % right;
         else
             throw IntelibX_not_implemented();
 

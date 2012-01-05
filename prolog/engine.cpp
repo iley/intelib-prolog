@@ -88,6 +88,10 @@ void PlgExpressionContinuation::PopChoicePoint() {
     choicePoints = choicePoints.Cdr();
 }
 
+void PlgExpressionContinuation::ResetChoicePoints() {
+    choicePoints = *PTheEmptyList;
+}
+
 void PlgExpressionContinuation::PushQuery(const PlgReference &query) {
     queries = query.MakeCons(queries);
 }
