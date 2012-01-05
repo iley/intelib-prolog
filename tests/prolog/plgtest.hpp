@@ -44,4 +44,15 @@ void fail(PlgDatabase &db, const PlgReference &query) {
     ok(db, query, *PTheEmptyList, *PTheEmptyList);
 }
 
+void callTraceHook(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    printf("* Call %s\n", PlgTerm(functor, args)->TextRepresentation().c_str());
+    printContext(cont.Context());
+}
+
+void unifyTraceHook(const PlgReference &left, const PlgReference &right, PlgContext &ctx) {
+    printf("* Unify %s with %s\n", left->TextRepresentation().c_str(), right->TextRepresentation().c_str());
+    printContext(ctx);
+}
+
+
 #endif
