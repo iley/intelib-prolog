@@ -1,7 +1,7 @@
 //   InteLib                                    http://www.intelib.org
-//   The file tests/prolog/t_data.cpp
+//   The file tests/prolog/t_queens.cpp
 //
-//   Copyright (c) Andrey Vikt. Stolyarov, 2000-2009
+//   Copyright (c) Ilya Strukov, 2011-2012
 //
 //
 //   This is free software, licensed under GNU GPL v.2
