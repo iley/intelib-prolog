@@ -34,11 +34,15 @@ void ok(PlgDatabase &db, const PlgReference &query, const PlgReference &var = Pl
     PlgContinuation cont = db.Query(query);
     int i = 1;
     for (SReference p = results; !p.IsEmptyList(); p = p.Cdr()) {
-        TESTB((SString("solving ") + query->TextRepresentation()).c_str(), cont->Next());
+        bool result = cont->Next();
+        TESTB((SString("solving ") + query->TextRepresentation()).c_str(), result);
         printContext(cont->Context());
         if (var.GetPtr()) {
-            PlgReference value = p.Car();
-            TESTTR((SString("evaluate ") + var->TextRepresentation()).c_str(), cont->GetValue(var), value->TextRepresentation().c_str());
+            PlgReference expectedResult = p.Car();
+            PlgReference value = cont->GetValue(var);
+            TESTTR((SString("evaluate ") + var->TextRepresentation() + SString(" to ") + expectedResult->TextRepresentation()).c_str(),
+                value,
+                expectedResult->TextRepresentation().c_str());
         }
     }
     TESTB((SString("fail ") + query->TextRepresentation()).c_str(), !cont->Next());
@@ -226,6 +230,7 @@ int main()
 
             db.Add( append(*PTheEmptyList, X, X) );
             db.Add( append(SReference(H, T), L, SReference(H, R)) <<= append(T, L, R) );
+            db.Add( member(X, SReference(H, T)) <<= (X ^= H) | member(X, T) );
 
             ok(db, append((S|1,2,3), (S|4,5), (S|1,2,3,4,5)));
             ok(db, append((S|1,2,3), (S|4,5), X), X, (S| (S|1,2,3,4,5) ));
@@ -234,11 +239,11 @@ int main()
             ok(db, append(Nil, Nil, X), X, (S| Nil ));
             ok(db, append((S|1,2,3), X, (S|1,2,3,4,5)), X, (S| (S|4,5)));
 
-            /*
-            db.Add( member(X, SReference(H, T)) <<= X ^= H | member(X, T) );
-            cont = db.Query( member(1, (S|1,2,3)) );
-            TESTB("solve member(1, [1,2,3])", cont->Next());
-            */
+            ok(db, member(1, (S|1,2,3)));
+            ok(db, member(2, (S|1,2,3)));
+            fail(db, member(1, (S|2,3,4)));
+            fail(db, member(1, Nil));
+            ok(db, member(X, (S|1,2,3)), X, (S|1,2,3));
         }
         TestScore();
     }
