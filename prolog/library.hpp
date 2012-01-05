@@ -60,4 +60,28 @@ extern PlgAtom PlgAtomIs;
 extern PlgAtom PlgAtomNumericEq;
 extern PlgAtom PlgAtomNumericNe;
 
+extern PlgAtom PlgAtomNumericLess;
+
+inline PlgReference operator < (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomNumericLess(left, right);
+}
+
+extern PlgAtom PlgAtomNumericLessOrEqual;
+
+inline PlgReference operator <= (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomNumericLessOrEqual(left, right);
+}
+
+extern PlgAtom PlgAtomNumericGreater;
+
+inline PlgReference operator > (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomNumericGreater(left, right);
+}
+
+extern PlgAtom PlgAtomNumericGreaterOrEqual;
+
+inline PlgReference operator >= (const PlgReference &left, const PlgReference &right) {
+    return PlgAtomNumericGreaterOrEqual(left, right);
+}
+
 #endif

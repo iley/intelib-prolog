@@ -117,3 +117,35 @@ bool PredicateNumericNe(const PlgAtom &functor, const SReference &args, PlgExpre
 }
 
 PlgAtom PlgAtomNumericNe(" =\= ", PredicateNumericNe, true);
+
+bool PredicateNumericLess(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    PlgReference left = args.Car(),
+        right = args.Cdr().Car();
+    return NumericEval(left) < NumericEval(right);
+}
+
+PlgAtom PlgAtomNumericLess(" < ", 2, PredicateNumericLess, true);
+
+bool PredicateNumericLessOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    PlgReference left = args.Car(),
+        right = args.Cdr().Car();
+    return NumericEval(left) <= NumericEval(right);
+}
+
+PlgAtom PlgAtomNumericLessOrEqual(" <= ", 2, PredicateNumericLessOrEqual, true);
+
+bool PredicateNumericGreater(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    PlgReference left = args.Car(),
+        right = args.Cdr().Car();
+    return NumericEval(left) > NumericEval(right);
+}
+
+PlgAtom PlgAtomNumericGreater(" > ", 2, PredicateNumericGreater, true);;
+
+bool PredicateNumericGreaterOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    PlgReference left = args.Car(),
+        right = args.Cdr().Car();
+    return NumericEval(left) >= NumericEval(right);
+}
+
+PlgAtom PlgAtomNumericGreaterOrEqual(" >= ", 2, PredicateNumericGreaterOrEqual);

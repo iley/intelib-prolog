@@ -39,7 +39,6 @@ int main()
             TESTTR("clause", a(X) <<= a(X, X), "a(X) :- a(X, X).");
         }
         TestScore();
-        poc();
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );
