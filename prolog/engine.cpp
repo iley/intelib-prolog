@@ -16,13 +16,12 @@ void PlgContext::ReturnTo(int pos, bool merge) {
         }
     } else {
         // destroy bindings which will be invalid after return
-        for (int i = 0; i < pos; ++i) {
-            if (
-                values[i].GetPtr()
-                && values[i]->TermType() == PlgExpressionVariableIndex::TypeId
-                && indexValue(values[i]) >= pos
-            ) {
-                values[i] = PlgUnbound;
+        
+        for (int i = top-1; i >= pos; --i) {
+            PlgReference backlink = backlinks[i];
+            if (backlink.GetPtr()) {
+                values[indexValue(backlink)] = PlgUnbound;
+                backlinks[i] = PlgUnbound;
             }
         }
     }
@@ -112,12 +111,17 @@ bool PlgExpressionContinuation::Backtrack() {
 
 // Database
 void PlgDatabase::Add(const PlgReference &ref) {
+    SReference list = table->FindItem(ref.Functor(), *PTheEmptyList);
+    PlgReference clause;
+
     if (ref->TermType() == PlgExpressionClause::TypeId)
-        clauses.AddAnotherItemToList(ref);
+        clause = ref;
     else if (ref->TermType() == PlgExpressionTerm::TypeId)
-        clauses.AddAnotherItemToList(PlgClause(ref, PlgTrue));
+        clause = PlgClause(ref, PlgTrue);
     else if (ref->TermType() == PlgExpressionAtom::TypeId)
-        clauses.AddAnotherItemToList(PlgClause(PlgTerm(ref, *PTheEmptyList), PlgTrue));
+        clause = PlgClause(PlgTerm(ref, *PTheEmptyList), PlgTrue);
+
+    table->AddItem(ref.Functor(), list.AddAnotherItemToList(clause));
 }
 
 PlgContinuation PlgDatabase::Query(const PlgReference &request) {
