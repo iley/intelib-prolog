@@ -94,13 +94,13 @@ public:
 class PlgDatabase
 {
 public:
-    PlgDatabase() : clauses(*PTheEmptyList) {}
+    PlgDatabase() : table() {}
 
     void Add(const PlgReference &clause);
     PlgContinuation Query(const PlgReference &request);
-    SReference Head() const { return clauses; }
+    SReference Head(const PlgReference &functor) const { return table->FindItem(functor, *PTheEmptyList); }
 private:
-    SReference clauses;
+    SHashTable table;
     PlgDatabase(const PlgDatabase &other);
 };
 
@@ -135,7 +135,7 @@ public:
     static IntelibTypeId TypeId;
 
     PlgExpressionClauseChoicePoint(const PlgReference &cls, PlgExpressionContinuation &c)
-        : PlgExpressionChoicePoint(TypeId, c), clause(cls) , pointer(c.Database().Head()) {}
+        : PlgExpressionChoicePoint(TypeId, c), clause(cls), pointer(c.Database().Head(cls.Functor())) {}
 
     virtual bool TryNext();
 private:

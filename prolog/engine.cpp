@@ -111,12 +111,17 @@ bool PlgExpressionContinuation::Backtrack() {
 
 // Database
 void PlgDatabase::Add(const PlgReference &ref) {
+    SReference list = table->FindItem(ref.Functor(), *PTheEmptyList);
+    PlgReference clause;
+
     if (ref->TermType() == PlgExpressionClause::TypeId)
-        clauses.AddAnotherItemToList(ref);
+        clause = ref;
     else if (ref->TermType() == PlgExpressionTerm::TypeId)
-        clauses.AddAnotherItemToList(PlgClause(ref, PlgTrue));
+        clause = PlgClause(ref, PlgTrue);
     else if (ref->TermType() == PlgExpressionAtom::TypeId)
-        clauses.AddAnotherItemToList(PlgClause(PlgTerm(ref, *PTheEmptyList), PlgTrue));
+        clause = PlgClause(PlgTerm(ref, *PTheEmptyList), PlgTrue);
+
+    table->AddItem(ref.Functor(), list.AddAnotherItemToList(clause));
 }
 
 PlgContinuation PlgDatabase::Query(const PlgReference &request) {

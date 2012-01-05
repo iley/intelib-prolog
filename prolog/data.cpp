@@ -93,6 +93,22 @@ PlgReference PlgReference::Evaluate(PlgContext &context) const {
         return *this;
 }
 
+PlgReference PlgReference::Functor() const {
+    PlgExpressionAtom *atom = DynamicCastGetPtr<PlgExpressionAtom>();
+    if (atom)
+        return *this;
+    
+    PlgExpressionTerm *term = DynamicCastGetPtr<PlgExpressionTerm>();
+    if (term)
+        return term->Functor();
+
+    PlgExpressionClause *clause = DynamicCastGetPtr<PlgExpressionClause>();
+    if (clause)
+        return clause->Head().Functor();
+
+    throw IntelibX_bug();
+}
+
 // Clause
 
 IntelibTypeId PlgExpressionClause::TypeId(&SExpression::TypeId, true);

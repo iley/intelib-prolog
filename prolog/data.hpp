@@ -55,6 +55,8 @@ public:
     PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const;
     PlgReference Evaluate(PlgContext &context) const;
 
+    PlgReference Functor() const;
+
     ~PlgReference() {}
 };
 
