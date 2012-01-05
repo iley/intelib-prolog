@@ -18,18 +18,9 @@
 #include "prolog/prolog.hpp"
 #include "sexpress/sexpress.hpp"
 
-
-void poc()
-{
-#if INTELIB_DEBUG_COUNTERS == 1
-    printf("       Object counter: %ld\n", SExpression::object_counter);
-#endif
-}
-
 int main()
 {
     try {
-        poc();
         TestSection("Data");
         {
             SListConstructor S;
@@ -59,7 +50,6 @@ int main()
     catch(...) {
         printf("Something strange caught\n");
     }
-    poc();
     return 0;
 }
 

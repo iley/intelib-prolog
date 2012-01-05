@@ -48,7 +48,7 @@ int main()
         TestSection("Unification");
         {
             PlgContext ctx;
-            
+
             PlgReference var0 = PlgVariableIndex(ctx.NextIndex());
             PlgReference var1 = PlgVariableIndex(ctx.NextIndex());
             PlgReference var2 = PlgVariableIndex(ctx.NextIndex());
