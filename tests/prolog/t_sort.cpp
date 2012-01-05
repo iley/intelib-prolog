@@ -26,33 +26,51 @@ SReference &Nil = *PTheEmptyList;
 int main()
 {
     try {
-        TestSection("Quick Sort");
-        {
-            //PlgGlobalHooks.Call = callTraceHook;
-            //PlgGlobalHooks.Unify = unifyTraceHook;
+        //PlgGlobalHooks.Call = callTraceHook;
+        //PlgGlobalHooks.Unify = unifyTraceHook;
 
-            SListConstructor S;
-            PlgAtom qsort("qsort"), append("append"), split("split");
-            PlgVariableName H("H"), T("T"), X("X"), L("L"), R("R"), LS("LS"), RS("RS"), Res("Res");
+        SListConstructor S;
+        PlgAtom qsort("qsort"), append("append"), split("split"), select("select"), psort("psort"), perm("perm"), sorted("sorted");
+        PlgVariableName H("H"), T("T"), X("X"), L("L"), R("R"), LS("LS"), RS("RS"), Res("Res");
 
-            PlgDatabase db;
+        PlgDatabase db;
 
-            db.Add( qsort(Nil, Nil) );
-            db.Add( qsort(H^T, Res) <<= split(H, T, L, R) & qsort(L, LS) & qsort(R, RS) & append(LS, H ^ RS, Res) );
+        // standard library functions
+        db.Add( append(Nil, X, X) );
+        db.Add( append(H^T, L, H^R) <<= append(T, L, R) );
 
-            db.Add( split(X, Nil, Nil, Nil) );
-            db.Add( split(X, H^T, H^LS, RS) <<= (H <= X) & split(X, T, LS, RS) );
-            db.Add( split(X, H^T, LS, H^RS) <<= (H >  X) & split(X, T, LS, RS) );
+        db.Add( select(X, X^T, T) );
+        db.Add( select(X, H^T, H^R) <<= select(X, T, R) );
 
-            db.Add( append(Nil, X, X) );
-            db.Add( append(H^T, L, H^R) <<= append(T, L, R) );
+        // quick sort
+        db.Add( qsort(Nil, Nil) );
+        db.Add( qsort(H^T, Res) <<= split(H, T, L, R) & qsort(L, LS) & qsort(R, RS) & append(LS, H ^ RS, Res) );
+            
+        db.Add( split(X, Nil, Nil, Nil) );
+        db.Add( split(X, H^T, H^LS, RS) <<= (H <= X) & split(X, T, LS, RS) );
+        db.Add( split(X, H^T, LS, H^RS) <<= (H >  X) & split(X, T, LS, RS) );
 
-            ok(db, qsort((S|3,1,2), X), X, (S| (S|1,2,3) ));
-            ok(db, qsort((S|3,2,1), X), X, (S| (S|1,2,3) ));
-            ok(db, qsort((S|5,1,2,4), X), X, (S| (S|1,2,4,5) ));
-            ok(db, qsort((S|1), X), X, (S| (S|1) ));
-            ok(db, qsort(Nil, X), X, (S| Nil ));
-            ok(db, qsort((S|1,2,3), X), X, (S| (S|1,2,3) ));
+        // permutation sort
+        db.Add( psort(L,R) <<= perm(L,R) & sorted(R) );
+            
+        db.Add( sorted(Nil) );
+        db.Add( sorted((S|X)) );
+        db.Add( sorted(X^(H^T)) <<= (X <= H) & sorted(H^T) );
+
+        db.Add( perm(Nil, Nil) );
+        db.Add( perm(H^T, R) <<= perm(T,L) & select(H,R,L) );
+
+        // test all sorting algorithms
+        for (SReference p = (S|qsort, psort); !p.IsEmptyList(); p = p.Cdr()) {
+            PlgAtom sort = p.Car();
+            TestSection(sort->TextRepresentation().c_str());
+
+            ok(db, sort((S|3,1,2), X), X, (S| (S|1,2,3) ));
+            ok(db, sort((S|3,2,1), X), X, (S| (S|1,2,3) ));
+            ok(db, sort((S|5,1,2,4), X), X, (S| (S|1,2,4,5) ));
+            ok(db, sort((S|1), X), X, (S| (S|1) ));
+            ok(db, sort(Nil, X), X, (S| Nil ));
+            ok(db, sort((S|1,2,3), X), X, (S| (S|1,2,3) ));
 
             TestScore();
         }
