@@ -14,19 +14,39 @@
 #include "../tests.hpp"
 
 #include "../../sexpress/iexcept.hpp"
+#include "../../sexpress/sexpress.hpp"
 #include "../../sexpress/sstring.hpp"
 #include "../../prolog/prolog.hpp"
-#include "../../sexpress/sexpress.hpp"
 
 #include "../../prolog/utils.hpp"
+
+SListConstructor S;
+SReference &Nil = *PTheEmptyList;
 
 void printContext(const PlgContext &context) {
     //return;
     printf("--- context dump start ---\n");
-
     printf("%s", DumpContext(context).c_str());
-
     printf("---  context dump end  ---\n");
+}
+
+void ok(PlgDatabase &db, const PlgReference &query, const PlgReference &var = PlgUnbound, const SReference &results = (S| Nil )) {
+    PlgContinuation cont = db.Query(query);
+    int i = 1;
+    for (SReference p = results; !p.IsEmptyList(); p = p.Cdr()) {
+        TESTB((SString("solving ") + query->TextRepresentation()).c_str(), cont->Next());
+        printContext(cont->Context());
+        if (var.GetPtr()) {
+            PlgReference value = p.Car();
+            TESTTR((SString("evaluate ") + var->TextRepresentation()).c_str(), cont->GetValue(var), value->TextRepresentation().c_str());
+        }
+    }
+    TESTB((SString("fail ") + query->TextRepresentation()).c_str(), !cont->Next());
+    printContext(cont->Context());
+}
+
+void fail(PlgDatabase &db, const PlgReference &query) {
+    ok(db, query, Nil, Nil);
 }
 
 bool userPredicateCalled = false;
@@ -79,7 +99,6 @@ int main()
         TestSection("Solving 1");
         {
             PlgDatabase db;
-            //TODO: facts
 
             PlgReference (X) = PlgVariableName("X");
             PlgReference (Y) = PlgVariableName("Y");
@@ -91,45 +110,14 @@ int main()
             db.Add( mortal(X) <<= human(X) );
             db.Add( f(X) );
 
-            PlgContinuation cont = db.Query( f(X) );
-            TESTB("f(X)", cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query( f(X, X) );
-            TESTB("f(X,X)", !cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query( man(socrates) );
-            TESTB("man(socrates)", cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query( human(socrates) );
-            TESTB("human(socrates)", cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query( human(zeus) );
-            TESTB("human(zeus)", !cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query( mortal(socrates) );
-            TESTB("mortal(socrates)", cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query( mortal(zeus) );
-            TESTB("mortal(zeus)", !cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query( mortal(X) );
-            TESTB("mortal(X) #1", cont->Next());
-            printContext(cont->Context());
-            TESTTR("mortal(X) where X = plato", cont->GetValue(X), "plato");
-
-            TESTB("mortal(X) #2", cont->Next());
-            printContext(cont->Context());
-            TESTTR("mortal(X) where X = socrates", cont->GetValue(X), "socrates");
-
-            TESTB("mortal(X) end", !cont->Next());
-            printContext(cont->Context());
+            ok(db, f(X));
+            fail(db, f(X,X));
+            ok(db, man(socrates));
+            ok(db, human(socrates));
+            fail(db, human(zeus));
+            ok(db, mortal(socrates));
+            fail(db, mortal(zeus));
+            ok(db, mortal(X), X, (S| plato, socrates));
         }
         TestScore();
 
@@ -145,36 +133,12 @@ int main()
             db.Add( f(b) );
             db.Add( always_true );
 
-            PlgContinuation cont = db.Query(a(b(a)));
-            TESTB("a(b(a))", cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query(a(b(b)));
-            TESTB("a(b(b))", !cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query(a(c(b)));
-            TESTB("a(c(b))", cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query(a(c(a)));
-            TESTB("a(c(a))", !cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query(a(X));
-            TESTB("a(X) #1", cont->Next());
-            TESTTR("a(X) where X = b(a)", cont->GetValue(X), "b(a)");
-            printContext(cont->Context());
-
-            TESTB("a(X) #2", cont->Next());
-            TESTTR("a(X) where X = c(b)", cont->GetValue(X), "c(b)");
-            printContext(cont->Context());
-
-            TESTB("a(X) #3", !cont->Next());
-            printContext(cont->Context());
-
-            cont = db.Query(always_true);
-            TESTB("0-arity predicate", cont->Next());
+            ok(db, a(b(a)));
+            fail(db, a(b(b)));
+            ok(db, a(c(b)));
+            fail(db, a(c(a)));
+            ok(db, a(X), X, (S| b(a), c(b)));
+            ok(db, always_true);
         }
         TestScore();
 
@@ -184,34 +148,20 @@ int main()
             PlgVariableName X("X"), Y("Y");
             PlgDatabase db;
 
+            db.Add( g(X) <<= (X ^= f) );
+            db.Add( h(X) <<= h(X, g) );
+            db.Add( h(X, Y) <<= (X ^= Y) );
+
             f->SetPredicate(1, someUserPredicate);
-            PlgContinuation cont = db.Query(f(X)); //FIXME: cast atom to 0-arity term
+            PlgContinuation cont = db.Query(f(X));
             TESTB("before calling f", !userPredicateCalled);
             TESTB("calling f", cont->Next());
             TESTB("after calling f", userPredicateCalled);
             TESTB("calling f for a second time", !cont->Next());
 
-            cont = db.Query(X ^= f);
-            TESTB("solve X = f", cont->Next());
-            TESTTR("get X value in X = f", cont->GetValue(X), "f");
-            TESTB("solve X = f for a second time", !cont->Next());
-
-            db.Add( g(X) <<= (X ^= f) );
-            cont = db.Query(g(X));
-            printContext(cont->Context());
-            TESTB("solve g(X)", cont->Next());
-            printContext(cont->Context());
-            TESTTR("get X in g(X)", cont->GetValue(X), "f");
-            TESTB("solve g(X) for a second time", !cont->Next());
-
-            db.Add( h(X) <<= h(X, g) );
-            db.Add( h(X, Y) <<= (X ^= Y) );
-            cont = db.Query(h(X));
-            printContext(cont->Context());
-            TESTB("solve h(X)", cont->Next());
-            printContext(cont->Context());
-            TESTTR("get X in h(X)", cont->GetValue(X), "g");
-            TESTB("solve h(X) for a second time", !cont->Next());
+            ok(db, X ^= f, X, (S| f ));
+            ok(db, g(X), X, (S| f ));
+            ok(db, h(X), X, (S| g ));
         }
         TestScore();
 
@@ -227,18 +177,9 @@ int main()
             db.Add( g(beta) );
             db.Add( h(beta) );
 
-            PlgContinuation cont = db.Query(f(alpha));
-            TESTB("f(alpha)", !cont->Next());
-
-            cont = db.Query(f(beta));
-            TESTB("f(beta)", cont->Next());
-            TESTB("f(beta) (2)", !cont->Next());
-
-            cont = db.Query(f(X));
-            TESTB("solve f(X)", cont->Next());
-            printContext(cont->Context());
-            TESTTR("get X in f(X)", cont->GetValue(X), "beta");
-            TESTB("solve f(X) for a second time", !cont->Next());
+            fail(db, f(alpha));
+            ok(db, f(beta));
+            ok(db, f(X), X, (S| beta));
         }
         TestScore();
 
@@ -255,27 +196,17 @@ int main()
             db.Add( alien(zoidberg) );
             db.Add( human(X) <<= man(X) | woman(X) );
 
-            PlgContinuation cont = db.Query( human(fry) );
-            TESTB("human(fry)", cont->Next());
-
-            cont = db.Query( human(leela) );
-            TESTB("human(leela)", cont->Next());
-
-            cont = db.Query( human(zoidberg) );
-            TESTB("human(zoidberg)", !cont->Next());
-
-            cont = db.Query( human(X) );
-            TESTB("solve human(X)", cont->Next());
-            TESTTR("get X in human(X)", cont->GetValue(X), "fry");
-            TESTB("solve human(X) for a second time", cont->Next());
-            TESTTR("get X in human(X)", cont->GetValue(X), "leela");
-            TESTB("solve human(X) for a third time", !cont->Next());
+            ok(db, human(fry));
+            ok(db, human(leela));
+            fail(db, human(zoidberg));
+            fail(db, human(bender));
+            ok(db, human(X), X, (S| fry, leela));
         }
         TestScore();
 
         TestSection("Lists");
         {
-            PlgAtom append("append");
+            PlgAtom append("append"), member("member");
             PlgVariableName X("X"), H("H"), T("T"), R("R"), L("L");
             PlgDatabase db;
             SListConstructor S;
@@ -283,10 +214,18 @@ int main()
             db.Add( append(*PTheEmptyList, X, X) );
             db.Add( append(SReference(H, T), L, SReference(H, R)) <<= append(T, L, R) );
 
-            PlgContinuation cont = db.Query( append((S|1,2,3), (S|4,5), X) );
-            TESTB("solve append([1,2,3],[4,5],X)", cont->Next());
-            TESTTR("get X in append([1,2,3],[4,5],X)", cont->GetValue(X), "(1 2 3 4 5)");
-            TESTB("solve append([1,2,3],[4,5],X) for a second time", !cont->Next());
+            ok(db, append((S|1,2,3), (S|4,5), (S|1,2,3,4,5)));
+            ok(db, append((S|1,2,3), (S|4,5), X), X, (S| (S|1,2,3,4,5) ));
+            ok(db, append((S|1,2,3), Nil, X), X, (S| (S|1,2,3) ));
+            ok(db, append(Nil, Nil, Nil));
+            ok(db, append(Nil, Nil, X), X, (S| Nil ));
+            ok(db, append((S|1,2,3), X, (S|1,2,3,4,5)), X, (S| (S|4,5)));
+
+            /*
+            db.Add( member(X, SReference(H, T)) <<= X ^= H | member(X, T) );
+            cont = db.Query( member(1, (S|1,2,3)) );
+            TESTB("solve member(1, [1,2,3])", cont->Next());
+            */
         }
         TestScore();
     }

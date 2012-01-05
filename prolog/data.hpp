@@ -166,9 +166,11 @@ public:
     explicit PlgAtom(const char *name, const PlgPredicate &pred, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, pred, infix)) {}
     PlgAtom(const SReference &s) : PlgAtom_Super(s) {}
 
-    PlgReference operator () (const PlgReference &arg1);
-    PlgReference operator () (const PlgReference &arg1, const PlgReference &arg2);
-    PlgReference operator () (const PlgReference &arg1, const PlgReference &arg2, const PlgReference &arg3);
+    PlgReference operator () (const SReference &arg1);
+    PlgReference operator () (const SReference &arg1, const SReference &arg2);
+    PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3);
+    PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4);
+    PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4, const SReference &arg5);
     // TODO more args
 };
 

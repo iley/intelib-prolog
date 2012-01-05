@@ -204,18 +204,25 @@ PlgPredicate PlgExpressionAtom::GetPredicate(int arity) const {
         return PlgDefaultPredicate;
 }
 
-PlgReference PlgAtom::operator() (const PlgReference &arg1) {
+PlgReference PlgAtom::operator() (const SReference &arg1) {
     return PlgTerm(*this, (S| arg1 ));
 }
 
-PlgReference PlgAtom::operator() (const PlgReference &arg1, const PlgReference &arg2) {
+PlgReference PlgAtom::operator() (const SReference &arg1, const SReference &arg2) {
     return PlgTerm(*this, (S| arg1, arg2 ));
 }
 
-PlgReference PlgAtom::operator() (const PlgReference &arg1, const PlgReference &arg2, const PlgReference &arg3) {
+PlgReference PlgAtom::operator() (const SReference &arg1, const SReference &arg2, const SReference &arg3) {
     return PlgTerm(*this, (S| arg1, arg2, arg3 ));
 }
 
+PlgReference PlgAtom::operator() (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4) {
+    return PlgTerm(*this, (S| arg1, arg2, arg3, arg4 ));
+}
+
+PlgReference PlgAtom::operator() (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4, const SReference &arg5) {
+    return PlgTerm(*this, (S| arg1, arg2, arg3, arg4, arg5 ));
+}
 // TODO more args
 
 // Variable Name
