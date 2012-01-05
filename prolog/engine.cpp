@@ -165,6 +165,8 @@ bool PlgExpressionDisjChoicePoint::TryNext() {
     if (variants.IsEmptyList())
         return false;
 
+    Restore();
+
     PlgReference variant = variants.Car();
     variants = variants.Cdr();
     cont.PushQuery(variant);

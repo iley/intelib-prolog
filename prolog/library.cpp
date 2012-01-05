@@ -40,7 +40,7 @@ bool PredicateEquals(const PlgAtom &functor, const SReference &args, PlgExpressi
     return left.Unify(right, cont.Context());
 }
 
-PlgAtom PlgAtomEquals("=", 2, PredicateEquals, true);
+PlgAtom PlgAtomEquals(" = ", 2, PredicateEquals, true);
 
 bool PredicateTrue(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     return true;
