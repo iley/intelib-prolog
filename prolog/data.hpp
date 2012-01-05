@@ -13,12 +13,24 @@
 #include "../sexpress/sstring.hpp"
 #endif
 
-typedef const char *(*NameGeneratorFunction)();
-
+class PlgAtom;
 class PlgReference;
 class PlgContext;
 class PlgContinuation;
 class PlgExpressionContinuation;
+
+struct PlgHooks {
+    typedef void (*PredicateCallFunc)(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
+    typedef void (*PredicateExitFunc)(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
+    typedef void (*UnifyFunc)(const PlgReference &left, const PlgReference &right, PlgContext &ctx);
+
+    PredicateCallFunc Call;
+    UnifyFunc Unify;
+
+    PlgHooks() : Call(0), Unify(0) {}
+};
+
+extern PlgHooks PlgGlobalHooks;
 
 class PlgObject
 {

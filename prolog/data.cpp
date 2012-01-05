@@ -7,6 +7,7 @@ static SListConstructor S;
 
 // Generic Prolog Expression
 
+PlgHooks PlgGlobalHooks;
 PlgReference PlgUnbound;
 
 bool PlgObject::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const {
@@ -24,6 +25,9 @@ PlgReference PlgObject::Evaluate(const PlgReference &self, PlgContext &context) 
 // Reference to a generic prolog expression
 
 bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
+    if (PlgGlobalHooks.Unify)
+        PlgGlobalHooks.Unify(*this, other, context);
+
     int pos = context.Top();
     bool result;
 
@@ -186,6 +190,8 @@ SString PlgExpressionTerm::TextRepresentation() const {
 IntelibTypeId PlgExpressionPredicate::TypeId(&SExpression::TypeId, false);
 
 bool PlgExpressionUserPredicate::Apply(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    if (PlgGlobalHooks.Call)
+        PlgGlobalHooks.Call(functor, args, cont);
     return function(functor, args, cont);
 }
 
