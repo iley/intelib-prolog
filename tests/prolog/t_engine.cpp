@@ -206,6 +206,27 @@ int main()
             ok(db, member(2, (S|1,X,3)), X, (S|2));
         }
         TestScore();
+
+        TestSection("Numbers");
+        {
+            //TODO: more tests
+            PlgAtom gcd("gcd");
+            PlgVariableName X("X"), Y("Y"), Z("Z"), D("D");
+            PlgAtom cut = PlgAtomCut, is = PlgAtomIs;
+            PlgDatabase db;
+
+            db.Add( gcd(X, 0, X) <<= cut );
+            db.Add( gcd(0, X, X) <<= cut );
+            db.Add( gcd(X, Y, D) <<= (X > Y) & cut & is(Z, X % Y) & gcd(Y, Z, D) );
+            db.Add( gcd(X, Y, D) <<= is(Z, Y % X) & gcd(X, Z, D) );
+
+            ok(db, gcd(12, 8, X), X, (S|4));
+            ok(db, gcd(12, 11, X), X, (S|1));
+            ok(db, gcd(32, 24, X), X, (S|8));
+            ok(db, gcd(24, 32, X), X, (S|8));
+            ok(db, gcd(2, 4, X), X, (S|2));
+        }
+        TestScore();
     }
     catch(IntelibX &x) {
         printf("\nCaught IntelibX: %s\n", x.Description() );
