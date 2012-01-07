@@ -259,7 +259,7 @@ namespace PlgStdLib {
         return false; //to force backtracking
     }
 
-    PlgAtom nope("nope", 1, LibraryPredicate, false);
+    PlgAtom nope("not", 1, LibraryPredicate, false);
 
     PlgAtom append("append", 3, LibraryPredicate, false);
     PlgAtom length("length", 2, LibraryPredicate, false);
