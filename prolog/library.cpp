@@ -210,6 +210,9 @@ namespace PlgStdLib {
         db.Add( select(X, X^T, T) );
         db.Add( select(X, H^T, H^R) <<= select(X, T, R) );
 
+        db.Add( repeat );
+        db.Add( repeat <<= repeat );
+
         // rev/3 is an auxilary function for reverse/2
         PlgAtom rev("rev", 3, LibraryPredicate, false);
 
@@ -244,6 +247,7 @@ namespace PlgStdLib {
     PlgAtom nth("nth", 3, LibraryPredicate, false);
     PlgAtom nth0("nth0", 3, LibraryPredicate, false);
     PlgAtom permutation("permutation", 2, LibraryPredicate, false);
+    PlgAtom repeat("repeat", 0, LibraryPredicate, false);
     PlgAtom reverse("reverse", 2, LibraryPredicate, false);
     PlgAtom select("select", 3, LibraryPredicate, false);
 }

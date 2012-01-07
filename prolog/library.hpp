@@ -35,6 +35,7 @@ namespace PlgStdLib {
     extern PlgAtom nth;
     extern PlgAtom nth0;
     extern PlgAtom permutation;
+    extern PlgAtom repeat;
     extern PlgAtom reverse;
     extern PlgAtom select;
 }
