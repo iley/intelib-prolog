@@ -31,11 +31,12 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
     int pos = context.Top();
     bool result;
 
-    /* unnecessary evaluation?
+    /* unnecessary evaluation? */
     PlgReference left = Evaluate(context),
-        right = other.Evaluate(context); */
+        right = other.Evaluate(context);
+    /*
     PlgReference left = *this,
-        right = other;
+        right = other;*/
 
     if (
         left->TermType() != PlgExpressionVariableIndex::TypeId
