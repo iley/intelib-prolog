@@ -28,20 +28,27 @@ int main()
     try {
         using namespace PlgStdLib;
 
-        //PlgGlobalHooks.Call = callTraceHook;
-        //PlgGlobalHooks.Unify = unifyTraceHook;
+        //PlgGlobalHoOks.Call = callTraceHoOk;
+        //PlgGlobalHoOks.Unify = unifyTraceHoOk;
 
         SListConstructor S;
         PlgDatabase db;
 
         TestSection("Standard Library");
 
-        ok(db, member(1, (S|1)));
-        ok(db, member(1, (S|1,2,3)));
-        ok(db, member(2, (S|1,2,3)));
-        ok(db, member(3, (S|1,2,3)));
-        fail(db, member(4, (S|1,2,3)));
-        fail(db, member(1, Nil));
+        Ok(db, member(1, (S|1)));
+        Ok(db, member(1, (S|1,2,3)));
+        Ok(db, member(2, (S|1,2,3)));
+        Ok(db, member(3, (S|1,2,3)));
+        Fail(db, member(4, (S|1,2,3)));
+        Fail(db, member(1, Nil));
+
+        Fail(db, nope(member(1, (S|1))));
+        Fail(db, nope(member(1, (S|1,2,3))));
+        Fail(db, nope(member(2, (S|1,2,3))));
+        Fail(db, nope(member(3, (S|1,2,3))));
+        Ok(db, nope(member(4, (S|1,2,3))));
+        Ok(db, nope(member(1, Nil)));
 
         TestScore();
     }

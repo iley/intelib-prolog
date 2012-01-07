@@ -65,12 +65,12 @@ int main()
             PlgAtom sort = p.Car();
             TestSection(sort->TextRepresentation().c_str());
 
-            ok(db, sort((S|3,1,2), X), X, (S| (S|1,2,3) ));
-            ok(db, sort((S|3,2,1), X), X, (S| (S|1,2,3) ));
-            ok(db, sort((S|5,1,2,4), X), X, (S| (S|1,2,4,5) ));
-            ok(db, sort((S|1), X), X, (S| (S|1) ));
-            ok(db, sort(Nil, X), X, (S| Nil ));
-            ok(db, sort((S|1,2,3), X), X, (S| (S|1,2,3) ));
+            Ok(db, sort((S|3,1,2), X), X, (S| (S|1,2,3) ));
+            Ok(db, sort((S|3,2,1), X), X, (S| (S|1,2,3) ));
+            Ok(db, sort((S|5,1,2,4), X), X, (S| (S|1,2,4,5) ));
+            Ok(db, sort((S|1), X), X, (S| (S|1) ));
+            Ok(db, sort(Nil, X), X, (S| Nil ));
+            Ok(db, sort((S|1,2,3), X), X, (S| (S|1,2,3) ));
 
             TestScore();
         }

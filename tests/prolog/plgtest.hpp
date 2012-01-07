@@ -16,7 +16,7 @@ void printContext(const PlgContext &context) {
     printf("---  context dump end  ---\n");
 }
 
-void ok(PlgDatabase &db, const PlgReference &query, const PlgReference &var, const SReference &results) {
+void Ok(PlgDatabase &db, const PlgReference &query, const PlgReference &var, const SReference &results) {
     PlgContinuation cont = db.Query(query);
     for (SReference p = results; !p.IsEmptyList(); p = p.Cdr()) {
         bool result = cont->Next();
@@ -34,13 +34,13 @@ void ok(PlgDatabase &db, const PlgReference &query, const PlgReference &var, con
     printContext(cont->Context());
 }
 
-void ok(PlgDatabase &db, const PlgReference &query) {
+void Ok(PlgDatabase &db, const PlgReference &query) {
     SListConstructor S;
-    return ok(db, query, *PTheEmptyList, (S| *PTheEmptyList));
+    return Ok(db, query, *PTheEmptyList, (S| *PTheEmptyList));
 }
 
-void fail(PlgDatabase &db, const PlgReference &query) {
-    ok(db, query, *PTheEmptyList, *PTheEmptyList);
+void Fail(PlgDatabase &db, const PlgReference &query) {
+    Ok(db, query, *PTheEmptyList, *PTheEmptyList);
 }
 
 void callTraceHook(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {

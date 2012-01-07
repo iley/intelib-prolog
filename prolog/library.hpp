@@ -9,6 +9,7 @@ namespace PlgStdLib {
     extern PlgAtom conjunction;
     extern PlgAtom unifies;
     extern PlgAtom truth;
+    extern PlgAtom fail;
     extern PlgAtom not_unifies;
     extern PlgAtom cut;
 
@@ -27,6 +28,7 @@ namespace PlgStdLib {
     extern PlgAtom int_greater_or_equal;
 
     extern PlgAtom member;
+    extern PlgAtom nope;
 }
 
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right) {

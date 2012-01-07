@@ -86,14 +86,14 @@ int main()
             db.Add( mortal(X) <<= human(X) );
             db.Add( f(X) );
 
-            ok(db, f(X));
-            fail(db, f(X,X));
-            ok(db, man(socrates));
-            ok(db, human(socrates));
-            fail(db, human(zeus));
-            ok(db, mortal(socrates));
-            fail(db, mortal(zeus));
-            ok(db, mortal(X), X, (S| plato, socrates));
+            Ok(db, f(X));
+            Fail(db, f(X,X));
+            Ok(db, man(socrates));
+            Ok(db, human(socrates));
+            Fail(db, human(zeus));
+            Ok(db, mortal(socrates));
+            Fail(db, mortal(zeus));
+            Ok(db, mortal(X), X, (S| plato, socrates));
         }
         TestScore();
 
@@ -109,12 +109,12 @@ int main()
             db.Add( f(b) );
             db.Add( always_true );
 
-            ok(db, a(b(a)));
-            fail(db, a(b(b)));
-            ok(db, a(c(b)));
-            fail(db, a(c(a)));
-            ok(db, a(X), X, (S| b(a), c(b)));
-            ok(db, always_true);
+            Ok(db, a(b(a)));
+            Fail(db, a(b(b)));
+            Ok(db, a(c(b)));
+            Fail(db, a(c(a)));
+            Ok(db, a(X), X, (S| b(a), c(b)));
+            Ok(db, always_true);
         }
         TestScore();
 
@@ -135,9 +135,9 @@ int main()
             TESTB("after calling f", userPredicateCalled);
             TESTB("calling f for a second time", !cont->Next());
 
-            ok(db, X ^= f, X, (S| f ));
-            ok(db, g(X), X, (S| f ));
-            ok(db, h(X), X, (S| g ));
+            Ok(db, X ^= f, X, (S| f ));
+            Ok(db, g(X), X, (S| f ));
+            Ok(db, h(X), X, (S| g ));
         }
         TestScore();
 
@@ -153,9 +153,9 @@ int main()
             db.Add( g(beta) );
             db.Add( h(beta) );
 
-            fail(db, f(alpha));
-            ok(db, f(beta));
-            ok(db, f(X), X, (S| beta));
+            Fail(db, f(alpha));
+            Ok(db, f(beta));
+            Ok(db, f(X), X, (S| beta));
         }
         TestScore();
 
@@ -172,11 +172,11 @@ int main()
             db.Add( alien(zoidberg) );
             db.Add( human(X) <<= man(X) | woman(X) );
 
-            ok(db, human(fry));
-            ok(db, human(leela));
-            fail(db, human(zoidberg));
-            fail(db, human(bender));
-            ok(db, human(X), X, (S| fry, leela));
+            Ok(db, human(fry));
+            Ok(db, human(leela));
+            Fail(db, human(zoidberg));
+            Fail(db, human(bender));
+            Ok(db, human(X), X, (S| fry, leela));
         }
         TestScore();
 
@@ -191,19 +191,19 @@ int main()
             db.Add( append(H^T, L, H^R) <<= append(T, L, R) );
             db.Add( member(X, H^T) <<= (X ^= H) | member(X, T) );
 
-            ok(db, append((S|1,2,3), (S|4,5), (S|1,2,3,4,5)));
-            ok(db, append((S|1,2,3), (S|4,5), X), X, (S| (S|1,2,3,4,5) ));
-            ok(db, append((S|1,2,3), Nil, X), X, (S| (S|1,2,3) ));
-            ok(db, append(Nil, Nil, Nil));
-            ok(db, append(Nil, Nil, X), X, (S| Nil ));
-            ok(db, append((S|1,2,3), X, (S|1,2,3,4,5)), X, (S| (S|4,5)));
+            Ok(db, append((S|1,2,3), (S|4,5), (S|1,2,3,4,5)));
+            Ok(db, append((S|1,2,3), (S|4,5), X), X, (S| (S|1,2,3,4,5) ));
+            Ok(db, append((S|1,2,3), Nil, X), X, (S| (S|1,2,3) ));
+            Ok(db, append(Nil, Nil, Nil));
+            Ok(db, append(Nil, Nil, X), X, (S| Nil ));
+            Ok(db, append((S|1,2,3), X, (S|1,2,3,4,5)), X, (S| (S|4,5)));
 
-            ok(db, member(1, (S|1,2,3)));
-            ok(db, member(2, (S|1,2,3)));
-            fail(db, member(1, (S|2,3,4)));
-            fail(db, member(1, Nil));
-            ok(db, member(X, (S|1,2,3)), X, (S|1,2,3));
-            ok(db, member(2, (S|1,X,3)), X, (S|2));
+            Ok(db, member(1, (S|1,2,3)));
+            Ok(db, member(2, (S|1,2,3)));
+            Fail(db, member(1, (S|2,3,4)));
+            Fail(db, member(1, Nil));
+            Ok(db, member(X, (S|1,2,3)), X, (S|1,2,3));
+            Ok(db, member(2, (S|1,X,3)), X, (S|2));
         }
         TestScore();
 
@@ -222,7 +222,7 @@ int main()
             db.Add( c(10) );
             db.Add( c(20) );
 
-            ok(db, a(X,Y), (S|X, Y), (S| (S|1, 10), (S|1, 20) ));
+            Ok(db, a(X,Y), (S|X, Y), (S| (S|1, 10), (S|1, 20) ));
         }
         TestScore();
 
@@ -241,11 +241,11 @@ int main()
             db.Add( gcd(X, Y, D) <<= (X > Y) & cut & is(Z, X % Y) & gcd(Y, Z, D) );
             db.Add( gcd(X, Y, D) <<= is(Z, Y % X) & gcd(X, Z, D) );
 
-            ok(db, gcd(12, 8, X), X, (S|4));
-            ok(db, gcd(12, 11, X), X, (S|1));
-            ok(db, gcd(32, 24, X), X, (S|8));
-            ok(db, gcd(24, 32, X), X, (S|8));
-            ok(db, gcd(2, 4, X), X, (S|2));
+            Ok(db, gcd(12, 8, X), X, (S|4));
+            Ok(db, gcd(12, 11, X), X, (S|1));
+            Ok(db, gcd(32, 24, X), X, (S|8));
+            Ok(db, gcd(24, 32, X), X, (S|8));
+            Ok(db, gcd(2, 4, X), X, (S|2));
         }
         TestScore();
     }

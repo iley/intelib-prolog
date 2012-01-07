@@ -50,6 +50,13 @@ namespace PlgStdLib {
 
     PlgAtom truth("true", 0, PredicateTrue, false);
 
+    // Truth value
+    bool PredicateFail(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        return false;
+    }
+
+    PlgAtom fail("fail", 0, PredicateFail, false);
+
     // "/=" predicate
 
     bool PredicateNotUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
@@ -174,6 +181,7 @@ namespace PlgStdLib {
         PlgVariableName X("X"), H("H"), T("T");
 
         db.Add( member(X, H^T) <<= (X ^= H) | member(X, T) );
+        db.Add( nope(X) <<= X & cut & fail | truth );
     }
 
     PlgDatabase &GetDb() {
@@ -195,4 +203,5 @@ namespace PlgStdLib {
     }
 
     PlgAtom member("member", 2, LibraryPredicate, false);
+    PlgAtom nope("nope", 1, LibraryPredicate, false);
 }

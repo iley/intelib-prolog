@@ -57,7 +57,7 @@ int main()
             db.Add( pattern((S|pos(1, Y1), pos(2, Y2), pos(3, Y3), pos(4, Y4))) );
             db.Add( queens(X) <<= pattern(X) & solution(X) );
 
-            ok(db, queens(X), X,
+            Ok(db, queens(X), X,
                 (S| (S|pos(1,3), pos(2,1), pos(3,4), pos(4,2)),
                     (S|pos(1,2), pos(2,4), pos(3,1), pos(4,3))));
 
