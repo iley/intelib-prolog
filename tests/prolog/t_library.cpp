@@ -76,6 +76,11 @@ int main()
         Fail(db, nth0(3, (S|1,2,3)));
         Fail(db, nth0(-1, (S|1,2,3)));
 
+        Ok(db, permutation((S|1,2), X), X, (S| (S|1,2), (S|2,1)));
+        Ok(db, permutation((S|1,2,3), (S|3,1,2)));
+        Fail(db, permutation((S|1,2,3), (S|1,2)));
+        Fail(db, permutation((S|1,2,3), (S|1,1,2)));
+
         TestScore();
     }
     catch(IntelibX &x) {
