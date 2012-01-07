@@ -81,6 +81,10 @@ int main()
         Fail(db, permutation((S|1,2,3), (S|1,2)));
         Fail(db, permutation((S|1,2,3), (S|1,1,2)));
 
+        Ok(db, select(2, (S|1,2,3), (S|1,3)));
+        Ok(db, select(X, (S|1,2,3), (S|1,2)), X, (S|3));
+        Ok(db, select(1, (S|X,2,3), (S|2,3)), X, (S|1));
+
         TestScore();
     }
     catch(IntelibX &x) {
