@@ -25,6 +25,8 @@ namespace PlgStdLib {
     extern PlgAtom int_less_or_equal;
     extern PlgAtom int_greater;
     extern PlgAtom int_greater_or_equal;
+
+    extern PlgAtom member;
 }
 
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right) {

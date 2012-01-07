@@ -36,7 +36,7 @@ private:
     SVector values;
     SVector backlinks;
     int top;
-    
+
     PlgContext(const PlgContext&);
 
     int indexValue(const PlgReference &plgIndex) const;
@@ -135,8 +135,8 @@ class PlgExpressionClauseChoicePoint : public PlgExpressionChoicePoint
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionClauseChoicePoint(const PlgReference &cls, PlgExpressionContinuation &c)
-        : PlgExpressionChoicePoint(TypeId, c), clause(cls), pointer(c.Database().Head(cls.Functor())) {}
+    PlgExpressionClauseChoicePoint(const PlgReference &cls, PlgExpressionContinuation &c, PlgDatabase &db)
+        : PlgExpressionChoicePoint(TypeId, c), clause(cls), pointer(db.Head(cls.Functor())) {}
 
     virtual bool TryNext();
 private:
@@ -150,7 +150,10 @@ class PlgClauseChoicePoint : public PlgClauseChoicePoint_Super
 {
 public:
     PlgClauseChoicePoint(const PlgReference &clause, PlgExpressionContinuation &cont)
-        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(clause, cont)) {}
+        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(clause, cont, cont.Database())) {}
+
+    PlgClauseChoicePoint(const PlgReference &clause, PlgExpressionContinuation &cont, PlgDatabase &db)
+        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(clause, cont, db)) {}
 };
 
 class PlgExpressionDisjChoicePoint : public PlgExpressionChoicePoint

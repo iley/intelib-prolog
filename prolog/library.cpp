@@ -167,4 +167,32 @@ namespace PlgStdLib {
     }
 
     PlgAtom int_greater_or_equal(" >= ", 2, PredicateIntGreaterOrEqual);
+
+    // Database with standard predicates written in prolog
+
+    void InitDb(PlgDatabase &db) {
+        PlgVariableName X("X"), H("H"), T("T");
+
+        db.Add( member(X, H^T) <<= (X ^= H) | member(X, T) );
+    }
+
+    PlgDatabase &GetDb() {
+        static PlgDatabase db;
+        static bool initialized = false;
+
+        if (!initialized) {
+            InitDb(db);
+            initialized = true;
+        }
+
+        return db;
+    }
+
+    bool LibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgClauseChoicePoint cp(PlgTerm(functor, args), cont, GetDb());
+        cont.PushChoicePoint(cp);
+        return false; //to force backtracking
+    }
+
+    PlgAtom member("member", 2, LibraryPredicate, false);
 }
