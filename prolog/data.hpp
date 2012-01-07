@@ -206,6 +206,8 @@ class PlgVariableName : public PlgVariableName_Super
 {
 public:
     explicit PlgVariableName(const char *name) : PlgVariableName_Super(new PlgExpressionVariableName(name)) {}
+
+    PlgReference is(const PlgReference &expr);
 };
 
 // Variable index

@@ -98,7 +98,7 @@ PlgReference PlgReference::Functor() const {
     PlgExpressionAtom *atom = DynamicCastGetPtr<PlgExpressionAtom>();
     if (atom)
         return *this;
-    
+
     PlgExpressionTerm *term = DynamicCastGetPtr<PlgExpressionTerm>();
     if (term)
         return term->Functor();
@@ -263,6 +263,10 @@ PlgReference PlgExpressionVariableName::RenameVars(const PlgReference &self, Plg
     } else {
         return binding;
     }
+}
+
+PlgReference PlgVariableName::is(const PlgReference &expr) {
+    return PlgStdLib::is(*this, expr);
 }
 
 // Variable index
