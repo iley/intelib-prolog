@@ -97,12 +97,16 @@ class PlgDatabase
 public:
     PlgDatabase() : table() {}
 
+    void AddA(const PlgReference &clause); //add to the head of list
     void Add(const PlgReference &clause);
+
     PlgContinuation Query(const PlgReference &request);
     SReference Head(const PlgReference &functor) const { return table->FindItem(functor, *PTheEmptyList); }
 private:
     SHashTable table;
     PlgDatabase(const PlgDatabase &other);
+
+    PlgReference Clause(const PlgReference &ref) const;
 };
 
 // choice points
