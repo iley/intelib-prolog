@@ -27,9 +27,12 @@ namespace PlgStdLib {
     extern PlgAtom int_greater;
     extern PlgAtom int_greater_or_equal;
 
-    extern PlgAtom member;
+    extern PlgAtom nope; //not/1 in standard prolog
+
     extern PlgAtom append;
-    extern PlgAtom nope;
+    extern PlgAtom member;
+    extern PlgAtom nth;
+    extern PlgAtom nth0;
 }
 
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right) {

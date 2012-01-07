@@ -28,9 +28,6 @@ int main()
     try {
         using namespace PlgStdLib;
 
-        //PlgGlobalHoOks.Call = callTraceHoOk;
-        //PlgGlobalHoOks.Unify = unifyTraceHoOk;
-
         SListConstructor S;
         PlgDatabase db;
         PlgVariableName X("X");
@@ -57,6 +54,27 @@ int main()
         Ok(db, append(Nil, Nil, Nil));
         Ok(db, append(Nil, Nil, X), X, (S| Nil ));
         Ok(db, append((S|1,2,3), X, (S|1,2,3,4,5)), X, (S| (S|4,5)));
+
+        //PlgGlobalHooks.Call = callTraceHook;
+        //PlgGlobalHooks.Unify = unifyTraceHook;
+
+        Ok(db, nth(1, (S|10), 10));
+        Ok(db, nth(1, (S|1,2,3), 1));
+        Ok(db, nth(2, (S|1,2,3), 2));
+        Ok(db, nth(3, (S|1,2,3), 3));
+        Ok(db, nth(1, (S|10,20,30), X), X, (S|10));
+        Ok(db, nth(2, (S|10,20,30), X), X, (S|20));
+        Ok(db, nth(3, (S|10,20,30), X), X, (S|30));
+        Fail(db, nth(4, (S|1,2,3)));
+        Fail(db, nth(0, (S|1,2,3)));
+        Fail(db, nth(-1, (S|1,2,3)));
+
+        Ok(db, nth0(0, (S|10), 10));
+        Ok(db, nth0(0, (S|1,2,3), 1));
+        Ok(db, nth0(1, (S|1,2,3), 2));
+        Ok(db, nth0(2, (S|1,2,3), 3));
+        Fail(db, nth0(3, (S|1,2,3)));
+        Fail(db, nth0(-1, (S|1,2,3)));
 
         TestScore();
     }

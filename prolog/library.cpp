@@ -175,18 +175,31 @@ namespace PlgStdLib {
 
     PlgAtom int_greater_or_equal(">=", 2, PredicateIntGreaterOrEqual);
 
+    bool LibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
+
     // Database with standard predicates written in prolog
 
     void InitDb(PlgDatabase &db) {
-        PlgVariableName X("X"), H("H"), T("T"), L("L"), R("R");
+        PlgVariableName X("X"), H("H"), T("T"), L("L"), R("R"), N("N"), N1("N1");
         SReference &Nil = *PTheEmptyList;
 
-        db.Add( nope(X) <<= X & cut & fail | truth ); // not(X) :- X, !, fail; true
-
-        db.Add( member(X, H^T) <<= (X ^= H) | member(X, T) );
+        db.Add( nope(X) <<= (X & cut & fail) | truth ); // not(X) :- X, !, fail; true
 
         db.Add( append(Nil, X, X) );
         db.Add( append(H^T, L, H^R) <<= append(T, L, R) );
+
+        db.Add( member(X, H^T) <<= ((X ^= H) & cut) | member(X, T) );
+
+        PlgAtom index("index", 4, LibraryPredicate, false);
+        PlgVariableName StartIndex("StartIndex");
+
+        // index/4 is an auxilary predicate to implement nth and nth0
+        db.Add( index(StartIndex, N, L, R) <<= (N < StartIndex) & cut & fail );
+        db.Add( index(StartIndex, StartIndex, H^T, H) <<= cut );
+        db.Add( index(StartIndex, N, H^T, X) <<= N1.is(N - SReference(1)) & index(StartIndex, N1, T, X) );
+
+        db.Add( nth(N, L, X) <<= index(1, N, L, X) );
+        db.Add( nth0(N, L, X) <<= index(0, N, L, X) );
     }
 
     PlgDatabase &GetDb() {
@@ -208,6 +221,9 @@ namespace PlgStdLib {
     }
 
     PlgAtom nope("nope", 1, LibraryPredicate, false);
-    PlgAtom member("member", 2, LibraryPredicate, false);
+
     PlgAtom append("append", 3, LibraryPredicate, false);
+    PlgAtom member("member", 2, LibraryPredicate, false);
+    PlgAtom nth("nth", 3, LibraryPredicate, false);
+    PlgAtom nth0("nth0", 3, LibraryPredicate, false);
 }
