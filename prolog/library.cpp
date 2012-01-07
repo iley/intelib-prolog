@@ -141,7 +141,7 @@ namespace PlgStdLib {
         return IntEval(left) != IntEval(right);
     }
 
-    PlgAtom int_not_equal("=\=", PredicateIntNotEqual, true);
+    PlgAtom int_not_equal("=\\=", PredicateIntNotEqual, true);
 
     bool PredicateIntLess(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
         PlgReference left = args.Car(),
