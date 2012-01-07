@@ -43,15 +43,33 @@ void Fail(PlgDatabase &db, const PlgReference &query) {
     Ok(db, query, *PTheEmptyList, *PTheEmptyList);
 }
 
-void callTraceHook(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    printf("* Call %s\n", PlgTerm(functor, args)->TextRepresentation().c_str());
-    printContext(cont.Context());
-}
+namespace Hooks {
+    void Call(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        printf("* Call %s\n", PlgTerm(functor, args)->TextRepresentation().c_str());
+        printContext(cont.Context());
+    }
 
-void unifyTraceHook(const PlgReference &left, const PlgReference &right, PlgContext &ctx) {
-    printf("* Unify %s with %s\n", left->TextRepresentation().c_str(), right->TextRepresentation().c_str());
-    printContext(ctx);
-}
+    void Exit(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont, bool result) {
+        printf("* %s %s\n", (result ? "Exit" : "Fail"), PlgTerm(functor, args)->TextRepresentation().c_str());
+        printContext(cont.Context());
+    }
 
+    void UnifyCall(const PlgReference &left, const PlgReference &right, PlgContext &ctx) {
+        printf("* Unify %s with %s\n", left->TextRepresentation().c_str(), right->TextRepresentation().c_str());
+        printContext(ctx);
+    }
+
+    void UnifyExit(const PlgReference &left, const PlgReference &right, PlgContext &ctx, bool result) {
+        printf("* Unification %s: %s with %s\n", (result ? "success" : "fail"), left->TextRepresentation().c_str(), right->TextRepresentation().c_str());
+        printContext(ctx);
+    }
+
+    void EnableAll() {
+        PlgGlobalHooks.Call = Call;
+        PlgGlobalHooks.Exit = Exit;
+        PlgGlobalHooks.UnifyCall = UnifyCall;
+        PlgGlobalHooks.UnifyExit = UnifyExit;
+    }
+}
 
 #endif

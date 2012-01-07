@@ -25,8 +25,8 @@ PlgReference PlgObject::Evaluate(const PlgReference &self, PlgContext &context) 
 // Reference to a generic prolog expression
 
 bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
-    if (PlgGlobalHooks.Unify)
-        PlgGlobalHooks.Unify(*this, other, context);
+    if (PlgGlobalHooks.UnifyCall)
+        PlgGlobalHooks.UnifyCall(*this, other, context);
 
     int pos = context.Top();
     bool result;
@@ -63,10 +63,14 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const {
             && PlgReference(left.Cdr()).Unify(right.Cdr(), context);
     else
         result = left.IsEqual(right);
-    
+
 
     if (!result)
         context.ReturnTo(pos, false);
+
+    if (PlgGlobalHooks.UnifyExit)
+        PlgGlobalHooks.UnifyExit(*this, other, context, result);
+
     return result;
 }
 
@@ -199,7 +203,10 @@ SString PlgExpressionTerm::TextRepresentation() const {
     if (functor->IsInfix()) {
         return Join(SString(" ") + functor->TextRepresentation() + " ", args);
     } else {
-        return functor->TextRepresentation() + "(" + Join(", ", args) + ")";
+        if (args.IsEmptyList())
+            return functor->TextRepresentation();
+        else
+            return functor->TextRepresentation() + "(" + Join(", ", args) + ")";
     }
 }
 #endif
@@ -211,7 +218,10 @@ IntelibTypeId PlgExpressionPredicate::TypeId(&SExpression::TypeId, false);
 bool PlgExpressionUserPredicate::Apply(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     if (PlgGlobalHooks.Call)
         PlgGlobalHooks.Call(functor, args, cont);
-    return function(functor, args, cont);
+    bool result = function(functor, args, cont);
+    if (PlgGlobalHooks.Exit)
+        PlgGlobalHooks.Exit(functor, args, cont, result);
+    return result;
 }
 
 // Atom

@@ -21,13 +21,16 @@ class PlgExpressionContinuation;
 
 struct PlgHooks {
     typedef void (*PredicateCallFunc)(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
-    typedef void (*PredicateExitFunc)(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
-    typedef void (*UnifyFunc)(const PlgReference &left, const PlgReference &right, PlgContext &ctx);
+    typedef void (*PredicateExitFunc)(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont, bool result);
+    typedef void (*UnifyCallFunc)(const PlgReference &left, const PlgReference &right, PlgContext &ctx);
+    typedef void (*UnifyExitFunc)(const PlgReference &left, const PlgReference &right, PlgContext &ctx, bool result);
 
     PredicateCallFunc Call;
-    UnifyFunc Unify;
+    PredicateExitFunc Exit;
+    UnifyCallFunc UnifyCall;
+    UnifyExitFunc UnifyExit;
 
-    PlgHooks() : Call(0), Unify(0) {}
+    PlgHooks() : Call(0), Exit(0), UnifyCall(0), UnifyExit(0) {}
 };
 
 extern PlgHooks PlgGlobalHooks;

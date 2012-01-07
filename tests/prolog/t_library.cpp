@@ -30,7 +30,7 @@ int main()
 
         SListConstructor S;
         PlgDatabase db;
-        PlgVariableName X("X");
+        PlgVariableName X("X"), Y("Y"), Z("Z");
 
         TestSection("Standard Library");
 
@@ -54,9 +54,6 @@ int main()
         Ok(db, append(Nil, Nil, Nil));
         Ok(db, append(Nil, Nil, X), X, (S| Nil ));
         Ok(db, append((S|1,2,3), X, (S|1,2,3,4,5)), X, (S| (S|4,5)));
-
-        //PlgGlobalHooks.Call = callTraceHook;
-        //PlgGlobalHooks.Unify = unifyTraceHook;
 
         Ok(db, nth(1, (S|10), 10));
         Ok(db, nth(1, (S|1,2,3), 1));
@@ -89,6 +86,10 @@ int main()
         Ok(db, reverse((S|1,2,3), X), X, (S|(S|3,2,1)));
         Ok(db, reverse(Nil, Nil));
         Ok(db, reverse((S|X,2,3), (S|3,2,1)), X, (S|1));
+
+        Ok(db, length((S|1,2,3), 3));
+        Ok(db, length(Nil, 0));
+        Ok(db, length((S|X,Y,Z), 3));
 
         TestScore();
     }

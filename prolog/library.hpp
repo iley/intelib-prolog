@@ -30,6 +30,7 @@ namespace PlgStdLib {
     extern PlgAtom nope; //not/1 in standard prolog
 
     extern PlgAtom append;
+    extern PlgAtom length;
     extern PlgAtom member;
     extern PlgAtom nth;
     extern PlgAtom nth0;

@@ -190,6 +190,9 @@ namespace PlgStdLib {
 
         db.Add( member(X, H^T) <<= ((X ^= H) & cut) | member(X, T) );
 
+        db.Add( length(Nil, 0) <<= cut );
+        db.Add( length(H^T, N) <<= length(T,N1) & N.is(N1 + SReference(1)) );
+
         PlgAtom index("index", 4, LibraryPredicate, false);
         PlgVariableName StartIndex("StartIndex");
 
@@ -236,6 +239,7 @@ namespace PlgStdLib {
     PlgAtom nope("nope", 1, LibraryPredicate, false);
 
     PlgAtom append("append", 3, LibraryPredicate, false);
+    PlgAtom length("length", 2, LibraryPredicate, false);
     PlgAtom member("member", 2, LibraryPredicate, false);
     PlgAtom nth("nth", 3, LibraryPredicate, false);
     PlgAtom nth0("nth0", 3, LibraryPredicate, false);
