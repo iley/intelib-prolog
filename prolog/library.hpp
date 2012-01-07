@@ -4,93 +4,75 @@
 
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 
-// Disjunction
-extern PlgAtom PlgAtomDisj;
+namespace PlgStdLib {
+    extern PlgAtom disjunction;
+    extern PlgAtom conjunction;
+    extern PlgAtom unifies;
+    extern PlgAtom truth;
+    extern PlgAtom not_unifies;
+    extern PlgAtom cut;
+
+    // Integer arithmetic
+    extern PlgAtom minus;
+    extern PlgAtom plus;
+    extern PlgAtom multiply;
+    extern PlgAtom divide;
+    extern PlgAtom reminder;
+    extern PlgAtom is;
+    extern PlgAtom int_equal;
+    extern PlgAtom int_not_equal;
+    extern PlgAtom int_less;
+    extern PlgAtom int_less_or_equal;
+    extern PlgAtom int_greater;
+    extern PlgAtom int_greater_or_equal;
+}
 
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomDisj(left, right);
+    return PlgStdLib::disjunction(left, right);
 }
-
-// Conjunction
-
-extern PlgAtom PlgAtomConj;
 
 inline PlgReference operator & (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomConj(left, right);
+    return PlgStdLib::conjunction(left, right);
 }
 
-// Unification term
-
-extern PlgAtom PlgAtomEquals;
 inline PlgReference operator ^= (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomEquals(left, right);
+    return PlgStdLib::unifies(left, right);
 }
-
-extern PlgAtom PlgTrue;
-extern PlgAtom PlgNotUnifies;
-
-// Cut
-extern PlgAtom PlgAtomCut;
-
-// Integer arithmetic
-
-extern PlgAtom PlgAtomMinus;
 
 inline PlgReference operator - (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomMinus(left, right);
+    return PlgStdLib::minus(left, right);
 }
-
-extern PlgAtom PlgAtomPlus;
 
 inline PlgReference operator + (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomPlus(left, right);
+    return PlgStdLib::plus(left, right);
 }
-
-extern PlgAtom PlgAtomMultiply;
 
 inline PlgReference operator * (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomMultiply(left, right);
+    return PlgStdLib::multiply(left, right);
 }
-
-extern PlgAtom PlgAtomDivide;
 
 inline PlgReference operator / (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomDivide(left, right);
+    return PlgStdLib::divide(left, right);
 }
-
-extern PlgAtom PlgAtomReminder;
 
 inline PlgReference operator % (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomReminder(left, right);
+    return PlgStdLib::reminder(left, right);
 }
-
-extern PlgAtom PlgAtomIs;
-
-extern PlgAtom PlgAtomNumericEq;
-extern PlgAtom PlgAtomNumericNe;
-
-extern PlgAtom PlgAtomNumericLess;
 
 inline PlgReference operator < (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomNumericLess(left, right);
+    return PlgStdLib::int_less(left, right);
 }
-
-extern PlgAtom PlgAtomNumericLessOrEqual;
 
 inline PlgReference operator <= (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomNumericLessOrEqual(left, right);
+    return PlgStdLib::int_less_or_equal(left, right);
 }
-
-extern PlgAtom PlgAtomNumericGreater;
 
 inline PlgReference operator > (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomNumericGreater(left, right);
+    return PlgStdLib::int_greater(left, right);
 }
 
-extern PlgAtom PlgAtomNumericGreaterOrEqual;
-
 inline PlgReference operator >= (const PlgReference &left, const PlgReference &right) {
-    return PlgAtomNumericGreaterOrEqual(left, right);
+    return PlgStdLib::int_greater_or_equal(left, right);
 }
 
 #endif

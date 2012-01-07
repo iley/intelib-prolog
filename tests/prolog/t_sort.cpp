@@ -45,14 +45,14 @@ int main()
         // quick sort
         db.Add( qsort(Nil, Nil) );
         db.Add( qsort(H^T, Res) <<= split(H, T, L, R) & qsort(L, LS) & qsort(R, RS) & append(LS, H ^ RS, Res) );
-            
+
         db.Add( split(X, Nil, Nil, Nil) );
         db.Add( split(X, H^T, H^LS, RS) <<= (H <= X) & split(X, T, LS, RS) );
         db.Add( split(X, H^T, LS, H^RS) <<= (H >  X) & split(X, T, LS, RS) );
 
         // permutation sort
         db.Add( psort(L,R) <<= perm(L,R) & sorted(R) );
-            
+
         db.Add( sorted(Nil) );
         db.Add( sorted((S|X)) );
         db.Add( sorted(X^(H^T)) <<= (X <= H) & sorted(H^T) );

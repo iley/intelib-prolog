@@ -1,168 +1,170 @@
 #include "library.hpp"
 #include "utils.hpp"
 
-static SListConstructor S;
-
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
     PlgClauseChoicePoint cp(PlgTerm(functor, args), cont);
     cont.PushChoicePoint(cp);
     return false; //to force backtracking
 }
 
-// Conjunction
+namespace PlgStdLib {
+    static SListConstructor S;
 
-bool PredicateConj(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgReference left = args.Car();
-    PlgReference right = args.Cdr().Car();
-    cont.PushQuery(right);
-    cont.PushQuery(left);
-    return true;
-}
+    // Conjunction
 
-PlgAtom PlgAtomConj(", ", 2, PredicateConj, true);
-
-// Disjunction
-
-bool PredicateDisj(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgDisjChoicePoint cp(args, cont);
-    cont.PushChoicePoint(cp);
-    return false; //to force backtracking
-}
-
-PlgAtom PlgAtomDisj("; ", 2, PredicateDisj, true);
-
-// "=" predicate
-
-bool PredicateEquals(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgReference left = args.Car();
-    PlgReference right = args.Cdr().Car();
-
-    return left.Unify(right, cont.Context());
-}
-
-PlgAtom PlgAtomEquals(" = ", 2, PredicateEquals, true);
-
-// Truth value
-bool PredicateTrue(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    return true;
-}
-
-PlgAtom PlgTrue("true", 0, PredicateTrue, false);
-
-// "/=" predicate
-
-bool PredicateNotUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    int pos = cont.Context().Top();
-    PlgReference left = args.Car(),
-        right = args.Cdr().Car();
-    bool result = left.Unify(right, cont.Context());
-    cont.Context().ReturnTo(pos);
-    return !result;
-}
-
-PlgAtom NotUnifies(" /= ", 2, PredicateNotUnifies, true);
-
-// Cut
-
-bool PredicateCut(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    cont.ResetChoicePoints();
-    return true;
-}
-
-PlgAtom PlgAtomCut("!", 0, PredicateCut, false);
-
-// Integer arithmetic
-
-PlgAtom PlgAtomMinus(" - ", 2);
-PlgAtom PlgAtomPlus(" + ", 2);
-PlgAtom PlgAtomMultiply(" * ", 2);
-PlgAtom PlgAtomDivide(" / ", 2);
-PlgAtom PlgAtomReminder(" % ", 2);
-
-static int NumericEval(const PlgReference &expr) {
-    INTELIB_ASSERT(expr.GetPtr(), IntelibX_unexpected_unbound_value());
-    
-    if (expr->TermType() == SExpressionInt::TypeId) {
-        return expr.GetInt();
-    } else if (expr->TermType() == PlgExpressionTerm::TypeId) {
-        PlgTerm term = expr;
-        PlgAtom oper = term->Functor();
-        int left = NumericEval(term->Args().Car()),
-            right = NumericEval(term->Args().Cdr().Car()),
-            result;
-
-        if (oper == PlgAtomMinus)
-            result = left - right;
-        else if (oper == PlgAtomPlus)
-            result = left + right;
-        else if (oper == PlgAtomMultiply)
-            result = left * right;
-        else if (oper == PlgAtomDivide)
-            result = left / right;
-        else if (oper == PlgAtomReminder)
-            result = left % right;
-        else
-            throw IntelibX_not_implemented();
-
-        return result;
-    } else {
-        throw IntelibX_not_implemented();
+    bool PredicateConjunction(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference left = args.Car();
+        PlgReference right = args.Cdr().Car();
+        cont.PushQuery(right);
+        cont.PushQuery(left);
+        return true;
     }
+
+    PlgAtom conjunction(", ", 2, PredicateConjunction, true);
+
+    // Disjunction
+
+    bool PredicateDisjunction(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgDisjChoicePoint cp(args, cont);
+        cont.PushChoicePoint(cp);
+        return false; //to force backtracking
+    }
+
+    PlgAtom disjunction("; ", 2, PredicateDisjunction, true);
+
+    // "=" predicate
+
+    bool PredicateUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference left = args.Car();
+        PlgReference right = args.Cdr().Car();
+
+        return left.Unify(right, cont.Context());
+    }
+
+    PlgAtom unifies(" = ", 2, PredicateUnifies, true);
+
+    // Truth value
+    bool PredicateTrue(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        return true;
+    }
+
+    PlgAtom truth("true", 0, PredicateTrue, false);
+
+    // "/=" predicate
+
+    bool PredicateNotUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        int pos = cont.Context().Top();
+        PlgReference left = args.Car(),
+                     right = args.Cdr().Car();
+        bool result = left.Unify(right, cont.Context());
+        cont.Context().ReturnTo(pos);
+        return !result;
+    }
+
+    PlgAtom not_unifies(" /= ", 2, PredicateNotUnifies, true);
+
+    // Cut
+
+    bool PredicateCut(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        cont.ResetChoicePoints();
+        return true;
+    }
+
+    PlgAtom cut("!", 0, PredicateCut, false);
+
+    // Integer arithmetic
+
+    PlgAtom minus(" - ", 2);
+    PlgAtom plus(" + ", 2);
+    PlgAtom multiply(" * ", 2);
+    PlgAtom divide(" / ", 2);
+    PlgAtom reminder(" % ", 2);
+
+    static int IntEval(const PlgReference &expr) {
+        INTELIB_ASSERT(expr.GetPtr(), IntelibX_unexpected_unbound_value());
+
+        if (expr->TermType() == SExpressionInt::TypeId) {
+            return expr.GetInt();
+        } else if (expr->TermType() == PlgExpressionTerm::TypeId) {
+            PlgTerm term = expr;
+            PlgAtom oper = term->Functor();
+            int left = IntEval(term->Args().Car()),
+                right = IntEval(term->Args().Cdr().Car()),
+                result;
+
+            if (oper == minus)
+                result = left - right;
+            else if (oper == plus)
+                result = left + right;
+            else if (oper == multiply)
+                result = left * right;
+            else if (oper == divide)
+                result = left / right;
+            else if (oper == reminder)
+                result = left % right;
+            else
+                throw IntelibX_not_implemented();
+
+            return result;
+        } else {
+            throw IntelibX_not_implemented();
+        }
+    }
+
+    bool PredicateIs(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference left = args.Car(),
+                     right = args.Cdr().Car();
+
+        return left.Unify(SReference(IntEval(right.Evaluate(cont.Context()))), cont.Context());
+    }
+
+    PlgAtom is(" is ", 2, PredicateIs, true);
+
+    bool PredicateIntEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference left = args.Car(),
+                     right = args.Cdr().Car();
+        return IntEval(left) == IntEval(right);
+    }
+
+    PlgAtom int_equal(" =:= ", PredicateIntEqual, true);
+
+    bool PredicateIntNotEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference left = args.Car(),
+                     right = args.Cdr().Car();
+        return IntEval(left) != IntEval(right);
+    }
+
+    PlgAtom int_not_equal(" =\= ", PredicateIntNotEqual, true);
+
+    bool PredicateIntLess(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference left = args.Car(),
+                     right = args.Cdr().Car();
+        return IntEval(left) < IntEval(right);
+    }
+
+    PlgAtom int_less(" < ", 2, PredicateIntLess, true);
+
+    bool PredicateIntLessOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference left = args.Car(),
+                     right = args.Cdr().Car();
+        return IntEval(left) <= IntEval(right);
+    }
+
+    PlgAtom int_less_or_equal(" <= ", 2, PredicateIntLessOrEqual, true);
+
+    bool PredicateIntGreater(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference left = args.Car(),
+                     right = args.Cdr().Car();
+        return IntEval(left) > IntEval(right);
+    }
+
+    PlgAtom int_greater(" > ", 2, PredicateIntGreater, true);;
+
+    bool PredicateIntGreaterOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference left = args.Car(),
+                     right = args.Cdr().Car();
+        return IntEval(left) >= IntEval(right);
+    }
+
+    PlgAtom int_greater_or_equal(" >= ", 2, PredicateIntGreaterOrEqual);
 }
-
-bool PredicateIs(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgReference left = args.Car(),
-        right = args.Cdr().Car();
-
-    return left.Unify(SReference(NumericEval(right.Evaluate(cont.Context()))), cont.Context());
-}
-
-PlgAtom PlgAtomIs(" is ", 2, PredicateIs, true);
-
-bool PredicateNumericEq(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgReference left = args.Car(),
-        right = args.Cdr().Car();
-    return NumericEval(left) == NumericEval(right);
-}
-
-PlgAtom PlgAtomNumericEq(" =:= ", PredicateNumericEq, true);
-
-bool PredicateNumericNe(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgReference left = args.Car(),
-        right = args.Cdr().Car();
-    return NumericEval(left) != NumericEval(right);
-}
-
-PlgAtom PlgAtomNumericNe(" =\= ", PredicateNumericNe, true);
-
-bool PredicateNumericLess(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgReference left = args.Car(),
-        right = args.Cdr().Car();
-    return NumericEval(left) < NumericEval(right);
-}
-
-PlgAtom PlgAtomNumericLess(" < ", 2, PredicateNumericLess, true);
-
-bool PredicateNumericLessOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgReference left = args.Car(),
-        right = args.Cdr().Car();
-    return NumericEval(left) <= NumericEval(right);
-}
-
-PlgAtom PlgAtomNumericLessOrEqual(" <= ", 2, PredicateNumericLessOrEqual, true);
-
-bool PredicateNumericGreater(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgReference left = args.Car(),
-        right = args.Cdr().Car();
-    return NumericEval(left) > NumericEval(right);
-}
-
-PlgAtom PlgAtomNumericGreater(" > ", 2, PredicateNumericGreater, true);;
-
-bool PredicateNumericGreaterOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
-    PlgReference left = args.Car(),
-        right = args.Cdr().Car();
-    return NumericEval(left) >= NumericEval(right);
-}
-
-PlgAtom PlgAtomNumericGreaterOrEqual(" >= ", 2, PredicateNumericGreaterOrEqual);

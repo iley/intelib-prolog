@@ -18,7 +18,6 @@ void printContext(const PlgContext &context) {
 
 void ok(PlgDatabase &db, const PlgReference &query, const PlgReference &var, const SReference &results) {
     PlgContinuation cont = db.Query(query);
-    int i = 1;
     for (SReference p = results; !p.IsEmptyList(); p = p.Cdr()) {
         bool result = cont->Next();
         TESTB((SString("solving ") + query->TextRepresentation()).c_str(), result);

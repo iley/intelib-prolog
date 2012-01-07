@@ -43,7 +43,7 @@ int main()
 
             PlgDatabase db;
 
-            PlgAtom ne = PlgAtomNumericNe;
+            PlgAtom ne = PlgStdLib::int_not_equal;
             db.Add( member(X, H^T) <<= (X ^= H) | member(X, T) );
             db.Add( solution(Nil) );
             db.Add( solution(pos(X,Y) ^ T) <<= solution(T) & member(Y, (S|1,2,3,4)) & noattack(pos(X,Y), T) );

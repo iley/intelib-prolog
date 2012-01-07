@@ -209,10 +209,11 @@ int main()
 
         TestSection("Cut");
         {
+            using PlgStdLib::cut;
+
             PlgAtom a("a"), b("b"), c("c");
             PlgVariableName X("X"), Y("Y");
             PlgDatabase db;
-            PlgAtom cut = PlgAtomCut;
 
             db.Add( a(X, Y) <<= b(X) & cut & c(Y) );
             db.Add( b(1) );
@@ -227,10 +228,12 @@ int main()
 
         TestSection("Numbers");
         {
+            using PlgStdLib::is;
+            using PlgStdLib::cut;
+
             //TODO: more tests
             PlgAtom gcd("gcd");
             PlgVariableName X("X"), Y("Y"), Z("Z"), D("D");
-            PlgAtom cut = PlgAtomCut, is = PlgAtomIs;
             PlgDatabase db;
 
             db.Add( gcd(X, 0, X) <<= cut );
