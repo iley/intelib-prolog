@@ -196,7 +196,7 @@ PlgReference PlgExpressionTerm::Evaluate(const PlgReference &self, PlgContext &c
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionTerm::TextRepresentation() const {
     if (functor->IsInfix()) {
-        return Join(functor->TextRepresentation(), args);
+        return Join(SString(" ") + functor->TextRepresentation() + " ", args);
     } else {
         return functor->TextRepresentation() + "(" + Join(", ", args) + ")";
     }

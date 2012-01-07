@@ -20,7 +20,7 @@ namespace PlgStdLib {
         return true;
     }
 
-    PlgAtom conjunction(", ", 2, PredicateConjunction, true);
+    PlgAtom conjunction(",", 2, PredicateConjunction, true);
 
     // Disjunction
 
@@ -30,7 +30,7 @@ namespace PlgStdLib {
         return false; //to force backtracking
     }
 
-    PlgAtom disjunction("; ", 2, PredicateDisjunction, true);
+    PlgAtom disjunction(";", 2, PredicateDisjunction, true);
 
     // "=" predicate
 
@@ -41,7 +41,7 @@ namespace PlgStdLib {
         return left.Unify(right, cont.Context());
     }
 
-    PlgAtom unifies(" = ", 2, PredicateUnifies, true);
+    PlgAtom unifies("=", 2, PredicateUnifies, true);
 
     // Truth value
     bool PredicateTrue(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
@@ -68,7 +68,7 @@ namespace PlgStdLib {
         return !result;
     }
 
-    PlgAtom not_unifies(" /= ", 2, PredicateNotUnifies, true);
+    PlgAtom not_unifies("/=", 2, PredicateNotUnifies, true);
 
     // Cut
 
@@ -81,11 +81,11 @@ namespace PlgStdLib {
 
     // Integer arithmetic
 
-    PlgAtom minus(" - ", 2);
-    PlgAtom plus(" + ", 2);
-    PlgAtom multiply(" * ", 2);
-    PlgAtom divide(" / ", 2);
-    PlgAtom reminder(" % ", 2);
+    PlgAtom minus("-", 2);
+    PlgAtom plus("+", 2);
+    PlgAtom multiply("*", 2);
+    PlgAtom divide("/", 2);
+    PlgAtom reminder("%", 2);
 
     static int IntEval(const PlgReference &expr) {
         INTELIB_ASSERT(expr.GetPtr(), IntelibX_unexpected_unbound_value());
@@ -125,7 +125,7 @@ namespace PlgStdLib {
         return left.Unify(SReference(IntEval(right.Evaluate(cont.Context()))), cont.Context());
     }
 
-    PlgAtom is(" is ", 2, PredicateIs, true);
+    PlgAtom is("is", 2, PredicateIs, true);
 
     bool PredicateIntEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
         PlgReference left = args.Car(),
@@ -133,7 +133,7 @@ namespace PlgStdLib {
         return IntEval(left) == IntEval(right);
     }
 
-    PlgAtom int_equal(" =:= ", PredicateIntEqual, true);
+    PlgAtom int_equal("=:=", PredicateIntEqual, true);
 
     bool PredicateIntNotEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
         PlgReference left = args.Car(),
@@ -141,7 +141,7 @@ namespace PlgStdLib {
         return IntEval(left) != IntEval(right);
     }
 
-    PlgAtom int_not_equal(" =\= ", PredicateIntNotEqual, true);
+    PlgAtom int_not_equal("=\=", PredicateIntNotEqual, true);
 
     bool PredicateIntLess(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
         PlgReference left = args.Car(),
@@ -149,7 +149,7 @@ namespace PlgStdLib {
         return IntEval(left) < IntEval(right);
     }
 
-    PlgAtom int_less(" < ", 2, PredicateIntLess, true);
+    PlgAtom int_less("<", 2, PredicateIntLess, true);
 
     bool PredicateIntLessOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
         PlgReference left = args.Car(),
@@ -157,7 +157,7 @@ namespace PlgStdLib {
         return IntEval(left) <= IntEval(right);
     }
 
-    PlgAtom int_less_or_equal(" <= ", 2, PredicateIntLessOrEqual, true);
+    PlgAtom int_less_or_equal("<=", 2, PredicateIntLessOrEqual, true);
 
     bool PredicateIntGreater(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
         PlgReference left = args.Car(),
@@ -165,7 +165,7 @@ namespace PlgStdLib {
         return IntEval(left) > IntEval(right);
     }
 
-    PlgAtom int_greater(" > ", 2, PredicateIntGreater, true);;
+    PlgAtom int_greater(">", 2, PredicateIntGreater, true);;
 
     bool PredicateIntGreaterOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
         PlgReference left = args.Car(),
@@ -173,7 +173,7 @@ namespace PlgStdLib {
         return IntEval(left) >= IntEval(right);
     }
 
-    PlgAtom int_greater_or_equal(" >= ", 2, PredicateIntGreaterOrEqual);
+    PlgAtom int_greater_or_equal(">=", 2, PredicateIntGreaterOrEqual);
 
     // Database with standard predicates written in prolog
 
