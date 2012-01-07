@@ -33,6 +33,9 @@ namespace PlgStdLib {
     extern PlgAtom member;
     extern PlgAtom nth;
     extern PlgAtom nth0;
+    extern PlgAtom permutation;
+    extern PlgAtom reverse;
+    extern PlgAtom select;
 }
 
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right) {

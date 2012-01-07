@@ -200,6 +200,12 @@ namespace PlgStdLib {
 
         db.Add( nth(N, L, X) <<= index(1, N, L, X) );
         db.Add( nth0(N, L, X) <<= index(0, N, L, X) );
+
+        db.Add( permutation(Nil, Nil) );
+        db.Add( permutation(H^T, R) <<= permutation(T,L) & select(H,R,L) );
+
+        db.Add( select(X, X^T, T) );
+        db.Add( select(X, H^T, H^R) <<= select(X, T, R) );
     }
 
     PlgDatabase &GetDb() {
@@ -226,4 +232,7 @@ namespace PlgStdLib {
     PlgAtom member("member", 2, LibraryPredicate, false);
     PlgAtom nth("nth", 3, LibraryPredicate, false);
     PlgAtom nth0("nth0", 3, LibraryPredicate, false);
+    PlgAtom permutation("permutation", 2, LibraryPredicate, false);
+    PlgAtom reverse("reverse", 2, LibraryPredicate, false);
+    PlgAtom select("select", 3, LibraryPredicate, false);
 }
