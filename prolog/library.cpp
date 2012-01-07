@@ -178,10 +178,15 @@ namespace PlgStdLib {
     // Database with standard predicates written in prolog
 
     void InitDb(PlgDatabase &db) {
-        PlgVariableName X("X"), H("H"), T("T");
+        PlgVariableName X("X"), H("H"), T("T"), L("L"), R("R");
+        SReference &Nil = *PTheEmptyList;
+
+        db.Add( nope(X) <<= X & cut & fail | truth ); // not(X) :- X, !, fail; true
 
         db.Add( member(X, H^T) <<= (X ^= H) | member(X, T) );
-        db.Add( nope(X) <<= X & cut & fail | truth );
+
+        db.Add( append(Nil, X, X) );
+        db.Add( append(H^T, L, H^R) <<= append(T, L, R) );
     }
 
     PlgDatabase &GetDb() {
@@ -202,6 +207,7 @@ namespace PlgStdLib {
         return false; //to force backtracking
     }
 
-    PlgAtom member("member", 2, LibraryPredicate, false);
     PlgAtom nope("nope", 1, LibraryPredicate, false);
+    PlgAtom member("member", 2, LibraryPredicate, false);
+    PlgAtom append("append", 3, LibraryPredicate, false);
 }

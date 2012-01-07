@@ -33,6 +33,7 @@ int main()
 
         SListConstructor S;
         PlgDatabase db;
+        PlgVariableName X("X");
 
         TestSection("Standard Library");
 
@@ -49,6 +50,13 @@ int main()
         Fail(db, nope(member(3, (S|1,2,3))));
         Ok(db, nope(member(4, (S|1,2,3))));
         Ok(db, nope(member(1, Nil)));
+
+        Ok(db, append((S|1,2,3), (S|4,5), (S|1,2,3,4,5)));
+        Ok(db, append((S|1,2,3), (S|4,5), X), X, (S| (S|1,2,3,4,5) ));
+        Ok(db, append((S|1,2,3), Nil, X), X, (S| (S|1,2,3) ));
+        Ok(db, append(Nil, Nil, Nil));
+        Ok(db, append(Nil, Nil, X), X, (S| Nil ));
+        Ok(db, append((S|1,2,3), X, (S|1,2,3,4,5)), X, (S| (S|4,5)));
 
         TestScore();
     }

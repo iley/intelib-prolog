@@ -28,6 +28,7 @@ namespace PlgStdLib {
     extern PlgAtom int_greater_or_equal;
 
     extern PlgAtom member;
+    extern PlgAtom append;
     extern PlgAtom nope;
 }
 
