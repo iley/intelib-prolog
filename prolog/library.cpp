@@ -79,6 +79,26 @@ namespace PlgStdLib {
 
     PlgAtom cut("!", 0, PredicateCut, false);
 
+    // Assert
+
+    bool PredicateAssertA(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference arg = args.Car();
+        cont.Database().AddA(arg);
+        return true;
+    }
+
+    PlgAtom assert("assert", 1, PredicateAssertA, false);
+    PlgAtom asserta("asserta", 1, PredicateAssertA, false);
+
+    bool PredicateAssertZ(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+        PlgReference arg = args.Car();
+        cont.Database().Add(arg);
+        return true;
+    }
+
+    PlgAtom assertz("assertz", 1, PredicateAssertZ, false);
+
+
     // Integer arithmetic
 
     PlgAtom minus("-", 2);

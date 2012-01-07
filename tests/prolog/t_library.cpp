@@ -91,6 +91,13 @@ int main()
         Ok(db, length(Nil, 0));
         Ok(db, length((S|X,Y,Z), 3));
 
+        //Hooks::EnableAll();
+        PlgAtom f("f"), g("g");
+        Ok(db, assert(f(1)) & f(X), X, (S|1));
+        Ok(db, asserta(f(2)) & f(X), X, (S|2,1));
+        Ok(db, assertz(f(3)) & f(X), X, (S|2,1,3));
+        Fail(db, f(4));
+
         TestScore();
     }
     catch(IntelibX &x) {

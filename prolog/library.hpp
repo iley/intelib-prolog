@@ -13,6 +13,10 @@ namespace PlgStdLib {
     extern PlgAtom not_unifies;
     extern PlgAtom cut;
 
+    extern PlgAtom assert;
+    extern PlgAtom asserta;
+    extern PlgAtom assertz;
+
     // Integer arithmetic
     extern PlgAtom minus;
     extern PlgAtom plus;
