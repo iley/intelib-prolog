@@ -32,9 +32,9 @@ int main()
             TESTTR("variable name", X, "X");
 
             TESTTR("term", a(X, X), "a(X, X)");
-            TESTTR("conjunction", a(X, X) & a, "a(X, X), a");
-            TESTTR("disjunction", a(X, X) | a, "a(X, X); a");
-            TESTTR("compund expression", (a(X, X) & a(X) | a(X) & a(X, X)), "a(X, X), a(X); a(X), a(X, X)");
+            TESTTR("conjunction", a(X, X) & a, "a(X, X) , a");
+            TESTTR("disjunction", a(X, X) | a, "a(X, X) ; a");
+            TESTTR("compund expression", (a(X, X) & a(X) | a(X) & a(X, X)), "a(X, X) , a(X) ; a(X) , a(X, X)");
 
             TESTTR("clause", a(X) <<= a(X, X), "a(X) :- a(X, X).");
         }
