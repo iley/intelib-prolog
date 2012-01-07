@@ -85,6 +85,11 @@ int main()
         Ok(db, select(X, (S|1,2,3), (S|1,2)), X, (S|3));
         Ok(db, select(1, (S|X,2,3), (S|2,3)), X, (S|1));
 
+        Ok(db, reverse((S|1,2,3), (S|3,2,1)));
+        Ok(db, reverse((S|1,2,3), X), X, (S|(S|3,2,1)));
+        Ok(db, reverse(Nil, Nil));
+        Ok(db, reverse((S|X,2,3), (S|3,2,1)), X, (S|1));
+
         TestScore();
     }
     catch(IntelibX &x) {

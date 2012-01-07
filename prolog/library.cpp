@@ -206,6 +206,13 @@ namespace PlgStdLib {
 
         db.Add( select(X, X^T, T) );
         db.Add( select(X, H^T, H^R) <<= select(X, T, R) );
+
+        // rev/3 is an auxilary function for reverse/2
+        PlgAtom rev("rev", 3, LibraryPredicate, false);
+
+        db.Add( rev(Nil, X, X) <<= cut );
+        db.Add( rev(H^T, R, X) <<= rev(T, H^R, X) );
+        db.Add( reverse(L, R) <<= rev(L, Nil, R) );
     }
 
     PlgDatabase &GetDb() {
