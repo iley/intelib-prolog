@@ -1,3 +1,4 @@
+#include "../sexpress/shashtbl.hpp"
 #include "library.hpp"
 #include "utils.hpp"
 

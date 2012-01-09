@@ -14,7 +14,7 @@
 
 TARGETLIBNAME = libiprolog.a
 
-LIBSOURCES = prolog.cpp utils.cpp exceptions.cpp data.cpp engine.cpp library.cpp
+LIBSOURCES = prolog.cpp utils.cpp exceptions.cpp data.cpp engine.cpp library.cpp io.cpp
 
 
 GENERATED_PREFIX = plgfun
