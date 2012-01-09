@@ -2,18 +2,21 @@
 #include "library.hpp"
 #include "utils.hpp"
 
-bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+{
     PlgClauseChoicePoint cp(PlgTerm(functor, args), cont);
     cont.PushChoicePoint(cp);
     return false; //to force backtracking
 }
 
-namespace PlgStdLib {
+namespace PlgStdLib
+{
     static SListConstructor S;
 
     // Conjunction
 
-    bool PredicateConjunction(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateConjunction(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference left = args.Car();
         PlgReference right = args.Cdr().Car();
         cont.PushQuery(right);
@@ -25,7 +28,8 @@ namespace PlgStdLib {
 
     // Disjunction
 
-    bool PredicateDisjunction(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateDisjunction(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgDisjChoicePoint cp(args, cont);
         cont.PushChoicePoint(cp);
         return false; //to force backtracking
@@ -35,7 +39,8 @@ namespace PlgStdLib {
 
     // "=" predicate
 
-    bool PredicateUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference left = args.Car();
         PlgReference right = args.Cdr().Car();
 
@@ -45,14 +50,16 @@ namespace PlgStdLib {
     PlgAtom unifies("=", 2, PredicateUnifies, true);
 
     // Truth value
-    bool PredicateTrue(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateTrue(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         return true;
     }
 
     PlgAtom truth("true", 0, PredicateTrue, false);
 
     // Truth value
-    bool PredicateFail(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateFail(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         return false;
     }
 
@@ -60,7 +67,8 @@ namespace PlgStdLib {
 
     // "/=" predicate
 
-    bool PredicateNotUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateNotUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         int pos = cont.Context().Top();
         PlgReference left = args.Car(),
                      right = args.Cdr().Car();
@@ -73,7 +81,8 @@ namespace PlgStdLib {
 
     // Cut
 
-    bool PredicateCut(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateCut(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         cont.ResetChoicePoints();
         return true;
     }
@@ -82,7 +91,8 @@ namespace PlgStdLib {
 
     // Assert
 
-    bool PredicateAssertA(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateAssertA(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference arg = args.Car();
         cont.Database().AddA(arg);
         return true;
@@ -91,7 +101,8 @@ namespace PlgStdLib {
     PlgAtom assert("assert", 1, PredicateAssertA, false);
     PlgAtom asserta("asserta", 1, PredicateAssertA, false);
 
-    bool PredicateAssertZ(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateAssertZ(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference arg = args.Car();
         cont.Database().Add(arg);
         return true;
@@ -108,7 +119,8 @@ namespace PlgStdLib {
     PlgAtom divide("/", 2);
     PlgAtom reminder("%", 2);
 
-    static int IntEval(const PlgReference &expr) {
+    static int IntEval(const PlgReference &expr)
+    {
         INTELIB_ASSERT(expr.GetPtr(), IntelibX_unexpected_unbound_value());
 
         if (expr->TermType() == SExpressionInt::TypeId) {
@@ -139,7 +151,8 @@ namespace PlgStdLib {
         }
     }
 
-    bool PredicateIs(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateIs(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference left = args.Car(),
                      right = args.Cdr().Car();
 
@@ -148,7 +161,8 @@ namespace PlgStdLib {
 
     PlgAtom is("is", 2, PredicateIs, true);
 
-    bool PredicateIntEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateIntEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference left = args.Car(),
                      right = args.Cdr().Car();
         return IntEval(left) == IntEval(right);
@@ -156,7 +170,8 @@ namespace PlgStdLib {
 
     PlgAtom int_equal("=:=", PredicateIntEqual, true);
 
-    bool PredicateIntNotEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateIntNotEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference left = args.Car(),
                      right = args.Cdr().Car();
         return IntEval(left) != IntEval(right);
@@ -164,7 +179,8 @@ namespace PlgStdLib {
 
     PlgAtom int_not_equal("=\\=", PredicateIntNotEqual, true);
 
-    bool PredicateIntLess(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateIntLess(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference left = args.Car(),
                      right = args.Cdr().Car();
         return IntEval(left) < IntEval(right);
@@ -172,7 +188,8 @@ namespace PlgStdLib {
 
     PlgAtom int_less("<", 2, PredicateIntLess, true);
 
-    bool PredicateIntLessOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateIntLessOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference left = args.Car(),
                      right = args.Cdr().Car();
         return IntEval(left) <= IntEval(right);
@@ -180,15 +197,17 @@ namespace PlgStdLib {
 
     PlgAtom int_less_or_equal("<=", 2, PredicateIntLessOrEqual, true);
 
-    bool PredicateIntGreater(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateIntGreater(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference left = args.Car(),
                      right = args.Cdr().Car();
         return IntEval(left) > IntEval(right);
     }
 
-    PlgAtom int_greater(">", 2, PredicateIntGreater, true);;
+    PlgAtom int_greater(">", 2, PredicateIntGreater, true);
 
-    bool PredicateIntGreaterOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool PredicateIntGreaterOrEqual(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgReference left = args.Car(),
                      right = args.Cdr().Car();
         return IntEval(left) >= IntEval(right);
@@ -200,7 +219,8 @@ namespace PlgStdLib {
 
     // Database with standard predicates written in prolog
 
-    void InitDb(PlgDatabase &db) {
+    void InitDb(PlgDatabase &db)
+    {
         PlgVariableName X("X"), H("H"), T("T"), L("L"), R("R"), N("N"), N1("N1");
         SReference &Nil = *PTheEmptyList;
 
@@ -242,7 +262,8 @@ namespace PlgStdLib {
         db.Add( reverse(L, R) <<= rev(L, Nil, R) );
     }
 
-    PlgDatabase &GetDb() {
+    PlgDatabase &GetDb()
+    {
         static PlgDatabase db;
         static bool initialized = false;
 
@@ -254,7 +275,8 @@ namespace PlgStdLib {
         return db;
     }
 
-    bool LibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont) {
+    bool LibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
         PlgClauseChoicePoint cp(PlgTerm(functor, args), cont, GetDb());
         cont.PushChoicePoint(cp);
         return false; //to force backtracking

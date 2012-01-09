@@ -5,18 +5,20 @@
 
 // Context
 
-void PlgContext::ReturnTo(int pos, bool merge) {
+void PlgContext::ReturnTo(int pos, bool merge)
+{
     INTELIB_ASSERT(pos >= 0, IntelibX_bug());
-    if (merge) {
+    if (merge)
+    {
         // merge down values of variables which will be dropped
         for (int i = 0; i < pos; ++i) {
             while (values[i]->TermType() == PlgExpressionVariableIndex::TypeId && indexValue(values[i]) >= pos) {
                 values[i] = values[indexValue(values[i])];
             }
         }
-    } else {
+    } else
+    {
         // destroy bindings which will be invalid after return
-        
         for (int i = top-1; i >= pos; --i) {
             PlgReference backlink = backlinks[i];
             if (backlink.GetPtr()) {
@@ -29,7 +31,8 @@ void PlgContext::ReturnTo(int pos, bool merge) {
     top = pos;
 }
 
-int PlgContext::indexValue(const PlgReference &plgIndex) const {
+int PlgContext::indexValue(const PlgReference &plgIndex) const
+{
     PlgExpressionVariableIndex *index = plgIndex.DynamicCastGetPtr<PlgExpressionVariableIndex>();
     INTELIB_ASSERT(index, IntelibX_bug()); //TODO: proper exception type
     return index->GetValue();
@@ -45,7 +48,8 @@ PlgExpressionContinuation::PlgExpressionContinuation(PlgDatabase &db, const PlgR
     queries = req.RenameVars(context, queryVars).MakeCons(*PTheEmptyList);
 }
 
-bool PlgExpressionContinuation::Next() {
+bool PlgExpressionContinuation::Next()
+{
     if (queries.IsEmptyList() && !Backtrack())
         return false;
 
@@ -74,35 +78,42 @@ bool PlgExpressionContinuation::Next() {
     return true;
 }
 
-PlgReference PlgExpressionContinuation::GetValue(const PlgReference &var) {
+PlgReference PlgExpressionContinuation::GetValue(const PlgReference &var)
+{
     return var.RenameVars(context, queryVars).Evaluate(context);
 }
 
-void PlgExpressionContinuation::PushChoicePoint(const PlgReference &point) {
+void PlgExpressionContinuation::PushChoicePoint(const PlgReference &point)
+{
     INTELIB_ASSERT(point->TermType().IsSubtypeOf(PlgExpressionChoicePoint::TypeId), IntelibX_not_a_prolog_choice_point(point));
     choicePoints = point.MakeCons(choicePoints);
 }
 
-void PlgExpressionContinuation::PopChoicePoint() {
+void PlgExpressionContinuation::PopChoicePoint()
+{
     INTELIB_ASSERT(!choicePoints.IsEmptyList(), IntelibX_bug());
     choicePoints = choicePoints.Cdr();
 }
 
-void PlgExpressionContinuation::ResetChoicePoints() {
+void PlgExpressionContinuation::ResetChoicePoints()
+{
     choicePoints = *PTheEmptyList;
 }
 
-void PlgExpressionContinuation::PushQuery(const PlgReference &query) {
+void PlgExpressionContinuation::PushQuery(const PlgReference &query)
+{
     queries = query.MakeCons(queries);
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpressionContinuation::TextRepresentation() const {
+SString PlgExpressionContinuation::TextRepresentation() const
+{
     return "<PROLOG CONTINUATION>";
 }
 #endif
 
-bool PlgExpressionContinuation::Backtrack() {
+bool PlgExpressionContinuation::Backtrack()
+{
     while (!choicePoints.IsEmptyList()) {
         PlgChoicePoint cp = choicePoints.Car();
         if (cp->TryNext())
@@ -114,22 +125,26 @@ bool PlgExpressionContinuation::Backtrack() {
 }
 
 // Database
-void PlgDatabase::AddA(const PlgReference &ref) {
+void PlgDatabase::AddA(const PlgReference &ref)
+{
     SReference list = table->FindItem(ref.Functor(), *PTheEmptyList);
     table->AddItem(ref.Functor(), Clause(ref) ^ list);
 }
 
-void PlgDatabase::Add(const PlgReference &ref) {
+void PlgDatabase::Add(const PlgReference &ref)
+{
     SReference list = table->FindItem(ref.Functor(), *PTheEmptyList);
     table->AddItem(ref.Functor(), list.AddAnotherItemToList(Clause(ref)));
 }
 
-PlgContinuation PlgDatabase::Query(const PlgReference &request) {
+PlgContinuation PlgDatabase::Query(const PlgReference &request)
+{
     PlgContinuation cont(*this, request);
     return cont;
 }
 
-PlgReference PlgDatabase::Clause(const PlgReference &ref) const {
+PlgReference PlgDatabase::Clause(const PlgReference &ref) const
+{
     using PlgStdLib::truth;
     PlgReference clause;
 
@@ -146,18 +161,21 @@ PlgReference PlgDatabase::Clause(const PlgReference &ref) const {
 // Choice point
 IntelibTypeId PlgExpressionChoicePoint::TypeId(&SExpression::TypeId, true);
 
-void PlgExpressionChoicePoint::Restore() {
+void PlgExpressionChoicePoint::Restore()
+{
     cont.context.ReturnTo(contextPos);
     cont.queries = queries;
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpressionChoicePoint::TextRepresentation() const {
+SString PlgExpressionChoicePoint::TextRepresentation() const
+{
     return "<PROLOG CHOICE POINT>";
 }
 #endif
 
-bool PlgExpressionClauseChoicePoint::TryNext() {
+bool PlgExpressionClauseChoicePoint::TryNext()
+{
     while (!pointer.IsEmptyList()) {
         SHashTable vars;
         Restore();
@@ -179,7 +197,8 @@ IntelibTypeId PlgExpressionClauseChoicePoint::TypeId(&PlgExpressionChoicePoint::
 
 IntelibTypeId PlgExpressionDisjChoicePoint::TypeId(&PlgExpressionChoicePoint::TypeId, true);
 
-bool PlgExpressionDisjChoicePoint::TryNext() {
+bool PlgExpressionDisjChoicePoint::TryNext()
+{
     if (variants.IsEmptyList())
         return false;
 

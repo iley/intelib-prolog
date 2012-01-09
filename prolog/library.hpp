@@ -44,51 +44,63 @@ namespace PlgStdLib {
     extern PlgAtom select;
 }
 
-inline PlgReference operator | (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator | (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::disjunction(left, right);
 }
 
-inline PlgReference operator & (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator & (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::conjunction(left, right);
 }
 
-inline PlgReference operator ^= (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator ^= (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::unifies(left, right);
 }
 
-inline PlgReference operator - (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator - (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::minus(left, right);
 }
 
-inline PlgReference operator + (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator + (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::plus(left, right);
 }
 
-inline PlgReference operator * (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator * (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::multiply(left, right);
 }
 
-inline PlgReference operator / (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator / (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::divide(left, right);
 }
 
-inline PlgReference operator % (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator % (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::reminder(left, right);
 }
 
-inline PlgReference operator < (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator < (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::int_less(left, right);
 }
 
-inline PlgReference operator <= (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator <= (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::int_less_or_equal(left, right);
 }
 
-inline PlgReference operator > (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator > (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::int_greater(left, right);
 }
 
-inline PlgReference operator >= (const PlgReference &left, const PlgReference &right) {
+inline PlgReference operator >= (const PlgReference &left, const PlgReference &right)
+{
     return PlgStdLib::int_greater_or_equal(left, right);
 }
 

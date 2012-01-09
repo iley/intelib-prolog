@@ -17,15 +17,18 @@ SString Join(const SString &delim, const SReference &list);
 class Log
 {
 public:
-    Log(const char *filename) {
+    Log(const char *filename)
+    {
         file = fopen(filename, "w");
     }
 
-    ~Log() {
+    ~Log()
+    {
         if (file) fclose(file);
     }
 
-    void Write(const char *format, ...) {
+    void Write(const char *format, ...)
+    {
         if (file) {
             va_list args;
             va_start(args,format);

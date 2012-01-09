@@ -1,7 +1,8 @@
 #include "utils.hpp"
 #include "../sexpress/shashtbl.hpp"
 
-int Length(const SReference &list) {
+int Length(const SReference &list)
+{
     int len = 0;
     for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
         ++len;
@@ -9,7 +10,8 @@ int Length(const SReference &list) {
     return len;
 }
 
-SString Join(const SString &delim, const SReference &list) {
+SString Join(const SString &delim, const SReference &list)
+{
     SString result;
     for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -25,31 +27,35 @@ SString Join(const SString &delim, const SReference &list) {
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 
-const char *Dump(const SReference &s) {
+const char *Dump(const SReference &s)
+{
     static SString str;
-    
+
     if (!s.GetPtr())
         return "undef";
     else if (s->TermType() == SExpressionHashTable::TypeId)
         str = DumpHashTable(s);
-    else 
+    else
         str = s->TextRepresentation();
 
     return str.c_str();
 }
 
 // overload for debug purposes
-const char *Dmp(SReference *s) {
+const char *Dmp(SReference *s)
+{
     return Dump(*s);
 }
 
-const char *DmpCtx(PlgContext *c) {
+const char *DmpCtx(PlgContext *c)
+{
     static SString str;
     str = DumpContext(*c);
     return str.c_str();
 }
 
-SString DumpHashTable(const SReference &table) {
+SString DumpHashTable(const SReference &table)
+{
     SExpressionHashTable *tbl = table.DynamicCastGetPtr<SExpressionHashTable>();
     INTELIB_ASSERT(tbl, IntelibX_bug());
     SExpressionHashTable::Iterator it(*tbl);
@@ -64,7 +70,8 @@ SString DumpHashTable(const SReference &table) {
     return result + "}";
 }
 
-SString DumpContext(const PlgContext &context) {
+SString DumpContext(const PlgContext &context)
+{
     SString result = "";
     for (int i = 0; i < context.Top(); ++i) {
         PlgReference var = PlgVariableIndex(i);
