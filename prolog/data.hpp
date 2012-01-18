@@ -59,6 +59,8 @@ public:
     PlgReference Evaluate(PlgContext &context) const;
 
     PlgReference Functor() const;
+    PlgReference Head() const;
+    PlgReference Body() const;
 
     ~PlgReference() {}
 };

@@ -127,20 +127,32 @@ bool PlgExpressionContinuation::Backtrack()
 // Database
 void PlgDatabase::AddA(const PlgReference &ref)
 {
-    SReference list = table->FindItem(ref.Functor(), *PTheEmptyList);
-    table->AddItem(ref.Functor(), ref ^ list);
+    PlgReference clause = Clause(ref);
+    PlgReference functor = clause.Head().Functor();
+    SReference list = table->FindItem(functor, *PTheEmptyList);
+    table->AddItem(functor, clause ^ list);
 }
 
 void PlgDatabase::Add(const PlgReference &ref)
 {
-    SReference list = table->FindItem(ref.Functor(), *PTheEmptyList);
-    table->AddItem(ref.Functor(), list.AddAnotherItemToList(ref));
+    PlgReference clause = Clause(ref);
+    PlgReference functor = ref.Head().Functor();
+    SReference list = table->FindItem(functor, *PTheEmptyList);
+    table->AddItem(functor, list.AddAnotherItemToList(clause));
 }
 
 PlgContinuation PlgDatabase::Query(const PlgReference &request)
 {
     PlgContinuation cont(*this, request);
     return cont;
+}
+
+PlgReference PlgDatabase::Clause(const PlgReference &ref) const
+{
+    if (ref->TermType() == PlgExpressionTerm::TypeId)
+        return ref;
+    else
+        return PlgTerm(ref, *PTheEmptyList);
 }
 
 // Choice point

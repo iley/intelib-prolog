@@ -117,6 +117,32 @@ PlgReference PlgReference::Functor() const
     throw IntelibX_bug();
 }
 
+PlgReference PlgReference::Head() const
+{
+    if ((*this)->TermType() == PlgExpressionTerm::TypeId) {
+        PlgTerm term = *this;
+        if (term->Functor() == PlgStdLib::implication)
+            return term->Args().Car();
+        else
+            return term;
+    } else {
+        return *this;
+    }
+}
+
+PlgReference PlgReference::Body() const
+{
+    if ((*this)->TermType() == PlgExpressionTerm::TypeId) {
+        PlgTerm term = *this;
+        if (term->Functor() == PlgStdLib::implication)
+            return term->Args().Cdr().Car();
+        else
+            return PlgStdLib::truth;
+    } else {
+        return PlgStdLib::truth;
+    }
+}
+
 // Term
 
 IntelibTypeId PlgExpressionTerm::TypeId(&SExpression::TypeId, false);
