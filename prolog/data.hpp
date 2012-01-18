@@ -65,40 +65,6 @@ public:
 
 extern PlgReference PlgUnbound;
 
-// Clause
-
-class PlgExpressionClause : public SExpression, public PlgObject
-{
-public:
-    static IntelibTypeId TypeId;
-
-    PlgExpressionClause(const PlgReference &hd, const PlgReference &bd) : SExpression(TypeId), head(hd), body(bd) {}
-    PlgReference Head() const { return head; }
-    PlgReference Body() const { return body; }
-
-    virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
-    virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const;
-#endif
-
-private:
-    PlgReference head;
-    PlgReference body;
-};
-
-typedef GenericSReference<PlgExpressionClause, IntelibX_not_a_prolog_clause> PlgClause_Super;
-
-class PlgClause : public PlgClause_Super
-{
-public:
-    PlgClause(const PlgReference &hd, const PlgReference &bd) : PlgClause_Super(new PlgExpressionClause(hd, bd)) {}
-    PlgClause(const SReference &sex) : PlgClause_Super(sex) {}
-};
-
-PlgClause operator <<= (const PlgReference &head, const PlgReference &body);
-
 // Predicate
 
 class PlgAtom;

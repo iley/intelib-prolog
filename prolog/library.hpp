@@ -7,6 +7,7 @@ bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpr
 namespace PlgStdLib {
     extern PlgAtom disjunction;
     extern PlgAtom conjunction;
+    extern PlgAtom implication;
     extern PlgAtom unifies;
     extern PlgAtom truth;
     extern PlgAtom fail;
@@ -42,6 +43,11 @@ namespace PlgStdLib {
     extern PlgAtom repeat;
     extern PlgAtom reverse;
     extern PlgAtom select;
+}
+
+inline PlgReference operator <<= (const PlgReference &left, const PlgReference &right)
+{
+    return PlgStdLib::implication(left, right);
 }
 
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right)

@@ -37,6 +37,8 @@ namespace PlgStdLib
 
     PlgAtom disjunction(";", 2, PredicateDisjunction, true);
 
+    PlgAtom implication(":-", 2, PlgDefaultPredicate, true);
+
     // "=" predicate
 
     bool PredicateUnifies(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)

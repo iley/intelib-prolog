@@ -114,45 +114,8 @@ PlgReference PlgReference::Functor() const
     if (term)
         return term->Functor();
 
-    PlgExpressionClause *clause = DynamicCastGetPtr<PlgExpressionClause>();
-    if (clause)
-        return clause->Head().Functor();
-
     throw IntelibX_bug();
 }
-
-// Clause
-
-IntelibTypeId PlgExpressionClause::TypeId(&SExpression::TypeId, true);
-
-PlgReference PlgExpressionClause::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const
-{
-    return PlgClause(head.RenameVars(context, existingVars), body.RenameVars(context, existingVars));
-}
-
-PlgReference PlgExpressionClause::Evaluate(const PlgReference &self, PlgContext &context) const
-{
-    return PlgClause(head.Evaluate(context), body.Evaluate(context));
-}
-
-PlgClause operator <<= (const PlgReference &head, const PlgReference &body)
-{
-    PlgReference term;
-    if (head->TermType() == PlgExpressionTerm::TypeId)
-        term = head;
-    else if (head->TermType() == PlgExpressionAtom::TypeId)
-        term = PlgTerm(head, *PTheEmptyList);
-    else
-        throw IntelibX_bug();
-    return PlgClause(head, body);
-}
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpressionClause::TextRepresentation() const
-{
-    return head->TextRepresentation() + " :- " + body->TextRepresentation() + ".";
-}
-#endif
 
 // Term
 

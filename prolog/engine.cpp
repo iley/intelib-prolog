@@ -128,34 +128,19 @@ bool PlgExpressionContinuation::Backtrack()
 void PlgDatabase::AddA(const PlgReference &ref)
 {
     SReference list = table->FindItem(ref.Functor(), *PTheEmptyList);
-    table->AddItem(ref.Functor(), Clause(ref) ^ list);
+    table->AddItem(ref.Functor(), ref ^ list);
 }
 
 void PlgDatabase::Add(const PlgReference &ref)
 {
     SReference list = table->FindItem(ref.Functor(), *PTheEmptyList);
-    table->AddItem(ref.Functor(), list.AddAnotherItemToList(Clause(ref)));
+    table->AddItem(ref.Functor(), list.AddAnotherItemToList(ref));
 }
 
 PlgContinuation PlgDatabase::Query(const PlgReference &request)
 {
     PlgContinuation cont(*this, request);
     return cont;
-}
-
-PlgReference PlgDatabase::Clause(const PlgReference &ref) const
-{
-    using PlgStdLib::truth;
-    PlgReference clause;
-
-    if (ref->TermType() == PlgExpressionClause::TypeId)
-        clause = ref;
-    else if (ref->TermType() == PlgExpressionTerm::TypeId)
-        clause = PlgClause(ref, truth);
-    else if (ref->TermType() == PlgExpressionAtom::TypeId)
-        clause = PlgClause(PlgTerm(ref, *PTheEmptyList), truth);
-
-    return clause;
 }
 
 // Choice point
@@ -180,12 +165,21 @@ bool PlgExpressionClauseChoicePoint::TryNext()
         SHashTable vars;
         Restore();
 
-        PlgClause candidate = pointer.Car();
+        PlgTerm candidate = pointer.Car();
         pointer = pointer.Cdr();
 
-        if (clause.Unify(candidate->Head().RenameVars(cont.context, vars), cont.context)) {
+        PlgReference head, body;
+        if (candidate->Functor() == PlgStdLib::implication) {
+            head = candidate->Args().Car();
+            body = candidate->Args().Cdr().Car();
+        } else {
+            head = candidate;
+            body = PlgStdLib::truth;
+        }
+
+        if (clause.Unify(head.RenameVars(cont.context, vars), cont.context)) {
             //TODO: method PushQuery
-            cont.PushQuery(candidate->Body().RenameVars(cont.context, vars));
+            cont.PushQuery(body.RenameVars(cont.context, vars));
             return true;
         }
     }
