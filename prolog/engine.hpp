@@ -29,6 +29,7 @@ public:
     int Top() const { return top; }
     int NextIndex() {
         values[top] = PlgUnbound;
+        backlinks[top] = PlgUnbound;
         return top++;
     }
 
