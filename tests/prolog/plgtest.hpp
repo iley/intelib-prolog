@@ -9,11 +9,11 @@
 #include "../../prolog/prolog.hpp"
 #include "../../prolog/utils.hpp"
 
+bool PrintContextEnabled = false;
+
 void printContext(const PlgContext &context) {
-    return;
-    printf("--- context dump start ---\n");
-    printf("%s", DumpContext(context).c_str());
-    printf("---  context dump end  ---\n");
+    if (PrintContextEnabled)
+        printf("%s\n", DumpContext(context).c_str());
 }
 
 void Ok(PlgDatabase &db, const PlgReference &query, const PlgReference &var, const SReference &results) {

@@ -8,32 +8,17 @@
 void PlgContext::ReturnTo(int pos, bool merge)
 {
     INTELIB_ASSERT(pos >= 0, IntelibX_bug());
-    if (merge) {
-        // merge down values of variables which will be dropped
-        for (int i = 0; i < pos; ++i) {
-            while (values[i]->TermType() == PlgExpressionVariableIndex::TypeId && indexValue(values[i]) >= pos) {
-                values[i] = values[indexValue(values[i])];
-            }
-        }
-    } else {
+    if (!merge) {
         // destroy bindings which will be invalid after return
-        for (int i = top-1; i >= pos; --i) {
-            PlgReference backlink = backlinks[i];
-            if (backlink.GetPtr()) {
-                values[indexValue(backlink)] = PlgUnbound;
-                backlinks[i] = PlgUnbound;
+        for (int i = top; i > pos; --i) {
+            for (SReference p = frameVars[i]; !p.IsEmptyList(); p = p.Cdr()) {
+                PlgReference var = p.Car();
+                values->RemoveItem(var);
             }
         }
     }
 
     top = pos;
-}
-
-int PlgContext::indexValue(const PlgReference &plgIndex) const
-{
-    PlgExpressionVariableIndex *index = plgIndex.DynamicCastGetPtr<PlgExpressionVariableIndex>();
-    INTELIB_ASSERT(index, IntelibX_bug()); //TODO: proper exception type
-    return index->GetValue();
 }
 
 // Continuation

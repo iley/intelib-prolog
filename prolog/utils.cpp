@@ -72,14 +72,7 @@ SString DumpHashTable(const SReference &table)
 
 SString DumpContext(const PlgContext &context)
 {
-    SString result = "";
-    for (int i = 0; i < context.Top(); ++i) {
-        PlgReference var = PlgVariableIndex(i);
-        PlgReference value = context.Get(var);
-        result += var->TextRepresentation() + " => " + SString(value.GetPtr() ? value->TextRepresentation() : "undef");
-        result += "\n";
-    }
-    return result;
+    return DumpHashTable(context.ValueTable());
 }
 
 #endif

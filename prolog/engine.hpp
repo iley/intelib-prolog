@@ -11,36 +11,44 @@
 class PlgContext
 {
 public:
-    PlgContext() : values(), top(0) {}
-
-    void Set(const PlgReference &index, const PlgReference &value) {
-        if (value->TermType() == PlgExpressionVariableIndex::TypeId)
-            backlinks[indexValue(value)] = index;
-        values[indexValue(index)] = value;
+    PlgContext() : values(), top(0)
+    {
+        frameVars[0] = *PTheEmptyList;
     }
 
-    PlgReference Get(const PlgReference &index) const {
-        return values[indexValue(index)];
+    void Set(const PlgReference &var, const PlgReference &value)
+    {
+        values->AddItem(var, value);
+        frameVars[top] = var ^ frameVars[top];
     }
 
-    bool IsEmpty() const { return top == 0; }
+    PlgReference Get(const PlgReference &var) const
+    {
+        return values->FindItem(var, PlgUnbound);
+    }
+
     void ReturnTo(int pos, bool merge = false);
 
     int Top() const { return top; }
-    int NextIndex() {
-        values[top] = PlgUnbound;
-        backlinks[top] = PlgUnbound;
-        return top++;
+
+    int NextFrame()
+    {
+        top++;
+        frameVars[top] = *PTheEmptyList;
+        return top - 1;
+    }
+
+    const SHashTable &ValueTable() const
+    {
+        return values;
     }
 
 private:
-    SVector values;
-    SVector backlinks;
+    SHashTable values;
+    SVector frameVars;
     int top;
 
     PlgContext(const PlgContext&);
-
-    int indexValue(const PlgReference &plgIndex) const;
 };
 
 class PlgDatabase;
@@ -131,8 +139,8 @@ protected:
     int contextPos;
     SReference queries;
 
-    PlgExpressionChoicePoint(const IntelibTypeId &typeId, PlgExpressionContinuation &c) 
-        : SExpression(typeId), cont(c), contextPos(c.context.Top()), queries(c.queries) {}
+    PlgExpressionChoicePoint(const IntelibTypeId &typeId, PlgExpressionContinuation &c)
+        : SExpression(typeId), cont(c), contextPos(c.context.NextFrame()), queries(c.queries) {}
 };
 
 typedef GenericSReference<PlgExpressionChoicePoint, IntelibX_not_a_prolog_choice_point> PlgChoicePoint;

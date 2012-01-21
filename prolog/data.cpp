@@ -3,6 +3,15 @@
 #include "utils.hpp"
 #include "library.hpp"
 
+#include <string.h>
+
+const char *NewVarName() {
+    static char buffer[32]; // 32 ought to be enough for anybody!
+    static int count = 0;
+    sprintf(buffer, "_G%d", count++);
+    return buffer;
+}
+
 static SListConstructor S;
 
 // Generic Prolog Expression
@@ -32,7 +41,7 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const
     if (PlgGlobalHooks.UnifyCall)
         PlgGlobalHooks.UnifyCall(*this, other, context);
 
-    int pos = context.Top();
+    int pos = context.NextFrame();
     bool result;
 
     /* unnecessary evaluation? */
@@ -43,8 +52,8 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const
         right = other;*/
 
     if (
-        left->TermType() != PlgExpressionVariableIndex::TypeId
-        && right->TermType() == PlgExpressionVariableIndex::TypeId
+        left->TermType() != PlgExpressionVariableName::TypeId
+        && right->TermType() == PlgExpressionVariableName::TypeId
     ) {
         PlgReference tmp = left;
         left = right;
@@ -284,53 +293,33 @@ IntelibTypeId PlgExpressionVariableName::TypeId(&SExpressionLabel::TypeId, false
 PlgReference PlgExpressionVariableName::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const
 {
     PlgReference binding = existingVars->FindItem(self, PlgUnbound);
-    if (binding == PlgUnbound) {
-        PlgVariableIndex idx(context.NextIndex());
-        existingVars->AddItem(self, idx);
-        return idx;
-    } else {
+    if (binding.GetPtr()) {
         return binding;
+    } else {
+        PlgVariableName newName(NewVarName());
+        existingVars->AddItem(self, newName);
+        return newName;
     }
+}
+
+bool PlgExpressionVariableName::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const
+{
+    context.Set(self, other);
+    return true;
+}
+
+PlgReference PlgExpressionVariableName::Evaluate(const PlgReference &self, PlgContext &context) const
+{
+    PlgReference binding = context.Get(self);
+    if (!binding.GetPtr())
+        return self;
+    else if (binding->TermType() == PlgExpressionVariableName::TypeId)
+        return binding.Evaluate(context);
+    else
+        return binding;
 }
 
 PlgReference PlgVariableName::is(const PlgReference &expr)
 {
     return PlgStdLib::is(*this, expr);
-}
-
-// Variable index
-
-IntelibTypeId PlgExpressionVariableIndex::TypeId(&SExpression::TypeId, false);
-
-PlgExpressionVariableIndex::PlgExpressionVariableIndex(PlgContext &ctx)
-    : SExpression(TypeId), value(ctx.NextIndex())
-{}
-
-bool PlgExpressionVariableIndex::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const
-{
-    PlgVariableIndex newVar(context);
-    context.Set(newVar, other);
-    context.Set(self, newVar);
-    return true;
-}
-
-PlgReference PlgExpressionVariableIndex::Evaluate(const PlgReference &self, PlgContext &context) const
-{
-    PlgReference val = self;
-
-    while (val.GetPtr() && val->TermType() == PlgExpressionVariableIndex::TypeId) {
-        val = context.Get(val);
-    }
-
-    if (val.GetPtr())
-        return val.Evaluate(context);
-    else
-        return self;
-}
-
-SString PlgExpressionVariableIndex::TextRepresentation() const
-{
-    static char buffer[32]; //FIXME
-    sprintf(buffer, "_%d", value);
-    return buffer;
 }

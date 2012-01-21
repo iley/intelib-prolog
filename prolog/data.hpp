@@ -169,6 +169,8 @@ public:
     explicit PlgExpressionVariableName(const char *name) : SExpressionLabel(TypeId, name) {}
 
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
+    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
+    virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
 };
 
 typedef GenericSReference<PlgExpressionVariableName, IntelibX_not_a_prolog_variable_name> PlgVariableName_Super;
@@ -179,37 +181,6 @@ public:
     explicit PlgVariableName(const char *name) : PlgVariableName_Super(new PlgExpressionVariableName(name)) {}
 
     PlgReference is(const PlgReference &expr);
-};
-
-// Variable index
-
-class PlgExpressionVariableIndex : public SExpression, public PlgObject
-{
-public:
-    static IntelibTypeId TypeId;
-    explicit PlgExpressionVariableIndex(int val) : SExpression(TypeId), value(val) {}
-    explicit PlgExpressionVariableIndex(PlgContext &ctx);
-
-    int GetValue() const { return value; }
-    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
-    virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
-
-#if INTELIB_TEXT_REPRESENTATIONS == 1
-    virtual SString TextRepresentation() const;
-#endif
-
-private:
-    int value;
-};
-
-typedef GenericSReference<PlgExpressionVariableIndex, IntelibX_not_a_prolog_variable_index> PlgVariableIndex_Super;
-
-class PlgVariableIndex : public PlgVariableIndex_Super
-{
-public:
-    explicit PlgVariableIndex(PlgContext &ctx) : PlgVariableIndex_Super(new PlgExpressionVariableIndex(ctx)) {}
-    explicit PlgVariableIndex(int value) : PlgVariableIndex_Super(new PlgExpressionVariableIndex(value)) {}
-    PlgVariableIndex(const SReference &s) : PlgVariableIndex_Super(s) {}
 };
 
 // Term

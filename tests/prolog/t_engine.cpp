@@ -33,40 +33,82 @@ int main()
 {
     try {
         Hooks::EnableAll();
+        PrintContextEnabled = true;
+
+        TestSection("Context");
+        {
+            PlgContext ctx;
+
+            PlgReference X = PlgVariableName("X");
+            PlgReference Y = PlgVariableName("Y");
+            PlgReference Z = PlgVariableName("Z");
+
+            PlgAtom f("f"), g("g");
+
+            int frame0 = ctx.NextFrame();
+            ctx.Set(X, f);
+            printContext(ctx);
+            TESTTR("X = f", X.Evaluate(ctx), "f");
+            ctx.Set(Z, g);
+            printContext(ctx);
+            TESTTR("X = f", X.Evaluate(ctx), "f");
+            TESTTR("Z = g", Z.Evaluate(ctx), "g");
+            TESTTR("Y = Y", Y.Evaluate(ctx), "Y");
+
+            int frame1 = ctx.NextFrame();
+            ctx.Set(Y, X);
+            TESTTR("Y = f", Y.Evaluate(ctx), "f");
+
+            ctx.ReturnTo(frame1);
+            TESTTR("X = f", X.Evaluate(ctx), "f");
+            TESTTR("Y = Y", Y.Evaluate(ctx), "Y");
+
+            ctx.ReturnTo(frame0);
+            TESTTR("X = X", X.Evaluate(ctx), "X");
+            TESTTR("Y = Y", Y.Evaluate(ctx), "Y");
+        }
 
         TestSection("Unification");
         {
             PlgContext ctx;
 
-            PlgReference var0 = PlgVariableIndex(ctx.NextIndex());
-            PlgReference var1 = PlgVariableIndex(ctx.NextIndex());
-            PlgReference var2 = PlgVariableIndex(ctx.NextIndex());
+            PlgReference X = PlgVariableName("X");
+            PlgReference Y = PlgVariableName("Y");
+            PlgReference Z = PlgVariableName("Z");
             int pos = ctx.Top();
 
             PlgAtom f("f");
 
-            TESTB("var0 <-> f (status)", var0.Unify(f, ctx));
-            TESTTR("var0 <-> f (value)", var0.Evaluate(ctx), "f");
-            TESTB("var0 <-> var0 where var0 = f", var0.Evaluate(ctx).Unify(var1, ctx));
-            TESTTR("var0 <-> var0 where var0 = f (value)", var1.Evaluate(ctx), "f");
+            ctx.NextFrame();
+            TESTB("X <-> f (status)", X.Unify(f, ctx));
+            printContext(ctx);
+            TESTTR("X <-> f (value)", X.Evaluate(ctx), "f");
+            TESTB("X <-> X where X = f", X.Evaluate(ctx).Unify(Y, ctx));
+            TESTTR("X <-> X where X = f (value)", Y.Evaluate(ctx), "f");
             ctx.ReturnTo(pos);
 
-            ctx.Set(var1, f);
-            TESTB("f(var0) <-> f(var1) (status)", f(var0).Unify(f(var1), ctx));
-            TESTB("f(var0) <-> f(var) (value)", var0.Evaluate(ctx) == f);
+            ctx.NextFrame();
+            ctx.Set(Y, f);
+            TESTB("f(X) <-> f(Y) (status)", f(X).Unify(f(Y), ctx));
+            TESTB("f(X) <-> f(Y) (value)", X.Evaluate(ctx) == f);
             ctx.ReturnTo(pos);
 
-            ctx.Set(var1, f);
-            TESTB("f(var0, var0) <-> f(var1, var2)", f(var1, var2).Evaluate(ctx).Unify(f(var0, var0), ctx));
-            TESTB("f(var0, var0) <-> f(var1, var2) (value 1)", var0.Evaluate(ctx) == f);
-            TESTB("f(var0, var0) <-> f(var1, var2) (value 2)", var2.Evaluate(ctx) == f);
+            ctx.NextFrame();
+            ctx.Set(Y, f);
+            TESTB("f(X, X) <-> f(Y, Z)", f(Y, Z).Evaluate(ctx).Unify(f(X, X), ctx));
+            TESTB("f(X, X) <-> f(Y, Z) (value 1)", X.Evaluate(ctx) == f);
+            TESTB("f(X, X) <-> f(Y, Z) (value 2)", Z.Evaluate(ctx) == f);
             ctx.ReturnTo(pos);
 
+            ctx.NextFrame();
             SListConstructor S;
-            PlgReference list1 = (S|1, 2), list2 = (S|1, 2), list3 = (S|var0, 2);
+            PlgReference list1 = (S|1, 2), list2 = (S|1, 2), list3 = (S|X, 2);
             TESTB("(1 2) <-> (1 2)", list1.Unify(list2, ctx));
+            printContext(ctx);
             TESTB("(1 2) <-> (X 2)", list1.Unify(list3, ctx));
-            TESTTR("(1 2) <-> (X 2) (value)", var0.Evaluate(ctx), "1");
+            printContext(ctx);
+            TESTTR("(1 2) <-> (X 2) (value)", X.Evaluate(ctx), "1");
+            printContext(ctx);
             ctx.ReturnTo(pos);
         }
         TestScore();
