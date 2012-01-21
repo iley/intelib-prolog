@@ -32,8 +32,7 @@ bool someUserPredicate(const PlgAtom &functor, const SReference &args, PlgExpres
 int main()
 {
     try {
-        //PlgGlobalHooks.Call = callHook;
-        //PlgGlobalHooks.Unify = unifyHook;
+        Hooks::EnableAll();
 
         TestSection("Unification");
         {

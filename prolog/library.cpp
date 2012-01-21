@@ -226,42 +226,47 @@ namespace PlgStdLib
         PlgVariableName X("X"), H("H"), T("T"), L("L"), R("R"), N("N"), N1("N1");
         SReference &Nil = *PTheEmptyList;
 
-        db.Add( nope(X) <<= (X & cut & fail) | truth ); // not(X) :- X, !, fail; true
+        PlgVariableName Term("Term"), Result("Result");
+        db.AddWithoutExpansion( expand_term(Term, Result) <<= term_expansion(Term, Result) & cut );
+        db.AddWithoutExpansion( expand_term(Term, Result) <<= dcg_translate_rule(Term, Result) & cut );
+        db.AddWithoutExpansion( expand_term(Term, Term) );
 
-        db.Add( append(Nil, X, X) );
-        db.Add( append(H^T, L, H^R) <<= append(T, L, R) );
+        db.AddWithoutExpansion( nope(X) <<= (X & cut & fail) | truth ); // not(X) :- X, !, fail; true
 
-        db.Add( member(X, H^T) <<= ((X ^= H) & cut) | member(X, T) );
+        db.AddWithoutExpansion( append(Nil, X, X) );
+        db.AddWithoutExpansion( append(H^T, L, H^R) <<= append(T, L, R) );
 
-        db.Add( length(Nil, 0) <<= cut );
-        db.Add( length(H^T, N) <<= length(T,N1) & N.is(N1 + SReference(1)) );
+        db.AddWithoutExpansion( member(X, H^T) <<= ((X ^= H) & cut) | member(X, T) );
+
+        db.AddWithoutExpansion( length(Nil, 0) <<= cut );
+        db.AddWithoutExpansion( length(H^T, N) <<= length(T,N1) & N.is(N1 + SReference(1)) );
 
         PlgAtom index("index", 4, LibraryPredicate, false);
         PlgVariableName StartIndex("StartIndex");
 
         // index/4 is an auxilary predicate to implement nth and nth0
-        db.Add( index(StartIndex, N, L, R) <<= (N < StartIndex) & cut & fail );
-        db.Add( index(StartIndex, StartIndex, H^T, H) <<= cut );
-        db.Add( index(StartIndex, N, H^T, X) <<= N1.is(N - SReference(1)) & index(StartIndex, N1, T, X) );
+        db.AddWithoutExpansion( index(StartIndex, N, L, R) <<= (N < StartIndex) & cut & fail );
+        db.AddWithoutExpansion( index(StartIndex, StartIndex, H^T, H) <<= cut );
+        db.AddWithoutExpansion( index(StartIndex, N, H^T, X) <<= N1.is(N - SReference(1)) & index(StartIndex, N1, T, X) );
 
-        db.Add( nth(N, L, X) <<= index(1, N, L, X) );
-        db.Add( nth0(N, L, X) <<= index(0, N, L, X) );
+        db.AddWithoutExpansion( nth(N, L, X) <<= index(1, N, L, X) );
+        db.AddWithoutExpansion( nth0(N, L, X) <<= index(0, N, L, X) );
 
-        db.Add( permutation(Nil, Nil) );
-        db.Add( permutation(H^T, R) <<= permutation(T,L) & select(H,R,L) );
+        db.AddWithoutExpansion( permutation(Nil, Nil) );
+        db.AddWithoutExpansion( permutation(H^T, R) <<= permutation(T,L) & select(H,R,L) );
 
-        db.Add( select(X, X^T, T) );
-        db.Add( select(X, H^T, H^R) <<= select(X, T, R) );
+        db.AddWithoutExpansion( select(X, X^T, T) );
+        db.AddWithoutExpansion( select(X, H^T, H^R) <<= select(X, T, R) );
 
-        db.Add( repeat );
-        db.Add( repeat <<= repeat );
+        db.AddWithoutExpansion( repeat );
+        db.AddWithoutExpansion( repeat <<= repeat );
 
         // rev/3 is an auxilary function for reverse/2
         PlgAtom rev("rev", 3, LibraryPredicate, false);
 
-        db.Add( rev(Nil, X, X) <<= cut );
-        db.Add( rev(H^T, R, X) <<= rev(T, H^R, X) );
-        db.Add( reverse(L, R) <<= rev(L, Nil, R) );
+        db.AddWithoutExpansion( rev(Nil, X, X) <<= cut );
+        db.AddWithoutExpansion( rev(H^T, R, X) <<= rev(T, H^R, X) );
+        db.AddWithoutExpansion( reverse(L, R) <<= rev(L, Nil, R) );
     }
 
     PlgDatabase &GetDb()
@@ -295,4 +300,10 @@ namespace PlgStdLib
     PlgAtom repeat("repeat", 0, LibraryPredicate, false);
     PlgAtom reverse("reverse", 2, LibraryPredicate, false);
     PlgAtom select("select", 3, LibraryPredicate, false);
+
+    PlgAtom expand_term("expand_term", 2, LibraryPredicate, false);
+    PlgAtom term_expansion("term_expansion", 2, PlgDefaultPredicate, false);
+    PlgAtom goal_expansion("goal_expansion", 2, PlgDefaultPredicate, false);
+    PlgAtom dcg_translate_rule("dcg_translate_rule", 2, LibraryPredicate, false);
+
 }

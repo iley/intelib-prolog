@@ -100,6 +100,7 @@ public:
 
     void AddA(const PlgReference &clause); //add to the head of list
     void Add(const PlgReference &clause);
+    void AddWithoutExpansion(const PlgReference &clause);
 
     PlgContinuation Query(const PlgReference &request);
     SReference Head(const PlgReference &functor) const { return table->FindItem(functor, *PTheEmptyList); }
@@ -108,6 +109,7 @@ private:
     PlgDatabase(const PlgDatabase &other);
 
     PlgReference Clause(const PlgReference &ref) const;
+    PlgReference ExpandTerm(const PlgReference &ref);
 };
 
 // choice points

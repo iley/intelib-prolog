@@ -8,16 +8,14 @@
 void PlgContext::ReturnTo(int pos, bool merge)
 {
     INTELIB_ASSERT(pos >= 0, IntelibX_bug());
-    if (merge)
-    {
+    if (merge) {
         // merge down values of variables which will be dropped
         for (int i = 0; i < pos; ++i) {
             while (values[i]->TermType() == PlgExpressionVariableIndex::TypeId && indexValue(values[i]) >= pos) {
                 values[i] = values[indexValue(values[i])];
             }
         }
-    } else
-    {
+    } else {
         // destroy bindings which will be invalid after return
         for (int i = top-1; i >= pos; --i) {
             PlgReference backlink = backlinks[i];
@@ -43,7 +41,7 @@ int PlgContext::indexValue(const PlgReference &plgIndex) const
 IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);
 
 PlgExpressionContinuation::PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req)
-    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), queryVars()  
+    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), queryVars()
 {
     queries = req.RenameVars(context, queryVars).MakeCons(*PTheEmptyList);
 }
@@ -127,13 +125,18 @@ bool PlgExpressionContinuation::Backtrack()
 // Database
 void PlgDatabase::AddA(const PlgReference &ref)
 {
-    PlgReference clause = Clause(ref);
+    PlgReference clause = ExpandTerm(Clause(ref));
     PlgReference functor = clause.Head().Functor();
     SReference list = table->FindItem(functor, *PTheEmptyList);
     table->AddItem(functor, clause ^ list);
 }
 
 void PlgDatabase::Add(const PlgReference &ref)
+{
+    return AddWithoutExpansion(ExpandTerm(ref));
+}
+
+void PlgDatabase::AddWithoutExpansion(const PlgReference &ref)
 {
     PlgReference clause = Clause(ref);
     PlgReference functor = ref.Head().Functor();
@@ -153,6 +156,16 @@ PlgReference PlgDatabase::Clause(const PlgReference &ref) const
         return ref;
     else
         return PlgTerm(ref, *PTheEmptyList);
+}
+
+PlgReference PlgDatabase::ExpandTerm(const PlgReference &ref)
+{
+    using PlgStdLib::expand_term;
+    PlgVariableName X("X");
+    PlgContinuation cont = Query(expand_term(ref, X));
+    bool result = cont->Next();
+    INTELIB_ASSERT(result, IntelibX_bug());
+    return cont->GetValue(X);
 }
 
 // Choice point

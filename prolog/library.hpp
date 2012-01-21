@@ -18,6 +18,11 @@ namespace PlgStdLib {
     extern PlgAtom asserta;
     extern PlgAtom assertz;
 
+    extern PlgAtom expand_term;
+    extern PlgAtom term_expansion;
+    extern PlgAtom goal_expansion;
+    extern PlgAtom dcg_translate_rule;
+
     // Integer arithmetic
     extern PlgAtom minus;
     extern PlgAtom plus;
