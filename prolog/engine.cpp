@@ -108,7 +108,7 @@ bool PlgExpressionContinuation::Backtrack()
 // Database
 void PlgDatabase::AddA(const PlgReference &ref)
 {
-    PlgReference clause = ExpandTerm(Clause(ref));
+    PlgReference clause = Clause(ExpandTerm(ref));
     PlgReference functor = clause.Head().Functor();
     SReference list = table->FindItem(functor, *PTheEmptyList);
     table->AddItem(functor, clause ^ list);
@@ -121,6 +121,7 @@ void PlgDatabase::Add(const PlgReference &ref)
 
 void PlgDatabase::AddWithoutExpansion(const PlgReference &ref)
 {
+    //TODO implement Clause() functionality in expand_term/2
     PlgReference clause = Clause(ref);
     PlgReference functor = ref.Head().Functor();
     SReference list = table->FindItem(functor, *PTheEmptyList);
