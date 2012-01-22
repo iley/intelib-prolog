@@ -1,7 +1,12 @@
 INTELIB=../..
+EXAMPLES: example queens
 
-example: example.cpp
-	g++ -g -I$(INTELIB) -L$(INTELIB)/build/intelib -o $@ $< -lintelib
+.PHONY: default clean
+
+default: $(EXAMPLES)
+
+.cpp:
+	g++ -O0 -g -I$(INTELIB) -L$(INTELIB)/build/intelib -o $@ $< -lintelib ../../tests/tests.cpp
 
 clean:
 	rm -f example

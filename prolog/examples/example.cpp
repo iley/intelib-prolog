@@ -1,11 +1,6 @@
 #include <stdio.h>
 #include <prolog/prolog.hpp>
-
-const char *str(const SReference &s) {
-    static SString str;
-    str = s->TextRepresentation();
-    return str.c_str();
-}
+#include <prolog/utils.hpp>
 
 int main() {
     PlgAtom man("man"), woman("woman"), human("human"), fry("fry"), leela("leela"), bender("bender");
@@ -18,7 +13,7 @@ int main() {
 
     PlgContinuation cont = db.Query(human(X));
     while (cont->Next()) {
-        printf("X = %s\n", str(cont->GetValue(X)));
+        printf("X = %s\n", Dump(cont->GetValue(X)));
     }
     return 0;
 }
