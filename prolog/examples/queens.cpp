@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <prolog/prolog.hpp>
 #include <prolog/utils.hpp>
-#include <tests/prolog/plgtest.hpp>
 
 int main() {
     using namespace PlgStdLib;
@@ -22,7 +21,6 @@ int main() {
 
     PlgDatabase db;
 
-    //Hooks::EnableAll();
     PlgAtom ne = int_not_equal;
     db.Add( solution(Nil) );
     db.Add( solution(pos(X,Y) ^ T) <<= solution(T) & member(Y, (S|1,2,3,4,5,6,7,8)) & noattack(pos(X,Y), T) );
