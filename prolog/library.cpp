@@ -217,6 +217,60 @@ namespace PlgStdLib
 
     PlgAtom int_greater_or_equal(">=", 2, PredicateIntGreaterOrEqual);
 
+    // Type checking
+
+    bool PredicateAtom(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        return args.Car()->TermType() == PlgExpressionAtom::TypeId;
+    }
+
+    PlgAtom atom("atom", 1, PredicateAtom);
+
+    //FIXME: atomic/1 now returns true for everything except lists, compund terms and vars
+    bool PredicateAtomic(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        PlgReference arg = args.Car();
+        const IntelibTypeId &type = arg->TermType();
+        return type != PlgExpressionTerm::TypeId
+            && type != PlgExpressionVariableName::TypeId
+            && type != SExpressionCons::TypeId
+            && !arg.IsEmptyList();
+    }
+
+    PlgAtom atomic("atomic", 1, PredicateAtomic);
+
+    bool PredicateCompund(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        return args.Car()->TermType() == PlgExpressionTerm::TypeId;
+    }
+
+    PlgAtom compound("compound", 1, PredicateCompund);
+
+    bool PredicateInteger(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        PlgReference arg = args.Car();
+        return arg->TermType() == SExpressionInt::TypeId
+            || arg->TermType() == SExpressionChar::TypeId;
+    }
+
+    PlgAtom integer("integer", 1, PredicateInteger);
+
+    bool PredicateNonVar(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        return args.Car()->TermType() != PlgExpressionVariableName::TypeId;
+    }
+
+    PlgAtom nonvar("nonvar", 1, PredicateNonVar);
+
+    bool PredicateVar(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        return args.Car()->TermType() == PlgExpressionVariableName::TypeId;
+    }
+
+    PlgAtom var("var", 1, PredicateVar);
+
+    // Preidcates written in prolog
+
     bool LibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 
     // Database with standard predicates written in prolog

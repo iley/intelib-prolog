@@ -98,6 +98,36 @@ int main()
         Ok(db, assertz(f(3)) & f(X), X, (S|2,1,3));
         Fail(db, f(4));
 
+        Ok(db, atom(f));
+        Fail(db, atom(X));
+        Fail(db, atom(f(X)));
+        Fail(db, atom(1));
+        Fail(db, atom(S|1,2,3));
+
+        Ok(db, atomic(f));
+        Ok(db, atomic(1));
+        Fail(db, atomic(f(X)));
+        Fail(db, atomic(X));
+        Fail(db, atomic(S|1,2,3));
+
+        Ok(db, compound(f(X)));
+        Fail(db, compound(f));
+        Fail(db, compound(1));
+        Fail(db, compound(X));
+        Fail(db, compound((S|1,2,3)));
+
+        Ok(db, nonvar(f(X)));
+        Ok(db, nonvar(1));
+        Ok(db, nonvar(f));
+        Ok(db, nonvar((S|1,2,3)));
+        Fail(db, nonvar(X));
+
+        Ok(db, var(X));
+        Fail(db, var(f(X)));
+        Fail(db, var(1));
+        Fail(db, var(f));
+        Fail(db, var((S|1,2,3)));
+
         TestScore();
     }
     catch(IntelibX &x) {

@@ -37,6 +37,13 @@ namespace PlgStdLib {
     extern PlgAtom int_greater;
     extern PlgAtom int_greater_or_equal;
 
+    extern PlgAtom atom;
+    extern PlgAtom atomic;
+    extern PlgAtom compound;
+    extern PlgAtom integer;
+    extern PlgAtom nonvar;
+    extern PlgAtom var;
+
     extern PlgAtom nope; //not/1 in standard prolog
 
     extern PlgAtom append;
