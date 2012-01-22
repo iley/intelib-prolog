@@ -236,7 +236,7 @@ namespace PlgStdLib
         db.AddWithoutExpansion( append(Nil, X, X) );
         db.AddWithoutExpansion( append(H^T, L, H^R) <<= append(T, L, R) );
 
-        db.AddWithoutExpansion( member(X, H^T) <<= ((X ^= H) & cut) | member(X, T) );
+        db.AddWithoutExpansion( member(X, H^T) <<= (X ^= H) | member(X, T) );
 
         db.AddWithoutExpansion( length(Nil, 0) <<= cut );
         db.AddWithoutExpansion( length(H^T, N) <<= length(T,N1) & N.is(N1 + SReference(1)) );
