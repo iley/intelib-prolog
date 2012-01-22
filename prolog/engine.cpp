@@ -26,7 +26,7 @@ void PlgContext::ReturnTo(int pos, bool merge)
 IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);
 
 PlgExpressionContinuation::PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req)
-    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), queryVars(), queryVarsSaved(false)
+    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList)
 {
     queries = req.MakeCons(*PTheEmptyList);
 }
@@ -37,8 +37,6 @@ bool PlgExpressionContinuation::Next()
         return false;
 
     while (!queries.IsEmptyList()) {
-        SHashTable vars;
-
         PlgReference query = queries.Car();
         queries = queries.Cdr();
 

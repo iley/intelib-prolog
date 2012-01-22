@@ -85,9 +85,7 @@ private:
     PlgDatabase &database;
     SReference choicePoints;
     PlgContext context;
-    SHashTable queryVars;
     SReference queries;
-    bool queryVarsSaved;
 
     bool Backtrack();
 };
