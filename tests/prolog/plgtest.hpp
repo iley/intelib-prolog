@@ -64,11 +64,17 @@ namespace Hooks {
         printContext(ctx);
     }
 
+    void Rename(const PlgReference &from, const PlgReference &to, PlgContext &ctx) {
+        printf("* Rename %s --> %s\n", from->TextRepresentation().c_str(), to->TextRepresentation().c_str());
+        printContext(ctx);
+    }
+
     void EnableAll() {
         PlgGlobalHooks.Call = Call;
         PlgGlobalHooks.Exit = Exit;
         PlgGlobalHooks.UnifyCall = UnifyCall;
         PlgGlobalHooks.UnifyExit = UnifyExit;
+        PlgGlobalHooks.Rename = Rename;
     }
 }
 

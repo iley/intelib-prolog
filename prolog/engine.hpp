@@ -87,6 +87,7 @@ private:
     PlgContext context;
     SHashTable queryVars;
     SReference queries;
+    bool queryVarsSaved;
 
     bool Backtrack();
 };

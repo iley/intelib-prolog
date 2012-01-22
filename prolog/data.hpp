@@ -24,13 +24,15 @@ struct PlgHooks {
     typedef void (*PredicateExitFunc)(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont, bool result);
     typedef void (*UnifyCallFunc)(const PlgReference &left, const PlgReference &right, PlgContext &ctx);
     typedef void (*UnifyExitFunc)(const PlgReference &left, const PlgReference &right, PlgContext &ctx, bool result);
+    typedef void (*RenameFunc)(const PlgReference &from, const PlgReference &to, PlgContext &ctx);
 
     PredicateCallFunc Call;
     PredicateExitFunc Exit;
     UnifyCallFunc UnifyCall;
     UnifyExitFunc UnifyExit;
+    RenameFunc Rename;
 
-    PlgHooks() : Call(0), Exit(0), UnifyCall(0), UnifyExit(0) {}
+    PlgHooks() : Call(0), Exit(0), UnifyCall(0), UnifyExit(0), Rename(0) {}
 };
 
 extern PlgHooks PlgGlobalHooks;
@@ -171,6 +173,8 @@ public:
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
+
+private:
 };
 
 typedef GenericSReference<PlgExpressionVariableName, IntelibX_not_a_prolog_variable_name> PlgVariableName_Super;

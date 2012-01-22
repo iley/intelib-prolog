@@ -26,9 +26,9 @@ void PlgContext::ReturnTo(int pos, bool merge)
 IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);
 
 PlgExpressionContinuation::PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req)
-    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), queryVars()
+    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList), queryVars(), queryVarsSaved(false)
 {
-    queries = req.RenameVars(context, queryVars).MakeCons(*PTheEmptyList);
+    queries = req.MakeCons(*PTheEmptyList);
 }
 
 bool PlgExpressionContinuation::Next()
@@ -42,7 +42,12 @@ bool PlgExpressionContinuation::Next()
         PlgReference query = queries.Car();
         queries = queries.Cdr();
 
-        query = query.RenameVars(context, vars).Evaluate(context);
+        if (queryVarsSaved) {
+            query = query.RenameVars(context, vars).Evaluate(context);
+        } else {
+            query = query.RenameVars(context, queryVars).Evaluate(context);
+            queryVarsSaved = true;
+        }
 
         // workaround for 0-arity predicates
         if (query->TermType() == PlgExpressionAtom::TypeId)

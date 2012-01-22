@@ -89,15 +89,20 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const
 
 PlgReference PlgReference::RenameVars(PlgContext &context, SHashTable &existingVars) const
 {
+    PlgReference result;
     PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
     if (obj)
-        return obj->RenameVars(*this, context, existingVars);
+        result =  obj->RenameVars(*this, context, existingVars);
     else if ((*this)->TermType() == SExpressionCons::TypeId)
-        return SReference(
+        result =  SReference(
             PlgReference(Car()).RenameVars(context, existingVars),
             PlgReference(Cdr()).RenameVars(context, existingVars));
     else
-        return *this;
+        result =  *this;
+
+    if (PlgGlobalHooks.Rename)
+        PlgGlobalHooks.Rename(*this, result, context);
+    return result;
 }
 
 PlgReference PlgReference::Evaluate(PlgContext &context) const
@@ -313,10 +318,8 @@ PlgReference PlgExpressionVariableName::Evaluate(const PlgReference &self, PlgCo
     PlgReference binding = context.Get(self);
     if (!binding.GetPtr())
         return self;
-    else if (binding->TermType() == PlgExpressionVariableName::TypeId)
-        return binding.Evaluate(context);
     else
-        return binding;
+        return binding.Evaluate(context);
 }
 
 PlgReference PlgVariableName::is(const PlgReference &expr)
