@@ -42,12 +42,7 @@ bool PlgExpressionContinuation::Next()
         PlgReference query = queries.Car();
         queries = queries.Cdr();
 
-        if (queryVarsSaved) {
-            query = query.RenameVars(context, vars).Evaluate(context);
-        } else {
-            query = query.RenameVars(context, queryVars).Evaluate(context);
-            queryVarsSaved = true;
-        }
+        query = query.Evaluate(context);
 
         // workaround for 0-arity predicates
         if (query->TermType() == PlgExpressionAtom::TypeId)
@@ -68,7 +63,7 @@ bool PlgExpressionContinuation::Next()
 
 PlgReference PlgExpressionContinuation::GetValue(const PlgReference &var)
 {
-    return var.RenameVars(context, queryVars).Evaluate(context);
+    return var.Evaluate(context);
 }
 
 void PlgExpressionContinuation::PushChoicePoint(const PlgReference &point)
@@ -177,7 +172,6 @@ SString PlgExpressionChoicePoint::TextRepresentation() const
 bool PlgExpressionClauseChoicePoint::TryNext()
 {
     while (!pointer.IsEmptyList()) {
-        SHashTable vars;
         Restore();
 
         PlgTerm candidate = pointer.Car();
@@ -192,8 +186,8 @@ bool PlgExpressionClauseChoicePoint::TryNext()
             body = PlgStdLib::truth;
         }
 
+        SHashTable vars;
         if (clause.Unify(head.RenameVars(cont.context, vars), cont.context)) {
-            //TODO: method PushQuery
             cont.PushQuery(body.RenameVars(cont.context, vars));
             return true;
         }

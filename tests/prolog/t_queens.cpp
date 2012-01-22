@@ -28,8 +28,8 @@ int main()
     try {
         TestSection("Queens");
         {
-            Hooks::EnableAll();
-            PrintContextEnabled = true;
+            //Hooks::EnableAll();
+            //PrintContextEnabled = true;
 
             SListConstructor S;
             PlgAtom member("member"),

@@ -32,8 +32,8 @@ bool someUserPredicate(const PlgAtom &functor, const SReference &args, PlgExpres
 int main()
 {
     try {
-        Hooks::EnableAll();
-        PrintContextEnabled = true;
+        //Hooks::EnableAll();
+        //PrintContextEnabled = true;
 
         TestSection("Context");
         {
