@@ -2,6 +2,7 @@
 #include "engine.hpp"
 #include "utils.hpp"
 #include "library.hpp"
+#include "../sexpress/shashtbl.hpp"
 
 #include <string.h>
 
@@ -263,6 +264,31 @@ PlgPredicate PlgExpressionAtom::GetPredicate(int arity) const
         return varArgPredicate;
     else
         return PlgDefaultPredicate;
+}
+
+void PlgAtom::Init(const char *name, bool infix) {
+    static SHashTable atoms;
+
+    PlgReference found = atoms->FindItem(name, PlgUnbound);
+    if (found.GetPtr())
+        operator=(found);
+    else
+        operator=(PlgAtom_Super(new PlgExpressionAtom(name, infix)));
+    atoms->AddItem(name, *this);
+}
+
+PlgAtom::PlgAtom(const char *name, bool infix) {
+    Init(name, infix);
+}
+
+PlgAtom::PlgAtom(const char *name, int arity, const PlgPredicate &pred, bool infix) {
+    Init(name, infix);
+    (*this)->SetPredicate(arity, pred);
+}
+
+PlgAtom::PlgAtom(const char *name, const PlgPredicate &pred, bool infix) {
+    Init(name, infix);
+    (*this)->SetPredicate(pred);
 }
 
 PlgReference PlgAtom::operator() (const SReference &arg1)

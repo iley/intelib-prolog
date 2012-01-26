@@ -119,12 +119,6 @@ public:
 
     explicit PlgExpressionAtom(const char *name, bool infix) : SExpressionLabel(TypeId, name), isInfix(infix) {}
 
-    PlgExpressionAtom(const char *name, int arity, const PlgPredicate &pred, bool infix)
-        : SExpressionLabel(TypeId, name), isInfix(infix) { SetPredicate(arity, pred); }
-
-    PlgExpressionAtom(const char *name, const PlgPredicate &pred, bool infix)
-        : SExpressionLabel(TypeId, name), isInfix(infix) { SetPredicate(pred); }
-
     PlgPredicate GetPredicate(int arity) const;
 
     // fixed-arity predicate
@@ -148,9 +142,10 @@ typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom
 class PlgAtom : public PlgAtom_Super
 {
 public:
-    explicit PlgAtom(const char *name, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, infix)) {}
-    explicit PlgAtom(const char *name, int arity, const PlgPredicate &pred, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, arity, pred, infix)) {}
-    explicit PlgAtom(const char *name, const PlgPredicate &pred, bool infix = false) : PlgAtom_Super(new PlgExpressionAtom(name, pred, infix)) {}
+    explicit PlgAtom(const char *name, bool infix = false);
+    explicit PlgAtom(const char *name, int arity, const PlgPredicate &pred, bool infix = false);
+    explicit PlgAtom(const char *name, const PlgPredicate &pred, bool infix = false);
+
     PlgAtom(const SReference &s) : PlgAtom_Super(s) {}
 
     PlgReference operator () (const SReference &arg1);
@@ -159,6 +154,9 @@ public:
     PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4);
     PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4, const SReference &arg5);
     // TODO more args
+
+private:
+    void Init(const char *name, bool infix);
 };
 
 // Variable Name
