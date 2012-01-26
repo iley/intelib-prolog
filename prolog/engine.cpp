@@ -146,7 +146,8 @@ PlgReference PlgDatabase::ExpandTerm(const PlgReference &ref)
 {
     using PlgStdLib::expand_term;
     PlgVariableName X("X");
-    PlgContinuation cont = Query(expand_term(ref, X));
+    SHashTable aliases;
+    PlgContinuation cont = Query(expand_term(ref.RenameVars(cont->Context(), aliases), X));
     bool result = cont->Next();
     INTELIB_ASSERT(result, IntelibX_bug());
     return cont->GetValue(X);

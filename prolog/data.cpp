@@ -108,6 +108,9 @@ PlgReference PlgReference::RenameVars(PlgContext &context, SHashTable &existingV
 
 PlgReference PlgReference::Evaluate(PlgContext &context) const
 {
+    if (PlgGlobalHooks.Evaluate)
+        PlgGlobalHooks.Evaluate(*this, context);
+
     PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
     if (obj)
         return obj->Evaluate(*this, context);
@@ -277,6 +280,13 @@ void PlgAtom::Init(const char *name, bool infix) {
     atoms->AddItem(name, *this);
 }
 
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpressionAtom::TextRepresentation() const
+{
+    return GetValue();
+}
+#endif
+
 PlgAtom::PlgAtom(const char *name, bool infix) {
     Init(name, infix);
 }
@@ -352,3 +362,10 @@ PlgReference PlgVariableName::is(const PlgReference &expr)
 {
     return PlgStdLib::is(*this, expr);
 }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpressionVariableName::TextRepresentation() const
+{
+    return GetValue();
+}
+#endif

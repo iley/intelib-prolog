@@ -25,12 +25,14 @@ struct PlgHooks {
     typedef void (*UnifyCallFunc)(const PlgReference &left, const PlgReference &right, PlgContext &ctx);
     typedef void (*UnifyExitFunc)(const PlgReference &left, const PlgReference &right, PlgContext &ctx, bool result);
     typedef void (*RenameFunc)(const PlgReference &from, const PlgReference &to, PlgContext &ctx);
+    typedef void (*EvaluateFunc)(const PlgReference &object, PlgContext &ctx);
 
     PredicateCallFunc Call;
     PredicateExitFunc Exit;
     UnifyCallFunc UnifyCall;
     UnifyExitFunc UnifyExit;
     RenameFunc Rename;
+    EvaluateFunc Evaluate;
 
     PlgHooks() : Call(0), Exit(0), UnifyCall(0), UnifyExit(0), Rename(0) {}
 };
@@ -112,12 +114,12 @@ public:
 
 // Atom
 
-class PlgExpressionAtom : public SExpressionLabel, public PlgObject
+class PlgExpressionAtom : public SExpressionString, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
 
-    explicit PlgExpressionAtom(const char *name, bool infix) : SExpressionLabel(TypeId, name), isInfix(infix) {}
+    explicit PlgExpressionAtom(const char *name, bool infix) : SExpressionString(TypeId, name), isInfix(infix) {}
 
     PlgPredicate GetPredicate(int arity) const;
 
@@ -129,12 +131,17 @@ public:
 
     bool IsInfix() const { return isInfix; }
 
-protected:
-    PlgExpressionAtom(const IntelibTypeId &typeId, const char *name, bool infix) : SExpressionLabel(typeId, name), isInfix(infix) {}
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
 
+protected:
     SVector predicates;
     PlgPredicate varArgPredicate;
     bool isInfix;
+
+    PlgExpressionAtom(const IntelibTypeId &typeId, const char *name, bool infix) : SExpressionString(typeId, name), isInfix(infix) {}
+    //virtual bool SpecificEql(const SExpression* other) const;
 };
 
 typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom_Super;
@@ -161,16 +168,20 @@ private:
 
 // Variable Name
 
-class PlgExpressionVariableName : public SExpressionLabel, public PlgObject
+class PlgExpressionVariableName : public SExpressionString, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
 
-    explicit PlgExpressionVariableName(const char *name) : SExpressionLabel(TypeId, name) {}
+    explicit PlgExpressionVariableName(const char *name) : SExpressionString(TypeId, name) {}
 
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
 
 private:
 };
