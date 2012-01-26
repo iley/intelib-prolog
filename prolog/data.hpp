@@ -141,7 +141,7 @@ protected:
     bool isInfix;
 
     PlgExpressionAtom(const IntelibTypeId &typeId, const char *name, bool infix) : SExpressionString(typeId, name), isInfix(infix) {}
-    //virtual bool SpecificEql(const SExpression* other) const;
+    virtual bool SpecificEql(const SExpression* other) const;
 };
 
 typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom_Super;

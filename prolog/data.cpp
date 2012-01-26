@@ -269,6 +269,11 @@ PlgPredicate PlgExpressionAtom::GetPredicate(int arity) const
         return PlgDefaultPredicate;
 }
 
+bool PlgExpressionAtom::SpecificEql(const SExpression* other) const
+{
+    return this == other;
+}
+
 void PlgAtom::Init(const char *name, bool infix) {
     static SHashTable atoms;
 
