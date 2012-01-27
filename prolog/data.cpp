@@ -278,11 +278,12 @@ void PlgAtom::Init(const char *name, bool infix) {
     static SHashTable atoms;
 
     PlgReference found = atoms->FindItem(name, PlgUnbound);
-    if (found.GetPtr())
+    if (found.GetPtr()) {
         operator=(found);
-    else
+    } else {
         operator=(PlgAtom_Super(new PlgExpressionAtom(name, infix)));
-    atoms->AddItem(name, *this);
+        atoms->AddItem(name, *this);
+    }
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -361,6 +362,24 @@ PlgReference PlgExpressionVariable::Evaluate(const PlgReference &self, PlgContex
         return self;
     else
         return binding.Evaluate(context);
+}
+
+bool PlgExpressionVariable::SpecificEql(const SExpression* other) const
+{
+    return this == other;
+}
+
+PlgVariable::PlgVariable(const char *name)
+{
+    static SHashTable vars;
+    PlgReference var = vars->FindItem(name, PlgUnbound);
+    if (var.GetPtr()) {
+        operator=(var);
+    }
+    else {
+        operator=(PlgVariable_Super(new PlgExpressionVariable(name)));
+        vars->AddItem(name, *this);
+    }
 }
 
 PlgReference PlgVariable::is(const PlgReference &expr)

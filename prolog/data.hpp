@@ -179,6 +179,8 @@ public:
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
 
+    virtual bool SpecificEql(const SExpression* other) const;
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
 #endif
@@ -191,7 +193,8 @@ typedef GenericSReference<PlgExpressionVariable, IntelibX_not_a_prolog_variable_
 class PlgVariable : public PlgVariable_Super
 {
 public:
-    explicit PlgVariable(const char *name) : PlgVariable_Super(new PlgExpressionVariable(name)) {}
+    explicit PlgVariable(const char *name);
+    PlgVariable(const SReference &s) : PlgVariable_Super(s) {}
 
     PlgReference is(const PlgReference &expr);
 };

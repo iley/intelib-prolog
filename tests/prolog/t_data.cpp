@@ -40,6 +40,9 @@ int main()
 
             PlgAtom x("x"), x_alias("x");
             TESTB("atom equality", x == x_alias);
+
+            PlgVariable X_alias("X");
+            TESTB("variable equality", X == X_alias);
         }
         TestScore();
     }
