@@ -82,6 +82,11 @@ inline PlgReference operator - (const PlgReference &left, const PlgReference &ri
     return PlgStdLib::minus(left, right);
 }
 
+inline PlgReference operator - (const PlgReference &op)
+{
+    return PlgStdLib::minus(op);
+}
+
 inline PlgReference operator + (const PlgReference &left, const PlgReference &right)
 {
     return PlgStdLib::plus(left, right);
