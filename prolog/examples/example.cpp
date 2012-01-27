@@ -4,7 +4,7 @@
 
 int main() {
     PlgAtom man("man"), woman("woman"), human("human"), fry("fry"), leela("leela"), bender("bender");
-    PlgVariableName X("X");
+    PlgVariable X("X");
 
     PlgDatabase db;
     db.Add( human(X) <<= woman(X) | man(X) );
