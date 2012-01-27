@@ -39,7 +39,7 @@ int main()
                 pattern("pattern"),
                 queens("queens");
 
-            PlgVariableName H("H"), T("T"),
+            PlgVariable H("H"), T("T"),
                 X("X"), Y("Y"),
                 X1("X1"), Y1("Y1"),
                 Y2("Y2"), Y3("Y3"), Y4("Y4"), Y5("Y5"), Y6("Y6"), Y7("Y7"), Y8("Y8");

@@ -31,7 +31,7 @@ int main()
 
         SListConstructor S;
         PlgAtom qsort("qsort"), append("append"), split("split"), select("select"), psort("psort"), perm("perm"), sorted("sorted");
-        PlgVariableName H("H"), T("T"), X("X"), L("L"), R("R"), LS("LS"), RS("RS"), Res("Res");
+        PlgVariable H("H"), T("T"), X("X"), L("L"), R("R"), LS("LS"), RS("RS"), Res("Res");
 
         PlgDatabase db;
 

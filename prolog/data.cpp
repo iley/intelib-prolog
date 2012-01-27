@@ -53,8 +53,8 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const
         right = other;*/
 
     if (
-        left->TermType() != PlgExpressionVariableName::TypeId
-        && right->TermType() == PlgExpressionVariableName::TypeId
+        left->TermType() != PlgExpressionVariable::TypeId
+        && right->TermType() == PlgExpressionVariable::TypeId
     ) {
         PlgReference tmp = left;
         left = right;
@@ -334,27 +334,27 @@ PlgReference PlgAtom::operator() (const SReference &arg1, const SReference &arg2
 
 // Variable Name
 
-IntelibTypeId PlgExpressionVariableName::TypeId(&SExpressionLabel::TypeId, false);
+IntelibTypeId PlgExpressionVariable::TypeId(&SExpressionLabel::TypeId, false);
 
-PlgReference PlgExpressionVariableName::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const
+PlgReference PlgExpressionVariable::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const
 {
     PlgReference binding = existingVars->FindItem(self, PlgUnbound);
     if (binding.GetPtr()) {
         return binding;
     } else {
-        PlgVariableName newName(NewVarName());
+        PlgVariable newName(NewVarName());
         existingVars->AddItem(self, newName);
         return newName;
     }
 }
 
-bool PlgExpressionVariableName::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const
+bool PlgExpressionVariable::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const
 {
     context.Set(self, other);
     return true;
 }
 
-PlgReference PlgExpressionVariableName::Evaluate(const PlgReference &self, PlgContext &context) const
+PlgReference PlgExpressionVariable::Evaluate(const PlgReference &self, PlgContext &context) const
 {
     PlgReference binding = context.Get(self);
     if (!binding.GetPtr())
@@ -363,13 +363,13 @@ PlgReference PlgExpressionVariableName::Evaluate(const PlgReference &self, PlgCo
         return binding.Evaluate(context);
 }
 
-PlgReference PlgVariableName::is(const PlgReference &expr)
+PlgReference PlgVariable::is(const PlgReference &expr)
 {
     return PlgStdLib::is(*this, expr);
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
-SString PlgExpressionVariableName::TextRepresentation() const
+SString PlgExpressionVariable::TextRepresentation() const
 {
     return GetValue();
 }

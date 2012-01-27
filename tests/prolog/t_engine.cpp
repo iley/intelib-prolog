@@ -39,9 +39,9 @@ int main()
         {
             PlgContext ctx;
 
-            PlgReference X = PlgVariableName("X");
-            PlgReference Y = PlgVariableName("Y");
-            PlgReference Z = PlgVariableName("Z");
+            PlgReference X = PlgVariable("X");
+            PlgReference Y = PlgVariable("Y");
+            PlgReference Z = PlgVariable("Z");
 
             PlgAtom f("f"), g("g");
 
@@ -72,9 +72,9 @@ int main()
         {
             PlgContext ctx;
 
-            PlgReference X = PlgVariableName("X");
-            PlgReference Y = PlgVariableName("Y");
-            PlgReference Z = PlgVariableName("Z");
+            PlgReference X = PlgVariable("X");
+            PlgReference Y = PlgVariable("Y");
+            PlgReference Z = PlgVariable("Z");
             int pos = ctx.Top();
 
             PlgAtom f("f");
@@ -117,8 +117,8 @@ int main()
         {
             PlgDatabase db;
 
-            PlgReference (X) = PlgVariableName("X");
-            PlgReference (Y) = PlgVariableName("Y");
+            PlgReference (X) = PlgVariable("X");
+            PlgReference (Y) = PlgVariable("Y");
             PlgAtom socrates("socrates"), plato("plato"), zeus("zeus"), mortal("mortal"), human("human"), man("man"), f("f");
 
             db.Add( man(plato)  );
@@ -142,7 +142,7 @@ int main()
         TestSection("Solving 2");
         {
             PlgAtom a("a"), b("b"), c("c"), d("d"), f("f"), always_true("always_true");
-            PlgVariableName X("X");
+            PlgVariable X("X");
             PlgDatabase db;
 
             db.Add( a(b(X)) <<= d(X) );
@@ -163,7 +163,7 @@ int main()
         TestSection("User predicates");
         {
             PlgAtom f("f"), g("g"), h("h");
-            PlgVariableName X("X"), Y("Y");
+            PlgVariable X("X"), Y("Y");
             PlgDatabase db;
 
             db.Add( g(X) <<= (X ^= f) );
@@ -187,7 +187,7 @@ int main()
         {
             PlgAtom f("f"), g("g"), h("h");
             PlgAtom alpha("alpha"), beta("beta");
-            PlgVariableName X("X");
+            PlgVariable X("X");
             PlgDatabase db;
 
             db.Add( f(X) <<= g(X) & h(X) );
@@ -205,7 +205,7 @@ int main()
         {
             PlgAtom human("human"), man("man"), woman("woman"), robot("robot"), alien("alien");
             PlgAtom fry("fry"), leela("leela"), bender("bender"), zoidberg("zoidberg");
-            PlgVariableName X("X");
+            PlgVariable X("X");
             PlgDatabase db;
 
             db.Add( man(fry) );
@@ -225,7 +225,7 @@ int main()
         TestSection("Lists");
         {
             PlgAtom append("append"), member("member");
-            PlgVariableName X("X"), H("H"), T("T"), R("R"), L("L");
+            PlgVariable X("X"), H("H"), T("T"), R("R"), L("L");
             PlgDatabase db;
             SListConstructor S;
 
@@ -254,7 +254,7 @@ int main()
             using PlgStdLib::cut;
 
             PlgAtom a("a"), b("b"), c("c");
-            PlgVariableName X("X"), Y("Y");
+            PlgVariable X("X"), Y("Y");
             PlgDatabase db;
 
             db.Add( a(X, Y) <<= b(X) & cut & c(Y) );
@@ -275,7 +275,7 @@ int main()
 
             //TODO: more tests
             PlgAtom gcd("gcd");
-            PlgVariableName X("X"), Y("Y"), Z("Z"), D("D");
+            PlgVariable X("X"), Y("Y"), Z("Z"), D("D");
             PlgDatabase db;
 
             db.Add( gcd(X, 0, X) <<= cut );

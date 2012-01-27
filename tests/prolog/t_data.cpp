@@ -28,7 +28,7 @@ int main()
             PlgAtom a("a");
             TESTTR("atom", a, "a");
 
-            PlgVariableName X("X");
+            PlgVariable X("X");
             TESTTR("variable name", X, "X");
 
             TESTTR("term", a(X, X), "a(X, X)");

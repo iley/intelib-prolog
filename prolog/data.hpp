@@ -168,12 +168,12 @@ private:
 
 // Variable Name
 
-class PlgExpressionVariableName : public SExpressionString, public PlgObject
+class PlgExpressionVariable : public SExpressionString, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
 
-    explicit PlgExpressionVariableName(const char *name) : SExpressionString(TypeId, name) {}
+    explicit PlgExpressionVariable(const char *name) : SExpressionString(TypeId, name) {}
 
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
@@ -186,12 +186,12 @@ public:
 private:
 };
 
-typedef GenericSReference<PlgExpressionVariableName, IntelibX_not_a_prolog_variable_name> PlgVariableName_Super;
+typedef GenericSReference<PlgExpressionVariable, IntelibX_not_a_prolog_variable_name> PlgVariable_Super;
 
-class PlgVariableName : public PlgVariableName_Super
+class PlgVariable : public PlgVariable_Super
 {
 public:
-    explicit PlgVariableName(const char *name) : PlgVariableName_Super(new PlgExpressionVariableName(name)) {}
+    explicit PlgVariable(const char *name) : PlgVariable_Super(new PlgExpressionVariable(name)) {}
 
     PlgReference is(const PlgReference &expr);
 };

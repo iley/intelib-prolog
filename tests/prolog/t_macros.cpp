@@ -30,7 +30,7 @@ int main()
 
         SListConstructor S;
         PlgDatabase db;
-        PlgVariableName X("X"), Head("Head"), Body("Body");
+        PlgVariable X("X"), Head("Head"), Body("Body");
         PlgAtom i_say("i_say"), human("human"), mortal("mortal"), socrates("socrates");
 
         TestSection("term_expansion");

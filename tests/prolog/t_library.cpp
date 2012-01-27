@@ -30,7 +30,7 @@ int main()
 
         SListConstructor S;
         PlgDatabase db;
-        PlgVariableName X("X"), Y("Y"), Z("Z");
+        PlgVariable X("X"), Y("Y"), Z("Z");
 
         TestSection("Standard Library");
 

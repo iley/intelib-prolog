@@ -232,7 +232,7 @@ namespace PlgStdLib
         PlgReference arg = args.Car();
         const IntelibTypeId &type = arg->TermType();
         return type != PlgExpressionTerm::TypeId
-            && type != PlgExpressionVariableName::TypeId
+            && type != PlgExpressionVariable::TypeId
             && type != SExpressionCons::TypeId
             && !arg.IsEmptyList();
     }
@@ -257,14 +257,14 @@ namespace PlgStdLib
 
     bool PredicateNonVar(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
-        return args.Car()->TermType() != PlgExpressionVariableName::TypeId;
+        return args.Car()->TermType() != PlgExpressionVariable::TypeId;
     }
 
     PlgAtom nonvar("nonvar", 1, PredicateNonVar);
 
     bool PredicateVar(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
-        return args.Car()->TermType() == PlgExpressionVariableName::TypeId;
+        return args.Car()->TermType() == PlgExpressionVariable::TypeId;
     }
 
     PlgAtom var("var", 1, PredicateVar);
@@ -277,10 +277,10 @@ namespace PlgStdLib
 
     void InitDb(PlgDatabase &db)
     {
-        PlgVariableName X("X"), H("H"), T("T"), L("L"), R("R"), N("N"), N1("N1");
+        PlgVariable X("X"), H("H"), T("T"), L("L"), R("R"), N("N"), N1("N1");
         SReference &Nil = *PTheEmptyList;
 
-        PlgVariableName Term("Term"), Result("Result");
+        PlgVariable Term("Term"), Result("Result");
         db.AddWithoutExpansion( expand_term(Term, Result) <<= term_expansion(Term, Result) & cut );
         db.AddWithoutExpansion( expand_term(Term, Result) <<= dcg_translate_rule(Term, Result) & cut );
         db.AddWithoutExpansion( expand_term(Term, Term) );
@@ -296,7 +296,7 @@ namespace PlgStdLib
         db.AddWithoutExpansion( length(H^T, N) <<= length(T,N1) & N.is(N1 + SReference(1)) );
 
         PlgAtom index("index", 4, LibraryPredicate, false);
-        PlgVariableName StartIndex("StartIndex");
+        PlgVariable StartIndex("StartIndex");
 
         // index/4 is an auxilary predicate to implement nth and nth0
         db.AddWithoutExpansion( index(StartIndex, N, L, R) <<= (N < StartIndex) & cut & fail );
