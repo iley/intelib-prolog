@@ -26,54 +26,37 @@ SReference &Nil = *PTheEmptyList;
 int main()
 {
     try {
-        TestSection("Queens");
+        TestSection("Derivation");
         {
             using namespace PlgStdLib;
             SListConstructor S;
-            PlgAtom d("d"), sum("sum"), prod("prod"), x("x");
-            PlgVariable X("X"), Y("Y"),
+            PlgAtom d("d"), x("x"), sin("sin"), cos("cos"), pow("pow");
+            PlgVariable X("X"), Y("Y"), DY("DY"),
                         A("A"), B("B"),
                         DA("DA"), DB("DB"), D("D"),
                         P1("P1"), P2("P2"),
-                        R("R"), P("P");
+                        E("E"), E1("E1");
 
             PlgDatabase db;
 
             db.Add( d(X, X, 1) <<= cut );
-            db.Add( d(X, Y, 0) <<= atomic(X) & cut );
-            db.Add( d(A + B, X, D) <<=
-                    d(A, X, DA) &
-                    d(B, X, DB) &
-                    sum(DA, DB, D)
-            );
+            db.Add( d(A + B, X, DA + DB) <<= d(A, X, DA) & d(B, X, DB) & cut );
+            db.Add( d(A - B, X, DA - DB) <<= d(A, X, DA) & d(B, X, DB) & cut );
+            db.Add( d(A * B, X, DA*B+DB*A) <<= d(A, X, DA) & d(B, X, DB) & cut );
+            db.Add( d(A / B, X, (DA*B-DB*A)/pow(B,2)) <<= d(A, X, DA) & d(B, X, DB) & cut );
+            db.Add( d(-A, X, -DA) <<= d(A, X, DA) & cut );
+            db.Add( d(pow(X,E), X, E*pow(X,E1)) <<= (E1 ^= E - SReference(1)) & cut );
+            db.Add( d(sin(Y), X, cos(Y)*DY) <<= d(Y, X, DY) & cut );
+            db.Add( d(cos(Y), X, -sin(Y)*DY) <<= d(Y, X, DY) & cut );
+            db.Add( d(Y, X, 0) );
 
-            db.Add( d(A * B, X, D) <<=
-                    d(A, X, DA) &
-                    d(B, X, DB) &
-                    prod(A, DB, P1) &
-                    prod(DA, B, P2) &
-                    sum(P1, P2, D) &
-                    cut
-            );
-
-            db.Add( sum(A, 0, A) <<= cut );
-            db.Add( sum(0, B, B) <<= cut );
-            db.Add( sum(A, B, R) <<= integer(A) & integer(B) & R.is(A + B) & cut );
-            db.Add( sum(A, B, A + B) );
-
-            db.Add( prod(X, 0, 0) <<= cut );
-            db.Add( prod(0, X, 0) <<= cut );
-            db.Add( prod(A, 1, A) <<= cut );
-            db.Add( prod(1, B, B) <<= cut );
-            db.Add( prod(A, B, P) <<= integer(A) & integer(B) & P.is(A * B) & cut );
-            db.Add( prod(A, B, A * B) );
-
-            Ok(db, d(x*x, x, D), D, (S|x+x));
-            SReference two(2), one(1);
-            Ok(db, d(two * (x + one), x, D), D, (S|2));
-            Ok(db, d(x + one, x, D), D, (S|1));
-            Ok(db, d(x + x + one, x, D), D, (S|2));
-            Ok(db, d(x + two * (x + one), x, D), D, (S|3));
+            SReference one(1), zero(0);
+            Ok(db, d(x, x, D), D, (S|one));
+            Ok(db, d(1, x, D), D, (S|zero));
+            Ok(db, d(x*x, x, D), D, (S|one * x + one * x));
+            Ok(db, d(sin(x), x, D), D, (S|cos(x) * one));
+            Ok(db, d(sin(x) * cos(x), x, D), D, (S| cos(x) * one * cos(x) + (-sin(x) * one *sin(x))));
+            Ok(db, d(one / sin(X), x, D), D, (S|zero * sin(x) - cos(x) * one * one / pow(sin(x), 2)));
 
             TestScore();
         }
