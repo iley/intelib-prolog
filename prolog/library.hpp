@@ -9,7 +9,7 @@ namespace PlgStdLib {
     extern PlgAtom conjunction;
     extern PlgAtom implication;
     extern PlgAtom unifies;
-    extern PlgAtom truth;
+    extern PlgAtom truth; //true in standard prolog
     extern PlgAtom fail;
     extern PlgAtom not_unifies;
     extern PlgAtom cut;
