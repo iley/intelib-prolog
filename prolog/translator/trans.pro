@@ -1,30 +1,48 @@
 #!/usr/bin/swipl -q -s
 
 prolog :-
-	current_prolog_flag(argv, Argv),
-	actualArgs(Argv,Files),
-	member(File,Files),
-	translate(File).
+    current_prolog_flag(argv, Argv),
+    actual_args(Argv,Files),
+    member(File,Files),
+    translate(File).
 
-actualArgs(['--'|Result],Result) :- !.
-actualArgs([_|Args],Result) :- actualArgs(Args,Result).
+actual_args(['--'|Result],Result) :- !.
+actual_args([_|Args],Result) :- actual_args(Args,Result).
+
+load(Stream) :-
+    true.
+
+write_ln(Term) :- write(Term), nl.
+write_ln(Stream, Term) :- write(Stream, Term), nl(Stream).
 
 translate(FileName) :-
-	open(FileName, read, Stream),
-	write_header,
-	translate_terms(Stream),
-	write_footer.
+    %trace,
+    file_name_extension(Name, _, FileName),
+    file_base_name(Name, ModuleName),
 
-translate_terms(Stream) :-
-	read(Stream, Term),
-	Term \= end_of_file,
-	write(Term), write('.'), nl,
-	translate_terms(Stream).
+    (retract(module_name(_)); true), !,
+    assert(module_name(ModuleName)),
 
-translate_terms(Stream) :- close(Stream).
+    atom_concat(Name, '.hpp', HppFileName),
+    atom_concat(Name, '.cpp', CppFileName),
 
-write_header :-
-	write('/* Some C++ declarations here */'), nl.
+    open(FileName, read, Input), !,
+    (load(Input); true), !,
+    close(Input),
 
-write_footer :-
-	write('/* Final part of C++ source */'), nl.
+    open(HppFileName, write, HppFile), !,
+    write_ln(writing_stuff_to(HppFileName)),
+    (write_hpp(HppFile); true), !,
+    close(HppFile),
+
+    open(CppFileName, write, CppFile),
+    write_ln(writing_stuff_to(CppFileName)),
+    (write_cpp(CppFile); true), !,
+    close(CppFile).
+
+write_hpp(Stream) :-
+    write_ln(Stream, '//Header').
+
+write_cpp(Stream) :-
+    write_ln(Stream, '//Source').
+
