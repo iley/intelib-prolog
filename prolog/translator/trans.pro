@@ -19,29 +19,29 @@ clean :-
     ignore(retract(src_var(_))).
 
 find_atoms(X) :-
-    atom(X), !,
+    atom(X),
 	(
 		src_atom(X)
 	;
+		std_atom(X)
+	;
 		assert(src_atom(X))
-	),
-	!.
+	), !.
 
 find_atoms(X) :-
-    compound(X), !,
+    compound(X),
     functor(X, Functor, _),
     find_atoms(Functor),
     (
         arg(_, X, Arg), find_atoms(Arg), fail;
         true
-    ).
+    ), !.
 
 find_atoms([]) :- !.
 
 find_atoms([H|T]) :-
-    !,
     find_atoms(H),
-    find_atoms(T).
+    find_atoms(T), !.
 
 find_atoms(_).
 
@@ -83,26 +83,102 @@ translate(FileName) :-
     write_cpp(CppFile),
     close(CppFile).
 
+namespace_prefix('').
+
+namespace(Namespace) :-
+	module_name(Module),
+	namespace_prefix(Prefix),
+	atom_concat(Prefix, Module, Namespace).
+
+guard(Guard) :-
+	module_name(Module),
+	upcase_atom(Module, MODULE),
+	atom_concat(MODULE, '_HPP_SENTRY', Guard).
+
+%TODO: format
 write_hpp(Stream) :-
-    write_ln(Stream, '//Header'),
+	guard(Guard),
+	write(Stream, '#ifndef '), write(Stream, Guard), nl(Stream),
+	write(Stream, '#define '), write(Stream, Guard), nl(Stream),
+	write(Stream, '#include <prolog/prolog.hpp>'), nl(Stream),
+	namespace(Namespace),
+	write(Stream, 'namespace '), write(Stream, Namespace), write(Stream, ' {'), nl(Stream),
+	write(Stream, 'PlgDatabase &Database();'), nl(Stream),
     (	
 		src_atom(X),
-		not(std_atom(X)),
 		write(Stream, 'PlgAtom('),
 		write(Stream, X),
 		write(Stream, ');'),
 		nl(Stream),
 		fail
 	;
-		!
-    ).
+		true
+    ),
+	write(Stream, '}'),
+	nl(Stream),
+	write(Stream, '#endif'),
+	nl(Stream).
 
 write_cpp(Stream) :-
     write_ln(Stream, '//Source'),
     (
-        src_term(X), write_ln(Stream, X), fail;
-        true
+        src_term(X),
+		write(Stream, 'db.Add('),
+		format_term(Stream, X),
+		write(Stream, ');'),
+		nl(Stream),
+		fail
+	;
+		true
     ).
+
+format_term(Stream, Head :- Body) :-
+	format_term(Stream, Head),
+	write(Stream, '<<='),
+	format_term(Stream, Body),
+	!.
+
+format_term(Stream, (Head; Body)) :-
+	format_term(Stream, Head),
+	write(Stream, '|'),
+	format_term(Stream, Body),
+	!.
+
+format_term(Stream, (Head, Body)) :-
+	format_term(Stream, Head),
+	write('Stream, &'),
+	format_term(Stream, Body),
+	!.
+
+format_term(Stream, Term) :-
+	Term = '$VAR'(_),
+	write(Stream, Term),
+	!.
+
+format_term(Stream, [H|T]) :-
+	write(Stream, '(S|'),
+	format_list(Stream, [H|T]),
+	write(Stream, ')'),
+	!.
+
+format_term(Stream, Term) :-
+	compound(Term),
+	Term =.. List,
+	List = [Functor|Args],
+	format_term(Stream, Functor),
+	write(Stream, '('),
+	format_list(Stream, Args),
+	write(Stream, ')'),
+	!.
+
+format_term(Stream, Term) :-
+	write(Stream, Term).
+
+format_list(_, []).
+
+format_list(Stream, [H|T]) :-
+	format_term(Stream, H),
+	format_list(Stream, T).
 
 std_atom(':-').
 std_atom(',').
