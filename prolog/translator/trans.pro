@@ -20,7 +20,12 @@ clean :-
 
 find_atoms(X) :-
     atom(X), !,
-    assert(src_atom(X)).
+	(
+		src_atom(X)
+	;
+		assert(src_atom(X))
+	),
+	!.
 
 find_atoms(X) :-
     compound(X), !,
@@ -80,9 +85,16 @@ translate(FileName) :-
 
 write_hpp(Stream) :-
     write_ln(Stream, '//Header'),
-    (
-        src_atom(X), write_ln(Stream, X), fail;
-        true
+    (	
+		src_atom(X),
+		not(std_atom(X)),
+		write(Stream, 'PlgAtom('),
+		write(Stream, X),
+		write(Stream, ');'),
+		nl(Stream),
+		fail
+	;
+		!
     ).
 
 write_cpp(Stream) :-
@@ -91,3 +103,7 @@ write_cpp(Stream) :-
         src_term(X), write_ln(Stream, X), fail;
         true
     ).
+
+std_atom(':-').
+std_atom(',').
+std_atom(';').
