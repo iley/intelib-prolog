@@ -137,7 +137,6 @@ int main()
             Ok(db, mortal(X), X, (S| plato, socrates));
         }
         TestScore();
-        return 0; //FIXME
 
         TestSection("Solving 2");
         {
@@ -265,6 +264,15 @@ int main()
             db.Add( c(20) );
 
             Ok(db, a(X,Y), (S|X, Y), (S| (S|1, 10), (S|1, 20) ));
+
+            PlgAtom f("f"), g("g");
+            
+            db.Add( f(1) );
+            db.Add( f(2) );
+            db.Add( g(1) <<= cut );
+            db.Add( g(2) );
+
+            Ok(db, f(X) & g(Y), (S|X,Y), (S| (S|1, 1), (S|2, 1) ));
         }
         TestScore();
 
