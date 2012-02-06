@@ -16,7 +16,8 @@ clean :-
     ignore(retract(module_name(_))),
     ignore(retract(src_atom(_))),
     ignore(retract(src_term(_))),
-    ignore(retract(src_var(_))).
+    ignore(retract(src_var(_))),
+	ignore(retract(maxvar(_))).
 
 find_atoms(X) :-
     atom(X),
@@ -49,11 +50,28 @@ load(Stream) :-
     read(Stream, Term),
     Term \= end_of_file, !,
     find_atoms(Term),
-    numbervars(Term, 0, _),
+    numbervars(Term, 0, End),
+	update_maxvar(End),
     assertz(src_term(Term)),
     load(Stream).
 
 load(_).
+
+update_maxvar(New) :-
+	(
+		maxvar(Old)
+	; 
+		Old = 0
+	), 
+	!,
+	(
+		New > Old,
+		ignore(retract(maxvar(Old))),
+		assert(maxvar(New)),
+	;
+		true
+	),
+	!.
 
 write_ln(Term) :- write(Term), nl.
 write_ln(Stream, Term) :- write(Stream, Term), nl(Stream).
