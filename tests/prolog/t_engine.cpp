@@ -161,23 +161,23 @@ int main()
 
         TestSection("User predicates");
         {
-            PlgAtom f("f"), g("g"), h("h");
+            PlgAtom u("u"), g("g"), h("h");
             PlgVariable X("X"), Y("Y");
             PlgDatabase db;
 
-            db.Add( g(X) <<= (X ^= f) );
+            db.Add( g(X) <<= (X ^= u) );
             db.Add( h(X) <<= h(X, g) );
             db.Add( h(X, Y) <<= (X ^= Y) );
 
-            f->SetPredicate(1, someUserPredicate);
-            PlgContinuation cont = db.Query(f(X));
-            TESTB("before calling f", !userPredicateCalled);
-            TESTB("calling f", cont->Next());
-            TESTB("after calling f", userPredicateCalled);
-            TESTB("calling f for a second time", !cont->Next());
+            u->SetPredicate(1, someUserPredicate);
+            PlgContinuation cont = db.Query(u(X));
+            TESTB("before calling u", !userPredicateCalled);
+            TESTB("calling u", cont->Next());
+            TESTB("after calling u", userPredicateCalled);
+            TESTB("calling u for a second time", !cont->Next());
 
-            Ok(db, X ^= f, X, (S| f ));
-            Ok(db, g(X), X, (S| f ));
+            Ok(db, X ^= u, X, (S| u ));
+            Ok(db, g(X), X, (S| u ));
             Ok(db, h(X), X, (S| g ));
         }
         TestScore();
