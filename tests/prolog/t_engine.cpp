@@ -253,7 +253,7 @@ int main()
             using PlgStdLib::cut;
 
             PlgAtom a("a"), b("b"), c("c");
-            PlgVariable X("X"), Y("Y");
+            PlgVariable X("X"), Y("Y"), Z("Z");
             PlgDatabase db;
 
             db.Add( a(X, Y) <<= b(X) & cut & c(Y) );
@@ -273,6 +273,7 @@ int main()
             db.Add( g(2) );
 
             Ok(db, f(X) & g(Y), (S|X,Y), (S| (S|1, 1), (S|2, 1) ));
+            Ok(db, b(X) & c(Y) & cut & f(Z), (S|X,Y,Z), (S| (S|1, 10, 1), (S|1, 10, 2)));
         }
         TestScore();
 
