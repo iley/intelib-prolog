@@ -3,6 +3,37 @@
 #include "utils.hpp"
 #include "library.hpp"
 
+class PlgExpressionSentenceMark : public PlgObject, public SExpression
+{
+public:
+    static IntelibTypeId TypeId;
+
+    PlgExpressionSentenceMark(PlgExpressionChoicePoint *cp) : SExpression(TypeId), choicePoint(cp) {}
+
+    PlgExpressionChoicePoint *ChoicePoint() const { return choicePoint; }
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    SString TextRepresentation() const
+    {
+        return SString("<SENTENCE ") + SReference((long)choicePoint)->TextRepresentation() + ">";
+    }
+#endif
+
+private:
+    PlgExpressionChoicePoint *choicePoint;
+};
+
+IntelibTypeId PlgExpressionSentenceMark::TypeId(&SExpression::TypeId, false);
+
+typedef GenericSReference<PlgExpressionSentenceMark, IntelibX_not_a_prolog_sentence_mark> PlgSentenceMark_Super;
+
+class PlgSentenceMark : public PlgSentenceMark_Super
+{
+public:
+    PlgSentenceMark(PlgExpressionChoicePoint *cp) : PlgSentenceMark_Super(new PlgExpressionSentenceMark(cp)) {}
+    PlgSentenceMark(const SReference &sref) : PlgSentenceMark_Super(sref) {}
+};
+
 // Context
 
 void PlgContext::ReturnTo(int pos, bool merge)
@@ -54,6 +85,8 @@ bool PlgExpressionContinuation::Next()
             if (!pred->Apply(term->Functor(), term->Args(), *this) && !Backtrack())
                 return false;
         }
+
+        // if query is not atom/struct, just ignore it
     }
 
     return true;
@@ -78,6 +111,29 @@ void PlgExpressionContinuation::PopChoicePoint()
 
 void PlgExpressionContinuation::ResetChoicePoints()
 {
+    choicePoints = *PTheEmptyList;
+}
+
+void PlgExpressionContinuation::Cut()
+{
+    // find latest sentence mark
+    for (SReference q = queries; !q.IsEmptyList(); q = q.Cdr()) {
+        if (q.Car()->TermType() == PlgExpressionSentenceMark::TypeId) {
+            PlgSentenceMark mark = q.Car();
+
+            // find choice point corresponding to current sentence start
+            for (SReference cons = choicePoints; !cons.IsEmptyList(); cons = cons.Cdr()) {
+                if (cons.Car().GetPtr() == mark->ChoicePoint()) {
+                    // remove all choice points down to that choice point
+                    choicePoints = cons.Cdr();
+                    return;
+                }
+            }
+            throw IntelibX("Choice point not found in Cut()");
+        }
+    }
+
+    // remove all choice points if no sentence marks found
     choicePoints = *PTheEmptyList;
 }
 
@@ -165,7 +221,7 @@ void PlgExpressionChoicePoint::Restore()
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionChoicePoint::TextRepresentation() const
 {
-    return "<PROLOG CHOICE POINT>";
+    return SString("<CHOICE POINT ") + SReference((long)this)->TextRepresentation() + ">";
 }
 #endif
 
@@ -188,6 +244,7 @@ bool PlgExpressionClauseChoicePoint::TryNext()
 
         SHashTable vars;
         if (clause.Unify(head.RenameVars(cont.context, vars), cont.context)) {
+            cont.PushQuery(PlgSentenceMark(this));
             cont.PushQuery(body.RenameVars(cont.context, vars));
             return true;
         }
@@ -209,6 +266,7 @@ bool PlgExpressionDisjChoicePoint::TryNext()
 
     PlgReference variant = variants.Car();
     variants = variants.Cdr();
+    cont.PushQuery(PlgSentenceMark(this));
     cont.PushQuery(variant);
     return true;
 }

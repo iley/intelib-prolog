@@ -33,5 +33,8 @@ IntelibX_not_a_prolog_truth::IntelibX_not_a_prolog_truth(SReference a_param)
 IntelibX_not_a_prolog_predicate::IntelibX_not_a_prolog_predicate(SReference a_param)
     : IntelibX("Not a prolog predicate", a_param) {}
 
+IntelibX_not_a_prolog_sentence_mark::IntelibX_not_a_prolog_sentence_mark(SReference a_param)
+    : IntelibX("Not a prolog sentence mark", a_param) {}
+
 IntelibX_invalid_arity::IntelibX_invalid_arity(int arity)
     : IntelibX("Invalid arity", arity) {}

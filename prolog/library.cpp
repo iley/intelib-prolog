@@ -85,7 +85,7 @@ namespace PlgStdLib
 
     bool PredicateCut(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
-        cont.ResetChoicePoints();
+        cont.Cut();
         return true;
     }
 

@@ -69,6 +69,7 @@ public:
     void PushChoicePoint(const PlgReference &point);
     void PopChoicePoint();
     void ResetChoicePoints();
+    void Cut();
 
     PlgDatabase &Database() { return database; }
     SReference ChoicePoints() { return choicePoints; }
