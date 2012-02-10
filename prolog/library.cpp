@@ -134,15 +134,15 @@ namespace PlgStdLib
                 right = IntEval(term->Args().Cdr().Car()),
                 result;
 
-            if (oper == minus)
+            if (oper.IsEql(minus))
                 result = left - right;
-            else if (oper == plus)
+            else if (oper.IsEql(plus))
                 result = left + right;
-            else if (oper == multiply)
+            else if (oper.IsEql(multiply))
                 result = left * right;
-            else if (oper == divide)
+            else if (oper.IsEql(divide))
                 result = left / right;
-            else if (oper == reminder)
+            else if (oper.IsEql(reminder))
                 result = left % right;
             else
                 throw IntelibX_not_implemented();

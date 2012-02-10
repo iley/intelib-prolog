@@ -141,7 +141,6 @@ protected:
     bool isInfix;
 
     PlgExpressionAtom(const IntelibTypeId &typeId, const char *name, bool infix) : SExpressionString(typeId, name), isInfix(infix) {}
-    virtual bool SpecificEql(const SExpression* other) const;
 };
 
 typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom_Super;
@@ -161,9 +160,6 @@ public:
     PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4);
     PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4, const SReference &arg5);
     // TODO more args
-
-private:
-    void Init(const char *name, bool infix);
 };
 
 // Variable Name
@@ -178,8 +174,6 @@ public:
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
-
-    virtual bool SpecificEql(const SExpression* other) const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;

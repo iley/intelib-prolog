@@ -22,7 +22,7 @@ PlgReference PlgUnbound;
 
 bool PlgObject::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const
 {
-    return self.GetPtr() == other.GetPtr();
+    return self.IsEql(other);
 }
 
 PlgReference PlgObject::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const
@@ -139,7 +139,7 @@ PlgReference PlgReference::Head() const
 {
     if ((*this)->TermType() == PlgExpressionTerm::TypeId) {
         PlgTerm term = *this;
-        if (term->Functor() == PlgStdLib::implication)
+        if (term->Functor().IsEql(PlgStdLib::implication))
             return term->Args().Car();
         else
             return term;
@@ -152,7 +152,7 @@ PlgReference PlgReference::Body() const
 {
     if ((*this)->TermType() == PlgExpressionTerm::TypeId) {
         PlgTerm term = *this;
-        if (term->Functor() == PlgStdLib::implication)
+        if (term->Functor().IsEql(PlgStdLib::implication))
             return term->Args().Cdr().Car();
         else
             return PlgStdLib::truth;
@@ -269,23 +269,6 @@ PlgPredicate PlgExpressionAtom::GetPredicate(int arity) const
         return PlgDefaultPredicate;
 }
 
-bool PlgExpressionAtom::SpecificEql(const SExpression* other) const
-{
-    return this == other;
-}
-
-void PlgAtom::Init(const char *name, bool infix) {
-    static SHashTable atoms;
-
-    PlgReference found = atoms->FindItem(name, PlgUnbound);
-    if (found.GetPtr()) {
-        operator=(found);
-    } else {
-        operator=(PlgAtom_Super(new PlgExpressionAtom(name, infix)));
-        atoms->AddItem(name, *this);
-    }
-}
-
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionAtom::TextRepresentation() const
 {
@@ -293,17 +276,13 @@ SString PlgExpressionAtom::TextRepresentation() const
 }
 #endif
 
-PlgAtom::PlgAtom(const char *name, bool infix) {
-    Init(name, infix);
-}
+PlgAtom::PlgAtom(const char *name, bool infix) : PlgAtom_Super(new PlgExpressionAtom(name, infix)) {}
 
-PlgAtom::PlgAtom(const char *name, int arity, const PlgPredicate &pred, bool infix) {
-    Init(name, infix);
+PlgAtom::PlgAtom(const char *name, int arity, const PlgPredicate &pred, bool infix) : PlgAtom_Super(new PlgExpressionAtom(name, infix)) {
     (*this)->SetPredicate(arity, pred);
 }
 
-PlgAtom::PlgAtom(const char *name, const PlgPredicate &pred, bool infix) {
-    Init(name, infix);
+PlgAtom::PlgAtom(const char *name, const PlgPredicate &pred, bool infix) : PlgAtom_Super(new PlgExpressionAtom(name, infix)){
     (*this)->SetPredicate(pred);
 }
 
@@ -364,23 +343,7 @@ PlgReference PlgExpressionVariable::Evaluate(const PlgReference &self, PlgContex
         return binding.Evaluate(context);
 }
 
-bool PlgExpressionVariable::SpecificEql(const SExpression* other) const
-{
-    return this == other;
-}
-
-PlgVariable::PlgVariable(const char *name)
-{
-    static SHashTable vars;
-    PlgReference var = vars->FindItem(name, PlgUnbound);
-    if (var.GetPtr()) {
-        operator=(var);
-    }
-    else {
-        operator=(PlgVariable_Super(new PlgExpressionVariable(name)));
-        vars->AddItem(name, *this);
-    }
-}
+PlgVariable::PlgVariable(const char *name) : PlgVariable_Super(new PlgExpressionVariable(name)) {}
 
 PlgReference PlgVariable::is(const PlgReference &expr)
 {

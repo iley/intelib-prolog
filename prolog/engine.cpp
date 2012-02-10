@@ -234,7 +234,7 @@ bool PlgExpressionClauseChoicePoint::TryNext()
         pointer = pointer.Cdr();
 
         PlgReference head, body;
-        if (candidate->Functor() == PlgStdLib::implication) {
+        if (candidate->Functor().IsEql(PlgStdLib::implication)) {
             head = candidate->Args().Car();
             body = candidate->Args().Cdr().Car();
         } else {
