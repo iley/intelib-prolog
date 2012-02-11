@@ -1,5 +1,5 @@
 INTELIB=../..
-EXAMPLES=example queens
+EXAMPLES=example queens psort
 
 .PHONY: default clean
 
