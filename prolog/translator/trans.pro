@@ -176,8 +176,10 @@ write_main :-
 	write('  using namespace '), write(Namespace), write_ln(';'),
 	write_ln('  PlgDatabase &db = Database();'),
 	write_ln('  PlgContinuation cont = db.Query(prolog);'),
-	write_ln('  cont->Next();'),
-	write_ln('  return 0;'),
+	write_ln('  if (cont->Next())'),
+	write_ln('    return 0;'),
+	write_ln('  else'),
+	write_ln('    return 1;'),
 	write_ln('}').
 
 write_vars :-
