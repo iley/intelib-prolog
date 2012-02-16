@@ -67,7 +67,7 @@ update_maxvar(New) :-
 	(
 		New > Old,
 		ignore(retract(maxvar(Old))),
-		assert(maxvar(New)),
+		assert(maxvar(New))
 	;
 		true
 	),
@@ -88,18 +88,17 @@ translate(FileName) :-
     atom_concat(Name, '.cpp', CppFileName),
 
     open(FileName, read, Input),
-    write_ln(loading),
     load(Input),
-    write_ln(loaded),
     close(Input),
 
     open(HppFileName, write, HppFile),
-    write_hpp(HppFile),
+	with_output_to(HppFile, write_hpp),
     close(HppFile),
 
     open(CppFileName, write, CppFile), !,
-    write_cpp(CppFile),
-    close(CppFile).
+	with_output_to(CppFile, write_cpp),
+    close(CppFile),
+	write(done), nl.
 
 namespace_prefix('').
 
@@ -113,90 +112,129 @@ guard(Guard) :-
 	upcase_atom(Module, MODULE),
 	atom_concat(MODULE, '_HPP_SENTRY', Guard).
 
-%TODO: format
-write_hpp(Stream) :-
-	guard(Guard),
-	write(Stream, '#ifndef '), write(Stream, Guard), nl(Stream),
-	write(Stream, '#define '), write(Stream, Guard), nl(Stream),
-	write(Stream, '#include <prolog/prolog.hpp>'), nl(Stream),
+write_namespace_decl :-
 	namespace(Namespace),
-	write(Stream, 'namespace '), write(Stream, Namespace), write(Stream, ' {'), nl(Stream),
-	write(Stream, 'PlgDatabase &Database();'), nl(Stream),
+	write('namespace '), write(Namespace), write(' {'), nl.
+
+
+%TODO: format
+write_hpp :-
+	guard(Guard),
+	write('#ifndef '), write(Guard), nl,
+	write('#define '), write(Guard), nl,
+	write('#include <prolog/prolog.hpp>'), nl,
+	write_namespace_decl,
+	write('PlgDatabase &Database();'), nl,
     (	
 		src_atom(X),
-		write(Stream, 'PlgAtom('),
-		write(Stream, X),
-		write(Stream, ');'),
-		nl(Stream),
+		write('PlgAtom '),
+		write(X),
+		write('("'),
+		write(X),
+		write('");'),
+		nl,
 		fail
 	;
 		true
     ),
-	write(Stream, '}'),
-	nl(Stream),
-	write(Stream, '#endif'),
-	nl(Stream).
+	write('}'),
+	nl,
+	write('#endif'),
+	nl.
 
-write_cpp(Stream) :-
-    write_ln(Stream, '//Source'),
+write_cpp :-
+	module_name(Module),
+    write('#include "'),
+	write(Module),
+	write_ln('.hpp>'),
+	write_namespace_decl,
+	write_ln('PlgDatabase &Database() {'),
+	write_ln('static PlgDatabase db;'),
+	write_ln('static bool needsInit = true;'),
+	write_vars,
+	write_ln('if (needsInit) {'),
+	%trace,
     (
         src_term(X),
-		write(Stream, 'db.Add('),
-		format_term(Stream, X),
-		write(Stream, ');'),
-		nl(Stream),
+		write('db.Add('),
+		format_term(X),
+		write(');'),
+		nl,
 		fail
 	;
 		true
-    ).
+    ),
+	write_ln('needsInit = false;'),
+	write_ln('}'),
+	write_ln('return db;'),
+	write_ln('}'),
+	write_ln('}').
 
-format_term(Stream, Head :- Body) :-
-	format_term(Stream, Head),
-	write(Stream, '<<='),
-	format_term(Stream, Body),
+write_vars :-
+	write_vars(0).
+
+write_vars(N) :-
+	maxvar(Max),
+	(
+		N >= Max, !
+	;
+		Var = '$VAR'(N),
+		write('static PlgVariable '),
+		write(Var),
+		write('("'),
+		write(Var),
+		write('");'),
+		nl,
+		N1 is N + 1,
+		write_vars(N1)
+	).
+
+format_term(Head :- Body) :-
+	format_term(Head),
+	write('<<='),
+	format_term(Body),
 	!.
 
-format_term(Stream, (Head; Body)) :-
-	format_term(Stream, Head),
-	write(Stream, '|'),
-	format_term(Stream, Body),
+format_term((Head; Body)) :-
+	format_term(Head),
+	write('|'),
+	format_term(Body),
 	!.
 
-format_term(Stream, (Head, Body)) :-
-	format_term(Stream, Head),
-	write('Stream, &'),
-	format_term(Stream, Body),
+format_term((Head, Body)) :-
+	format_term(Head),
+	write('&'),
+	format_term(Body),
 	!.
 
-format_term(Stream, Term) :-
+format_term(Term) :-
 	Term = '$VAR'(_),
-	write(Stream, Term),
+	write(Term),
 	!.
 
-format_term(Stream, [H|T]) :-
-	write(Stream, '(S|'),
-	format_list(Stream, [H|T]),
-	write(Stream, ')'),
+format_term([H|T]) :-
+	write('(S|'),
+	format_list([H|T]),
+	write(')'),
 	!.
 
-format_term(Stream, Term) :-
+format_term(Term) :-
 	compound(Term),
-	Term =.. List,
-	List = [Functor|Args],
-	format_term(Stream, Functor),
-	write(Stream, '('),
-	format_list(Stream, Args),
-	write(Stream, ')'),
+	Term =.. [Functor|Args],
+	format_term(Functor),
+	write('('),
+	format_list(Args),
+	write(')'),
 	!.
 
-format_term(Stream, Term) :-
-	write(Stream, Term).
+format_term(Term) :-
+	write(Term).
 
-format_list(_, []).
+format_list([]).
 
-format_list(Stream, [H|T]) :-
-	format_term(Stream, H),
-	format_list(Stream, T).
+format_list([H|T]) :-
+	format_term(H),
+	format_list(T).
 
 std_atom(':-').
 std_atom(',').
