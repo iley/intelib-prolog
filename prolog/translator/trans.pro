@@ -114,12 +114,7 @@ write_hpp :-
 	write('  PlgDatabase &Database();'), nl,
     (	
 		src_atom(X),
-		write('  PlgAtom '),
-		write(X),
-		write('("'),
-		write(X),
-		write('");'),
-		nl,
+		write('  PlgAtom '), write(X), write('("'), write(X), write_ln('");'),
 		fail
 	;
 		true
@@ -143,10 +138,7 @@ write_cpp :-
 	write_ln('    if (needsInit) {'),
     (
         src_term(X),
-		write('      db.Add('),
-		format_term(X),
-		write(');'),
-		nl,
+		write('      db.Add('), format_term(X), write_ln(');'),
 		fail
 	;
 		true
@@ -179,36 +171,13 @@ write_vars(N) :-
 		N >= Max, !
 	;
 		Var = '$VAR'(N),
-		write('    static PlgVariable '),
-		write(Var),
-		write('("'),
-		write(Var),
-		write('");'),
-		nl,
+		write('    static PlgVariable '), write(Var), write('("'), write(Var), write_ln('");'),
 		N1 is N + 1,
 		write_vars(N1)
 	).
 
 % no pragmas are supported for now
 format_term(':-'(_)).
-
-format_term(Head :- Body) :-
-	format_term(Head),
-	write('<<='),
-	format_term(Body),
-	!.
-
-format_term((Head; Body)) :-
-	format_term(Head),
-	write('|'),
-	format_term(Body),
-	!.
-
-format_term((Head, Body)) :-
-	format_term(Head),
-	write('&'),
-	format_term(Body),
-	!.
 
 format_term(Term) :-
 	Term = '$VAR'(_),
@@ -224,10 +193,7 @@ format_term([H|T]) :-
 format_term(Term) :-
 	compound(Term),
 	Term =.. [Functor|Args],
-	format_term(Functor),
-	write('('),
-	format_list(Args),
-	write(')'),
+	format_term(Functor, Args),
 	!.
 
 format_term(Atom) :-
@@ -237,19 +203,39 @@ format_term(Atom) :-
 format_term(Atom) :-
 	write(Atom).
 
+% format_term/2 creates C++ representation of compound term
+% infix operator
+format_term(Functor, [X, Y]) :-
+	std_infix(Functor, Op),
+	write('('), format_term(X), format_term(Op), format_term(Y), write(')'),
+	!.
+
+% predicate from std. library
+format_term(Functor, Args) :-
+	std_atom(Functor, Subst),
+	format_term(Subst, Args),
+	!.
+
+% ordinary compound term
+format_term(Functor, Args) :-
+	format_term(Functor), write('('), format_list(Args), write(')'), !.
+
+% format_list/1 creates C++ representation of comma-separated list
 format_list([]).
 
 format_list([H|T]) :-
 	format_term(H),
 	format_list(T).
 
-std_atom(':-').
-std_atom(',').
-std_atom(';').
-std_atom(write).
-std_atom(nl).
-
+std_atom(member). std_atom(nl). std_atom(write).
 std_atom(X) :- std_atom(X, _).
+
 std_atom('!', cut).
 std_atom(true, truth).
 std_atom(not, nope).
+std_atom(Atom, Subst) :- std_infix(Atom, Subst).
+
+std_infix(X) :- std_infix(X, _).
+std_infix(':-', '<<=').
+std_infix(',', '&').
+std_infix(';', '|').
