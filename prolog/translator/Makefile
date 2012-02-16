@@ -5,7 +5,7 @@ test: test.cpp test.hpp
 
 test.hpp: test.cpp
 
-test.cpp: test.pro
+test.cpp: test.pro trans.pro
 	./trans.pro $<
 
 clean:

@@ -192,6 +192,9 @@ write_vars(N) :-
 		write_vars(N1)
 	).
 
+% no pragmas are supported for now
+format_term(':-'(_)).
+
 format_term(Head :- Body) :-
 	format_term(Head),
 	write('<<='),
