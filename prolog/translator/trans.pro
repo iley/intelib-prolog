@@ -7,17 +7,13 @@ prolog :-
     translate(File), !.
 
 prolog :-
-	write_ln('translation failed').
+	write_ln('translation failed'),
+	fail.
 
 actual_args(['--'|Result],Result) :- !.
 actual_args([_|Args],Result) :- actual_args(Args,Result).
 
-clean :-
-    ignore(retract(module_name(_))),
-    ignore(retract(src_atom(_))),
-    ignore(retract(src_term(_))),
-    ignore(retract(src_var(_))),
-	ignore(retract(maxvar(_))).
+:- dynamic(src_atom/1).
 
 find_atoms(X) :-
     atom(X),
@@ -57,13 +53,11 @@ load(Stream) :-
 
 load(_).
 
+:- dynamic(maxvar/1).
+maxvar(0).
+
 update_maxvar(New) :-
-	(
-		maxvar(Old)
-	; 
-		Old = 0
-	), 
-	!,
+	maxvar(Old),
 	(
 		New > Old,
 		ignore(retract(maxvar(Old))),
@@ -77,11 +71,9 @@ write_ln(Term) :- write(Term), nl.
 write_ln(Stream, Term) :- write(Stream, Term), nl(Stream).
 
 translate(FileName) :-
-    %trace,
     file_name_extension(Name, _, FileName),
     file_base_name(Name, ModuleName),
 
-    clean,
     assert(module_name(ModuleName)),
 
     atom_concat(Name, '.hpp', HppFileName),
@@ -152,7 +144,6 @@ write_cpp :-
 	write_ln('    static bool needsInit = true;'),
 	write_vars,
 	write_ln('    if (needsInit) {'),
-	%trace,
     (
         src_term(X),
 		write('      db.Add('),
