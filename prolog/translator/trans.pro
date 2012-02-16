@@ -116,18 +116,16 @@ write_namespace_decl :-
 	namespace(Namespace),
 	write('namespace '), write(Namespace), write(' {'), nl.
 
-
-%TODO: format
 write_hpp :-
 	guard(Guard),
 	write('#ifndef '), write(Guard), nl,
 	write('#define '), write(Guard), nl,
 	write('#include <prolog/prolog.hpp>'), nl,
 	write_namespace_decl,
-	write('PlgDatabase &Database();'), nl,
+	write('  PlgDatabase &Database();'), nl,
     (	
 		src_atom(X),
-		write('PlgAtom '),
+		write('  PlgAtom '),
 		write(X),
 		write('("'),
 		write(X),
@@ -146,17 +144,18 @@ write_cpp :-
 	module_name(Module),
     write('#include "'),
 	write(Module),
-	write_ln('.hpp>'),
+	write_ln('.hpp"'),
 	write_namespace_decl,
-	write_ln('PlgDatabase &Database() {'),
-	write_ln('static PlgDatabase db;'),
-	write_ln('static bool needsInit = true;'),
+	write_ln('  PlgDatabase &Database() {'),
+	write_ln('    using namespace PlgStdLib;'),
+	write_ln('    static PlgDatabase db;'),
+	write_ln('    static bool needsInit = true;'),
 	write_vars,
-	write_ln('if (needsInit) {'),
+	write_ln('    if (needsInit) {'),
 	%trace,
     (
         src_term(X),
-		write('db.Add('),
+		write('      db.Add('),
 		format_term(X),
 		write(');'),
 		nl,
@@ -164,10 +163,21 @@ write_cpp :-
 	;
 		true
     ),
-	write_ln('needsInit = false;'),
+	write_ln('      needsInit = false;'),
+	write_ln('    }'),
+	write_ln('    return db;'),
+	write_ln('  }'),
 	write_ln('}'),
-	write_ln('return db;'),
-	write_ln('}'),
+	( src_atom(prolog), write_main ; true ).
+
+write_main :-
+	write_ln('int main() {'),
+	namespace(Namespace),
+	write('  using namespace '), write(Namespace), write_ln(';'),
+	write_ln('  PlgDatabase &db = Database();'),
+	write_ln('  PlgContinuation cont = db.Query(prolog);'),
+	write_ln('  cont->Next();'),
+	write_ln('  return 0;'),
 	write_ln('}').
 
 write_vars :-
@@ -179,7 +189,7 @@ write_vars(N) :-
 		N >= Max, !
 	;
 		Var = '$VAR'(N),
-		write('static PlgVariable '),
+		write('    static PlgVariable '),
 		write(Var),
 		write('("'),
 		write(Var),
