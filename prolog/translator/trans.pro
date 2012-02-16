@@ -134,6 +134,7 @@ write_cpp :-
 	write_ln('    using namespace PlgStdLib;'),
 	write_ln('    static PlgDatabase db;'),
 	write_ln('    static bool needsInit = true;'),
+	write_ln('    static SReference &Nil = *PTheEmptyList;'),
 	write_vars,
 	write_ln('    if (needsInit) {'),
     (
@@ -190,6 +191,9 @@ format_term([H|T]) :-
 	write(')'),
 	!.
 
+format_term([]) :-
+	write('Nil'), !.
+
 format_term(Term) :-
 	compound(Term),
 	Term =.. [Functor|Args],
@@ -200,14 +204,24 @@ format_term(Atom) :-
 	std_atom(Atom, Subst),
 	write(Subst), !.
 
+format_term(Number) :-
+	number(Number),
+	write('SReference('), write(Number), write(')'), !.
+
 format_term(Atom) :-
 	write(Atom).
 
 % format_term/2 creates C++ representation of compound term
-% infix operator
+% infix operator with substitution
 format_term(Functor, [X, Y]) :-
 	std_infix(Functor, Op),
 	write('('), format_term(X), format_term(Op), format_term(Y), write(')'),
+	!.
+
+% infix operator without substitution
+format_term(Functor, [X, Y]) :-
+	std_infix(Functor),
+	write('('), format_term(X), format_term(Functor), format_term(Y), write(')'),
 	!.
 
 % predicate from std. library
@@ -221,21 +235,31 @@ format_term(Functor, Args) :-
 	format_term(Functor), write('('), format_list(Args), write(')'), !.
 
 % format_list/1 creates C++ representation of comma-separated list
-format_list([]).
+format_list([]) :- !.
+
+format_list([X]) :-
+	format_term(X), !.
 
 format_list([H|T]) :-
 	format_term(H),
+	write(','),
 	format_list(T).
 
 std_atom(member). std_atom(nl). std_atom(write).
 std_atom(X) :- std_atom(X, _).
+std_atom(X) :- std_infix(X, _).
 
 std_atom('!', cut).
 std_atom(true, truth).
 std_atom(not, nope).
-std_atom(Atom, Subst) :- std_infix(Atom, Subst).
+std_atom(is, is).
+std_atom('=\\=', ne).
 
-std_infix(X) :- std_infix(X, _).
 std_infix(':-', '<<=').
 std_infix(',', '&').
 std_infix(';', '|').
+std_infix('=', '^=').
+std_infix('=<', '<=').
+
+std_infix('+'). std_infix('-'). std_infix('*'). std_infix('/').
+std_infix('<'). std_infix('>'). std_infix('>='). 
