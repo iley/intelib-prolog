@@ -6,7 +6,7 @@ test: test.cpp test.hpp
 test.hpp: test.cpp
 
 test.cpp: test.pro trans.pro
-	./trans.pro $<
+	prolog -q -s trans.pro -- $<
 
 clean:
 	rm -f test test.hpp test.cpp

@@ -1,5 +1,3 @@
-#!/usr/bin/swipl -q -s
-
 prolog :-
     current_prolog_flag(argv, Argv),
     actual_args(Argv,Files),
@@ -89,8 +87,7 @@ translate(FileName) :-
 
     open(CppFileName, write, CppFile), !,
 	with_output_to(CppFile, write_cpp),
-    close(CppFile),
-	write(done), nl.
+    close(CppFile).
 
 namespace_prefix('').
 
