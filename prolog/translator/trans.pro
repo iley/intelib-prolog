@@ -227,8 +227,12 @@ format_term(Term) :-
 	write(')'),
 	!.
 
-format_term(Term) :-
-	write(Term).
+format_term(Atom) :-
+	std_atom(Atom, Subst),
+	write(Subst), !.
+
+format_term(Atom) :-
+	write(Atom).
 
 format_list([]).
 
@@ -239,3 +243,7 @@ format_list([H|T]) :-
 std_atom(':-').
 std_atom(',').
 std_atom(';').
+std_atom(X) :- std_atom(X, _).
+std_atom('!', cut).
+std_atom(true, truth).
+std_atom(not, nope).
