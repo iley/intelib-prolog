@@ -1,6 +1,7 @@
 #ifndef INTELIB_PROLOG_LIBRARY_HPP_SENTRY
 #define INTELIB_PROLOG_LIBRARY_HPP_SENTRY
 #include "data.hpp"
+#include "io.hpp"
 
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 

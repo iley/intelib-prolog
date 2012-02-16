@@ -249,6 +249,9 @@ format_list([H|T]) :-
 std_atom(':-').
 std_atom(',').
 std_atom(';').
+std_atom(write).
+std_atom(nl).
+
 std_atom(X) :- std_atom(X, _).
 std_atom('!', cut).
 std_atom(true, truth).
