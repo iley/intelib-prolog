@@ -193,6 +193,30 @@ public:
     PlgReference is(const PlgReference &expr);
 };
 
+// Anonymous variable
+
+class PlgExpressionAnonymousVariable : public SExpression, public PlgObject
+{
+public:
+    static IntelibTypeId TypeId;
+
+    PlgExpressionAnonymousVariable() : SExpression(TypeId) {}
+
+    virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+};
+
+typedef GenericSReference<PlgExpressionAnonymousVariable, IntelibX_not_a_prolog_anonymous_variable> PlgAnonymousVariable_Super;
+
+class PlgAnonymousVariable : public PlgAnonymousVariable_Super
+{
+public:
+    PlgAnonymousVariable() : PlgAnonymousVariable_Super(new PlgExpressionAnonymousVariable()) {}
+};
+
 // Term
 
 class PlgExpressionTerm : public SExpression, public PlgObject

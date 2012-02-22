@@ -6,6 +6,8 @@
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 
 namespace PlgStdLib {
+    extern PlgAnonymousVariable _;
+
     extern PlgAtom disjunction;
     extern PlgAtom conjunction;
     extern PlgAtom implication;

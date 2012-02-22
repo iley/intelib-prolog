@@ -140,14 +140,17 @@ int main()
 
         TestSection("Solving 2");
         {
-            PlgAtom a("a"), b("b"), c("c"), d("d"), f("f"), always_true("always_true");
+            PlgAtom a("a"), b("b"), c("c"), d("d"), f("f"), g("g"), always_true("always_true");
             PlgVariable X("X");
             PlgDatabase db;
+
+            using PlgStdLib::_;
 
             db.Add( a(b(X)) <<= d(X) );
             db.Add( a(c(X)) <<= f(X) );
             db.Add( d(a) );
             db.Add( f(b) );
+            db.Add( g(_) );
             db.Add( always_true );
 
             Ok(db, a(b(a)));
@@ -156,6 +159,8 @@ int main()
             Fail(db, a(c(a)));
             Ok(db, a(X), X, (S| b(a), c(b)));
             Ok(db, always_true);
+            Ok(db, g(a));
+            Ok(db, g(b));
         }
         TestScore();
 

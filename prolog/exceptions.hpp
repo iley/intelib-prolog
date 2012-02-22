@@ -75,6 +75,12 @@ public:
     IntelibX_not_a_prolog_sentence_mark(SReference a_param);
 };
 
+class IntelibX_not_a_prolog_anonymous_variable : public IntelibX
+{
+public:
+    IntelibX_not_a_prolog_anonymous_variable(SReference a_param);
+};
+
 class IntelibX_invalid_arity : public IntelibX
 {
 public:

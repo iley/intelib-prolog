@@ -55,6 +55,9 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const
     if (
         left->TermType() != PlgExpressionVariable::TypeId
         && right->TermType() == PlgExpressionVariable::TypeId
+
+        || left->TermType() != PlgExpressionAnonymousVariable::TypeId
+        && right->TermType() == PlgExpressionAnonymousVariable::TypeId
     ) {
         PlgReference tmp = left;
         left = right;
@@ -354,5 +357,19 @@ PlgReference PlgVariable::is(const PlgReference &expr)
 SString PlgExpressionVariable::TextRepresentation() const
 {
     return GetValue();
+}
+#endif
+
+IntelibTypeId PlgExpressionAnonymousVariable::TypeId(&SExpression::TypeId, false);
+
+bool PlgExpressionAnonymousVariable::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const
+{
+    return true;
+}
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpressionAnonymousVariable::TextRepresentation() const
+{
+    return "_";
 }
 #endif

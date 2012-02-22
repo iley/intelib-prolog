@@ -13,6 +13,8 @@ namespace PlgStdLib
 {
     static SListConstructor S;
 
+    PlgAnonymousVariable _;
+
     // Conjunction
 
     bool PredicateConjunction(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
