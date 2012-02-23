@@ -21,6 +21,7 @@ namespace PlgStdLib
     {
         // temporary implementation
         printf("\n");
+        return true;
     }
 
     PlgAtom nl("nl", 0, PredicateNl, false);
@@ -30,6 +31,7 @@ namespace PlgStdLib
         // temporary implementation
         PlgReference arg = args.Car();
         printf("%s", arg->TextRepresentation().c_str());
+        return true;
     }
 
     PlgAtom write("write", 1, PredicateWrite, false);

@@ -52,12 +52,13 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const
     PlgReference left = *this,
         right = other;*/
 
-    if (
-        left->TermType() != PlgExpressionVariable::TypeId
-        && right->TermType() == PlgExpressionVariable::TypeId
-
-        || left->TermType() != PlgExpressionAnonymousVariable::TypeId
-        && right->TermType() == PlgExpressionAnonymousVariable::TypeId
+    if ((
+            left->TermType() != PlgExpressionVariable::TypeId
+            && right->TermType() == PlgExpressionVariable::TypeId
+        ) || (
+            left->TermType() != PlgExpressionAnonymousVariable::TypeId
+            && right->TermType() == PlgExpressionAnonymousVariable::TypeId
+        )
     ) {
         PlgReference tmp = left;
         left = right;
