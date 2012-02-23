@@ -126,7 +126,7 @@ public:
       { (*this)->SetFunction(LReference(::new F())); }
     ~LFunctionalSymbol() {}
 private:
-    LFunctionalSymbol(const LFunctionalSymbol<F>& t) : LSymbol(0) {}
+    LFunctionalSymbol(const LFunctionalSymbol<F>& t) : LSymbol((LExpressionSymbol*)0) {}
           /* LSymbol(0) is just to make stupid compiler happy */
 };
 
