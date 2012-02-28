@@ -266,7 +266,6 @@ bool PlgExpressionDisjChoicePoint::TryNext()
 
     PlgReference variant = variants.Car();
     variants = variants.Cdr();
-    cont.PushQuery(PlgSentenceMark(this));
     cont.PushQuery(variant);
     return true;
 }
