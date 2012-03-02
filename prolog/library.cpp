@@ -117,12 +117,12 @@ namespace PlgStdLib
 
     // Integer arithmetic
 
-    PlgAtom minus("-", 2);
-    PlgAtom plus("+", 2);
-    PlgAtom multiply("*", 2);
-    PlgAtom divide("/", 2);
-    PlgAtom reminder("%", 2);
-    PlgAtom power("^", 2); //TODO
+    PlgAtom minus("-", true);
+    PlgAtom plus("+", true);
+    PlgAtom multiply("*", true);
+    PlgAtom divide("/", true);
+    PlgAtom reminder("%", true);
+    PlgAtom power("^", true); //TODO
 
     static int IntEval(const PlgReference &expr)
     {
