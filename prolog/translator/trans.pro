@@ -186,9 +186,9 @@ format_term(Term) :-
 	!.
 
 format_term([H|T]) :-
-	write('(S|'),
-	format_list([H|T]),
-	write(')'),
+	write('('), format_term(H), write(')'),
+	write('^'),
+	write('('), format_term(T), write(')'),
 	!.
 
 format_term([]) :-
@@ -206,6 +206,7 @@ format_term(Atom) :-
 
 format_term(Number) :-
 	number(Number),
+	%write(Number), !.
 	write('SReference('), write(Number), write(')'), !.
 
 format_term(Atom) :-
@@ -245,7 +246,16 @@ format_list([H|T]) :-
 	write(','),
 	format_list(T).
 
-std_atom(member). std_atom(nl). std_atom(write).
+std_atom(member).
+std_atom(nl).
+std_atom(write).
+std_atom([]).
+std_atom('.').
+std_atom('+').
+std_atom('-').
+std_atom('*').
+std_atom('/').
+
 std_atom(X) :- std_atom(X, _).
 std_atom(X) :- std_infix(X, _).
 
@@ -253,7 +263,7 @@ std_atom('!', cut).
 std_atom(true, truth).
 std_atom(not, nope).
 std_atom(is, is).
-std_atom('=\\=', ne).
+std_atom('=\\=', int_not_equal).
 
 std_infix(':-', '<<=').
 std_infix(',', '&').

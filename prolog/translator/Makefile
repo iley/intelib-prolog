@@ -1,12 +1,15 @@
-.PHONY: clean
+.PHONY: default clean
+.SUFFIXES: .cpp .pro
 
-test: test.cpp test.hpp
-	g++ -I../.. -L../../build/intelib -o $@ $< -lintelib
+MODULES=test queens
 
-test.hpp: test.cpp
+default: $(MODULES)
 
-test.cpp: test.pro trans.pro
+$(MODULES): %: %.cpp %.hpp
+	$(CXX) -I../.. -L../../build/intelib -o $@ $< -lintelib
+
+.pro.cpp: trans.pro
 	prolog -q -s trans.pro -- $<
 
 clean:
-	rm -f test test.hpp test.cpp
+	rm -f $(MODULES) *.hpp *.cpp
