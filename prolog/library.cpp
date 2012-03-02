@@ -122,6 +122,7 @@ namespace PlgStdLib
     PlgAtom multiply("*", 2);
     PlgAtom divide("/", 2);
     PlgAtom reminder("%", 2);
+    PlgAtom power("^", 2); //TODO
 
     static int IntEval(const PlgReference &expr)
     {

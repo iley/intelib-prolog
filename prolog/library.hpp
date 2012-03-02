@@ -32,6 +32,7 @@ namespace PlgStdLib {
     extern PlgAtom multiply;
     extern PlgAtom divide;
     extern PlgAtom reminder;
+    extern PlgAtom power;
     extern PlgAtom is;
     extern PlgAtom int_equal;
     extern PlgAtom int_not_equal;

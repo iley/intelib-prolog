@@ -201,8 +201,8 @@ format_term(Term) :-
 	!.
 
 format_term(Atom) :-
-	std_atom(Atom, Subst),
-	write(Subst), !.
+	std_atom(Atom, Subst), !,
+	write(Subst).
 
 format_term(Number) :-
 	number(Number),
@@ -215,23 +215,10 @@ format_term(Atom) :-
 % format_term/2 creates C++ representation of compound term
 % infix operator with substitution
 format_term(Functor, [X, Y]) :-
-	std_infix(Functor, Op),
-	write('('), format_term(X), format_term(Op), format_term(Y), write(')'),
-	!.
+	infix(Functor), !,
+	write('('), format_term(X), format_term(Functor), format_term(Y), write(')').
 
-% infix operator without substitution
-format_term(Functor, [X, Y]) :-
-	std_infix(Functor),
-	write('('), format_term(X), format_term(Functor), format_term(Y), write(')'),
-	!.
-
-% predicate from std. library
-format_term(Functor, Args) :-
-	std_atom(Functor, Subst),
-	format_term(Subst, Args),
-	!.
-
-% ordinary compound term
+% compound term
 format_term(Functor, Args) :-
 	format_term(Functor), write('('), format_list(Args), write(')'), !.
 
@@ -251,25 +238,25 @@ std_atom(nl).
 std_atom(write).
 std_atom([]).
 std_atom('.').
-std_atom('+').
-std_atom('-').
-std_atom('*').
-std_atom('/').
 
 std_atom(X) :- std_atom(X, _).
-std_atom(X) :- std_infix(X, _).
+std_atom(X,Y) :- std_infix(X, Y).
 
 std_atom('!', cut).
 std_atom(true, truth).
 std_atom(not, nope).
 std_atom(is, is).
 std_atom('=\\=', int_not_equal).
+std_atom('^', power).
 
 std_infix(':-', '<<=').
 std_infix(',', '&').
 std_infix(';', '|').
 std_infix('=', '^=').
 std_infix('=<', '<=').
+std_infix(X, X) :- std_infix(X).
 
 std_infix('+'). std_infix('-'). std_infix('*'). std_infix('/').
 std_infix('<'). std_infix('>'). std_infix('>='). 
+
+infix(Atom) :- std_infix(Atom,_).
