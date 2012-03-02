@@ -233,7 +233,7 @@ PlgReference PlgExpressionTerm::Evaluate(const PlgReference &self, PlgContext &c
 SString PlgExpressionTerm::TextRepresentation() const
 {
     if (functor->IsInfix()) {
-        return Join(SString(" ") + functor->TextRepresentation() + " ", args);
+        return Join(functor->TextRepresentation(), args);
     } else {
         if (args.IsEmptyList())
             return functor->TextRepresentation();
