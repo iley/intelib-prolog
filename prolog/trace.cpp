@@ -6,12 +6,14 @@ namespace PlgStdLib
 {
     static void Call(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
-        printf("* Call %s\n", PlgTerm(functor, args)->TextRepresentation().c_str());
+        fprintf(stderr, "* Call %s\n", PlgTerm(functor, args)->TextRepresentation().c_str());
+        fflush(stderr);
     }
 
     static void Exit(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont, bool result)
     {
-        printf("* %s %s\n", (result ? "Exit" : "Fail"), PlgTerm(functor, args)->TextRepresentation().c_str());
+        fprintf(stderr, "* %s %s\n", (result ? "Exit" : "Fail"), PlgTerm(functor, args)->TextRepresentation().c_str());
+        fflush(stderr);
     }
 
     bool PredicateTrace(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
