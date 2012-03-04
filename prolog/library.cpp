@@ -99,8 +99,10 @@ namespace PlgStdLib
         PlgReference term = args.Car(),
                      list = args.Cdr().Car();
 
-        // TODO: backward conversion
-        return PredicateUnifies(unifies, (S|list, term.Functor() ^ term.Args()), cont);
+        if (term->TermType() == PlgExpressionVariable::TypeId)
+            return term.Unify(PlgTerm(list.Car(), list.Cdr()), cont.Context());
+        else 
+            return list.Unify(term.Functor() ^ term.Args(), cont.Context());
     }
 
     PlgAtom univ("univ", 2, PredicateUniv, false);
