@@ -2,7 +2,8 @@ prolog :-
     current_prolog_flag(argv, Argv),
     actual_args(Argv,Files),
     member(File,Files),
-    translate(File), !.
+    translate(File),
+	!.
 
 prolog :-
 	write_ln('translation failed'),
@@ -21,22 +22,26 @@ find_atoms(X) :-
 		std_atom(X)
 	;
 		assert(src_atom(X))
-	), !.
+	),
+	!.
 
 find_atoms(X) :-
     compound(X),
     functor(X, Functor, _),
     find_atoms(Functor),
     (
-        arg(_, X, Arg), find_atoms(Arg), fail;
+        arg(_, X, Arg), find_atoms(Arg), fail
+	;
         true
-    ), !.
+    ),
+	!.
 
 find_atoms([]) :- !.
 
 find_atoms([H|T]) :-
     find_atoms(H),
-    find_atoms(T), !.
+    find_atoms(T),
+	!.
 
 find_atoms(_).
 
@@ -192,7 +197,8 @@ format_term([H|T]) :-
 	!.
 
 format_term([]) :-
-	write('Nil'), !.
+	write('Nil'),
+	!.
 
 format_term(Term) :-
 	compound(Term),
@@ -206,8 +212,8 @@ format_term(Atom) :-
 
 format_term(Number) :-
 	number(Number),
-	%write(Number), !.
-	write('SReference('), write(Number), write(')'), !.
+	write('SReference('), write(Number), write(')'),
+	!.
 
 format_term(Atom) :-
 	write(Atom).
