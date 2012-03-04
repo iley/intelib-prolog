@@ -1,15 +1,15 @@
 % this file is taken from YAP prolog
 
 prolog :-
-  '$translate_rule'((expr --> num, ['+'], expr), X),
-  write(X), nl.
+	'$translate_rule'((f --> g, ['t'], h),X),
+	write(X), nl.
 
 '$translate_rule'((LP-->RP), (NH:-B)) :-
 	'$t_head'(LP, NH, NGs, S, SR, (LP-->RP)),
-	 (var(NGs) ->
-	     '$t_body'(RP, _, last, S, SR, B1)
+	 (
+		var(NGs), !, '$t_body'(RP, _, last, S, SR, B1)
 	 ;
-	     '$t_body'((RP,{NGs}), _, last, S, SR, B1)
+		 '$t_body'((RP,{NGs}), _, last, S, SR, B1)
 	 ),
 	'$t_tidy'(B1, B).
 
