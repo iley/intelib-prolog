@@ -14,13 +14,19 @@
 
 TARGETLIBNAME = libiprolog.a
 
-LIBSOURCES = prolog.cpp utils.cpp exceptions.cpp data.cpp engine.cpp library.cpp io.cpp trace.cpp
-
+LIBSOURCES = prolog.cpp utils.cpp exceptions.cpp data.cpp engine.cpp library.cpp io.cpp trace.cpp grammar.cpp
 
 GENERATED_PREFIX = plgfun
 
 MODULES = 
 
 GENERATED_FILES = 
+
+.SUFFIXES: .cpp .pro
+
+grammar.cpp: pl/grammar.pro
+	prolog -q -s translator/trans.pro -t "translate_stdlib('$<')"
+
+grammar.hpp: grammar.cpp
 
 include ../lib.mk

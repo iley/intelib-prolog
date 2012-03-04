@@ -1,12 +1,17 @@
 #ifndef INTELIB_PROLOG_LIBRARY_HPP_SENTRY
 #define INTELIB_PROLOG_LIBRARY_HPP_SENTRY
 #include "data.hpp"
+#include "engine.hpp"
 #include "io.hpp"
 #include "trace.hpp"
+#include "grammar.hpp"
 
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 
 namespace PlgStdLib {
+    using grammar::dcg_translate_rule;
+    using grammar::phrase;
+
     extern PlgAnonymousVariable _;
 
     extern PlgAtom disjunction;
@@ -26,7 +31,6 @@ namespace PlgStdLib {
     extern PlgAtom expand_term;
     extern PlgAtom term_expansion;
     extern PlgAtom goal_expansion;
-    extern PlgAtom dcg_translate_rule;
 
     // Integer arithmetic
     extern PlgAtom minus;

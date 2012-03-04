@@ -2,17 +2,13 @@
 :- dynamic(src_atom/2).
 :- dynamic(src_term/1).
 :- dynamic(maxvar/1).
+:- dynamic(translator_flag/1).
 
 prolog :-
 	current_prolog_flag(argv, Argv),
 	actual_args(Argv,Files),
 	member(File,Files),
-	translate(File),
-	!.
-
-prolog :-
-	write_ln('translation failed'),
-	fail.
+	translate(File).
 
 variable_prefix('_var_').
 
@@ -101,14 +97,18 @@ update_maxvar(New) :-
 write_ln(Term) :- write(Term), nl.
 write_ln(Stream, Term) :- write(Stream, Term), nl(Stream).
 
+translate_stdlib(FileName) :-
+	assert(translator_flag(stdlib)),
+	translate(FileName).
+
 translate(FileName) :-
     file_name_extension(Name, _, FileName),
     file_base_name(Name, ModuleName),
 
     assert(module_name(ModuleName)),
 
-    atom_concat(Name, '.hpp', HppFileName),
-    atom_concat(Name, '.cpp', CppFileName),
+    atom_concat(ModuleName, '.hpp', HppFileName),
+    atom_concat(ModuleName, '.cpp', CppFileName),
 
     open(FileName, read, Input),
     load(Input),
@@ -120,7 +120,11 @@ translate(FileName) :-
 
     open(CppFileName, write, CppFile), !,
 	with_output_to(CppFile, write_cpp),
-    close(CppFile).
+    close(CppFile),
+	!.
+
+translate(_) :-
+	write_ln('translation failed').
 
 namespace_prefix('').
 
@@ -142,9 +146,14 @@ write_hpp :-
 	guard(Guard),
 	write('#ifndef '), write(Guard), nl,
 	write('#define '), write(Guard), nl,
-	write('#include <prolog/prolog.hpp>'), nl,
+	(
+		translator_flag(stdlib), ! % no includes in this case
+	;
+		write('#include <prolog/prolog.hpp>'), nl
+	),
 	write_namespace_decl,
 	write('  PlgDatabase &Database();'), nl,
+	write('  void InitDatabase(PlgDatabase &db);'), nl,
     (	
 		src_atom(Orig, Cpp),
 		write('  PlgAtom '), write(Cpp), write('("'), write(Orig), write_ln('");'),
@@ -157,26 +166,45 @@ write_hpp :-
 	write('#endif'),
 	nl.
 
+write_add(Term) :-
+	write('      '),
+	(
+		translator_flag(stdlib), !, write('db.AddWithoutExpansion(')
+	;
+		write('db.Add(')
+	),
+	format_term(Term), write_ln(');').
+
 write_cpp :-
 	module_name(Module),
-    write('#include "'),
+	(
+		translator_flag(stdlib), !, write('#include "prolog.hpp"'), nl
+	;
+		true
+	),
+	write('#include "'),
 	write(Module),
 	write_ln('.hpp"'),
 	write_namespace_decl,
-	write_ln('  PlgDatabase &Database() {'),
+
+	write_ln('  void InitDatabase(PlgDatabase &db) {'),
 	write_ln('    using namespace PlgStdLib;'),
-	write_ln('    static PlgDatabase db;'),
-	write_ln('    static bool needsInit = true;'),
 	write_ln('    static SReference &Nil = *PTheEmptyList;'),
 	write_vars,
-	write_ln('    if (needsInit) {'),
-    (
-        src_term(X),
-		write('      db.Add('), format_term(X), write_ln(');'),
+	(
+		src_term(Term),
+		write_add(Term),
 		fail
 	;
 		true
-    ),
+	),
+	write_ln('  }'),
+
+	write_ln('  PlgDatabase &Database() {'),
+	write_ln('    static PlgDatabase db;'),
+	write_ln('    static bool needsInit = true;'),
+	write_ln('    if (needsInit) {'),
+	write_ln('      InitDatabase(db);'),
 	write_ln('      needsInit = false;'),
 	write_ln('    }'),
 	write_ln('    return db;'),

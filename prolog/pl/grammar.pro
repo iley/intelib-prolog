@@ -1,8 +1,6 @@
 % this file is taken from YAP prolog
 
-prolog :-
-	'$translate_rule'((f --> g, ['t'], h),X),
-	write(X), nl.
+dcg_translate_rule(Rule, Trans) :- '$translate_rule'(Rule, Trans), !.
 
 '$translate_rule'((LP-->RP), (NH:-B)) :-
 	'$t_head'(LP, NH, NGs, S, SR, (LP-->RP)),

@@ -298,6 +298,9 @@ namespace PlgStdLib
         SReference &Nil = *PTheEmptyList;
 
         PlgVariable Term("Term"), Result("Result");
+
+        grammar::InitDatabase(db);
+
         db.AddWithoutExpansion( expand_term(Term, Result) <<= term_expansion(Term, Result) & cut );
         db.AddWithoutExpansion( expand_term(Term, Result) <<= dcg_translate_rule(Term, Result) & cut );
         db.AddWithoutExpansion( expand_term(Term, Term) );
@@ -375,6 +378,4 @@ namespace PlgStdLib
     PlgAtom expand_term("expand_term", 2, LibraryPredicate, false);
     PlgAtom term_expansion("term_expansion", 2, PlgDefaultPredicate, false);
     PlgAtom goal_expansion("goal_expansion", 2, PlgDefaultPredicate, false);
-    PlgAtom dcg_translate_rule("dcg_translate_rule", 2, LibraryPredicate, false);
-
 }
