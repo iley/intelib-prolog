@@ -11,6 +11,18 @@ bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpr
 
 namespace PlgStdLib
 {
+    PlgDatabase &GetDb();
+}
+
+bool PlgLibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+{
+    PlgClauseChoicePoint cp(PlgTerm(functor, args), cont, PlgStdLib::GetDb());
+    cont.PushChoicePoint(cp);
+    return false; //to force backtracking
+}
+
+namespace PlgStdLib
+{
     static SListConstructor S;
 
     PlgAnonymousVariable _;
@@ -288,10 +300,6 @@ namespace PlgStdLib
 
     PlgAtom var("var", 1, PredicateVar);
 
-    // Preidcates written in prolog
-
-    bool LibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
-
     // Database with standard predicates written in prolog
 
     void InitDb(PlgDatabase &db)
@@ -317,7 +325,7 @@ namespace PlgStdLib
         db.AddWithoutExpansion( length(Nil, 0) <<= cut );
         db.AddWithoutExpansion( length(H^T, N) <<= length(T,N1) & N.is(N1 + SReference(1)) );
 
-        PlgAtom index("index", 4, LibraryPredicate, false);
+        PlgAtom index("index", 4, PlgLibraryPredicate, false);
         PlgVariable StartIndex("StartIndex");
 
         // index/4 is an auxilary predicate to implement nth and nth0
@@ -338,7 +346,7 @@ namespace PlgStdLib
         db.AddWithoutExpansion( repeat <<= repeat );
 
         // rev/3 is an auxilary function for reverse/2
-        PlgAtom rev("rev", 3, LibraryPredicate, false);
+        PlgAtom rev("rev", 3, PlgLibraryPredicate, false);
 
         db.AddWithoutExpansion( rev(Nil, X, X) <<= cut );
         db.AddWithoutExpansion( rev(H^T, R, X) <<= rev(T, H^R, X) );
@@ -358,26 +366,19 @@ namespace PlgStdLib
         return db;
     }
 
-    bool LibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
-    {
-        PlgClauseChoicePoint cp(PlgTerm(functor, args), cont, GetDb());
-        cont.PushChoicePoint(cp);
-        return false; //to force backtracking
-    }
+    PlgAtom nope("not", 1, PlgLibraryPredicate, false);
 
-    PlgAtom nope("not", 1, LibraryPredicate, false);
+    PlgAtom append("append", 3, PlgLibraryPredicate, false);
+    PlgAtom length("length", 2, PlgLibraryPredicate, false);
+    PlgAtom member("member", 2, PlgLibraryPredicate, false);
+    PlgAtom nth("nth", 3, PlgLibraryPredicate, false);
+    PlgAtom nth0("nth0", 3, PlgLibraryPredicate, false);
+    PlgAtom permutation("permutation", 2, PlgLibraryPredicate, false);
+    PlgAtom repeat("repeat", 0, PlgLibraryPredicate, false);
+    PlgAtom reverse("reverse", 2, PlgLibraryPredicate, false);
+    PlgAtom select("select", 3, PlgLibraryPredicate, false);
 
-    PlgAtom append("append", 3, LibraryPredicate, false);
-    PlgAtom length("length", 2, LibraryPredicate, false);
-    PlgAtom member("member", 2, LibraryPredicate, false);
-    PlgAtom nth("nth", 3, LibraryPredicate, false);
-    PlgAtom nth0("nth0", 3, LibraryPredicate, false);
-    PlgAtom permutation("permutation", 2, LibraryPredicate, false);
-    PlgAtom repeat("repeat", 0, LibraryPredicate, false);
-    PlgAtom reverse("reverse", 2, LibraryPredicate, false);
-    PlgAtom select("select", 3, LibraryPredicate, false);
-
-    PlgAtom expand_term("expand_term", 2, LibraryPredicate, false);
+    PlgAtom expand_term("expand_term", 2, PlgLibraryPredicate, false);
     PlgAtom term_expansion("term_expansion", 2, PlgDefaultPredicate, false);
     PlgAtom goal_expansion("goal_expansion", 2, PlgDefaultPredicate, false);
 }

@@ -175,6 +175,15 @@ write_add(Term) :-
 	),
 	format_term(Term), write_ln(');').
 
+write_atom_decl(Orig, Cpp) :-
+  write('  PlgAtom '), write(Cpp), write('("'), write(Orig),
+  (
+    translator_flag(stdlib), !,  write_ln('", PlgLibraryPredicate, false);')
+  ;
+    write_ln('");')
+  ).
+
+
 write_cpp :-
 	module_name(Module),
 	(
@@ -189,7 +198,7 @@ write_cpp :-
 
 	(	
 		src_atom(Orig, Cpp),
-		write('  PlgAtom '), write(Cpp), write('("'), write(Orig), write_ln('");'),
+    write_atom_decl(Orig, Cpp),
 		fail
 	;
 		true

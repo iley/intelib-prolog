@@ -133,7 +133,7 @@ int main()
         Fail(db, univ(f(1), (S|f,2)));
 
         //Ok(db, dcg_translate_rule(f >>= g, X) & (X ^= (f(X,Y) <<= g(X,Y))));
-        Ok(db, trace & dcg_translate_rule(f >>= g, X) );
+        Ok(db, dcg_translate_rule(f >>= g, X) );
 
         TestScore();
     }
