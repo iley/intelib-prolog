@@ -321,6 +321,16 @@ PlgReference PlgAtom::operator() (const SReference &arg1, const SReference &arg2
 {
     return PlgTerm(*this, (S| arg1, arg2, arg3, arg4, arg5 ));
 }
+
+PlgReference PlgAtom::operator() (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4, const SReference &arg5, const SReference &arg6)
+{
+    return PlgTerm(*this, (S| arg1, arg2, arg3, arg4, arg5, arg6 ));
+}
+
+PlgReference PlgAtom::operator() (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4, const SReference &arg5, const SReference &arg6, const SReference &arg7)
+{
+    return PlgTerm(*this, (S| arg1, arg2, arg3, arg4, arg5, arg6, arg7 ));
+}
 // TODO more args
 
 // Variable Name

@@ -160,6 +160,8 @@ public:
     PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3);
     PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4);
     PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4, const SReference &arg5);
+    PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4, const SReference &arg5, const SReference &arg6);
+    PlgReference operator () (const SReference &arg1, const SReference &arg2, const SReference &arg3, const SReference &arg4, const SReference &arg5, const SReference &arg6, const SReference &arg7);
     // TODO more args
 };
 
