@@ -213,6 +213,11 @@ format_term(Term) :-
 	write(Term),
 	!.
 
+format_term(Term) :-
+	src_atom(Term, CppTerm),
+	write(CppTerm),
+	!.
+
 format_term([H|T]) :-
 	write('('), format_term(H), write(')'),
 	write('^'),
