@@ -17,6 +17,7 @@ namespace PlgStdLib {
     extern PlgAtom disjunction;
     extern PlgAtom conjunction;
     extern PlgAtom implication;
+    extern PlgAtom rightarrow;
     extern PlgAtom unifies;
     extern PlgAtom truth; //true in standard prolog
     extern PlgAtom fail;
@@ -135,6 +136,11 @@ inline PlgReference operator > (const PlgReference &left, const PlgReference &ri
 inline PlgReference operator >= (const PlgReference &left, const PlgReference &right)
 {
     return PlgStdLib::int_greater_or_equal(left, right);
+}
+
+inline PlgReference operator >>= (const PlgReference &left, const PlgReference &right)
+{
+    return PlgStdLib::rightarrow(left, right);
 }
 
 #endif

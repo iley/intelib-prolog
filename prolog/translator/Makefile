@@ -9,7 +9,7 @@ default: $(MODULES)
 $(MODULES): %: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -I../.. -L../../build/intelib -o $@ $< -lintelib
 
-.pro.cpp: trans.pro
+.pro.cpp: trans.pro FORCE
 	prolog -q -s trans.pro -t "translate('$<')"
 
 clean:

@@ -156,7 +156,7 @@ write_hpp :-
 	write('  void InitDatabase(PlgDatabase &db);'), nl,
     (	
 		src_atom(Orig, Cpp),
-		write('  PlgAtom '), write(Cpp), write('("'), write(Orig), write_ln('");'),
+		write('  extern PlgAtom '), write(Cpp), write_ln(';'),
 		fail
 	;
 		true
@@ -186,6 +186,15 @@ write_cpp :-
 	write(Module),
 	write_ln('.hpp"'),
 	write_namespace_decl,
+
+	(	
+		src_atom(Orig, Cpp),
+		write('  PlgAtom '), write(Cpp), write('("'), write(Orig), write_ln('");'),
+		fail
+	;
+		true
+	),
+	nl,
 
 	write_ln('  void InitDatabase(PlgDatabase &db) {'),
 	write_ln('    using namespace PlgStdLib;'),
@@ -336,6 +345,7 @@ std_infix('>=', int_greater_or_equal).
 std_infix('=<', int_less_or_equal). 
 
 std_infix(':-', '<<=').
+std_infix('-->', '>>=').
 std_infix(',', '&').
 std_infix(';', '|').
 std_infix('=', '^=').

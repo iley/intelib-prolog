@@ -132,6 +132,9 @@ int main()
         Ok(db, univ(f(1,2,3), X), X, (S| (S|f,1,2,3) ));
         Fail(db, univ(f(1), (S|f,2)));
 
+        //Ok(db, dcg_translate_rule(f >>= g, X) & (X ^= (f(X,Y) <<= g(X,Y))));
+        Ok(db, trace & dcg_translate_rule(f >>= g, X) );
+
         TestScore();
     }
     catch(IntelibX &x) {
