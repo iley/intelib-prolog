@@ -1,8 +1,13 @@
+:- use_module(library(ctypes)).
+:- dynamic(src_atom/2).
+:- dynamic(src_term/1).
+:- dynamic(maxvar/1).
+
 prolog :-
-    current_prolog_flag(argv, Argv),
-    actual_args(Argv,Files),
-    member(File,Files),
-    translate(File),
+	current_prolog_flag(argv, Argv),
+	actual_args(Argv,Files),
+	member(File,Files),
+	translate(File),
 	!.
 
 prolog :-
@@ -12,16 +17,33 @@ prolog :-
 actual_args(['--'|Result],Result) :- !.
 actual_args([_|Args],Result) :- actual_args(Args,Result).
 
-:- dynamic(src_atom/1).
+rename_atom('', '') :- !.
+
+rename_atom(Orig, Cpp) :-
+	atom_chars(Orig, Chars),
+	Chars = [First|Rest],
+	rename_char(First, CppFirst),
+	atom_chars(OrigRest, Rest),
+	rename_atom(OrigRest, CppRest),
+	atom_concat(CppFirst, CppRest, Cpp).
+
+rename_char('_', '_') :- !.
+
+rename_char(X, X) :- is_alnum(X), !.
+
+rename_char(Orig, Cpp) :-
+	char_code(Orig, Code),
+	atom_concat('C', Code, Cpp).
 
 find_atoms(X) :-
     atom(X),
 	(
-		src_atom(X)
+		src_atom(X, _)
 	;
 		std_atom(X)
 	;
-		assert(src_atom(X))
+		rename_atom(X, CppName),
+		assert(src_atom(X, CppName))
 	),
 	!.
 
@@ -51,12 +73,16 @@ load(Stream) :-
     find_atoms(Term),
     numbervars(Term, 0, End),
 	update_maxvar(End),
-    assertz(src_term(Term)),
+	(
+		Term \= ':-'(_), % skip pragmas for now
+		assertz(src_term(Term))
+	;
+		true
+	),
     load(Stream).
 
 load(_).
 
-:- dynamic(maxvar/1).
 maxvar(0).
 
 update_maxvar(New) :-
@@ -118,8 +144,8 @@ write_hpp :-
 	write_namespace_decl,
 	write('  PlgDatabase &Database();'), nl,
     (	
-		src_atom(X),
-		write('  PlgAtom '), write(X), write('("'), write(X), write_ln('");'),
+		src_atom(Orig, Cpp),
+		write('  PlgAtom '), write(Cpp), write('("'), write(Orig), write_ln('");'),
 		fail
 	;
 		true
@@ -154,7 +180,7 @@ write_cpp :-
 	write_ln('    return db;'),
 	write_ln('  }'),
 	write_ln('}'),
-	( src_atom(prolog), write_main ; true ).
+	( src_atom(prolog, _), write_main ; true ).
 
 write_main :-
 	write_ln('int main() {'),
@@ -181,9 +207,6 @@ write_vars(N) :-
 		N1 is N + 1,
 		write_vars(N1)
 	).
-
-% no pragmas are supported for now
-format_term(':-'(_)).
 
 format_term(Term) :-
 	Term = '$VAR'(_),
@@ -244,6 +267,7 @@ std_atom(nl).
 std_atom(write).
 std_atom([]).
 std_atom('.').
+std_atom('dynamic').
 
 std_atom(X) :- std_atom(X, _).
 std_atom(X,Y) :- std_infix(X, Y).
