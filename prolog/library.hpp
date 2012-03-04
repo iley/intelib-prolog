@@ -2,6 +2,7 @@
 #define INTELIB_PROLOG_LIBRARY_HPP_SENTRY
 #include "data.hpp"
 #include "io.hpp"
+#include "trace.hpp"
 
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 

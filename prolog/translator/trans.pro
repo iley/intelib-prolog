@@ -274,9 +274,12 @@ format_list([H|T]) :-
 
 std_atom(append).
 std_atom(atom).
+std_atom(atomic).
 std_atom(fail).
 std_atom(member).
 std_atom(nl).
+std_atom(notrace).
+std_atom(trace).
 std_atom(var).
 std_atom(write).
 std_atom([]).
