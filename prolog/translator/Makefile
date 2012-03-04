@@ -2,11 +2,12 @@
 .SUFFIXES: .cpp .pro
 
 MODULES=test queens deriv grammar
+CXXFLAGS+=-g -O0
 
 default: $(MODULES)
 
 $(MODULES): %: %.cpp %.hpp
-	$(CXX) -I../.. -L../../build/intelib -o $@ $< -lintelib
+	$(CXX) $(CXXFLAGS) -I../.. -L../../build/intelib -o $@ $< -lintelib
 
 .pro.cpp: trans.pro
 	prolog -q -s trans.pro -- $<
