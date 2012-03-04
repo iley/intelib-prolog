@@ -155,7 +155,7 @@ write_hpp :-
 	write('  PlgDatabase &Database();'), nl,
 	write('  void InitDatabase(PlgDatabase &db);'), nl,
     (	
-		src_atom(Orig, Cpp),
+		src_atom(_, Cpp),
 		write('  extern PlgAtom '), write(Cpp), write_ln(';'),
 		fail
 	;
