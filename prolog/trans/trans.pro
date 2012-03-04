@@ -167,7 +167,7 @@ write_hpp :-
 	nl.
 
 write_add(Term) :-
-	write('      '),
+	write('    '),
 	(
 		translator_flag(stdlib), !, write('db.AddWithoutExpansion(')
 	;
