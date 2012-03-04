@@ -128,15 +128,22 @@ PlgReference PlgReference::Evaluate(PlgContext &context) const
 
 PlgReference PlgReference::Functor() const
 {
-    PlgExpressionAtom *atom = DynamicCastGetPtr<PlgExpressionAtom>();
-    if (atom)
+    if ((*this)->TermType() == PlgExpressionAtom::TypeId)
         return *this;
+    else if ((*this)->TermType() == PlgExpressionTerm::TypeId)
+        return SimpleCastGetPtr<PlgExpressionTerm>()->Functor();
+    else
+        throw IntelibX_bug();
+}
 
-    PlgExpressionTerm *term = DynamicCastGetPtr<PlgExpressionTerm>();
-    if (term)
-        return term->Functor();
-
-    throw IntelibX_bug();
+SReference PlgReference::Args() const
+{
+    if ((*this)->TermType() == PlgExpressionAtom::TypeId)
+        return *PTheEmptyList;
+    else if ((*this)->TermType() == PlgExpressionTerm::TypeId)
+        return SimpleCastGetPtr<PlgExpressionTerm>()->Args();
+    else
+        throw IntelibX_bug();
 }
 
 PlgReference PlgReference::Head() const

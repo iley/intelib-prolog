@@ -63,6 +63,7 @@ public:
     PlgReference Evaluate(PlgContext &context) const;
 
     PlgReference Functor() const;
+    SReference Args() const;
     PlgReference Head() const;
     PlgReference Body() const;
 

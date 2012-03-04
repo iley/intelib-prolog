@@ -128,6 +128,10 @@ int main()
         Fail(db, var(f));
         Fail(db, var((S|1,2,3)));
 
+        Ok(db, univ(f(g), (S|f,g)));
+        Ok(db, univ(f(1,2,3), X), X, (S| (S|f,1,2,3) ));
+        Fail(db, univ(f(1), (S|f,2)));
+
         TestScore();
     }
     catch(IntelibX &x) {

@@ -16,6 +16,7 @@ namespace PlgStdLib {
     extern PlgAtom fail;
     extern PlgAtom not_unifies;
     extern PlgAtom cut;
+    extern PlgAtom univ;
 
     extern PlgAtom assert;
     extern PlgAtom asserta;

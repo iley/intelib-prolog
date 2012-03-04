@@ -93,6 +93,18 @@ namespace PlgStdLib
 
     PlgAtom cut("!", 0, PredicateCut, false);
 
+    // =../2
+    bool PredicateUniv(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        PlgReference term = args.Car(),
+                     list = args.Cdr().Car();
+
+        // TODO: backward conversion
+        return PredicateUnifies(unifies, (S|list, term.Functor() ^ term.Args()), cont);
+    }
+
+    PlgAtom univ("univ", 2, PredicateUniv, false);
+
     // Assert
 
     bool PredicateAssertA(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
