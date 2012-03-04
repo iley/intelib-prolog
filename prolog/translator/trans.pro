@@ -289,15 +289,20 @@ std_atom(is, is).
 std_atom('=\\=', int_not_equal).
 std_atom('^', power).
 std_atom(\+, not).
+std_atom(+, plus).
+std_atom(-, minus).
+std_atom(*, multiply).
+std_atom(/, divide).
+std_atom('<', int_less).
+std_infix('>', int_greater).
+std_infix('>=', int_greater_or_equal). 
+std_infix('=<', int_less_or_equal). 
 
 std_infix(':-', '<<=').
 std_infix(',', '&').
 std_infix(';', '|').
 std_infix('=', '^=').
 std_infix('=<', '<=').
-std_infix(X, X) :- std_infix(X).
-
-std_infix('+'). std_infix('-'). std_infix('*'). std_infix('/').
-std_infix('<'). std_infix('>'). std_infix('>='). 
+%std_infix(X, X) :- std_infix(X).
 
 infix(Atom) :- std_infix(Atom,_).
