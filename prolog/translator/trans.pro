@@ -272,8 +272,12 @@ format_list([H|T]) :-
 	write(','),
 	format_list(T).
 
+std_atom(append).
+std_atom(atom).
+std_atom(fail).
 std_atom(member).
 std_atom(nl).
+std_atom(var).
 std_atom(write).
 std_atom([]).
 std_atom('.').
@@ -288,12 +292,14 @@ std_atom(not, nope).
 std_atom(is, is).
 std_atom('=\\=', int_not_equal).
 std_atom('^', power).
-std_atom(\+, not).
+std_atom(\+, nope).
 std_atom(+, plus).
 std_atom(-, minus).
 std_atom(*, multiply).
 std_atom(/, divide).
 std_atom('<', int_less).
+std_atom(=.., univ).
+
 std_infix('>', int_greater).
 std_infix('>=', int_greater_or_equal). 
 std_infix('=<', int_less_or_equal). 
@@ -303,6 +309,7 @@ std_infix(',', '&').
 std_infix(';', '|').
 std_infix('=', '^=').
 std_infix('=<', '<=').
+std_infix('|', '^').
 %std_infix(X, X) :- std_infix(X).
 
 infix(Atom) :- std_infix(Atom,_).

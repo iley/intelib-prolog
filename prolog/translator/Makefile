@@ -1,7 +1,7 @@
 .PHONY: default clean
 .SUFFIXES: .cpp .pro
 
-MODULES=test queens deriv
+MODULES=test queens deriv grammar
 
 default: $(MODULES)
 
