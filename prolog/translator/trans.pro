@@ -14,6 +14,8 @@ prolog :-
 	write_ln('translation failed'),
 	fail.
 
+variable_prefix('_var_').
+
 actual_args(['--'|Result],Result) :- !.
 actual_args([_|Args],Result) :- actual_args(Args,Result).
 
@@ -203,15 +205,18 @@ write_vars(N) :-
 		N >= Max, !
 	;
 		Var = '$VAR'(N),
-		write('    static PlgVariable '), write(Var), write('("'), write(Var), write_ln('");'),
+		variable_prefix(Var_prefix),
+		write('    static PlgVariable '), write(Var_prefix), write(Var), write('("'), write(Var), write_ln('");'),
 		N1 is N + 1,
 		write_vars(N1)
 	).
 
 format_term(Term) :-
 	Term = '$VAR'(_),
-	write(Term),
-	!.
+	!,
+	variable_prefix(Var_prefix),
+	write(Var_prefix),
+	write(Term).
 
 format_term(Term) :-
 	src_atom(Term, CppTerm),
@@ -283,6 +288,7 @@ std_atom(not, nope).
 std_atom(is, is).
 std_atom('=\\=', int_not_equal).
 std_atom('^', power).
+std_atom(\+, not).
 
 std_infix(':-', '<<=').
 std_infix(',', '&').
