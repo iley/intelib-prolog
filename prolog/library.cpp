@@ -1,6 +1,7 @@
 #include "../sexpress/shashtbl.hpp"
 #include "library.hpp"
 #include "utils.hpp"
+#include <stdio.h>
 
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
 {
@@ -26,6 +27,15 @@ namespace PlgStdLib
     static SListConstructor S;
 
     PlgAnonymousVariable _;
+
+    bool PredicateListing(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        SString str = cont.Database().Dump();
+        printf("%s", str.c_str());
+        return true;
+    }
+
+    PlgAtom listing("listing", 0, PredicateListing, false);
 
     // Conjunction
 

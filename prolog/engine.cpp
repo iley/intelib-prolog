@@ -190,6 +190,23 @@ PlgContinuation PlgDatabase::Query(const PlgReference &request)
     return cont;
 }
 
+SString PlgDatabase::Dump() const
+{
+    SString result = "";
+    SExpressionHashTable::Iterator it(*table);
+
+    SReference cons = it.GetNext();
+    while (cons.GetPtr()) {
+        for (SReference list = cons.Cdr(); !list.IsEmptyList(); list = list.Cdr()) {
+            result += list.Car()->TextRepresentation() + "\n";
+        }
+        
+        cons = it.GetNext();
+    }
+
+    return result;
+}
+
 PlgReference PlgDatabase::Clause(const PlgReference &ref) const
 {
     if (ref->TermType() == PlgExpressionTerm::TypeId)

@@ -15,6 +15,8 @@ namespace PlgStdLib {
 
     extern PlgAnonymousVariable _;
 
+    extern PlgAtom listing;
+
     extern PlgAtom disjunction;
     extern PlgAtom conjunction;
     extern PlgAtom implication;

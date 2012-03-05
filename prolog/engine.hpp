@@ -111,7 +111,10 @@ public:
     void AddWithoutExpansion(const PlgReference &clause);
 
     PlgContinuation Query(const PlgReference &request);
+    bool Once(const PlgReference &request) { return Query(request)->Next(); }
     SReference Head(const PlgReference &functor) const { return table->FindItem(functor, *PTheEmptyList); }
+
+    SString Dump() const;
 private:
     SHashTable table;
     PlgDatabase(const PlgDatabase &other);
