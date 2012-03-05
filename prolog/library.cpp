@@ -28,6 +28,8 @@ namespace PlgStdLib
 
     PlgAnonymousVariable _;
 
+    PlgAtom action("{}", 1, PlgLibraryPredicate, false);
+
     bool PredicateListing(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
         SString str = cont.Database().Dump();

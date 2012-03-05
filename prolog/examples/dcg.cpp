@@ -5,21 +5,22 @@
 int main() {
     using namespace PlgStdLib;
     PlgAtom next("next"), prev("prev"), zero("zero"), num("num");
-    PlgVariable X("X");
+    PlgVariable X("X"), Y("Y");
     SListConstructor S;
     SReference &Nil = *PTheEmptyList;
 
     PlgDatabase db;
 
-    db.Add( num >>= (S|zero) );
-    db.Add( num >>= (S|next) & num );
+    SReference sref_zero((int)0);
 
-    //db.Once(listing);
-    SReference tests = (S| (S|zero), (S|next,zero), (S|next,next,zero), (S|next,prev,zero) );
+    db.Add( num(X) >>= (S|zero) & action(X.is(sref_zero)) );
+    db.Add( num(X) >>= (S|next) & num(Y) & action(X.is(Y + SReference(1))) );
 
-    for (SReference list = tests; !list.IsEmptyList(); list = list.Cdr()) {
-        bool result = db.Once( phrase(num, list.Car()) );
-        printf("%s -- %s\n", list.Car()->TextRepresentation().c_str(), (result ? "yes" : "no"));
+    PlgContinuation cont = db.Query(phrase(num(X), (S|next, next, zero)));
+
+    while (cont->Next()) {
+        printf("X = %s\n", cont->GetValue(X)->TextRepresentation().c_str());
     }
+
     return 0;
 }
