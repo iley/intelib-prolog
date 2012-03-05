@@ -291,7 +291,7 @@ format_term(Atom) :-
 
 format_term(Number) :-
 	number(Number),
-	write('SReference('), write(Number), write(')'),
+	write('SReference((int)'), write(Number), write(')'),
 	!.
 
 format_term(Atom) :-
@@ -348,6 +348,7 @@ std_atom(*, multiply).
 std_atom(/, divide).
 std_atom('<', int_less).
 std_atom(=.., univ).
+std_atom({}, action).
 
 std_infix('>', int_greater).
 std_infix('>=', int_greater_or_equal). 
