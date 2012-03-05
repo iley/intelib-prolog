@@ -94,6 +94,8 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const
 
 PlgReference PlgReference::RenameVars(PlgContext &context, SHashTable &existingVars) const
 {
+    INTELIB_ASSERT(GetPtr(), IntelibX_unexpected_unbound_value());
+
     PlgReference result;
     PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
     if (obj)
@@ -114,6 +116,8 @@ PlgReference PlgReference::Evaluate(PlgContext &context) const
 {
     if (PlgGlobalHooks.Evaluate)
         PlgGlobalHooks.Evaluate(*this, context);
+
+    INTELIB_ASSERT(GetPtr(), IntelibX_unexpected_unbound_value());
 
     PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
     if (obj)
