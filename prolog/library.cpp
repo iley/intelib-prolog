@@ -311,8 +311,8 @@ namespace PlgStdLib
 
         grammar::InitDatabase(db);
 
-        db.AddWithoutExpansion( expand_term(Term, Result) <<= term_expansion(Term, Result) & cut );
         db.AddWithoutExpansion( expand_term(Term, Result) <<= dcg_translate_rule(Term, Result) & cut );
+        db.AddWithoutExpansion( expand_term(Term, Result) <<= term_expansion(Term, Result) & cut );
         db.AddWithoutExpansion( expand_term(Term, Term) );
 
         db.AddWithoutExpansion( nope(X) <<= (X & cut & fail) | truth ); // not(X) :- X, !, fail; true
