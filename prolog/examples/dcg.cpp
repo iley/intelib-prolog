@@ -11,25 +11,17 @@ int main() {
 
     PlgDatabase db;
 
-    (db.Query(trace))->Next();
+    //db.Once(trace);
 
     db.Add( num >>= (S|zero) );
     db.Add( num >>= (S|next) & num );
 
-    PlgContinuation cont = db.Query(phrase(num, (S|next, next, zero)));
-    if (cont->Next())
-        printf("yes\n");
-    else
-        printf("no\n");
+    db.Once(listing);
+    SReference tests = (S| (S|zero), (S|next,zero), (S|next,next,zero), (S|next,prev,zero) );
 
-    cont = db.Query(phrase(num, (S|next, next, prev, zero)));
-    if (cont->Next())
-        printf("yes\n");
-    else
-        printf("no\n");
-
-    //while (cont->Next()) {
-        //printf("X = %s\n", Dump(cont->GetValue(X)));
-    //}
+    for (SReference list = tests; !list.IsEmptyList(); list = list.Cdr()) {
+        bool result = db.Once( num(list.Car(), Nil) );
+        printf("%s -- %s\n", list.Car()->TextRepresentation().c_str(), (result ? "yes" : "no"));
+    }
     return 0;
 }
