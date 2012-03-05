@@ -1,5 +1,5 @@
 INTELIB=../..
-EXAMPLES=example queens psort
+EXAMPLES=example queens psort dcg
 CXX=g++
 
 .PHONY: default clean
