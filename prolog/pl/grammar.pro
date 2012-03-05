@@ -120,6 +120,6 @@ phrase([H|T], S0, S) :- !,
 	append([H|T], S, S0).
 phrase(Phrase, S0, S) :-
 	'$t_body'(Phrase, _, last, S0, S, Goal), !,
-	'$execute'(Goal).
+	Goal.
 
 

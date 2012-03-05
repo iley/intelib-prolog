@@ -11,16 +11,14 @@ int main() {
 
     PlgDatabase db;
 
-    //db.Once(trace);
-
     db.Add( num >>= (S|zero) );
     db.Add( num >>= (S|next) & num );
 
-    db.Once(listing);
+    //db.Once(listing);
     SReference tests = (S| (S|zero), (S|next,zero), (S|next,next,zero), (S|next,prev,zero) );
 
     for (SReference list = tests; !list.IsEmptyList(); list = list.Cdr()) {
-        bool result = db.Once( num(list.Car(), Nil) );
+        bool result = db.Once( phrase(num, list.Car()) );
         printf("%s -- %s\n", list.Car()->TextRepresentation().c_str(), (result ? "yes" : "no"));
     }
     return 0;
