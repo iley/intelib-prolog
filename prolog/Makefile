@@ -25,7 +25,7 @@ GENERATED_FILES =
 .SUFFIXES: .cpp .pro
 
 grammar.cpp: pl/grammar.pro
-	prolog -q -s trans/trans.pro -t "translate_stdlib('$<')"
+	prolog -q -s pl/trans.pro -t "translate_stdlib('$<')"
 
 grammar.hpp: grammar.cpp
 
