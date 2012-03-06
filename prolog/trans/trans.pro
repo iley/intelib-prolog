@@ -195,7 +195,6 @@ write_cpp :-
 	write(Module),
 	write_ln('.hpp"'),
 	write_namespace_decl,
-
 	(	
 		src_atom(Orig, Cpp),
     write_atom_decl(Orig, Cpp),
@@ -217,6 +216,7 @@ write_cpp :-
 		true
 	),
 	write_ln('  }'),
+  nl,
 
 	write_ln('  PlgDatabase &Database() {'),
 	write_ln('    static PlgDatabase db;'),
@@ -228,7 +228,11 @@ write_cpp :-
 	write_ln('    return db;'),
 	write_ln('  }'),
 	write_ln('}'),
-	( src_atom(prolog, _), write_main ; true ).
+	( 
+    src_atom(prolog, _), nl, write_main
+  ;
+    true
+  ).
 
 write_main :-
 	write_ln('int main() {'),
