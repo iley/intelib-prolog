@@ -29,6 +29,8 @@ namespace PlgStdLib
     PlgAnonymousVariable _;
 
     PlgAtom action("{}", 1, PlgLibraryPredicate, false);
+    PlgAtom dcg_translate_rule("dcg_translate_rule", 2, PlgLibraryPredicate, false);
+    PlgAtom phrase("phrase", PlgLibraryPredicate, false);
 
     bool PredicateListing(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {

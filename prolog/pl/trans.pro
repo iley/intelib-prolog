@@ -4,16 +4,7 @@
 :- dynamic(maxvar/1).
 :- dynamic(translator_flag/1).
 
-prolog :-
-	current_prolog_flag(argv, Argv),
-	actual_args(Argv,Files),
-	member(File,Files),
-	translate(File).
-
 variable_prefix('_var_').
-
-actual_args(['--'|Result],Result) :- !.
-actual_args([_|Args],Result) :- actual_args(Args,Result).
 
 rename_atom('', '') :- !.
 
@@ -326,6 +317,7 @@ std_atom(append).
 std_atom(atom).
 std_atom(atomic).
 std_atom(fail).
+std_atom(dcg_translate_rule).
 std_atom(member).
 std_atom(nl).
 std_atom(notrace).

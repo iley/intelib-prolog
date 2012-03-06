@@ -10,12 +10,11 @@ bool PlgLibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpr
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 
 namespace PlgStdLib {
-    using grammar::dcg_translate_rule;
-    using grammar::phrase;
-
     extern PlgAnonymousVariable _;
 
     extern PlgAtom action; // {} atom, for DCGs
+    extern PlgAtom dcg_translate_rule;
+    extern PlgAtom phrase;
 
     extern PlgAtom listing;
 

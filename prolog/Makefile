@@ -22,11 +22,9 @@ MODULES =
 
 GENERATED_FILES = 
 
-.SUFFIXES: .cpp .pro
+#grammar.cpp: pl/grammar.pro
+#	prolog -q -s pl/trans.pro -t "translate_stdlib('$<')"
 
-grammar.cpp: pl/grammar.pro
-	prolog -q -s pl/trans.pro -t "translate_stdlib('$<')"
-
-grammar.hpp: grammar.cpp
+#grammar.hpp: grammar.cpp
 
 include ../lib.mk
