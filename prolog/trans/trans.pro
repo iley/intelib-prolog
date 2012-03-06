@@ -329,6 +329,7 @@ std_atom(fail).
 std_atom(member).
 std_atom(nl).
 std_atom(notrace).
+std_atom(phrase).
 std_atom(trace).
 std_atom(var).
 std_atom(write).

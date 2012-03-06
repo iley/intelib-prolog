@@ -1,8 +1,8 @@
 .PHONY: default clean
 .SUFFIXES: .cpp .pro
 
-MODULES=test queens deriv
-CXXFLAGS+=-g -O0
+MODULES=test queens deriv dcg
+CXXFLAGS+=-g -O2
 
 default: $(MODULES)
 
