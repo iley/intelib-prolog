@@ -3,7 +3,9 @@
 #include <prolog/utils.hpp>
 
 int main() {
-    PlgAtom man("man"), woman("woman"), human("human"), fry("fry"), leela("leela"), bender("bender");
+    using namespace PlgStdLib;
+
+    PlgAtom man("man"), woman("woman"), human("human"), fry("fry"), leela("leela"), bender("bender"), print_humans("print_humans");
     PlgVariable X("X");
 
     PlgDatabase db;
@@ -11,9 +13,9 @@ int main() {
     db.Add( woman(leela) );
     db.Add( man(fry) );
 
-    PlgContinuation cont = db.Query(human(X));
-    while (cont->Next()) {
-        printf("X = %s\n", Dump(cont->GetValue(X)));
-    }
+    db.Add( print_humans <<= human(X) & write(X) & nl & fail );
+
+    db.Once(print_humans);
+
     return 0;
 }
