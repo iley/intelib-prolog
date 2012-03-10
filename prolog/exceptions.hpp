@@ -87,4 +87,10 @@ public:
     IntelibX_invalid_arity(int value);
 };
 
+class IntelibX_prolog_error : public IntelibX
+{
+public:
+    IntelibX_prolog_error(SReference a_param);
+};
+
 #endif

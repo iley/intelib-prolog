@@ -1,12 +1,10 @@
 #include "prolog.hpp"
 #include "grammar.hpp"
 namespace grammar {
-  PlgAtom C36translate_rule("$translate_rule", PlgLibraryPredicate, false);
   PlgAtom C36t_head("$t_head", PlgLibraryPredicate, false);
   PlgAtom C36t_body("$t_body", PlgLibraryPredicate, false);
   PlgAtom last("last", PlgLibraryPredicate, false);
   PlgAtom C36t_tidy("$t_tidy", PlgLibraryPredicate, false);
-  PlgAtom C36do_error("$do_error", PlgLibraryPredicate, false);
   PlgAtom instantiation_error("instantiation_error", PlgLibraryPredicate, false);
   PlgAtom C36t_hgoal("$t_hgoal", PlgLibraryPredicate, false);
   PlgAtom C36t_hlist("$t_hlist", PlgLibraryPredicate, false);
@@ -34,19 +32,18 @@ namespace grammar {
     static PlgVariable _var_H("H");
     static PlgVariable _var_I("I");
     static PlgVariable _var_J("J");
-    db.AddWithoutExpansion((dcg_translate_rule(_var_A,_var_B)<<=C36translate_rule(_var_A,_var_B)));
-    db.AddWithoutExpansion((C36translate_rule((_var_A>>=_var_B),(_var_C<<=_var_D))<<=(C36t_head(_var_A,_var_C,_var_E,_var_F,_var_G,(_var_A>>=_var_B))&(((var(_var_E)&(cut&C36t_body(_var_B,_var_H,last,_var_F,_var_G,_var_I)))|C36t_body((_var_B&action(_var_E)),_var_J,last,_var_F,_var_G,_var_I))&C36t_tidy(_var_I,_var_D)))));
-    db.AddWithoutExpansion((C36t_head(_var_A,_var_B,_var_C,_var_D,_var_E,_var_F)<<=(var(_var_A)&(cut&C36do_error(instantiation_error,_var_F)))));
+    db.AddWithoutExpansion((dcg_translate_rule((_var_A>>=_var_B),(_var_C<<=_var_D))<<=(C36t_head(_var_A,_var_C,_var_E,_var_F,_var_G,(_var_A>>=_var_B))&(((var(_var_E)&(cut&C36t_body(_var_B,_var_H,last,_var_F,_var_G,_var_I)))|C36t_body((_var_B&action(_var_E)),_var_J,last,_var_F,_var_G,_var_I))&C36t_tidy(_var_I,_var_D)))));
+    db.AddWithoutExpansion((C36t_head(_var_A,_var_B,_var_C,_var_D,_var_E,_var_F)<<=(var(_var_A)&(cut&error(instantiation_error,_var_F)))));
     db.AddWithoutExpansion((C36t_head((_var_A&_var_B),_var_C,_var_D,_var_E,_var_F,_var_G)<<=(cut&(C36t_hgoal(_var_A,_var_C,_var_E,_var_H,_var_G)&C36t_hlist(_var_B,_var_F,_var_H,_var_D,_var_G)))));
     db.AddWithoutExpansion((C36t_head(_var_A,_var_B,_var_C,_var_D,_var_E,_var_F)<<=C36t_hgoal(_var_A,_var_B,_var_D,_var_E,_var_F)));
-    db.AddWithoutExpansion((C36t_hgoal(_var_A,_var_B,_var_C,_var_D,_var_E)<<=(var(_var_A)&(cut&C36do_error(instantiation_error,_var_E)))));
+    db.AddWithoutExpansion((C36t_hgoal(_var_A,_var_B,_var_C,_var_D,_var_E)<<=(var(_var_A)&(cut&error(instantiation_error,_var_E)))));
     db.AddWithoutExpansion((C36t_hgoal(C58(_var_A,_var_B),C58(_var_A,_var_C),_var_D,_var_E,_var_F)<<=(cut&C36t_hgoal(_var_B,_var_C,_var_D,_var_E,_var_F))));
     db.AddWithoutExpansion((C36t_hgoal(_var_A,_var_B,_var_C,_var_D,_var_E)<<=C36extend((_var_C)^((_var_D)^(Nil)),_var_A,_var_B)));
-    db.AddWithoutExpansion((C36t_hlist(_var_A,_var_B,_var_C,_var_D,_var_E)<<=(var(_var_A)&(cut&C36do_error(instantiation_error,_var_E)))));
+    db.AddWithoutExpansion((C36t_hlist(_var_A,_var_B,_var_C,_var_D,_var_E)<<=(var(_var_A)&(cut&error(instantiation_error,_var_E)))));
     db.AddWithoutExpansion(C36t_hlist(Nil,_var_A,_var_B,truth,_var_C));
     db.AddWithoutExpansion((C36t_hlist((_var_A)^(Nil),_var_B,_var_C,C(_var_C,_var_A,_var_B),_var_D)<<=cut));
     db.AddWithoutExpansion((C36t_hlist((_var_A)^(_var_B),_var_C,_var_D,(C(_var_D,_var_A,_var_E)&_var_F),_var_G)<<=(cut&C36t_hlist(_var_B,_var_C,_var_E,_var_F,_var_G))));
-    db.AddWithoutExpansion((C36t_hlist(_var_A,_var_B,_var_C,_var_D,_var_E)<<=C36do_error(type_error(list,_var_A),_var_E)));
+    db.AddWithoutExpansion((C36t_hlist(_var_A,_var_B,_var_C,_var_D,_var_E)<<=error(type_error(list,_var_A),_var_E)));
     db.AddWithoutExpansion((C36t_body(_var_A,filled_in,_var_B,_var_C,_var_D,phrase(_var_A,_var_C,_var_D))<<=(var(_var_A)&cut)));
     db.AddWithoutExpansion((C36t_body(cut,to_fill,last,_var_A,_var_B,(cut&(_var_B^=_var_A)))<<=cut));
     db.AddWithoutExpansion((C36t_body(cut,_var_A,_var_B,_var_C,_var_C,cut)<<=cut));
@@ -74,8 +71,8 @@ namespace grammar {
     db.AddWithoutExpansion(C36t_tidy(_var_A,_var_A));
     db.AddWithoutExpansion(C((_var_A)^(_var_B),_var_A,_var_B));
     db.AddWithoutExpansion((phrase(_var_A,_var_B)<<=phrase(_var_A,_var_B,Nil)));
-    db.AddWithoutExpansion((phrase(_var_A,_var_B,_var_C)<<=(var(_var_A)&(cut&C36do_error(instantiation_error,phrase(_var_A,_var_B,_var_C))))));
-    db.AddWithoutExpansion((phrase(_var_A,_var_B,_var_C)<<=((atomic(_var_A)&nope(atom(_var_A)))&(cut&C36do_error(type_error(callable,_var_A),phrase(_var_A,_var_B,_var_C))))));
+    db.AddWithoutExpansion((phrase(_var_A,_var_B,_var_C)<<=(var(_var_A)&(cut&error(instantiation_error,phrase(_var_A,_var_B,_var_C))))));
+    db.AddWithoutExpansion((phrase(_var_A,_var_B,_var_C)<<=((atomic(_var_A)&nope(atom(_var_A)))&(cut&error(type_error(callable,_var_A),phrase(_var_A,_var_B,_var_C))))));
     db.AddWithoutExpansion((phrase(Nil,_var_A,_var_B)<<=(cut&(_var_A^=_var_B))));
     db.AddWithoutExpansion((phrase((_var_A)^(_var_B),_var_C,_var_D)<<=(cut&append((_var_A)^(_var_B),_var_D,_var_C))));
     db.AddWithoutExpansion((phrase(_var_A,_var_B,_var_C)<<=(C36t_body(_var_A,_var_D,last,_var_B,_var_C,_var_E)&(cut&_var_E))));

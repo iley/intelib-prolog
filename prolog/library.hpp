@@ -17,6 +17,7 @@ namespace PlgStdLib {
     extern PlgAtom phrase;
 
     extern PlgAtom listing;
+    extern PlgAtom error;
 
     extern PlgAtom disjunction;
     extern PlgAtom conjunction;

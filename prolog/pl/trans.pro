@@ -316,6 +316,7 @@ format_list([H|T]) :-
 std_atom(append).
 std_atom(atom).
 std_atom(atomic).
+std_atom(error).
 std_atom(fail).
 std_atom(dcg_translate_rule).
 std_atom(member).

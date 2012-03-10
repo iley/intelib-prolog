@@ -3,12 +3,10 @@
 namespace grammar {
   PlgDatabase &Database();
   void InitDatabase(PlgDatabase &db);
-  extern PlgAtom C36translate_rule;
   extern PlgAtom C36t_head;
   extern PlgAtom C36t_body;
   extern PlgAtom last;
   extern PlgAtom C36t_tidy;
-  extern PlgAtom C36do_error;
   extern PlgAtom instantiation_error;
   extern PlgAtom C36t_hgoal;
   extern PlgAtom C36t_hlist;

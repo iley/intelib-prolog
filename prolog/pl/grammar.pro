@@ -1,8 +1,6 @@
 % this file is taken from YAP prolog
 
-dcg_translate_rule(Rule, Trans) :- '$translate_rule'(Rule, Trans).
-
-'$translate_rule'((LP-->RP), (NH:-B)) :-
+dcg_translate_rule((LP-->RP), (NH:-B)) :-
 	'$t_head'(LP, NH, NGs, S, SR, (LP-->RP)),
 	 (
 		var(NGs), !, '$t_body'(RP, _, last, S, SR, B1)
@@ -11,9 +9,8 @@ dcg_translate_rule(Rule, Trans) :- '$translate_rule'(Rule, Trans).
 	 ),
 	'$t_tidy'(B1, B).
 
-
 '$t_head'(V, _, _, _, _, G0) :- var(V), !,
-	'$do_error'(instantiation_error,G0).
+	error(instantiation_error,G0).
 '$t_head'((H,List), NH, NGs, S, S1, G0) :- !,
 	'$t_hgoal'(H, NH, S, SR, G0),
 	'$t_hlist'(List, S1, SR, NGs, G0).
@@ -21,20 +18,20 @@ dcg_translate_rule(Rule, Trans) :- '$translate_rule'(Rule, Trans).
 	'$t_hgoal'(H, NH, S, SR, G0).
 	
 '$t_hgoal'(V, _, _, _, G0) :- var(V), !,
-	'$do_error'(instantiation_error,G0).
+	error(instantiation_error,G0).
 '$t_hgoal'(M:H, M:NH, S, SR, G0) :- !,
 	'$t_hgoal'(H, NH, S, SR, G0).
 '$t_hgoal'(H, NH, S, SR, _) :-
 	'$extend'([S,SR],H,NH).
 
 '$t_hlist'(V, _, _, _, G0) :- var(V), !,
-	'$do_error'(instantiation_error,G0).
+	error(instantiation_error,G0).
 '$t_hlist'([], _, _, true, _).
 '$t_hlist'([H], S0, SR, ('C'(SR,H,S0)), _) :- !.
 '$t_hlist'([H|List], S0, SR, ('C'(SR,H,S1),G0), Goal) :- !,
 	'$t_hlist'(List, S0, S1, G0, Goal).
 '$t_hlist'(T, _, _, _, Goal) :-
-	'$do_error'(type_error(list,T),Goal).
+	error(type_error(list,T),Goal).
 
 
 %
@@ -110,10 +107,10 @@ phrase(PhraseDef, WordList) :-
 
 phrase(P, S0, S) :-
 	var(P), !,
-	'$do_error'(instantiation_error,phrase(P,S0,S)).
+	error(instantiation_error,phrase(P,S0,S)).
 phrase(P, S0, S) :-
 	( atomic(P), \+ atom(P) ),  !,
-	'$do_error'(type_error(callable,P),phrase(P,S0,S)).
+	error(type_error(callable,P),phrase(P,S0,S)).
 phrase([], S0, S) :- !,
 	S0 = S.
 phrase([H|T], S0, S) :- !,

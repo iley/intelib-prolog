@@ -41,3 +41,6 @@ IntelibX_not_a_prolog_anonymous_variable::IntelibX_not_a_prolog_anonymous_variab
 
 IntelibX_invalid_arity::IntelibX_invalid_arity(int arity)
     : IntelibX("Invalid arity", arity) {}
+
+IntelibX_prolog_error::IntelibX_prolog_error(SReference a_param)
+    : IntelibX("Prolog error", a_param) {}

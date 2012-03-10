@@ -1,6 +1,7 @@
 #include "../sexpress/shashtbl.hpp"
 #include "library.hpp"
 #include "utils.hpp"
+#include "exceptions.hpp"
 #include <stdio.h>
 
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
@@ -40,6 +41,13 @@ namespace PlgStdLib
     }
 
     PlgAtom listing("listing", 0, PredicateListing, false);
+
+    bool PredicateError(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        throw IntelibX_prolog_error(args.Car());
+    }
+
+    PlgAtom error("error", PredicateError, false);
 
     // Conjunction
 
