@@ -4,7 +4,10 @@
 #include "engine.hpp"
 #include "io.hpp"
 #include "trace.hpp"
+
+// generated modules
 #include "grammar.hpp"
+#include "output.hpp"
 
 bool PlgLibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);

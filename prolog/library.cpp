@@ -332,6 +332,7 @@ namespace PlgStdLib
         PlgVariable Term("Term"), Result("Result");
 
         grammar::InitDatabase(db);
+        output::InitDatabase(db);
 
         db.AddWithoutExpansion( expand_term(Term, Result) <<= dcg_translate_rule(Term, Result) & cut );
         db.AddWithoutExpansion( expand_term(Term, Result) <<= term_expansion(Term, Result) & cut );

@@ -28,6 +28,7 @@ namespace PlgStdLib
     // Term I/O
     extern PlgAtom read;
     extern PlgAtom write;
+    extern PlgAtom print;
 
     extern PlgAtom format;
 }

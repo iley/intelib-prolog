@@ -26,7 +26,7 @@ namespace PlgStdLib
 
     PlgAtom nl("nl", 0, PredicateNl, false);
 
-    bool PredicateWrite(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    bool PredicatePrint(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
         // temporary implementation
         PlgReference arg = args.Car();
@@ -34,5 +34,6 @@ namespace PlgStdLib
         return true;
     }
 
-    PlgAtom write("write", 1, PredicateWrite, false);
+    PlgAtom print("print", 1, PredicatePrint, false);
+    PlgAtom write("write", 1, PredicatePrint, false); //STUB
 }
