@@ -32,7 +32,7 @@ int main()
             //PrintContextEnabled = true;
 
             SListConstructor S;
-            PlgAtom member("member"),
+            PlgAtom member("my_member"),
                 solution("solution"),
                 noattack("noattack"),
                 pos("pos"),

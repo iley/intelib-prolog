@@ -174,7 +174,7 @@ int main()
             db.Add( h(X) <<= h(X, g) );
             db.Add( h(X, Y) <<= (X ^= Y) );
 
-            u->SetPredicate(1, someUserPredicate);
+            u.SetPredicate(someUserPredicate, 1);
             PlgContinuation cont = db.Query(u(X));
             TESTB("before calling u", !userPredicateCalled);
             TESTB("calling u", cont->Next());
@@ -228,7 +228,7 @@ int main()
 
         TestSection("Lists");
         {
-            PlgAtom append("append"), member("member");
+            PlgAtom append("my_append"), member("my_member");
             PlgVariable X("X"), H("H"), T("T"), R("R"), L("L");
             PlgDatabase db;
             SListConstructor S;

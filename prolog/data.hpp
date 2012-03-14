@@ -113,6 +113,33 @@ public:
     PlgPredicate(const SReference &sex) : PlgPredicate_Super(sex) {}
 };
 
+// Procedure table
+
+class PlgExpressionProcTable : public SExpression
+{
+public:
+    static IntelibTypeId TypeId;
+
+    PlgExpressionProcTable() : SExpression(TypeId) {}
+
+    void SetPredicate(const PlgPredicate &pred, int arity) { predicates[arity] = pred; }
+    void SetPredicate(const PlgPredicate &pred) { varArgPredicate = pred; }
+
+    PlgPredicate GetPredicate(int artity) const;
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
+    virtual SString TextRepresentation() const;
+#endif
+
+private:
+    SVector predicates;
+    PlgPredicate varArgPredicate;
+};
+
+typedef GenericSReference<PlgExpressionProcTable, IntelibX_not_a_prolog_atom> PlgProcTable;
+
+extern SHashTable PlgAtomTable;
+
 // Atom
 
 class PlgExpressionAtom : public SExpressionString, public PlgObject
@@ -122,14 +149,6 @@ public:
 
     explicit PlgExpressionAtom(const char *name, bool infix) : SExpressionString(TypeId, name), isInfix(infix) {}
 
-    PlgPredicate GetPredicate(int arity) const;
-
-    // fixed-arity predicate
-    void SetPredicate(int arity, const PlgPredicate &pred) { predicates[arity] = pred; }
-
-    // variable-arity predicate
-    void SetPredicate(const PlgPredicate &pred) { varArgPredicate = pred; }
-
     bool IsInfix() const { return isInfix; }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -137,8 +156,6 @@ public:
 #endif
 
 protected:
-    SVector predicates;
-    PlgPredicate varArgPredicate;
     bool isInfix;
 
     PlgExpressionAtom(const IntelibTypeId &typeId, const char *name, bool infix) : SExpressionString(typeId, name), isInfix(infix) {}
@@ -154,6 +171,17 @@ public:
     explicit PlgAtom(const char *name, const PlgPredicate &pred, bool infix = false);
 
     PlgAtom(const SReference &s) : PlgAtom_Super(s) {}
+
+    PlgProcTable GetProcTable() const;
+
+    PlgPredicate GetPredicate(int arity) const
+        { return GetProcTable()->GetPredicate(arity); }
+
+    void SetPredicate(const PlgPredicate &pred, int arity)
+        { GetProcTable()->SetPredicate(pred, arity); }
+
+    void SetPredicate(const PlgPredicate &pred)
+        { GetProcTable()->SetPredicate(pred); }
 
     PlgReference operator () (const SReference &arg1);
     PlgReference operator () (const SReference &arg1, const SReference &arg2);

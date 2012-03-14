@@ -79,7 +79,7 @@ bool PlgExpressionContinuation::Next()
 
         if (query->TermType() == PlgExpressionTerm::TypeId) {
             PlgTerm term = query;
-            PlgPredicate pred = term->Functor()->GetPredicate(term->Arity());
+            PlgPredicate pred = term->Functor().GetPredicate(term->Arity());
             INTELIB_ASSERT(pred.GetPtr(), IntelibX_unexpected_unbound_value());
 
             if (!pred->Apply(term->Functor(), term->Args(), *this) && !Backtrack())

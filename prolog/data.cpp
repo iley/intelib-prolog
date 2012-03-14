@@ -268,11 +268,11 @@ bool PlgExpressionUserPredicate::Apply(const PlgAtom &functor, const SReference 
     return result;
 }
 
-// Atom
+// Procedure table
 
-IntelibTypeId PlgExpressionAtom::TypeId(&SExpression::TypeId, true);
+IntelibTypeId PlgExpressionProcTable::TypeId(&SExpression::TypeId, true);
 
-PlgPredicate PlgExpressionAtom::GetPredicate(int arity) const
+PlgPredicate PlgExpressionProcTable::GetPredicate(int arity) const
 {
     INTELIB_ASSERT(arity >= 0, IntelibX_invalid_arity(arity));
 
@@ -285,6 +285,19 @@ PlgPredicate PlgExpressionAtom::GetPredicate(int arity) const
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
+SString PlgExpressionProcTable::TextRepresentation() const
+{
+    return "<PROCEDURE TABLE>";
+}
+#endif
+
+SHashTable PlgAtomTable;
+
+// Atom
+
+IntelibTypeId PlgExpressionAtom::TypeId(&SExpression::TypeId, true);
+
+#if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionAtom::TextRepresentation() const
 {
     return GetValue();
@@ -294,11 +307,21 @@ SString PlgExpressionAtom::TextRepresentation() const
 PlgAtom::PlgAtom(const char *name, bool infix) : PlgAtom_Super(new PlgExpressionAtom(name, infix)) {}
 
 PlgAtom::PlgAtom(const char *name, int arity, const PlgPredicate &pred, bool infix) : PlgAtom_Super(new PlgExpressionAtom(name, infix)) {
-    (*this)->SetPredicate(arity, pred);
+    GetProcTable()->SetPredicate(pred, arity);
 }
 
 PlgAtom::PlgAtom(const char *name, const PlgPredicate &pred, bool infix) : PlgAtom_Super(new PlgExpressionAtom(name, infix)){
-    (*this)->SetPredicate(pred);
+    GetProcTable()->SetPredicate(pred);
+}
+
+PlgProcTable PlgAtom::GetProcTable() const
+{
+    PlgProcTable tbl = PlgAtomTable->FindItem(*this, PlgUnbound);
+    if (!tbl.GetPtr()) {
+        tbl = PlgProcTable(new PlgExpressionProcTable());
+        PlgAtomTable->AddItem(*this, tbl);
+    }
+    return tbl;
 }
 
 PlgReference PlgAtom::operator() (const SReference &arg1)

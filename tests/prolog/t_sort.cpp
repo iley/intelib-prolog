@@ -30,7 +30,7 @@ int main()
         //PlgGlobalHooks.Unify = unifyTraceHook;
 
         SListConstructor S;
-        PlgAtom qsort("qsort"), append("append"), split("split"), select("select"), psort("psort"), perm("perm"), sorted("sorted");
+        PlgAtom qsort("qsort"), append("my_append"), split("split"), select("my_select"), psort("psort"), perm("my_perm"), sorted("sorted");
         PlgVariable H("H"), T("T"), X("X"), L("L"), R("R"), LS("LS"), RS("RS"), Res("Res");
 
         PlgDatabase db;
