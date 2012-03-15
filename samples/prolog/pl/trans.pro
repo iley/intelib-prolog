@@ -1,1 +1,1 @@
-../../pl/trans.pro
+../../../prolog/pl/trans.pro
