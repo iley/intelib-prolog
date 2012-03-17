@@ -1,4 +1,4 @@
-#include "prolog.hpp"
+#include "../prolog.hpp"
 #include "grammar.hpp"
 namespace grammar {
   PlgAtom C36t_head("$t_head", PlgLibraryPredicate, false);

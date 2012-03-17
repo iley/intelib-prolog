@@ -178,7 +178,7 @@ write_atom_decl(Orig, Cpp) :-
 write_cpp :-
 	module_name(Module),
 	(
-		translator_flag(stdlib), !, write('#include "prolog.hpp"'), nl
+		translator_flag(stdlib), !, write('#include "../prolog.hpp"'), nl
 	;
 		true
 	),

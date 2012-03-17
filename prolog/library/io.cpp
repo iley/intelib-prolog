@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "io.hpp"
-#include "../sexpress/shashtbl.hpp"
-#include "../tools/sstream.hpp"
+#include "../../sexpress/shashtbl.hpp"
+#include "../../tools/sstream.hpp"
 
 namespace PlgStdLib
 {

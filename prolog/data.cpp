@@ -1,7 +1,7 @@
 #include "data.hpp"
 #include "engine.hpp"
 #include "utils.hpp"
-#include "library.hpp"
+#include "library/library.hpp"
 #include "../sexpress/shashtbl.hpp"
 
 #include <string.h>

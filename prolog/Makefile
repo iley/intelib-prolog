@@ -1,24 +1,13 @@
-#   InteLib                                    http://www.intelib.org
-#   The file refal/Makefile
-# 
-#   Based on the file lisp/Makefile
-#   Copyright (c) Vasiliy Kulikov, 2010
-# 
-#   Copyright (c) Andrey Vikt. Stolyarov, 2010
-# 
-#   This is free software, licensed under GNU LGPL v.2.1
-#   See the file COPYING for further details.
-# 
-#   THERE IS NO WARRANTY OF ANY KIND, EXPRESSED, IMPLIED OR WHATEVER!
-#   Please see the file WARRANTY for the detailed explanation.
+.PHONY: library
 
 TARGETLIBNAME = libiprolog.a
+LIBSOURCES = utils.cpp exceptions.cpp data.cpp engine.cpp
 
-GENERATED_SOURCES = grammar.cpp output.cpp
-LIBSOURCES = utils.cpp exceptions.cpp data.cpp engine.cpp library.cpp io.cpp trace.cpp $(GENERATED_SOURCES)
+$(TARGETDIRFP)/$(TARGETLIBNAME): library
+	cd library && $(MAKE)
 
-MODULES = 
+MODULES=grammar.cpp io.cpp library.cpp output.cpp trace.cpp
 
-GENERATED_FILES = 
+GENERATED_PREFIX=plg
 
 include ../lib.mk

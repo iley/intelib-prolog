@@ -1,4 +1,4 @@
-#include "prolog.hpp"
+#include "../prolog.hpp"
 #include "output.hpp"
 namespace output {
 

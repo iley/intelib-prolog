@@ -3,6 +3,6 @@
 
 #include "data.hpp"
 #include "engine.hpp"
-#include "library.hpp"
+#include "library/library.hpp"
 
 #endif

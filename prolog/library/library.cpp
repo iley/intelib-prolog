@@ -1,7 +1,7 @@
-#include "../sexpress/shashtbl.hpp"
+#include "../../sexpress/shashtbl.hpp"
 #include "library.hpp"
-#include "utils.hpp"
-#include "exceptions.hpp"
+#include "../utils.hpp"
+#include "../exceptions.hpp"
 #include <stdio.h>
 
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)

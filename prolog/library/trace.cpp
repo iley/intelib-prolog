@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "prolog.hpp"
+#include "../prolog.hpp"
 #include "trace.hpp"
 
 namespace PlgStdLib

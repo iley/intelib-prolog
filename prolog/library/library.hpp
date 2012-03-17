@@ -1,7 +1,7 @@
 #ifndef INTELIB_PROLOG_LIBRARY_HPP_SENTRY
 #define INTELIB_PROLOG_LIBRARY_HPP_SENTRY
-#include "data.hpp"
-#include "engine.hpp"
+#include "../data.hpp"
+#include "../engine.hpp"
 #include "io.hpp"
 #include "trace.hpp"
 
