@@ -219,24 +219,38 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
 PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const
 {
     SReference newArgs = *PTheEmptyList;
-    for (SReference p = args; !p.IsEmptyList(); p = p.Cdr()) {
-        PlgReference pref = p.Car();
-        newArgs.AddAnotherItemToList(pref.RenameVars(context, existingVars));
+    SReference tail = newArgs;
+
+    for (SReference p = Args(); !p.IsEmptyList(); p = p.Cdr()) {
+        SReference renamd = PlgReference(p.Car()).RenameVars(context, existingVars);
+        if (tail.IsEmptyList()) {
+            newArgs = tail = renamd ^ tail;
+        } else {
+            tail.Cdr() = renamd ^ tail.Cdr();
+            tail = tail.Cdr();
+        }
     }
+
     return PlgTerm(functor, newArgs);
 }
 
 
 PlgReference PlgExpressionTerm::Evaluate(const PlgReference &self, PlgContext &context) const
 {
-    SReference resultArgs = *PTheEmptyList;
-    PlgTerm term = self;
+    SReference newArgs = *PTheEmptyList;
+    SReference tail = newArgs;
 
-    for (SReference p = term->Args(); !p.IsEmptyList(); p = p.Cdr()) {
-        resultArgs.AddAnotherItemToList(PlgReference(p.Car()).Evaluate(context));
+    for (SReference p = Args(); !p.IsEmptyList(); p = p.Cdr()) {
+        SReference evald = PlgReference(p.Car()).Evaluate(context);
+        if (tail.IsEmptyList()) {
+            newArgs = tail = evald ^ tail;
+        } else {
+            tail.Cdr() = evald ^ tail.Cdr();
+            tail = tail.Cdr();
+        }
     }
 
-    return PlgTerm(term->Functor(), resultArgs);
+    return PlgTerm(Functor(), newArgs);
 }
 
 
