@@ -3,10 +3,15 @@ EXAMPLES=test queens deriv dcg
 CXX=g++
 CXXFLAGS+=-g -O2
 
-.PHONY: default clean
+.PHONY: default clean intelib build
 .SUFFIXES: .cpp .pro
 
-default: $(EXAMPLES)
+default: intelib build
+
+build: $(EXAMPLES)
+
+intelib:
+	$(MAKE) -C $(INTELIB) library
 
 $(EXAMPLES): %: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -I$(INTELIB) -L$(INTELIB)/build/intelib -o $@ $< -lintelib

@@ -17,3 +17,4 @@
 clean:
 	cd lisp && $(MAKE) clean
 	cd scheme && $(MAKE) clean
+	cd prolog && $(MAKE) clean
