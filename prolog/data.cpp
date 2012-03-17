@@ -336,7 +336,7 @@ SString PlgExpressionProcTable::TextRepresentation() const
 }
 #endif
 
-SHashTable &GlobalAtomTable() {
+static SHashTable &GlobalAtomTable() {
     static SHashTable table;
     return table;
 }
