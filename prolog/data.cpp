@@ -336,7 +336,10 @@ SString PlgExpressionProcTable::TextRepresentation() const
 }
 #endif
 
-SHashTable PlgAtomTable;
+SHashTable &GlobalAtomTable() {
+    static SHashTable table;
+    return table;
+}
 
 // Atom
 
@@ -366,10 +369,10 @@ PlgAtom::PlgAtom(const char *name, const PlgPredicate &pred, bool infix) : PlgAt
 
 PlgProcTable PlgAtom::GetProcTable() const
 {
-    PlgProcTable tbl = PlgAtomTable->FindItem(*this, PlgUnbound);
+    PlgProcTable tbl = GlobalAtomTable()->FindItem(*this, PlgUnbound);
     if (!tbl.GetPtr()) {
         tbl = PlgProcTable(new PlgExpressionProcTable());
-        PlgAtomTable->AddItem(*this, tbl);
+        GlobalAtomTable()->AddItem(*this, tbl);
     }
     return tbl;
 }
