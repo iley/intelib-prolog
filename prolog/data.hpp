@@ -45,6 +45,7 @@ public:
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
     virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
+    virtual bool Grounded() const;
 };
 
 typedef GenericSReference<SExpression, IntelibX_not_a_prolog_object> PlgRef;
@@ -61,6 +62,8 @@ public:
 
     PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const;
     PlgReference Evaluate(PlgContext &context) const;
+
+    bool Grounded() const;
 
     PlgReference Functor() const;
     SReference Args() const;
@@ -149,6 +152,7 @@ public:
 
     explicit PlgExpressionAtom(const char *name, bool infix) : SExpressionString(TypeId, name), isInfix(infix) {}
 
+    virtual bool Grounded() const;
     bool IsInfix() const { return isInfix; }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
@@ -205,6 +209,7 @@ public:
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
     virtual PlgReference Evaluate(const PlgReference &self, PlgContext &context) const;
+    virtual bool Grounded() const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -234,6 +239,7 @@ public:
     PlgExpressionAnonymousVariable() : SExpression(TypeId) {}
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
+    virtual bool Grounded() const;
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
     virtual SString TextRepresentation() const;
@@ -259,6 +265,7 @@ public:
 
     const PlgAtom &Functor() const { return functor; }
     const SReference &Args() const { return args; }
+    virtual bool Grounded() const;
     int Arity() const;
 
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;
@@ -274,6 +281,7 @@ protected:
 
     PlgAtom functor;
     SReference args;
+    bool grounded;
 };
 
 typedef GenericSReference<PlgExpressionTerm, IntelibX_not_a_prolog_atom> PlgTerm_Super;

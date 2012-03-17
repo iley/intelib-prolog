@@ -6,7 +6,8 @@
 
 #include <string.h>
 
-const char *NewVarName() {
+const char *NewVarName()
+{
     static char buffer[32]; // 32 ought to be enough for anybody!
     static int count = 0;
     sprintf(buffer, "_G%d", count++);
@@ -33,6 +34,11 @@ PlgReference PlgObject::RenameVars(const PlgReference &self, PlgContext &context
 PlgReference PlgObject::Evaluate(const PlgReference &self, PlgContext &context) const
 {
     return self;
+}
+
+bool PlgObject::Grounded() const
+{
+    return false;
 }
 
 // Reference to a generic prolog expression
@@ -130,6 +136,17 @@ PlgReference PlgReference::Evaluate(PlgContext &context) const
         return *this;
 }
 
+bool PlgReference::Grounded() const
+{
+    PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
+    if (obj)
+        return obj->Grounded();
+    else if ((*this)->TermType() == SExpressionCons::TypeId)
+        return PlgReference(Car()).Grounded() && PlgReference(Cdr()).Grounded();
+    else
+        return true;
+}
+
 PlgReference PlgReference::Functor() const
 {
     if ((*this)->TermType() == PlgExpressionAtom::TypeId)
@@ -180,10 +197,10 @@ PlgReference PlgReference::Body() const
 
 IntelibTypeId PlgExpressionTerm::TypeId(&SExpression::TypeId, false);
 
-PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : SExpression(TypeId), functor(fn), args(as)
+PlgExpressionTerm::PlgExpressionTerm(const PlgAtom &fn, const SReference &as) : SExpression(TypeId), functor(fn), args(as), grounded(Grounded())
 {}
 
-PlgExpressionTerm::PlgExpressionTerm(const IntelibTypeId &typeId, const PlgAtom &fn, const SReference &as) : SExpression(typeId), functor(fn), args(as)
+PlgExpressionTerm::PlgExpressionTerm(const IntelibTypeId &typeId, const PlgAtom &fn, const SReference &as) : SExpression(typeId), functor(fn), args(as), grounded(Grounded())
 {}
 
 int PlgExpressionTerm::Arity() const
@@ -218,6 +235,9 @@ bool PlgExpressionTerm::Unify(const PlgReference &self, const PlgReference &othe
 
 PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const
 {
+    if (grounded)
+        return self;
+
     SReference newArgs = *PTheEmptyList;
     SReference tail = newArgs;
 
@@ -237,6 +257,9 @@ PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, PlgContext 
 
 PlgReference PlgExpressionTerm::Evaluate(const PlgReference &self, PlgContext &context) const
 {
+    if (grounded)
+        return self;
+
     SReference newArgs = *PTheEmptyList;
     SReference tail = newArgs;
 
@@ -253,6 +276,14 @@ PlgReference PlgExpressionTerm::Evaluate(const PlgReference &self, PlgContext &c
     return PlgTerm(Functor(), newArgs);
 }
 
+bool PlgExpressionTerm::Grounded() const
+{
+    for (SReference p = Args(); !p.IsEmptyList(); p = p.Cdr()) {
+        if (!PlgReference(p.Car()).Grounded())
+            return false;
+    }
+    return true;
+}
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionTerm::TextRepresentation() const
@@ -310,6 +341,11 @@ SHashTable PlgAtomTable;
 // Atom
 
 IntelibTypeId PlgExpressionAtom::TypeId(&SExpression::TypeId, true);
+
+bool PlgExpressionAtom::Grounded() const
+{
+    return true;
+}
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionAtom::TextRepresentation() const
@@ -405,6 +441,11 @@ PlgReference PlgExpressionVariable::Evaluate(const PlgReference &self, PlgContex
         return binding.Evaluate(context);
 }
 
+bool PlgExpressionVariable::Grounded() const
+{
+    return false;
+}
+
 PlgVariable::PlgVariable(const char *name) : PlgVariable_Super(new PlgExpressionVariable(name)) {}
 
 PlgReference PlgVariable::is(const PlgReference &expr)
@@ -422,6 +463,11 @@ SString PlgExpressionVariable::TextRepresentation() const
 IntelibTypeId PlgExpressionAnonymousVariable::TypeId(&SExpression::TypeId, false);
 
 bool PlgExpressionAnonymousVariable::Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const
+{
+    return true;
+}
+
+bool PlgExpressionAnonymousVariable::Grounded() const
 {
     return true;
 }
