@@ -1,5 +1,5 @@
 INTELIB=../../..
-EXAMPLES=example queens psort dcg
+EXAMPLES=example queens psort dcg qsort
 CXX=g++
 CXXFLAGS+=-g -O2
 
