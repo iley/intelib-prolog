@@ -238,20 +238,7 @@ PlgReference PlgExpressionTerm::RenameVars(const PlgReference &self, PlgContext 
     if (grounded)
         return self;
 
-    SReference newArgs = *PTheEmptyList;
-    SReference tail = newArgs;
-
-    for (SReference p = Args(); !p.IsEmptyList(); p = p.Cdr()) {
-        SReference renamd = PlgReference(p.Car()).RenameVars(context, existingVars);
-        if (tail.IsEmptyList()) {
-            newArgs = tail = renamd ^ tail;
-        } else {
-            tail.Cdr() = renamd ^ tail.Cdr();
-            tail = tail.Cdr();
-        }
-    }
-
-    return PlgTerm(functor, newArgs);
+    return PlgTerm(functor, PlgReference(Args()).RenameVars(context, existingVars));
 }
 
 
@@ -259,21 +246,8 @@ PlgReference PlgExpressionTerm::Evaluate(const PlgReference &self, PlgContext &c
 {
     if (grounded)
         return self;
-
-    SReference newArgs = *PTheEmptyList;
-    SReference tail = newArgs;
-
-    for (SReference p = Args(); !p.IsEmptyList(); p = p.Cdr()) {
-        SReference evald = PlgReference(p.Car()).Evaluate(context);
-        if (tail.IsEmptyList()) {
-            newArgs = tail = evald ^ tail;
-        } else {
-            tail.Cdr() = evald ^ tail.Cdr();
-            tail = tail.Cdr();
-        }
-    }
-
-    return PlgTerm(Functor(), newArgs);
+    else
+        return PlgTerm(Functor(), PlgReference(Args()).Evaluate(context));
 }
 
 bool PlgExpressionTerm::Grounded() const
