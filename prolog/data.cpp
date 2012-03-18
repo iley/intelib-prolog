@@ -79,14 +79,15 @@ bool PlgReference::Unify(const PlgReference &other, PlgContext &context) const
         right = PlgTerm(right)->Functor();
 
     const PlgObject *obj = dynamic_cast<const PlgObject*>(left.GetPtr());
-    if (obj)
+    if (obj) {
         result = obj->Unify(left, right, context);
-    else if (left->TermType() == SExpressionCons::TypeId)
+    } else if (left->TermType() == SExpressionCons::TypeId) {
         result = right->TermType() == SExpressionCons::TypeId
             && PlgReference(left.Car()).Unify(right.Car(), context)
             && PlgReference(left.Cdr()).Unify(right.Cdr(), context);
-    else
+    } else {
         result = left.IsEqual(right);
+    }
 
 
     if (!result)
@@ -104,14 +105,18 @@ PlgReference PlgReference::RenameVars(PlgContext &context, SHashTable &existingV
 
     PlgReference result;
     PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
-    if (obj)
+    if (obj) {
         result =  obj->RenameVars(*this, context, existingVars);
-    else if ((*this)->TermType() == SExpressionCons::TypeId)
-        result =  SReference(
-            PlgReference(Car()).RenameVars(context, existingVars),
-            PlgReference(Cdr()).RenameVars(context, existingVars));
-    else
+    } else if ((*this)->TermType() == SExpressionCons::TypeId) {
+        SReference newCar = PlgReference(Car()).RenameVars(context, existingVars),
+                   newCdr = PlgReference(Cdr()).RenameVars(context, existingVars);
+        if (newCar == Car() && newCdr == Cdr())
+            result = *this;
+        else
+            result = newCar ^ newCdr;
+    } else {
         result =  *this;
+    }
 
     if (PlgGlobalHooks.Rename)
         PlgGlobalHooks.Rename(*this, result, context);
@@ -126,14 +131,19 @@ PlgReference PlgReference::Evaluate(PlgContext &context) const
     INTELIB_ASSERT(GetPtr(), IntelibX_unexpected_unbound_value());
 
     PlgObject *obj = dynamic_cast<PlgObject*>(GetPtr());
-    if (obj)
+    if (obj) {
         return obj->Evaluate(*this, context);
-    else if ((*this)->TermType() == SExpressionCons::TypeId)
-         return SReference(
-            PlgReference(Car()).Evaluate(context),
-            PlgReference(Cdr()).Evaluate(context));
-    else
+    } else if ((*this)->TermType() == SExpressionCons::TypeId) {
+        SReference newCar = PlgReference(Car()).Evaluate(context),
+                   newCdr = PlgReference(Cdr()).Evaluate(context);
+
+        if (newCar == Car() && newCdr == Cdr())
+            return *this;
+        else
+            return newCar ^ newCdr;
+    } else {
         return *this;
+    }
 }
 
 bool PlgReference::Grounded() const
