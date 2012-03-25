@@ -57,6 +57,7 @@ public:
     PlgReference(const PlgReference &ref) : PlgRef(ref) {}
     PlgReference(const SReference &ref) : PlgRef(ref) {}
     PlgReference(SExpression *p) : PlgRef(p) {}
+    PlgReference(int i) : PlgRef(i) {}
 
     bool Unify(const PlgReference &other, PlgContext &context) const;
 
