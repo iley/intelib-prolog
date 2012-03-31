@@ -108,6 +108,11 @@ public:
 
     void AddA(const PlgReference &clause); //add to the head of list
     void Add(const PlgReference &clause);
+    void Add(const PlgReference &c1, const PlgReference &c2);
+    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3);
+    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4);
+    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5);
+    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5, const PlgReference &c6);
     void AddWithoutExpansion(const PlgReference &clause);
 
     PlgContinuation Query(const PlgReference &request);

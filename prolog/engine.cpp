@@ -175,6 +175,31 @@ void PlgDatabase::Add(const PlgReference &ref)
     return AddWithoutExpansion(ExpandTerm(ref));
 }
 
+void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2)
+{
+    Add(c1); Add(c2);
+}
+
+void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3)
+{
+    Add(c1); Add(c2); Add(c3);
+}
+
+void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4)
+{
+    Add(c1); Add(c2); Add(c3); Add(c4);
+}
+
+void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5)
+{
+    Add(c1); Add(c2); Add(c3); Add(c4); Add(c5);
+}
+
+void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5, const PlgReference &c6)
+{
+    Add(c1); Add(c2); Add(c3); Add(c4); Add(c5); Add(c6);
+}
+
 void PlgDatabase::AddWithoutExpansion(const PlgReference &ref)
 {
     //TODO implement Clause() functionality in expand_term/2
