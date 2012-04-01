@@ -5,17 +5,24 @@
 int main() {
     using namespace PlgStdLib;
 
-    PlgAtom man("man"), woman("woman"), human("human"), fry("fry"), leela("leela"), bender("bender"), print_humans("print_humans");
-    PlgVariable X("X");
+    PlgAtom man("man"), woman("woman"), human("human"), son("son"), parent("parent");
+    PlgAtom bob("bob"), mary("mary"), john("john");
+    PlgVariable X("X"), Y("Y");
 
     PlgDatabase db;
-    db.Add( human(X) <<= woman(X) | man(X) );
-    db.Add( woman(leela) );
-    db.Add( man(fry) );
+    db.Add(
+        son(X, Y) <<= parent(Y, X) & man(X),
+        woman(mary),
+        man(bob),
+        man(john),
+        parent(bob, mary),
+        parent(bob, john)
+    );
 
-    db.Add( print_humans <<= human(X) & write(X) & nl & fail );
+    PlgAtom print_sons("print_sons");
+    db.Add( print_sons <<= son(X, bob) & write(X) & nl & fail );
 
-    db.Once(print_humans);
+    db.Once(print_sons);
 
     return 0;
 }
