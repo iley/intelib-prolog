@@ -349,9 +349,9 @@ std_atom('<', int_less).
 std_atom(=.., univ).
 std_atom({}, action).
 
-std_infix('>', int_greater).
-std_infix('>=', int_greater_or_equal). 
-std_infix('=<', int_less_or_equal). 
+std_atom('>', int_greater).
+std_atom('>=', int_greater_or_equal). 
+std_atom('=<', int_less_or_equal). 
 
 std_infix(':-', '<<=').
 std_infix('-->', '>>=').
