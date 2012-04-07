@@ -3,3 +3,4 @@ tags
 tests.o
 bin_default
 vs
+.env.rc
