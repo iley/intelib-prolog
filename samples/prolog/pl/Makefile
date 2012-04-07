@@ -17,7 +17,7 @@ $(EXAMPLES): %: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -I$(INTELIB) -L$(INTELIB)/build/intelib -o $@ $< -lintelib
 
 .pro.cpp: trans.pro
-	prolog -qs trans.pro -t "translate('$<')"
+	swipl -qs trans.pro -t "translate('$<')"
 
 clean:
 	rm -f $(EXAMPLES) *.hpp *.cpp
