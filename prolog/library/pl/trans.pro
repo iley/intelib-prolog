@@ -319,11 +319,13 @@ std_atom(atomic).
 std_atom(error).
 std_atom(fail).
 std_atom(dcg_translate_rule).
+std_atom(length).
 std_atom(member).
 std_atom(nl).
 std_atom(notrace).
 std_atom(print).
 std_atom(phrase).
+std_atom(reverse).
 std_atom(trace).
 std_atom(var).
 std_atom(write).
