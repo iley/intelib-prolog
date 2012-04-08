@@ -3,8 +3,6 @@
 #include <prolog/utils.hpp>
 
 int main() {
-    using namespace PlgStdLib;
-
     PlgAtom man("man"), woman("woman"), human("human"), son("son"), parent("parent");
     PlgAtom bob("bob"), mary("mary"), john("john"), jack("jack");
     PlgVariable X("X"), Y("Y");
