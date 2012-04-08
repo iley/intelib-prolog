@@ -670,6 +670,8 @@ public:
  */
 extern SReference *PTheEmptyList;
 
+extern SReference *GetEmptyList();
+
 
 //! The List Constructor
 /*! This pseudoclass is not a data structure at all. It is created for

@@ -63,7 +63,9 @@ public:
     PlgReference RenameVars(PlgContext &context, SHashTable &existingVars) const;
     PlgReference Evaluate(PlgContext &context) const;
 
-    PlgReference Functor() const;
+    PlgContinuation Query() const;
+
+    PlgAtom Functor() const;
     SReference Args() const;
     PlgReference Head() const;
     PlgReference Body() const;
@@ -139,16 +141,26 @@ private:
 
 typedef GenericSReference<PlgExpressionProcTable, IntelibX_not_a_prolog_atom> PlgProcTable;
 
-extern SHashTable PlgAtomTable;
-
 // Atom
 
-class PlgExpressionAtom : public SExpressionString, public PlgObject
+class PlgExpressionAtom : public SExpressionLabel, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
 
-    explicit PlgExpressionAtom(const char *name, bool infix) : SExpressionString(TypeId, name), isInfix(infix) {}
+    PlgExpressionAtom(const char *name, bool infix) :
+        SExpressionLabel(TypeId, name),
+        isInfix(infix),
+        procedureList(*(GetEmptyList())),
+        builtinTable(new PlgExpressionProcTable())
+    {}
+
+    SReference ProcedureList() const { return procedureList; }
+    PlgProcTable BuiltinTable() const { return builtinTable; }
+
+    void Add(const PlgReference &clause);
+    void AddA(const PlgReference &clause);
+    void AddWithoutExpansion(const PlgReference &clause);
 
     bool IsInfix() const { return isInfix; }
 
@@ -158,8 +170,15 @@ public:
 
 protected:
     bool isInfix;
+    SReference procedureList;
+    PlgProcTable builtinTable;
 
-    PlgExpressionAtom(const IntelibTypeId &typeId, const char *name, bool infix) : SExpressionString(typeId, name), isInfix(infix) {}
+    PlgExpressionAtom(const IntelibTypeId &typeId, const char *name, bool infix) :
+        isInfix(infix),
+        SExpressionLabel(typeId, name),
+        procedureList(*(GetEmptyList())),
+        builtinTable(new PlgExpressionProcTable())
+    {}
 };
 
 typedef GenericSReference<PlgExpressionAtom, IntelibX_not_a_prolog_atom> PlgAtom_Super;
@@ -173,16 +192,14 @@ public:
 
     PlgAtom(const SReference &s) : PlgAtom_Super(s) {}
 
-    PlgProcTable GetProcTable() const;
-
     PlgPredicate GetPredicate(int arity) const
-        { return GetProcTable()->GetPredicate(arity); }
+        { return (*this)->BuiltinTable()->GetPredicate(arity); }
 
     void SetPredicate(const PlgPredicate &pred, int arity)
-        { GetProcTable()->SetPredicate(pred, arity); }
+        { (*this)->BuiltinTable()->SetPredicate(pred, arity); }
 
     void SetPredicate(const PlgPredicate &pred)
-        { GetProcTable()->SetPredicate(pred); }
+        { (*this)->BuiltinTable()->SetPredicate(pred); }
 
     PlgReference operator () (const SReference &arg1);
     PlgReference operator () (const SReference &arg1, const SReference &arg2);
@@ -196,12 +213,12 @@ public:
 
 // Variable Name
 
-class PlgExpressionVariable : public SExpressionString, public PlgObject
+class PlgExpressionVariable : public SExpressionLabel, public PlgObject
 {
 public:
     static IntelibTypeId TypeId;
 
-    explicit PlgExpressionVariable(const char *name) : SExpressionString(TypeId, name) {}
+    explicit PlgExpressionVariable(const char *name) : SExpressionLabel(TypeId, name) {}
 
     virtual PlgReference RenameVars(const PlgReference &self, PlgContext &context, SHashTable &existingVars) const;
     virtual bool Unify(const PlgReference &self, const PlgReference &other, PlgContext &context) const;

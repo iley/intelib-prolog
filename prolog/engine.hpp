@@ -8,6 +8,9 @@
 #include "../sexpress/gensref.hpp"
 #include "../sexpress/shashtbl.hpp"
 
+void Assert(const PlgReference &clause);
+void AssertWithoutExpansion(const PlgReference &clause);
+
 class PlgContext
 {
 public:
@@ -51,17 +54,15 @@ private:
     PlgContext(const PlgContext&);
 };
 
-class PlgDatabase;
 class PlgExpressionContinuation : public SExpression
 {
-    friend class PlgDatabase;
     friend class PlgExpressionChoicePoint;
     friend class PlgExpressionClauseChoicePoint;
     friend class PlgExpressionDisjChoicePoint;
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req);
+    PlgExpressionContinuation(const PlgReference &req);
 
     bool Next();
     PlgReference GetValue(const PlgReference &var);
@@ -71,7 +72,6 @@ public:
     void ResetChoicePoints();
     void Cut();
 
-    PlgDatabase &Database() { return database; }
     SReference ChoicePoints() { return choicePoints; }
     PlgContext &Context() { return context; }
 
@@ -83,7 +83,6 @@ public:
 
 
 private:
-    PlgDatabase &database;
     SReference choicePoints;
     PlgContext context;
     SReference queries;
@@ -96,40 +95,7 @@ typedef GenericSReference<PlgExpressionContinuation, IntelibX_not_a_prolog_conti
 class PlgContinuation : public PlgContinuation_Super
 {
 public:
-    PlgContinuation(PlgDatabase &db, const PlgReference &request) : PlgContinuation_Super(new PlgExpressionContinuation(db, request)) {}
-};
-
-// database
-
-class PlgDatabase
-{
-public:
-    PlgDatabase() : table() {}
-
-    void AddA(const PlgReference &clause); //add to the head of list
-    void Add(const PlgReference &clause);
-    void Add(const PlgReference &c1, const PlgReference &c2);
-    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3);
-    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4);
-    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5);
-    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5, const PlgReference &c6);
-    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5, const PlgReference &c6, const PlgReference &c7);
-    void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5, const PlgReference &c6, const PlgReference &c7, const PlgReference &c8);
-    void AddWithoutExpansion(const PlgReference &clause);
-
-    bool Retract(const PlgReference &head, PlgContext &cont);
-
-    PlgContinuation Query(const PlgReference &request);
-    bool Once(const PlgReference &request) { return Query(request)->Next(); }
-    SReference Head(const PlgReference &functor) const { return table->FindItem(functor, *PTheEmptyList); }
-
-    SString Dump() const;
-private:
-    SHashTable table;
-    PlgDatabase(const PlgDatabase &other);
-
-    PlgReference Clause(const PlgReference &ref) const;
-    PlgReference ExpandTerm(const PlgReference &ref);
+    PlgContinuation(const PlgReference &request) : PlgContinuation_Super(new PlgExpressionContinuation(request)) {}
 };
 
 // choice points
@@ -162,8 +128,8 @@ class PlgExpressionClauseChoicePoint : public PlgExpressionChoicePoint
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionClauseChoicePoint(const PlgReference &cls, PlgExpressionContinuation &c, PlgDatabase &db)
-        : PlgExpressionChoicePoint(TypeId, c), clause(cls), pointer(db.Head(cls.Functor())) {}
+    PlgExpressionClauseChoicePoint(const PlgReference &cls, PlgExpressionContinuation &c)
+        : PlgExpressionChoicePoint(TypeId, c), clause(cls), pointer(cls.Functor()->ProcedureList()) {}
 
     virtual bool TryNext();
 private:
@@ -177,10 +143,7 @@ class PlgClauseChoicePoint : public PlgClauseChoicePoint_Super
 {
 public:
     PlgClauseChoicePoint(const PlgReference &clause, PlgExpressionContinuation &cont)
-        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(clause, cont, cont.Database())) {}
-
-    PlgClauseChoicePoint(const PlgReference &clause, PlgExpressionContinuation &cont, PlgDatabase &db)
-        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(clause, cont, db)) {}
+        : PlgClauseChoicePoint_Super(new PlgExpressionClauseChoicePoint(clause, cont)) {}
 };
 
 class PlgExpressionDisjChoicePoint : public PlgExpressionChoicePoint

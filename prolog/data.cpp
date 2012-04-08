@@ -141,7 +141,12 @@ PlgReference PlgReference::Evaluate(PlgContext &context) const
     }
 }
 
-PlgReference PlgReference::Functor() const
+PlgContinuation PlgReference::Query() const
+{
+    return PlgContinuation(*this);
+}
+
+PlgAtom PlgReference::Functor() const
 {
     if ((*this)->TermType() == PlgExpressionAtom::TypeId)
         return *this;
@@ -289,40 +294,62 @@ SString PlgExpressionProcTable::TextRepresentation() const
 }
 #endif
 
-static SHashTable &GlobalAtomTable() {
-    static SHashTable table;
-    return table;
-}
-
 // Atom
 
 IntelibTypeId PlgExpressionAtom::TypeId(&SExpression::TypeId, true);
 
+static PlgReference Clause(const PlgReference &ref)
+{
+    if (ref->TermType() == PlgExpressionTerm::TypeId)
+        return ref;
+    else
+        return PlgTerm(ref, *PTheEmptyList);
+}
+
+static PlgReference ExpandTerm(const PlgReference &ref)
+{
+    return ref; //FIXME
+    using PlgStdLib::expand_term;
+    PlgVariable X("X");
+    SHashTable aliases;
+    PlgContinuation cont = expand_term(ref.RenameVars(cont->Context(), aliases), X).Query();
+    bool result = cont->Next();
+    INTELIB_ASSERT(result, IntelibX_bug());
+    return cont->GetValue(X);
+}
+
+void PlgExpressionAtom::AddA(const PlgReference &clause)
+{
+    procedureList = ExpandTerm(clause) ^ procedureList;
+}
+
+void PlgExpressionAtom::Add(const PlgReference &clause)
+{
+    AddWithoutExpansion(ExpandTerm(clause));
+}
+
+void PlgExpressionAtom::AddWithoutExpansion(const PlgReference &clause)
+{
+    procedureList.AddAnotherItemToList(Clause(clause));
+}
+
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionAtom::TextRepresentation() const
 {
-    return GetValue();
+    return GetName();
 }
 #endif
 
 PlgAtom::PlgAtom(const char *name, bool infix) : PlgAtom_Super(new PlgExpressionAtom(name, infix)) {}
 
 PlgAtom::PlgAtom(const char *name, int arity, const PlgPredicate &pred, bool infix) : PlgAtom_Super(new PlgExpressionAtom(name, infix)) {
-    GetProcTable()->SetPredicate(pred, arity);
+    INTELIB_ASSERT(GetPtr(), IntelibX_unexpected_unbound_value());
+    SetPredicate(pred, arity);
 }
 
 PlgAtom::PlgAtom(const char *name, const PlgPredicate &pred, bool infix) : PlgAtom_Super(new PlgExpressionAtom(name, infix)){
-    GetProcTable()->SetPredicate(pred);
-}
-
-PlgProcTable PlgAtom::GetProcTable() const
-{
-    PlgProcTable tbl = GlobalAtomTable()->FindItem(*this, PlgUnbound);
-    if (!tbl.GetPtr()) {
-        tbl = PlgProcTable(new PlgExpressionProcTable());
-        GlobalAtomTable()->AddItem(*this, tbl);
-    }
-    return tbl;
+    INTELIB_ASSERT(GetPtr(), IntelibX_unexpected_unbound_value());
+    SetPredicate(pred);
 }
 
 PlgReference PlgAtom::operator() (const SReference &arg1)
@@ -402,7 +429,7 @@ PlgReference PlgVariable::is(const PlgReference &expr)
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 SString PlgExpressionVariable::TextRepresentation() const
 {
-    return GetValue();
+    return GetName();
 }
 #endif
 

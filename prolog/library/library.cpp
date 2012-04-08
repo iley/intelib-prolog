@@ -4,39 +4,21 @@
 #include "../exceptions.hpp"
 #include <stdio.h>
 
-bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
-{
-    PlgClauseChoicePoint cp(PlgTerm(functor, args), cont);
-    cont.PushChoicePoint(cp);
-    return false; //to force backtracking
-}
-
-namespace PlgStdLib
-{
-    PlgDatabase &GetDb();
-}
-
-bool PlgLibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
-{
-    PlgClauseChoicePoint cp(PlgTerm(functor, args), cont, PlgStdLib::GetDb());
-    cont.PushChoicePoint(cp);
-    return false; //to force backtracking
-}
-
 namespace PlgStdLib
 {
     static SListConstructor S;
 
     PlgAnonymousVariable _;
 
-    PlgAtom action("{}", 1, PlgLibraryPredicate, false);
-    PlgAtom dcg_translate_rule("dcg_translate_rule", 2, PlgLibraryPredicate, false);
-    PlgAtom phrase("phrase", PlgLibraryPredicate, false);
+    PlgAtom action("{}", 1, PlgDefaultPredicate, false);
+    PlgAtom dcg_translate_rule("dcg_translate_rule", 2, PlgDefaultPredicate, false);
+    PlgAtom phrase("phrase", PlgDefaultPredicate, false);
 
     bool PredicateListing(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
-        SString str = cont.Database().Dump();
-        printf("%s", str.c_str());
+        //FIXME
+        //SString str = cont.Database().Dump();
+        //printf("%s", str.c_str());
         return true;
     }
 
@@ -148,7 +130,7 @@ namespace PlgStdLib
     bool PredicateAssertA(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
         PlgReference arg = args.Car();
-        cont.Database().AddA(arg);
+        arg.Functor()->AddA(arg);
         return true;
     }
 
@@ -158,7 +140,7 @@ namespace PlgStdLib
     bool PredicateAssertZ(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
         PlgReference arg = args.Car();
-        cont.Database().Add(arg);
+        arg.Functor()->Add(arg);
         return true;
     }
 
@@ -169,7 +151,9 @@ namespace PlgStdLib
     bool PredicateRetract(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
         PlgReference arg = args.Car();
-        return cont.Database().Retract(arg, cont.Context());
+        //return cont.Database().Retract(arg, cont.Context());
+        //FIXME
+        return false;
     }
 
     PlgAtom retract("retract", 1, PredicateRetract, false);
@@ -333,84 +317,87 @@ namespace PlgStdLib
 
     // Database with standard predicates written in prolog
 
-    void InitDb(PlgDatabase &db)
+    void Init()
     {
-        PlgVariable X("X"), H("H"), T("T"), L("L"), R("R"), N("N"), N1("N1");
-        SReference &Nil = *PTheEmptyList;
+        static PlgVariable X("X"), H("H"), T("T"), L("L"), R("R"), N("N"), N1("N1");
+        static SReference &Nil = *PTheEmptyList;
+
+        static bool done = false;
+
+        if (done)
+            return;
 
         PlgVariable Term("Term"), Result("Result");
 
-        grammar::InitDatabase(db);
-        output::InitDatabase(db);
+        grammar::Init();
+        output::Init();
 
-        db.AddWithoutExpansion( expand_term(Term, Result) <<= dcg_translate_rule(Term, Result) & cut );
-        db.AddWithoutExpansion( expand_term(Term, Result) <<= term_expansion(Term, Result) & cut );
-        db.AddWithoutExpansion( expand_term(Term, Term) );
+        //TODO: move to prolog module
+        AssertWithoutExpansion( expand_term(Term, Result) << dcg_translate_rule(Term, Result) & cut );
+        AssertWithoutExpansion( expand_term(Term, Result) << term_expansion(Term, Result) & cut );
+        AssertWithoutExpansion( expand_term(Term, Term) );
 
-        db.AddWithoutExpansion( nope(X) <<= (X & cut & fail) | truth ); // not(X) :- X, !, fail; true
+        AssertWithoutExpansion( nope(X) << (X & cut & fail) | truth ); // not(X) :- X, !, fail; true
 
-        db.AddWithoutExpansion( append(Nil, X, X) );
-        db.AddWithoutExpansion( append(H^T, L, H^R) <<= append(T, L, R) );
+        AssertWithoutExpansion( append(Nil, X, X) );
+        AssertWithoutExpansion( append(H^T, L, H^R) << append(T, L, R) );
 
-        db.AddWithoutExpansion( member(X, H^T) <<= (X ^= H) | member(X, T) );
+        AssertWithoutExpansion( member(X, H^T) << (X ^= H) | member(X, T) );
 
-        db.AddWithoutExpansion( length(Nil, 0) <<= cut );
-        db.AddWithoutExpansion( length(H^T, N) <<= length(T,N1) & N.is(N1 + SReference(1)) );
+        AssertWithoutExpansion( length(Nil, 0) << cut );
+        AssertWithoutExpansion( length(H^T, N) << length(T,N1) & N.is(N1 + SReference(1)) );
 
-        PlgAtom index("index", 4, PlgLibraryPredicate, false);
+        PlgAtom index("index", 4, PlgDefaultPredicate, false);
         PlgVariable StartIndex("StartIndex");
 
         // index/4 is an auxilary predicate to implement nth and nth0
-        db.AddWithoutExpansion( index(StartIndex, N, L, R) <<= (N < StartIndex) & cut & fail );
-        db.AddWithoutExpansion( index(StartIndex, StartIndex, H^T, H) <<= cut );
-        db.AddWithoutExpansion( index(StartIndex, N, H^T, X) <<= N1.is(N - SReference(1)) & index(StartIndex, N1, T, X) );
+        AssertWithoutExpansion( index(StartIndex, N, L, R) << (N < StartIndex) & cut & fail );
+        AssertWithoutExpansion( index(StartIndex, StartIndex, H^T, H) << cut );
+        AssertWithoutExpansion( index(StartIndex, N, H^T, X) << N1.is(N - SReference(1)) & index(StartIndex, N1, T, X) );
 
-        db.AddWithoutExpansion( nth(N, L, X) <<= index(1, N, L, X) );
-        db.AddWithoutExpansion( nth0(N, L, X) <<= index(0, N, L, X) );
+        AssertWithoutExpansion( nth(N, L, X) << index(1, N, L, X) );
+        AssertWithoutExpansion( nth0(N, L, X) << index(0, N, L, X) );
 
-        db.AddWithoutExpansion( permutation(Nil, Nil) );
-        db.AddWithoutExpansion( permutation(H^T, R) <<= permutation(T,L) & select(H,R,L) );
+        AssertWithoutExpansion( permutation(Nil, Nil) );
+        AssertWithoutExpansion( permutation(H^T, R) << permutation(T,L) & select(H,R,L) );
 
-        db.AddWithoutExpansion( select(X, X^T, T) );
-        db.AddWithoutExpansion( select(X, H^T, H^R) <<= select(X, T, R) );
+        AssertWithoutExpansion( select(X, X^T, T) );
+        AssertWithoutExpansion( select(X, H^T, H^R) << select(X, T, R) );
 
-        db.AddWithoutExpansion( repeat );
-        db.AddWithoutExpansion( repeat <<= repeat );
+        AssertWithoutExpansion( repeat );
+        AssertWithoutExpansion( repeat << repeat );
 
         // rev/3 is an auxilary function for reverse/2
-        PlgAtom rev("rev", 3, PlgLibraryPredicate, false);
+        PlgAtom rev("rev", 3, PlgDefaultPredicate, false);
 
-        db.AddWithoutExpansion( rev(Nil, X, X) <<= cut );
-        db.AddWithoutExpansion( rev(H^T, R, X) <<= rev(T, H^R, X) );
-        db.AddWithoutExpansion( reverse(L, R) <<= rev(L, Nil, R) );
+        AssertWithoutExpansion( rev(Nil, X, X) << cut );
+        AssertWithoutExpansion( rev(H^T, R, X) << rev(T, H^R, X) );
+        AssertWithoutExpansion( reverse(L, R) << rev(L, Nil, R) );
+
+        done = true;
     }
 
-    PlgDatabase &GetDb()
-    {
-        static PlgDatabase db;
-        static bool initialized = false;
+    PlgAtom nope("not", 1, PlgDefaultPredicate, false);
 
-        if (!initialized) {
-            InitDb(db);
-            initialized = true;
-        }
+    PlgAtom append("append", 3, PlgDefaultPredicate, false);
+    PlgAtom length("length", 2, PlgDefaultPredicate, false);
+    PlgAtom member("member", 2, PlgDefaultPredicate, false);
+    PlgAtom nth("nth", 3, PlgDefaultPredicate, false);
+    PlgAtom nth0("nth0", 3, PlgDefaultPredicate, false);
+    PlgAtom permutation("permutation", 2, PlgDefaultPredicate, false);
+    PlgAtom repeat("repeat", 0, PlgDefaultPredicate, false);
+    PlgAtom reverse("reverse", 2, PlgDefaultPredicate, false);
+    PlgAtom select("select", 3, PlgDefaultPredicate, false);
 
-        return db;
-    }
-
-    PlgAtom nope("not", 1, PlgLibraryPredicate, false);
-
-    PlgAtom append("append", 3, PlgLibraryPredicate, false);
-    PlgAtom length("length", 2, PlgLibraryPredicate, false);
-    PlgAtom member("member", 2, PlgLibraryPredicate, false);
-    PlgAtom nth("nth", 3, PlgLibraryPredicate, false);
-    PlgAtom nth0("nth0", 3, PlgLibraryPredicate, false);
-    PlgAtom permutation("permutation", 2, PlgLibraryPredicate, false);
-    PlgAtom repeat("repeat", 0, PlgLibraryPredicate, false);
-    PlgAtom reverse("reverse", 2, PlgLibraryPredicate, false);
-    PlgAtom select("select", 3, PlgLibraryPredicate, false);
-
-    PlgAtom expand_term("expand_term", 2, PlgLibraryPredicate, false);
+    PlgAtom expand_term("expand_term", 2, PlgDefaultPredicate, false);
     PlgAtom term_expansion("term_expansion", 2, PlgDefaultPredicate, false);
     PlgAtom goal_expansion("goal_expansion", 2, PlgDefaultPredicate, false);
+}
+
+bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+{
+    PlgStdLib::Init();
+    PlgClauseChoicePoint cp(PlgTerm(functor, args), cont);
+    cont.PushChoicePoint(cp);
+    return false; //to force backtracking
 }

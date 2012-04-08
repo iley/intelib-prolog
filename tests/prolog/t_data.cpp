@@ -36,7 +36,7 @@ int main()
             TESTTR("disjunction", a(X, X) | a, "a(X, X);a");
             TESTTR("compund expression", (a(X, X) & a(X) | a(X) & a(X, X)), "a(X, X),a(X);a(X),a(X, X)");
 
-            TESTTR("clause", a(X) <<= a(X, X), "a(X):-a(X, X)");
+            TESTTR("clause", a(X) << a(X, X), "a(X):-a(X, X)");
 
             PlgAtom x("x"), x_alias("x");
             TESTB("atom equality", x.IsEql(x_alias));

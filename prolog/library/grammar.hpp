@@ -1,8 +1,7 @@
 #ifndef GRAMMAR_HPP_SENTRY
 #define GRAMMAR_HPP_SENTRY
 namespace grammar {
-  PlgDatabase &Database();
-  void InitDatabase(PlgDatabase &db);
+  extern void Init();
   extern PlgAtom C36t_head;
   extern PlgAtom C36t_body;
   extern PlgAtom last;

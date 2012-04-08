@@ -3,6 +3,16 @@
 #include "utils.hpp"
 #include "library/library.hpp"
 
+void Assert(const PlgReference &clause)
+{
+    clause.Head().Functor()->Add(clause);
+}
+
+void AssertWithoutExpansion(const PlgReference &clause)
+{
+    clause.Head().Functor()->AddWithoutExpansion(clause);
+}
+
 class PlgExpressionSentenceMark : public PlgObject, public SExpression
 {
 public:
@@ -56,8 +66,8 @@ void PlgContext::ReturnTo(int pos, bool merge)
 
 IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);
 
-PlgExpressionContinuation::PlgExpressionContinuation(PlgDatabase &db, const PlgReference &req)
-    : SExpression(TypeId), database(db), choicePoints(*PTheEmptyList)
+PlgExpressionContinuation::PlgExpressionContinuation(const PlgReference &req)
+    : SExpression(TypeId), choicePoints(*PTheEmptyList)
 {
     queries = req.MakeCons(*PTheEmptyList);
 }
@@ -161,64 +171,7 @@ bool PlgExpressionContinuation::Backtrack()
     return false;
 }
 
-// Database
-void PlgDatabase::AddA(const PlgReference &ref)
-{
-    PlgReference clause = Clause(ExpandTerm(ref));
-    PlgReference functor = clause.Head().Functor();
-    SReference list = table->FindItem(functor, *PTheEmptyList);
-    table->AddItem(functor, clause ^ list);
-}
-
-void PlgDatabase::Add(const PlgReference &ref)
-{
-    return AddWithoutExpansion(ExpandTerm(ref));
-}
-
-void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2)
-{
-    Add(c1); Add(c2);
-}
-
-void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3)
-{
-    Add(c1); Add(c2); Add(c3);
-}
-
-void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4)
-{
-    Add(c1); Add(c2); Add(c3); Add(c4);
-}
-
-void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5)
-{
-    Add(c1); Add(c2); Add(c3); Add(c4); Add(c5);
-}
-
-void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5, const PlgReference &c6)
-{
-    Add(c1); Add(c2); Add(c3); Add(c4); Add(c5); Add(c6);
-}
-
-void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5, const PlgReference &c6, const PlgReference &c7)
-{
-    Add(c1); Add(c2); Add(c3); Add(c4); Add(c5); Add(c6); Add(c7);
-}
-
-void PlgDatabase::Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5, const PlgReference &c6, const PlgReference &c7, const PlgReference &c8)
-{
-    Add(c1); Add(c2); Add(c3); Add(c4); Add(c5); Add(c6); Add(c7); Add(c8);
-}
-
-void PlgDatabase::AddWithoutExpansion(const PlgReference &ref)
-{
-    //TODO implement Clause() functionality in expand_term/2
-    PlgReference clause = Clause(ref);
-    PlgReference functor = ref.Head().Functor();
-    SReference list = table->FindItem(functor, *PTheEmptyList);
-    table->AddItem(functor, list.AddAnotherItemToList(clause));
-}
-
+/*
 // this may be very slow
 bool PlgDatabase::Retract(const PlgReference &head, PlgContext &cont)
 {
@@ -246,48 +199,7 @@ bool PlgDatabase::Retract(const PlgReference &head, PlgContext &cont)
         return false;
     }
 }
-
-PlgContinuation PlgDatabase::Query(const PlgReference &request)
-{
-    PlgContinuation cont(*this, request);
-    return cont;
-}
-
-SString PlgDatabase::Dump() const
-{
-    SString result = "";
-    SExpressionHashTable::Iterator it(*table);
-
-    SReference cons = it.GetNext();
-    while (cons.GetPtr()) {
-        for (SReference list = cons.Cdr(); !list.IsEmptyList(); list = list.Cdr()) {
-            result += list.Car()->TextRepresentation() + "\n";
-        }
-        
-        cons = it.GetNext();
-    }
-
-    return result;
-}
-
-PlgReference PlgDatabase::Clause(const PlgReference &ref) const
-{
-    if (ref->TermType() == PlgExpressionTerm::TypeId)
-        return ref;
-    else
-        return PlgTerm(ref, *PTheEmptyList);
-}
-
-PlgReference PlgDatabase::ExpandTerm(const PlgReference &ref)
-{
-    using PlgStdLib::expand_term;
-    PlgVariable X("X");
-    SHashTable aliases;
-    PlgContinuation cont = Query(expand_term(ref.RenameVars(cont->Context(), aliases), X));
-    bool result = cont->Next();
-    INTELIB_ASSERT(result, IntelibX_bug());
-    return cont->GetValue(X);
-}
+*/
 
 // Choice point
 IntelibTypeId PlgExpressionChoicePoint::TypeId(&SExpression::TypeId, true);
@@ -307,6 +219,7 @@ SString PlgExpressionChoicePoint::TextRepresentation() const
 
 bool PlgExpressionClauseChoicePoint::TryNext()
 {
+    INTELIB_ASSERT(pointer.GetPtr(), IntelibX_unexpected_unbound_value());
     while (!pointer.IsEmptyList()) {
         Restore();
 

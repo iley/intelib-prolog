@@ -143,15 +143,14 @@ write_hpp :-
 		write('#include <prolog/prolog.hpp>'), nl
 	),
 	write_namespace_decl,
-	write('  PlgDatabase &Database();'), nl,
-	write('  void InitDatabase(PlgDatabase &db);'), nl,
+	write('  extern void Init();'), nl,
     (	
 		src_atom(_, Cpp),
 		write('  extern PlgAtom '), write(Cpp), write_ln(';'),
 		fail
 	;
 		true
-    ),
+  ),
 	write('}'),
 	nl,
 	write('#endif'),
@@ -160,19 +159,15 @@ write_hpp :-
 write_add(Term) :-
 	write('    '),
 	(
-		translator_flag(stdlib), !, write('db.AddWithoutExpansion(')
+		translator_flag(stdlib), !, write('AssertWithoutExpansion(')
 	;
-		write('db.Add(')
+    write('Assert(')
 	),
-	format_term(Term), write_ln(');').
+	format_term(Term),
+  write_ln(');').
 
 write_atom_decl(Orig, Cpp) :-
-  write('  PlgAtom '), write(Cpp), write('("'), write(Orig),
-  (
-    translator_flag(stdlib), !,  write_ln('", PlgLibraryPredicate, false);')
-  ;
-    write_ln('");')
-  ).
+  write('  PlgAtom '), write(Cpp), write('("'), write(Orig), write_ln('");') .
 
 
 write_cpp :-
@@ -195,7 +190,7 @@ write_cpp :-
 	),
 	nl,
 
-	write_ln('  void InitDatabase(PlgDatabase &db) {'),
+	write_ln('  void Init() {'),
 	write_ln('    using namespace PlgStdLib;'),
 	write_ln('    static SReference &Nil = *PTheEmptyList;'),
 	write_vars,
@@ -209,15 +204,6 @@ write_cpp :-
 	write_ln('  }'),
   nl,
 
-	write_ln('  PlgDatabase &Database() {'),
-	write_ln('    static PlgDatabase db;'),
-	write_ln('    static bool needsInit = true;'),
-	write_ln('    if (needsInit) {'),
-	write_ln('      InitDatabase(db);'),
-	write_ln('      needsInit = false;'),
-	write_ln('    }'),
-	write_ln('    return db;'),
-	write_ln('  }'),
 	write_ln('}'),
 	( 
     src_atom(prolog, _), nl, write_main
@@ -229,8 +215,9 @@ write_main :-
 	write_ln('int main() {'),
 	namespace(Namespace),
 	write('  using namespace '), write(Namespace), write_ln(';'),
-	write_ln('  PlgDatabase &db = Database();'),
-	write_ln('  PlgContinuation cont = db.Query(prolog);'),
+  write_ln('  Init();'),
+  write_ln('  PlgReference start = prolog;'),
+	write_ln('  PlgContinuation cont = start.Query();'),
 	write_ln('  if (cont->Next())'),
 	write_ln('    return 0;'),
 	write_ln('  else'),
@@ -355,7 +342,7 @@ std_atom('>', int_greater).
 std_atom('>=', int_greater_or_equal). 
 std_atom('=<', int_less_or_equal). 
 
-std_infix(':-', '<<=').
+std_infix(':-', '<<').
 std_infix('-->', '>>=').
 std_infix(',', '&').
 std_infix(';', '|').

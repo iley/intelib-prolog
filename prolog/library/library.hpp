@@ -9,7 +9,6 @@
 #include "grammar.hpp"
 #include "output.hpp"
 
-bool PlgLibraryPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 bool PlgDefaultPredicate(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont);
 
 namespace PlgStdLib {
@@ -77,9 +76,14 @@ namespace PlgStdLib {
     extern PlgAtom select;
 }
 
-inline PlgReference operator <<= (const PlgReference &left, const PlgReference &right)
+inline PlgReference operator << (const PlgReference &left, const PlgReference &right)
 {
     return PlgStdLib::implication(left, right);
+}
+
+inline void operator <<=(const PlgReference &left, const PlgReference &right)
+{
+    left.Functor()->Add(left << right);
 }
 
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right)

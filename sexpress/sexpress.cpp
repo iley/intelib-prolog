@@ -379,8 +379,13 @@ SString SExpressionLabel::TextRepresentation() const
 
 // Some useful label terms
 
-static SLabel STheEmptyListLabelRef("()");
-SReference *PTheEmptyList = &STheEmptyListLabelRef;
+SReference *GetEmptyList()
+{
+    static SLabel STheEmptyListLabelRef("()");
+    return &STheEmptyListLabelRef;
+}
+
+SReference *PTheEmptyList = GetEmptyList();
 
 // SReference class
 
