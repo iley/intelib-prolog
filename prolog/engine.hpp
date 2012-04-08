@@ -117,6 +117,8 @@ public:
     void Add(const PlgReference &c1, const PlgReference &c2, const PlgReference &c3, const PlgReference &c4, const PlgReference &c5, const PlgReference &c6, const PlgReference &c7, const PlgReference &c8);
     void AddWithoutExpansion(const PlgReference &clause);
 
+    bool Retract(const PlgReference &head, PlgContext &cont);
+
     PlgContinuation Query(const PlgReference &request);
     bool Once(const PlgReference &request) { return Query(request)->Next(); }
     SReference Head(const PlgReference &functor) const { return table->FindItem(functor, *PTheEmptyList); }

@@ -36,6 +36,7 @@ namespace PlgStdLib {
     extern PlgAtom assert;
     extern PlgAtom asserta;
     extern PlgAtom assertz;
+    extern PlgAtom retract;
 
     extern PlgAtom expand_term;
     extern PlgAtom term_expansion;

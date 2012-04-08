@@ -219,6 +219,34 @@ void PlgDatabase::AddWithoutExpansion(const PlgReference &ref)
     table->AddItem(functor, list.AddAnotherItemToList(clause));
 }
 
+// this may be very slow
+bool PlgDatabase::Retract(const PlgReference &head, PlgContext &cont)
+{
+    PlgReference functor = head.Functor();
+    SReference list = table->FindItem(functor, *PTheEmptyList);
+    int count = 0;
+
+    SReference newList = *PTheEmptyList;
+
+    for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
+        PlgReference clause = p.Car();
+        int frame = cont.NextFrame();
+        if (clause.Head().Unify(head, cont)) {
+            ++count;
+        } else {
+            newList.AddAnotherItemToList(clause);
+        }
+        cont.ReturnTo(frame);
+    }
+
+    if (count > 0) {
+        table->AddItem(functor, newList);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 PlgContinuation PlgDatabase::Query(const PlgReference &request)
 {
     PlgContinuation cont(*this, request);

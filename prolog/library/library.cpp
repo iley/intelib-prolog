@@ -164,6 +164,15 @@ namespace PlgStdLib
 
     PlgAtom assertz("assertz", 1, PredicateAssertZ, false);
 
+    // Retract
+
+    bool PredicateRetract(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
+    {
+        PlgReference arg = args.Car();
+        return cont.Database().Retract(arg, cont.Context());
+    }
+
+    PlgAtom retract("retract", 1, PredicateRetract, false);
 
     // Integer arithmetic
 

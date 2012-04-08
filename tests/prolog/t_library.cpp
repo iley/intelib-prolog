@@ -98,6 +98,13 @@ int main()
         Ok(db, assertz(f(3)) & f(X), X, (S|2,1,3));
         Fail(db, f(4));
 
+        Ok(db, retract(f(2)));
+        Ok(db, f(X), X, (S|1,3));
+        Fail(db, retract(f(100)));
+        Ok(db, f(X), X, (S|1,3));
+        Ok(db, retract(f(X)));
+        Fail(db, f(X));
+
         Ok(db, atom(f));
         Fail(db, atom(X));
         Fail(db, atom(f(X)));
