@@ -1,9 +1,7 @@
 INTELIB=../../..
-#EXAMPLES=example queens psort dcg qsort
-#FIXME
-EXAMPLES=example
+EXAMPLES=example queens psort dcg qsort
 CXX=g++
-CXXFLAGS+=-g -O0
+CXXFLAGS+=-g -O2
 
 .PHONY: default clean intelib build
 

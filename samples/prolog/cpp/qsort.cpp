@@ -13,14 +13,12 @@ int main() {
     PlgAtom qsort("qsort"), split("split");
     PlgVariable H("H"), T("T"), R("R"), L("L"), X("X"), Res("Res"), LS("LS"), RS("RS");
 
-    PlgDatabase db;
+    qsort(Nil, Nil) <<= truth;
+    qsort(H^T, Res) <<= split(H, T, L, R) & qsort(L, LS) & qsort(R, RS) & append(LS, H ^ RS, Res);
 
-    db.Add( qsort(Nil, Nil) );
-    db.Add( qsort(H^T, Res) <<= split(H, T, L, R) & qsort(L, LS) & qsort(R, RS) & append(LS, H ^ RS, Res) );
-
-    db.Add( split(X, Nil, Nil, Nil) );
-    db.Add( split(X, H^T, H^LS, RS) <<= (H <= X) & split(X, T, LS, RS) );
-    db.Add( split(X, H^T, LS, H^RS) <<= (H >  X) & split(X, T, LS, RS) );
+    split(X, Nil, Nil, Nil) <<= truth;
+    split(X, H^T, H^LS, RS) <<= (H <= X) & split(X, T, LS, RS);
+    split(X, H^T, LS, H^RS) <<= (H >  X) & split(X, T, LS, RS);
 
     srand(time(0));
 
@@ -29,7 +27,7 @@ int main() {
         list = SReference(rand()).MakeCons(list);
     //printf("Sorting %s...\n", Dump(list));
 
-    PlgContinuation cont = db.Query(qsort(list, X));
+    PlgContinuation cont = qsort(list, X).Query();
     if (cont->Next()) {
         //printf("Result: %s\n", Dump(cont->GetValue(X)));
         printf("Done\n");
