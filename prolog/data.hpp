@@ -174,8 +174,8 @@ protected:
     PlgProcTable builtinTable;
 
     PlgExpressionAtom(const IntelibTypeId &typeId, const char *name, bool infix) :
-        isInfix(infix),
         SExpressionLabel(typeId, name),
+        isInfix(infix),
         procedureList(*(GetEmptyList())),
         builtinTable(new PlgExpressionProcTable())
     {}

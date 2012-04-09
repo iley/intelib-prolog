@@ -8,6 +8,11 @@ void Assert(const PlgReference &clause)
     clause.Head().Functor()->Add(clause);
 }
 
+void AssertA(const PlgReference &clause)
+{
+    clause.Head().Functor()->AddA(clause);
+}
+
 void AssertWithoutExpansion(const PlgReference &clause)
 {
     clause.Head().Functor()->AddWithoutExpansion(clause);
@@ -67,9 +72,9 @@ void PlgContext::ReturnTo(int pos, bool merge)
 IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);
 
 PlgExpressionContinuation::PlgExpressionContinuation(const PlgReference &req)
-    : SExpression(TypeId), choicePoints(*PTheEmptyList)
+    : SExpression(TypeId), choicePoints(*(GetEmptyList()))
 {
-    queries = req.MakeCons(*PTheEmptyList);
+    queries = req.MakeCons(*(GetEmptyList()));
 }
 
 bool PlgExpressionContinuation::Next()
@@ -85,7 +90,7 @@ bool PlgExpressionContinuation::Next()
 
         // workaround for 0-arity predicates
         if (query->TermType() == PlgExpressionAtom::TypeId)
-            query = PlgTerm(PlgAtom(query), *PTheEmptyList);
+            query = PlgTerm(PlgAtom(query), *(GetEmptyList()));
 
         if (query->TermType() == PlgExpressionTerm::TypeId) {
             PlgTerm term = query;
@@ -121,7 +126,7 @@ void PlgExpressionContinuation::PopChoicePoint()
 
 void PlgExpressionContinuation::ResetChoicePoints()
 {
-    choicePoints = *PTheEmptyList;
+    choicePoints = *(GetEmptyList());
 }
 
 void PlgExpressionContinuation::Cut()
@@ -144,7 +149,7 @@ void PlgExpressionContinuation::Cut()
     }
 
     // remove all choice points if no sentence marks found
-    choicePoints = *PTheEmptyList;
+    choicePoints = *(GetEmptyList());
 }
 
 void PlgExpressionContinuation::PushQuery(const PlgReference &query)
@@ -176,10 +181,10 @@ bool PlgExpressionContinuation::Backtrack()
 bool PlgDatabase::Retract(const PlgReference &head, PlgContext &cont)
 {
     PlgReference functor = head.Functor();
-    SReference list = table->FindItem(functor, *PTheEmptyList);
+    SReference list = table->FindItem(functor, *(GetEmptyList()));
     int count = 0;
 
-    SReference newList = *PTheEmptyList;
+    SReference newList = *(GetEmptyList());
 
     for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
         PlgReference clause = p.Car();

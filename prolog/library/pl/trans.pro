@@ -192,7 +192,7 @@ write_cpp :-
 
 	write_ln('  void Init() {'),
 	write_ln('    using namespace PlgStdLib;'),
-	write_ln('    static SReference &Nil = *PTheEmptyList;'),
+	write_ln('    static SReference &Nil = *(GetEmptyList());'),
 	write_vars,
 	(
 		src_term(Term),
@@ -303,6 +303,7 @@ format_list([H|T]) :-
 std_atom(append).
 std_atom(atom).
 std_atom(atomic).
+std_atom(assert).
 std_atom(error).
 std_atom(fail).
 std_atom(dcg_translate_rule).

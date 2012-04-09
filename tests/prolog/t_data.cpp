@@ -37,12 +37,6 @@ int main()
             TESTTR("compund expression", (a(X, X) & a(X) | a(X) & a(X, X)), "a(X, X),a(X);a(X),a(X, X)");
 
             TESTTR("clause", a(X) << a(X, X), "a(X):-a(X, X)");
-
-            PlgAtom x("x"), x_alias("x");
-            TESTB("atom equality", x.IsEql(x_alias));
-
-            PlgVariable X_alias("X");
-            TESTB("variable equality", X.IsEql(X_alias));
         }
         TestScore();
     }

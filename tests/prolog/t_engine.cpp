@@ -20,7 +20,7 @@
 #include "plgtest.hpp"
 
 SListConstructor S;
-SReference &Nil = *PTheEmptyList;
+SReference &Nil = *(GetEmptyList());
 
 bool userPredicateCalled = false;
 
@@ -31,6 +31,8 @@ bool someUserPredicate(const PlgAtom &functor, const SReference &args, PlgExpres
 
 int main()
 {
+    using PlgStdLib::truth;
+
     try {
         //Hooks::EnableAll();
         //PrintContextEnabled = true;
@@ -115,26 +117,24 @@ int main()
 
         TestSection("Solving 1");
         {
-            PlgDatabase db;
-
             PlgReference (X) = PlgVariable("X");
             PlgReference (Y) = PlgVariable("Y");
             PlgAtom socrates("socrates"), plato("plato"), zeus("zeus"), mortal("mortal"), human("human"), man("man"), f("f");
 
-            db.Add( man(plato)  );
-            db.Add( man(socrates)  );
-            db.Add( human(Y) <<= man(Y) );
-            db.Add( mortal(X) <<= human(X) );
-            db.Add( f(X) );
+            man(plato) <<= truth;
+            man(socrates) <<= truth;
+            human(Y) <<= man(Y);
+            mortal(X) <<= human(X);
+            f(X)<<= truth;
 
-            Ok(db, f(X));
-            Fail(db, f(X,X));
-            Ok(db, man(socrates));
-            Ok(db, human(socrates));
-            Fail(db, human(zeus));
-            Ok(db, mortal(socrates));
-            Fail(db, mortal(zeus));
-            Ok(db, mortal(X), X, (S| plato, socrates));
+            Ok(f(X));
+            Fail(f(X,X));
+            Ok(man(socrates));
+            Ok(human(socrates));
+            Fail(human(zeus));
+            Ok(mortal(socrates));
+            Fail(mortal(zeus));
+            Ok(mortal(X), X, (S| plato, socrates));
         }
         TestScore();
 
@@ -142,25 +142,24 @@ int main()
         {
             PlgAtom a("a"), b("b"), c("c"), d("d"), f("f"), g("g"), always_true("always_true");
             PlgVariable X("X");
-            PlgDatabase db;
 
             using PlgStdLib::_;
 
-            db.Add( a(b(X)) <<= d(X) );
-            db.Add( a(c(X)) <<= f(X) );
-            db.Add( d(a) );
-            db.Add( f(b) );
-            db.Add( g(_) );
-            db.Add( always_true );
+            Assert( a(b(X)) << d(X) );
+            Assert( a(c(X)) << f(X) );
+            Assert( d(a) );
+            Assert( f(b) );
+            Assert( g(_) );
+            Assert( always_true );
 
-            Ok(db, a(b(a)));
-            Fail(db, a(b(b)));
-            Ok(db, a(c(b)));
-            Fail(db, a(c(a)));
-            Ok(db, a(X), X, (S| b(a), c(b)));
-            Ok(db, always_true);
-            Ok(db, g(a));
-            Ok(db, g(b));
+            Ok(a(b(a)));
+            Fail(a(b(b)));
+            Ok(a(c(b)));
+            Fail(a(c(a)));
+            Ok(a(X), X, (S| b(a), c(b)));
+            Ok(always_true);
+            Ok(g(a));
+            Ok(g(b));
         }
         TestScore();
 
@@ -168,22 +167,21 @@ int main()
         {
             PlgAtom u("u"), g("g"), h("h");
             PlgVariable X("X"), Y("Y");
-            PlgDatabase db;
 
-            db.Add( g(X) <<= (X ^= u) );
-            db.Add( h(X) <<= h(X, g) );
-            db.Add( h(X, Y) <<= (X ^= Y) );
+            Assert( g(X) << (X ^= u) );
+            Assert( h(X) << h(X, g) );
+            Assert( h(X, Y) << (X ^= Y) );
 
             u.SetPredicate(someUserPredicate, 1);
-            PlgContinuation cont = db.Query(u(X));
+            PlgContinuation cont = u(X).Query();
             TESTB("before calling u", !userPredicateCalled);
             TESTB("calling u", cont->Next());
             TESTB("after calling u", userPredicateCalled);
             TESTB("calling u for a second time", !cont->Next());
 
-            Ok(db, X ^= u, X, (S| u ));
-            Ok(db, g(X), X, (S| u ));
-            Ok(db, h(X), X, (S| g ));
+            Ok(X ^= u, X, (S| u ));
+            Ok(g(X), X, (S| u ));
+            Ok(h(X), X, (S| g ));
         }
         TestScore();
 
@@ -192,16 +190,15 @@ int main()
             PlgAtom f("f"), g("g"), h("h");
             PlgAtom alpha("alpha"), beta("beta");
             PlgVariable X("X");
-            PlgDatabase db;
 
-            db.Add( f(X) <<= g(X) & h(X) );
-            db.Add( g(alpha) );
-            db.Add( g(beta) );
-            db.Add( h(beta) );
+            f(X) <<= g(X) & h(X);
+            Assert( g(alpha) );
+            Assert( g(beta) );
+            Assert( h(beta) );
 
-            Fail(db, f(alpha));
-            Ok(db, f(beta));
-            Ok(db, f(X), X, (S| beta));
+            Fail(f(alpha));
+            Ok(f(beta));
+            Ok(f(X), X, (S| beta));
         }
         TestScore();
 
@@ -210,46 +207,44 @@ int main()
             PlgAtom human("human"), man("man"), woman("woman"), robot("robot"), alien("alien");
             PlgAtom fry("fry"), leela("leela"), bender("bender"), zoidberg("zoidberg");
             PlgVariable X("X");
-            PlgDatabase db;
 
-            db.Add( man(fry) );
-            db.Add( woman(leela) );
-            db.Add( robot(bender) );
-            db.Add( alien(zoidberg) );
-            db.Add( human(X) <<= man(X) | woman(X) );
+            Assert( man(fry) );
+            Assert( woman(leela) );
+            Assert( robot(bender) );
+            Assert( alien(zoidberg) );
+            human(X) <<= man(X) | woman(X);
 
-            Ok(db, human(fry));
-            Ok(db, human(leela));
-            Fail(db, human(zoidberg));
-            Fail(db, human(bender));
-            Ok(db, human(X), X, (S| fry, leela));
+            Ok(human(fry));
+            Ok(human(leela));
+            Fail(human(zoidberg));
+            Fail(human(bender));
+            Ok(human(X), X, (S| fry, leela));
         }
         TestScore();
 
         TestSection("Lists");
         {
-            PlgAtom append("my_append"), member("my_member");
+            PlgAtom append("append"), member("member");
             PlgVariable X("X"), H("H"), T("T"), R("R"), L("L");
-            PlgDatabase db;
             SListConstructor S;
 
-            db.Add( append(*PTheEmptyList, X, X) );
-            db.Add( append(H^T, L, H^R) <<= append(T, L, R) );
-            db.Add( member(X, H^T) <<= (X ^= H) | member(X, T) );
+            append(Nil, X, X) <<= truth;
+            append(H^T, L, H^R) <<= append(T, L, R);
+            member(X, H^T) <<= (X ^= H) | member(X, T);
 
-            Ok(db, append((S|1,2,3), (S|4,5), (S|1,2,3,4,5)));
-            Ok(db, append((S|1,2,3), (S|4,5), X), X, (S| (S|1,2,3,4,5) ));
-            Ok(db, append((S|1,2,3), Nil, X), X, (S| (S|1,2,3) ));
-            Ok(db, append(Nil, Nil, Nil));
-            Ok(db, append(Nil, Nil, X), X, (S| Nil ));
-            Ok(db, append((S|1,2,3), X, (S|1,2,3,4,5)), X, (S| (S|4,5)));
+            Ok(append((S|1,2,3), (S|4,5), (S|1,2,3,4,5)));
+            Ok(append((S|1,2,3), (S|4,5), X), X, (S| (S|1,2,3,4,5) ));
+            Ok(append((S|1,2,3), Nil, X), X, (S| (S|1,2,3) ));
+            Ok(append(Nil, Nil, Nil));
+            Ok(append(Nil, Nil, X), X, (S| Nil ));
+            Ok(append((S|1,2,3), X, (S|1,2,3,4,5)), X, (S| (S|4,5)));
 
-            Ok(db, member(1, (S|1,2,3)));
-            Ok(db, member(2, (S|1,2,3)));
-            Fail(db, member(1, (S|2,3,4)));
-            Fail(db, member(1, Nil));
-            Ok(db, member(X, (S|1,2,3)), X, (S|1,2,3));
-            Ok(db, member(2, (S|1,X,3)), X, (S|2));
+            Ok(member(1, (S|1,2,3)));
+            Ok(member(2, (S|1,2,3)));
+            Fail(member(1, (S|2,3,4)));
+            Fail(member(1, Nil));
+            Ok(member(X, (S|1,2,3)), X, (S|1,2,3));
+            Ok(member(2, (S|1,X,3)), X, (S|2));
         }
         TestScore();
 
@@ -259,26 +254,25 @@ int main()
 
             PlgAtom a("a"), b("b"), c("c");
             PlgVariable X("X"), Y("Y"), Z("Z");
-            PlgDatabase db;
 
-            db.Add( a(X, Y) <<= b(X) & cut & c(Y) );
-            db.Add( b(1) );
-            db.Add( b(2) );
-            db.Add( b(3) );
-            db.Add( c(10) );
-            db.Add( c(20) );
+            a(X, Y) <<= b(X) & cut & c(Y);
+            Assert( b(1) );
+            Assert( b(2) );
+            Assert( b(3) );
+            Assert( c(10) );
+            Assert( c(20) );
 
-            Ok(db, a(X,Y), (S|X, Y), (S| (S|1, 10), (S|1, 20) ));
+            Ok(a(X,Y), (S|X, Y), (S| (S|1, 10), (S|1, 20) ));
 
             PlgAtom f("f"), g("g");
             
-            db.Add( f(1) );
-            db.Add( f(2) );
-            db.Add( g(1) <<= cut );
-            db.Add( g(2) );
+            Assert( f(1) );
+            Assert( f(2) );
+            Assert( g(1) << cut );
+            Assert( g(2) );
 
-            Ok(db, f(X) & g(Y), (S|X,Y), (S| (S|1, 1), (S|2, 1) ));
-            Ok(db, b(X) & c(Y) & cut & f(Z), (S|X,Y,Z), (S| (S|1, 10, 1), (S|1, 10, 2)));
+            Ok(f(X) & g(Y), (S|X,Y), (S| (S|1, 1), (S|2, 1) ));
+            Ok(b(X) & c(Y) & cut & f(Z), (S|X,Y,Z), (S| (S|1, 10, 1), (S|1, 10, 2)));
         }
         TestScore();
 
@@ -290,18 +284,17 @@ int main()
             //TODO: more tests
             PlgAtom gcd("gcd");
             PlgVariable X("X"), Y("Y"), Z("Z"), D("D");
-            PlgDatabase db;
 
-            db.Add( gcd(X, 0, X) <<= cut );
-            db.Add( gcd(0, X, X) <<= cut );
-            db.Add( gcd(X, Y, D) <<= (X > Y) & cut & is(Z, X % Y) & gcd(Y, Z, D) );
-            db.Add( gcd(X, Y, D) <<= is(Z, Y % X) & gcd(X, Z, D) );
+            gcd(X, 0, X) <<= cut;
+            gcd(0, X, X) <<= cut;
+            gcd(X, Y, D) <<= (X > Y) & cut & is(Z, X % Y) & gcd(Y, Z, D);
+            gcd(X, Y, D) <<= is(Z, Y % X) & gcd(X, Z, D);
 
-            Ok(db, gcd(12, 8, X), X, (S|4));
-            Ok(db, gcd(12, 11, X), X, (S|1));
-            Ok(db, gcd(32, 24, X), X, (S|8));
-            Ok(db, gcd(24, 32, X), X, (S|8));
-            Ok(db, gcd(2, 4, X), X, (S|2));
+            Ok(gcd(12, 8, X), X, (S|4));
+            Ok(gcd(12, 11, X), X, (S|1));
+            Ok(gcd(32, 24, X), X, (S|8));
+            Ok(gcd(24, 32, X), X, (S|8));
+            Ok(gcd(2, 4, X), X, (S|2));
         }
         TestScore();
     }

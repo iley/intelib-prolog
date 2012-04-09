@@ -1,6 +1,7 @@
 #include "../../sexpress/shashtbl.hpp"
 #include "library.hpp"
 #include "../utils.hpp"
+#include "../engine.hpp"
 #include "../exceptions.hpp"
 #include <stdio.h>
 
@@ -130,7 +131,7 @@ namespace PlgStdLib
     bool PredicateAssertA(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
         PlgReference arg = args.Car();
-        arg.Functor()->AddA(arg);
+        AssertA(arg);
         return true;
     }
 
@@ -140,7 +141,7 @@ namespace PlgStdLib
     bool PredicateAssertZ(const PlgAtom &functor, const SReference &args, PlgExpressionContinuation &cont)
     {
         PlgReference arg = args.Car();
-        arg.Functor()->Add(arg);
+        Assert(arg);
         return true;
     }
 
@@ -320,61 +321,60 @@ namespace PlgStdLib
     void Init()
     {
         static PlgVariable X("X"), H("H"), T("T"), L("L"), R("R"), N("N"), N1("N1");
-        static SReference &Nil = *PTheEmptyList;
+        static SReference &Nil = *(GetEmptyList());
 
         static bool done = false;
 
         if (done)
             return;
+        done = true;
 
         PlgVariable Term("Term"), Result("Result");
-
-        grammar::Init();
-        output::Init();
 
         //TODO: move to prolog module
         AssertWithoutExpansion( expand_term(Term, Result) << dcg_translate_rule(Term, Result) & cut );
         AssertWithoutExpansion( expand_term(Term, Result) << term_expansion(Term, Result) & cut );
         AssertWithoutExpansion( expand_term(Term, Term) );
 
-        AssertWithoutExpansion( nope(X) << (X & cut & fail) | truth ); // not(X) :- X, !, fail; true
+        grammar::Init();
+        output::Init();
 
-        AssertWithoutExpansion( append(Nil, X, X) );
-        AssertWithoutExpansion( append(H^T, L, H^R) << append(T, L, R) );
+        nope(X) <<= (X & cut & fail) | truth; // not(X) :- X, !, fail; true
 
-        AssertWithoutExpansion( member(X, H^T) << (X ^= H) | member(X, T) );
+        append(Nil, X, X) <<= truth;
+        append(H^T, L, H^R) <<= append(T, L, R);
 
-        AssertWithoutExpansion( length(Nil, 0) << cut );
-        AssertWithoutExpansion( length(H^T, N) << length(T,N1) & N.is(N1 + SReference(1)) );
+        member(X, H^T) <<= (X ^= H) | member(X, T);
+
+        length(Nil, 0) <<= cut;
+        length(H^T, N) <<= length(T,N1) & N.is(N1 + SReference(1));
 
         PlgAtom index("index", 4, PlgDefaultPredicate, false);
         PlgVariable StartIndex("StartIndex");
 
         // index/4 is an auxilary predicate to implement nth and nth0
-        AssertWithoutExpansion( index(StartIndex, N, L, R) << (N < StartIndex) & cut & fail );
-        AssertWithoutExpansion( index(StartIndex, StartIndex, H^T, H) << cut );
-        AssertWithoutExpansion( index(StartIndex, N, H^T, X) << N1.is(N - SReference(1)) & index(StartIndex, N1, T, X) );
+        index(StartIndex, N, L, R) <<= (N < StartIndex) & cut & fail;
+        index(StartIndex, StartIndex, H^T, H) <<= cut;
+        index(StartIndex, N, H^T, X) <<= N1.is(N - SReference(1)) & index(StartIndex, N1, T, X);
 
-        AssertWithoutExpansion( nth(N, L, X) << index(1, N, L, X) );
-        AssertWithoutExpansion( nth0(N, L, X) << index(0, N, L, X) );
+        nth(N, L, X) <<= index(1, N, L, X);
+        nth0(N, L, X) <<= index(0, N, L, X);
 
-        AssertWithoutExpansion( permutation(Nil, Nil) );
-        AssertWithoutExpansion( permutation(H^T, R) << permutation(T,L) & select(H,R,L) );
+        permutation(Nil, Nil) <<= truth;
+        permutation(H^T, R) <<= permutation(T,L) & select(H,R,L);
 
-        AssertWithoutExpansion( select(X, X^T, T) );
-        AssertWithoutExpansion( select(X, H^T, H^R) << select(X, T, R) );
+        select(X, X^T, T) <<= truth;
+        select(X, H^T, H^R) <<= select(X, T, R);
 
-        AssertWithoutExpansion( repeat );
-        AssertWithoutExpansion( repeat << repeat );
+        repeat <<= truth;
+        repeat <<= repeat;
 
         // rev/3 is an auxilary function for reverse/2
         PlgAtom rev("rev", 3, PlgDefaultPredicate, false);
 
-        AssertWithoutExpansion( rev(Nil, X, X) << cut );
-        AssertWithoutExpansion( rev(H^T, R, X) << rev(T, H^R, X) );
-        AssertWithoutExpansion( reverse(L, R) << rev(L, Nil, R) );
-
-        done = true;
+        rev(Nil, X, X) <<= cut;
+        rev(H^T, R, X) <<= rev(T, H^R, X);
+        reverse(L, R) <<= rev(L, Nil, R);
     }
 
     PlgAtom nope("not", 1, PlgDefaultPredicate, false);

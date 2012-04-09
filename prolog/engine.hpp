@@ -9,6 +9,7 @@
 #include "../sexpress/shashtbl.hpp"
 
 void Assert(const PlgReference &clause);
+void AssertA(const PlgReference &clause);
 void AssertWithoutExpansion(const PlgReference &clause);
 
 class PlgContext
@@ -16,7 +17,7 @@ class PlgContext
 public:
     PlgContext() : values(), top(0)
     {
-        frameVars[0] = *PTheEmptyList;
+        frameVars[0] = *(GetEmptyList());
     }
 
     void Set(const PlgReference &var, const PlgReference &value)
@@ -37,7 +38,7 @@ public:
     int NextFrame()
     {
         top++;
-        frameVars[top] = *PTheEmptyList;
+        frameVars[top] = *(GetEmptyList());
         return top - 1;
     }
 

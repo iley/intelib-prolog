@@ -17,9 +17,9 @@ void printContext(const PlgContext &context)
         printf("%s\n", DumpContext(context).c_str());
 }
 
-void Ok(PlgDatabase &db, const PlgReference &query, const PlgReference &var, const SReference &results)
+void Ok(const PlgReference &query, const PlgReference &var, const SReference &results)
 {
-    PlgContinuation cont = db.Query(query);
+    PlgContinuation cont = query.Query();
     for (SReference p = results; !p.IsEmptyList(); p = p.Cdr()) {
         bool result = cont->Next();
         TESTB((SString("solving ") + query->TextRepresentation()).c_str(), result);
@@ -36,15 +36,15 @@ void Ok(PlgDatabase &db, const PlgReference &query, const PlgReference &var, con
     printContext(cont->Context());
 }
 
-void Ok(PlgDatabase &db, const PlgReference &query)
+void Ok(const PlgReference &query)
 {
     SListConstructor S;
-    return Ok(db, query, *PTheEmptyList, (S| *PTheEmptyList));
+    return Ok(query, *PTheEmptyList, (S| *PTheEmptyList));
 }
 
-void Fail(PlgDatabase &db, const PlgReference &query)
+void Fail(const PlgReference &query)
 {
-    Ok(db, query, *PTheEmptyList, *PTheEmptyList);
+    Ok(query, *PTheEmptyList, *PTheEmptyList);
 }
 
 namespace Hooks

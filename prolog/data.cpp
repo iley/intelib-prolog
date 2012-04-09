@@ -159,7 +159,7 @@ PlgAtom PlgReference::Functor() const
 SReference PlgReference::Args() const
 {
     if ((*this)->TermType() == PlgExpressionAtom::TypeId)
-        return *PTheEmptyList;
+        return *(GetEmptyList());
     else if ((*this)->TermType() == PlgExpressionTerm::TypeId)
         return SimpleCastGetPtr<PlgExpressionTerm>()->Args();
     else
@@ -303,12 +303,11 @@ static PlgReference Clause(const PlgReference &ref)
     if (ref->TermType() == PlgExpressionTerm::TypeId)
         return ref;
     else
-        return PlgTerm(ref, *PTheEmptyList);
+        return PlgTerm(ref, *(GetEmptyList()));
 }
 
 static PlgReference ExpandTerm(const PlgReference &ref)
 {
-    return ref; //FIXME
     using PlgStdLib::expand_term;
     PlgVariable X("X");
     SHashTable aliases;

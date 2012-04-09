@@ -21,7 +21,7 @@ namespace grammar {
 
   void Init() {
     using namespace PlgStdLib;
-    static SReference &Nil = *PTheEmptyList;
+    static SReference &Nil = *(GetEmptyList());
     static PlgVariable _var_A("A");
     static PlgVariable _var_B("B");
     static PlgVariable _var_C("C");

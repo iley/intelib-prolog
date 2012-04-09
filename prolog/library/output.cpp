@@ -4,7 +4,7 @@ namespace output {
 
   void Init() {
     using namespace PlgStdLib;
-    static SReference &Nil = *PTheEmptyList;
+    static SReference &Nil = *(GetEmptyList());
     static PlgVariable _var_A("A");
     AssertWithoutExpansion((write(_var_A)<<print(_var_A)));
   }
