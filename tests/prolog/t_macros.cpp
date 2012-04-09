@@ -21,7 +21,7 @@
 #include "plgtest.hpp"
 
 SListConstructor S;
-SReference &Nil = *PTheEmptyList;
+SReference &Nil = *(GetEmptyList());
 
 int main()
 {
@@ -29,18 +29,17 @@ int main()
         using namespace PlgStdLib;
 
         SListConstructor S;
-        PlgDatabase db;
         PlgVariable X("X"), Head("Head"), Body("Body");
         PlgAtom i_say("i_say"), human("human"), mortal("mortal"), socrates("socrates");
 
         TestSection("term_expansion");
 
-        db.Add( term_expansion(i_say(Head, Body), (Head <<= Body)) );
-        db.Add( term_expansion(i_say(Head), (Head <<= truth)) );
-        db.Add( i_say(mortal(X), human(X)) );
-        db.Add( i_say(human(socrates)) );
+        term_expansion(i_say(Head, Body), (Head << Body)) <<= truth ;
+        term_expansion(i_say(Head), (Head << truth)) <<= truth;
+        i_say(mortal(X), human(X)) <<= truth;
+        i_say(human(socrates)) <<= truth;
 
-        Ok(db, mortal(X), X, (S|socrates));
+        Ok(mortal(X), X, (S|socrates));
 
         TestScore();
     }

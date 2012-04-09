@@ -21,7 +21,7 @@
 #include "plgtest.hpp"
 
 SListConstructor S;
-SReference &Nil = *PTheEmptyList;
+SReference &Nil = *(GetEmptyList());
 
 int main()
 {
@@ -37,26 +37,24 @@ int main()
                         P1("P1"), P2("P2"),
                         E("E"), E1("E1");
 
-            PlgDatabase db;
-
-            db.Add( d(X, X, 1) <<= cut );
-            db.Add( d(A + B, X, DA + DB) <<= d(A, X, DA) & d(B, X, DB) & cut );
-            db.Add( d(A - B, X, DA - DB) <<= d(A, X, DA) & d(B, X, DB) & cut );
-            db.Add( d(A * B, X, DA*B+DB*A) <<= d(A, X, DA) & d(B, X, DB) & cut );
-            db.Add( d(A / B, X, (DA*B-DB*A)/pow(B,2)) <<= d(A, X, DA) & d(B, X, DB) & cut );
-            db.Add( d(-A, X, -DA) <<= d(A, X, DA) & cut );
-            db.Add( d(pow(X,E), X, E*pow(X,E1)) <<= (E1 ^= E - SReference(1)) & cut );
-            db.Add( d(sin(Y), X, cos(Y)*DY) <<= d(Y, X, DY) & cut );
-            db.Add( d(cos(Y), X, -sin(Y)*DY) <<= d(Y, X, DY) & cut );
-            db.Add( d(Y, X, 0) );
+            d(X, X, 1) <<= cut;
+            d(A + B, X, DA + DB) <<= d(A, X, DA) & d(B, X, DB) & cut;
+            d(A - B, X, DA - DB) <<= d(A, X, DA) & d(B, X, DB) & cut;
+            d(A * B, X, DA*B+DB*A) <<= d(A, X, DA) & d(B, X, DB) & cut;
+            d(A / B, X, (DA*B-DB*A)/pow(B,2)) <<= d(A, X, DA) & d(B, X, DB) & cut;
+            d(-A, X, -DA) <<= d(A, X, DA) & cut;
+            d(pow(X,E), X, E*pow(X,E1)) <<= (E1 ^= E - SReference(1)) & cut;
+            d(sin(Y), X, cos(Y)*DY) <<= d(Y, X, DY) & cut;
+            d(cos(Y), X, -sin(Y)*DY) <<= d(Y, X, DY) & cut;
+            d(Y, X, 0) <<= truth;
 
             SReference one(1), zero(0);
-            Ok(db, d(x, x, D), D, (S|one));
-            Ok(db, d(1, x, D), D, (S|zero));
-            Ok(db, d(x*x, x, D), D, (S|one * x + one * x));
-            Ok(db, d(sin(x), x, D), D, (S|cos(x) * one));
-            Ok(db, d(sin(x) * cos(x), x, D), D, (S| cos(x) * one * cos(x) + (-sin(x) * one *sin(x))));
-            Ok(db, d(one / sin(X), x, D), D, (S|zero * sin(x) - cos(x) * one * one / pow(sin(x), 2)));
+            Ok(d(x, x, D), D, (S|one));
+            Ok(d(1, x, D), D, (S|zero));
+            Ok(d(x*x, x, D), D, (S|one * x + one * x));
+            Ok(d(sin(x), x, D), D, (S|cos(x) * one));
+            Ok(d(sin(x) * cos(x), x, D), D, (S| cos(x) * one * cos(x) + (-sin(x) * one *sin(x))));
+            Ok(d(one / sin(X), x, D), D, (S|zero * sin(x) - cos(x) * one * one / pow(sin(x), 2)));
 
             TestScore();
         }
