@@ -11,13 +11,13 @@ int main() {
     using namespace PlgStdLib;
 
     son(X, Y) <<= parent(Y, X) & man(X);
-    woman(mary) <<= truth;
-    man(bob) <<= truth;
-    man(john) <<= truth;
-    man(jack) <<= truth;
-    parent(bob, mary) <<= truth;
-    parent(bob, john) <<= truth;
-    parent(bob, jack) <<= truth;
+    woman(mary) <<= true;
+    man(bob) <<= true;
+    man(john) <<= true;
+    man(jack) <<= true;
+    parent(bob, mary) <<= true;
+    parent(bob, john) <<= true;
+    parent(bob, jack) <<= true;
 
     PlgContinuation cont = son(X, bob).Query();
     while (cont->Next()) {

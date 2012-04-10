@@ -86,6 +86,14 @@ inline void operator <<=(const PlgReference &left, const PlgReference &right)
     left.Functor()->Add(left << right);
 }
 
+inline void operator <<=(const PlgReference &left, bool value)
+{
+    if (value)
+        return left <<= PlgStdLib::truth;
+    else
+        throw IntelibX_not_implemented();
+}
+
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right)
 {
     return PlgStdLib::disjunction(left, right);
