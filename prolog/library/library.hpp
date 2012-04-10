@@ -94,6 +94,11 @@ inline void operator <<=(const PlgReference &left, bool value)
         throw IntelibX_not_implemented();
 }
 
+inline void operator *(const PlgReference &fact)
+{
+    fact <<= PlgStdLib::truth;
+}
+
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right)
 {
     return PlgStdLib::disjunction(left, right);
