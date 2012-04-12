@@ -34,10 +34,10 @@ int main()
 
         TestSection("term_expansion");
 
-        term_expansion(i_say(Head, Body), (Head << Body)) <<= truth ;
-        term_expansion(i_say(Head), (Head << truth)) <<= truth;
-        i_say(mortal(X), human(X)) <<= truth;
-        i_say(human(socrates)) <<= truth;
+        *term_expansion(i_say(Head, Body), (Head << Body));
+        *term_expansion(i_say(Head), (Head << truth));
+        *i_say(mortal(X), human(X));
+        *i_say(human(socrates));
 
         Ok(mortal(X), X, (S|socrates));
 
