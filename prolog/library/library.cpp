@@ -332,8 +332,8 @@ namespace PlgStdLib
         PlgVariable Term("Term"), Result("Result");
 
         //TODO: move to prolog module
-        AssertWithoutExpansion( expand_term(Term, Result) << dcg_translate_rule(Term, Result) & cut );
-        AssertWithoutExpansion( expand_term(Term, Result) << term_expansion(Term, Result) & cut );
+        AssertWithoutExpansion( expand_term(Term, Result) << (dcg_translate_rule(Term, Result) & cut) );
+        AssertWithoutExpansion( expand_term(Term, Result) << (term_expansion(Term, Result) & cut) );
         AssertWithoutExpansion( expand_term(Term, Term) );
 
         grammar::Init();
@@ -341,7 +341,7 @@ namespace PlgStdLib
 
         nope(X) <<= (X & cut & fail) | truth; // not(X) :- X, !, fail; true
 
-        append(Nil, X, X) <<= truth;
+        *append(Nil, X, X);
         append(H^T, L, H^R) <<= append(T, L, R);
 
         member(X, H^T) <<= (X ^= H) | member(X, T);
@@ -360,13 +360,13 @@ namespace PlgStdLib
         nth(N, L, X) <<= index(1, N, L, X);
         nth0(N, L, X) <<= index(0, N, L, X);
 
-        permutation(Nil, Nil) <<= truth;
+        *permutation(Nil, Nil);
         permutation(H^T, R) <<= permutation(T,L) & select(H,R,L);
 
-        select(X, X^T, T) <<= truth;
+        *select(X, X^T, T);
         select(X, H^T, H^R) <<= select(X, T, R);
 
-        repeat <<= truth;
+        *repeat;
         repeat <<= repeat;
 
         // rev/3 is an auxilary function for reverse/2
