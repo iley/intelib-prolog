@@ -96,7 +96,7 @@ inline void operator <<=(const PlgReference &left, bool value)
 
 inline void operator *(const PlgReference &fact)
 {
-    fact <<= PlgStdLib::truth;
+    Assert(fact);
 }
 
 inline PlgReference operator | (const PlgReference &left, const PlgReference &right)
