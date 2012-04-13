@@ -1,4 +1,4 @@
-#include "exceptions.hpp"
+#include "plexceptions.hpp"
 
 IntelibX_not_a_prolog_object::IntelibX_not_a_prolog_object(SReference a_param)
     : IntelibX("Not a prolog object", a_param) {}

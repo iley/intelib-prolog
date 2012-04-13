@@ -7,7 +7,7 @@
 #include "../sexpress/shashtbl.hpp"
 #include "../sexpress/gensref.hpp"
 
-#include "exceptions.hpp"
+#include "plexceptions.hpp"
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1
 #include "../sexpress/sstring.hpp"

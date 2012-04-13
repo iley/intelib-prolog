@@ -15,7 +15,7 @@
 #include "../../sexpress/sexpress.hpp"
 #include "../../sexpress/sstring.hpp"
 #include "../../prolog/prolog.hpp"
-#include "../../prolog/utils.hpp"
+#include "../../prolog/plutils.hpp"
 #include "../tests.hpp"
 #include "plgtest.hpp"
 

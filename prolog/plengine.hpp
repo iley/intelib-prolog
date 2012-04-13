@@ -1,12 +1,13 @@
 #ifndef INTELIB_PROLOG_ENGINE_HPP_SENTRY
 #define INTELIB_PROLOG_ENGINE_HPP_SENTRY
 
-#include "data.hpp"
 #include "../sexpress/sexpress.hpp"
 #include "../sexpress/squeue.hpp"
 #include "../sexpress/svector.hpp"
 #include "../sexpress/gensref.hpp"
 #include "../sexpress/shashtbl.hpp"
+
+#include "pldata.hpp"
 
 void Assert(const PlgReference &clause);
 void AssertA(const PlgReference &clause);
