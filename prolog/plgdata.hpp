@@ -148,7 +148,7 @@ class PlgExpressionAtom : public SExpressionLabel, public PlgObject
 public:
     static IntelibTypeId TypeId;
 
-    PlgExpressionAtom(const char *name, bool infix) :
+    PlgExpressionAtom(const char *name, bool infix = false) :
         SExpressionLabel(TypeId, name),
         isInfix(infix),
         procedureList(*(GetEmptyList())),

@@ -1,7 +1,7 @@
 .PHONY: library
 
 TARGETLIBNAME = libiprolog.a
-LIBSOURCES = plgutils.cpp plgexceptions.cpp plgdata.cpp plgengine.cpp
+LIBSOURCES = plgutils.cpp plgexceptions.cpp plgdata.cpp plgengine.cpp plgpackage.cpp
 
 $(TARGETDIRFP)/$(TARGETLIBNAME): library
 	cd library && $(MAKE)
