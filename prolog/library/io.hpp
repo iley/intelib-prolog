@@ -1,7 +1,7 @@
 #ifndef INTELIB_PROLOG_IO_HPP_SENTRY
 #define INTELIB_PROLOG_IO_HPP_SENTRY
 
-#include "../pldata.hpp"
+#include "../plgdata.hpp"
 
 namespace PlgStdLib
 {

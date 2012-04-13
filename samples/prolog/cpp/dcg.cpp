@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <prolog/prolog.hpp>
-#include <prolog/utils.hpp>
+#include <prolog/plgutils.hpp>
 
 int main() {
     using namespace PlgStdLib;

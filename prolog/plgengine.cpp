@@ -1,6 +1,6 @@
 #include "../sexpress/sstring.hpp"
-#include "plengine.hpp"
-#include "plutils.hpp"
+#include "plgengine.hpp"
+#include "plgutils.hpp"
 #include "library/library.hpp"
 
 void Assert(const PlgReference &clause)

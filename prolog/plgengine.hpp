@@ -7,7 +7,7 @@
 #include "../sexpress/gensref.hpp"
 #include "../sexpress/shashtbl.hpp"
 
-#include "pldata.hpp"
+#include "plgdata.hpp"
 
 void Assert(const PlgReference &clause);
 void AssertA(const PlgReference &clause);
