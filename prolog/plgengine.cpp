@@ -49,24 +49,6 @@ public:
     PlgSentenceMark(const SReference &sref) : PlgSentenceMark_Super(sref) {}
 };
 
-// Context
-
-void PlgContext::ReturnTo(int pos, bool merge)
-{
-    INTELIB_ASSERT(pos >= 0, IntelibX_bug());
-    if (!merge) {
-        // destroy bindings which will be invalid after return
-        for (int i = top; i > pos; --i) {
-            for (SReference p = frameVars[i]; !p.IsEmptyList(); p = p.Cdr()) {
-                PlgReference var = p.Car();
-                values->RemoveItem(var);
-            }
-        }
-    }
-
-    top = pos;
-}
-
 // Continuation
 
 IntelibTypeId PlgExpressionContinuation::TypeId(&SExpression::TypeId, true);

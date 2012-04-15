@@ -8,53 +8,11 @@
 #include "../sexpress/shashtbl.hpp"
 
 #include "plgdata.hpp"
+#include "plgcontext.hpp"
 
 void Assert(const PlgReference &clause);
 void AssertA(const PlgReference &clause);
 void AssertWithoutExpansion(const PlgReference &clause);
-
-class PlgContext
-{
-public:
-    PlgContext() : values(), top(0)
-    {
-        frameVars[0] = *(GetEmptyList());
-    }
-
-    void Set(const PlgReference &var, const PlgReference &value)
-    {
-        values->AddItem(var, value);
-        frameVars[top] = var ^ frameVars[top];
-    }
-
-    PlgReference Get(const PlgReference &var) const
-    {
-        return values->FindItem(var, PlgUnbound);
-    }
-
-    void ReturnTo(int pos, bool merge = false);
-
-    int Top() const { return top; }
-
-    int NextFrame()
-    {
-        top++;
-        frameVars[top] = *(GetEmptyList());
-        return top - 1;
-    }
-
-    const SHashTable &ValueTable() const
-    {
-        return values;
-    }
-
-private:
-    SHashTable values;
-    SVector frameVars;
-    int top;
-
-    PlgContext(const PlgContext&);
-};
 
 class PlgExpressionContinuation : public SExpression
 {
