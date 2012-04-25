@@ -41,19 +41,6 @@ const char *Dump(const SReference &s)
     return str.c_str();
 }
 
-// overload for debug purposes
-const char *Dmp(SReference *s)
-{
-    return Dump(*s);
-}
-
-const char *DmpCtx(PlgContext *c)
-{
-    static SString str;
-    str = DumpContext(*c);
-    return str.c_str();
-}
-
 SString DumpHashTable(const SReference &table)
 {
     SExpressionHashTable *tbl = table.DynamicCastGetPtr<SExpressionHashTable>();
