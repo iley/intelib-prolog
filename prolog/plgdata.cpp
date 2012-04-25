@@ -319,17 +319,24 @@ static PlgReference ExpandTerm(const PlgReference &ref)
 
 void PlgExpressionAtom::AddA(const PlgReference &clause)
 {
-    procedureList = ExpandTerm(clause) ^ procedureList;
+    PlgReference exp = ExpandTerm(clause);
+    exp.Head().Functor()->AddWithoutExpansionA(exp);
 }
 
 void PlgExpressionAtom::Add(const PlgReference &clause)
 {
-    AddWithoutExpansion(ExpandTerm(clause));
+    PlgReference exp = ExpandTerm(clause);
+    exp.Head().Functor()->AddWithoutExpansion(exp);
 }
 
 void PlgExpressionAtom::AddWithoutExpansion(const PlgReference &clause)
 {
     procedureList.AddAnotherItemToList(Clause(clause));
+}
+
+void PlgExpressionAtom::AddWithoutExpansionA(const PlgReference &clause)
+{
+    procedureList = Clause(clause) ^ procedureList;
 }
 
 #if INTELIB_TEXT_REPRESENTATIONS == 1

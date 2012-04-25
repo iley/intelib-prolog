@@ -161,6 +161,7 @@ public:
     void Add(const PlgReference &clause);
     void AddA(const PlgReference &clause);
     void AddWithoutExpansion(const PlgReference &clause);
+    void AddWithoutExpansionA(const PlgReference &clause);
 
     bool IsInfix() const { return isInfix; }
 
