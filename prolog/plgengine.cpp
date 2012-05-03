@@ -158,36 +158,6 @@ bool PlgExpressionContinuation::Backtrack()
     return false;
 }
 
-/*
-// this may be very slow
-bool PlgDatabase::Retract(const PlgReference &head, PlgContext &cont)
-{
-    PlgReference functor = head.Functor();
-    SReference list = table->FindItem(functor, *(GetEmptyList()));
-    int count = 0;
-
-    SReference newList = *(GetEmptyList());
-
-    for (SReference p = list; !p.IsEmptyList(); p = p.Cdr()) {
-        PlgReference clause = p.Car();
-        int frame = cont.NextFrame();
-        if (clause.Head().Unify(head, cont)) {
-            ++count;
-        } else {
-            newList.AddAnotherItemToList(clause);
-        }
-        cont.ReturnTo(frame);
-    }
-
-    if (count > 0) {
-        table->AddItem(functor, newList);
-        return true;
-    } else {
-        return false;
-    }
-}
-*/
-
 // Choice point
 IntelibTypeId PlgExpressionChoicePoint::TypeId(&SExpression::TypeId, true);
 
